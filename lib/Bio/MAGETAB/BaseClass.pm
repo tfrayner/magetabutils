@@ -12,6 +12,18 @@ use List::Util qw(first);
 # separately for each subclass.
 __PACKAGE__->meta->make_immutable();
 
+# This is an abstract class; block direct instantiation.
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    if ( blessed $self eq __PACKAGE__ ) {
+        confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
+    }
+
+    return;
+}
+
 # This method is used as a wrapper to ensure that reciprocating
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_attribute_setting {
