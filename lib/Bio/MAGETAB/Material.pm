@@ -2,9 +2,12 @@
 
 package Bio::MAGETAB::Material;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Node';
+BEGIN { extends 'Bio::MAGETAB::Node' };
+
+# FIXME this is an abstract class; block direct instantiation.
 
 has 'name'                => ( is         => 'rw',
                                isa        => 'Str',

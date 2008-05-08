@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::DataFile;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Data';
+BEGIN { extends 'Bio::MAGETAB::Data' };
 
 has 'format'              => ( is       => 'rw',
                                isa      => 'Str',

@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::DataMatrix;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Data';
+BEGIN { extends 'Bio::MAGETAB::Data' };
 
 has 'rowIdentifierType'   => ( is       => 'rw',
                                isa      => 'Str',

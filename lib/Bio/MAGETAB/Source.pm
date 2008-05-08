@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Source;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Material';
+BEGIN { extends 'Bio::MAGETAB::Material' };
 
 has 'providers'           => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Contact]',

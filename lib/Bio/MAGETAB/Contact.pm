@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Contact;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::BaseClass';
+BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'lastName'            => ( is       => 'rw',
                                isa      => 'Str',
