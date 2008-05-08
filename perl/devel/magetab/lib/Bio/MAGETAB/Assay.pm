@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Assay;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Event';
+BEGIN { extends 'Bio::MAGETAB::Event' };
 
 has 'arrayDesign'         => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ArrayDesign',

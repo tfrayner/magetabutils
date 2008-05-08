@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::ProtocolApplication;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::BaseClass';
+BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'protocol'            => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Protocol',

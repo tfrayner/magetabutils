@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Normalization;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Event';
+BEGIN { extends 'Bio::MAGETAB::Event' };
 
 no Moose;
 

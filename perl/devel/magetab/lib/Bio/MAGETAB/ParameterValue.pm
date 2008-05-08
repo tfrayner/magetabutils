@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::ParameterValue;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::BaseClass';
+BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'measurement'         => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Measurement',

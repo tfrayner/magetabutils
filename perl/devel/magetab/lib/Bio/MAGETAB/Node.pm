@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Node;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::BaseClass';
+BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'inputEdges'          => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
@@ -13,7 +14,6 @@ has 'inputEdges'          => ( is         => 'rw',
 
 has 'outputEdges'         => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
-                               weak_ref   => 1,
                                auto_deref => 1,
                                required   => 0 );
 

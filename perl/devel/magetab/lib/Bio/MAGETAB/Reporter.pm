@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Reporter;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::DesignElement';
+BEGIN { extends 'Bio::MAGETAB::DesignElement' };
 
 has 'name'                => ( is       => 'rw',
                                isa      => 'Str',

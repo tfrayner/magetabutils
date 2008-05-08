@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Data;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Node';
+BEGIN { extends 'Bio::MAGETAB::Node' };
 
 # FIXME this is an abstract class; block direct instantiation.
 

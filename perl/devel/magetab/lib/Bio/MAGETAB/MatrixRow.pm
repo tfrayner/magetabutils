@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::MatrixRow;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::BaseClass';
+BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'rowNumber'           => ( is         => 'rw',
                                isa        => 'Int',

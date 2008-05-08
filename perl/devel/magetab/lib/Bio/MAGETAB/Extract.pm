@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::Extract;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::Material';
+BEGIN { extends 'Bio::MAGETAB::Material' };
 
 no Moose;
 

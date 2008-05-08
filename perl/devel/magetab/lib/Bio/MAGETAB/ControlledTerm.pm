@@ -2,9 +2,10 @@
 
 package Bio::MAGETAB::ControlledTerm;
 
+use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-extends 'Bio::MAGETAB::DatabaseEntry';
+BEGIN { extends 'Bio::MAGETAB::DatabaseEntry' };
 
 has 'value'               => ( is         => 'rw',
                                isa        => 'Str',
