@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 #
-# $Id: 001_load.t 1978 2008-02-28 12:14:14Z tfrayner $
+# $Id$
 #
 # t/001_load.t - check module loading
 
