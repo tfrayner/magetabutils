@@ -4,17 +4,56 @@ package Bio::MAGETAB;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use Module::List qw(list_modules);
 
 use Bio::MAGETAB::BaseClass;
 
+# Convenience class for module loading and object tracking.
+
 our $VERSION = 0.1;
 
+# This cache is used to store all the Bio::MAGETAB objects registered
+# with this instance (which, by default, is all of them).
 has 'object_cache'          => ( is         => 'rw',
                                  isa        => 'HashRef',
                                  required   => 0 );
 
-# Convenience class for module loading. May want to use a Module::List
-# type approach to just load everything in the Bio::MAGETAB namespace.
+# We use a Module::List approach to load everything in the
+# Bio::MAGETAB namespace.
+
+# Non-recursive, so we can set up e.g. a Util subdirectory without
+# breaking anything.
+my $magetab_modules = list_modules( __PACKAGE__ . '::', { list_modules => 1 } );
+
+# Load each module and install an accessor to return all the objects
+# of each given class. FIXME use Lingua::EN::Inflect to get the
+# correct plurals here (e.g. get_dataMatrices). FIXME it would also be
+# good if superclasses could return their subclass instances as well
+# (e.g. get_nodes also returns Material objects).
+foreach my $module ( sort keys %{ $magetab_modules } ) {
+
+    ## no critic ProhibitStringyEval
+    eval "require $module";
+    ## use critic ProhibitStringyEval
+
+    if ( $@ ) {
+        die("Error loading module $module: $@");
+    }
+
+    my $slot = $module;
+    my $namespace = __PACKAGE__;
+    $slot =~ s/^${namespace}:://;
+    $slot = lcfirst($slot);
+
+    {
+        no strict qw(refs);
+
+        *{"get_${slot}s"} = sub {
+            my ( $self ) = @_;
+            return $self->get_objects( $module );
+	};
+    }
+}
 
 sub BUILD {
 

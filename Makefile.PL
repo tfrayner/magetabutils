@@ -16,7 +16,8 @@ WriteMakefile(
     PREREQ_PM => {
         'Moose'           => "0.43",
         'Moose::Policy'   => "0.03",
-        'Text::CSV_XS'    => "0.28",
+        'Module::List'    => "0.001",
+#        'Text::CSV_XS'    => "0.28",
     },
     EXE_FILES    => [
     ],
