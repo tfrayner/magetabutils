@@ -33,6 +33,11 @@ has 'factors'             => ( is         => 'rw',
                                auto_deref => 1,
                                required   => 0 );
 
+has 'sdrfs'               => ( is         => 'rw',
+                               isa        => 'ArrayRef[Bio::MAGETAB::SDRF]',
+                               auto_deref => 1,
+                               required   => 0 );
+
 has 'protocols'           => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Protocol]',
                                auto_deref => 1,

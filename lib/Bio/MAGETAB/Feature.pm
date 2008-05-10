@@ -25,23 +25,7 @@ has 'row'                 => ( is       => 'rw',
 
 has 'reporter'            => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Reporter',
-                               weak_ref   => 1,
                                required   => 1 );
-
-# We use an "around" method to wrap this, rather than a trigger, so
-# that we can search through the old features from the old reporter
-# and remove this feature.
-around 'set_reporter' => sub {
-
-    my ( $attr, $self, $reporter ) = @_;
-
-    $self->_reciprocate_attribute_setting(
-        $attr,
-        $reporter,
-        'reporter',
-        'features',
-    );
-};
 
 no Moose;
 

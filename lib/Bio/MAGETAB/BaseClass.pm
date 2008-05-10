@@ -6,11 +6,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use List::Util qw(first);
-
-# Make the classes immutable. In theory this speeds up object
-# instantiation, this is however untested and may even need to be done
-# separately for each subclass.
-__PACKAGE__->meta->make_immutable();
+use Bio::MAGETAB;
 
 # This is an abstract class; block direct instantiation.
 sub BUILD {
@@ -21,7 +17,31 @@ sub BUILD {
         confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
     }
 
+    my $container = __PACKAGE__->get_container();
+
+    $container->add_object( $self );
+
     return;
+}
+
+{   # This is a class variable pointing to the container object with
+    # which all instantiated BaseClass objects register.
+
+    my $container = Bio::MAGETAB->new();
+
+    sub set_container {
+
+        my ( $self, $cont ) = @_;
+        
+        $container = $cont;
+    }
+
+    sub get_container {
+
+        my ( $self ) = @_;
+
+        return $container;
+    }
 }
 
 # This method is used as a wrapper to ensure that reciprocating
@@ -76,6 +96,11 @@ sub _reciprocate_attribute_setting {
 
     return;
 }
+
+# Make the classes immutable. In theory this speeds up object
+# instantiation, this is however untested and may even need to be done
+# separately for each subclass.
+__PACKAGE__->meta->make_immutable();
 
 no Moose;
 

@@ -27,11 +27,6 @@ has 'type'                => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
                                required   => 0 );
 
-has 'parameters'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGE::ProtocolParameter]',
-                               auto_deref => 1,
-                               required   => 0 );
-
 no Moose;
 
 1;

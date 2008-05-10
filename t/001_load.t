@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 BEGIN {
     use_ok( 'Bio::MAGETAB' );
@@ -45,6 +45,7 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Publication' );
     use_ok( 'Bio::MAGETAB::Reporter' );
     use_ok( 'Bio::MAGETAB::Sample' );
+    use_ok( 'Bio::MAGETAB::SDRF' );
     use_ok( 'Bio::MAGETAB::Source' );
     use_ok( 'Bio::MAGETAB::TermSource' );
 }

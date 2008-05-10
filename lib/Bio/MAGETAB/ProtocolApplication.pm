@@ -17,7 +17,7 @@ has 'parameterValues'     => ( is         => 'rw',
                                required   => 0 );
 
 has 'performers'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGE::Contact]',
+                               isa        => 'ArrayRef[Str]',
                                auto_deref => 1,
                                required   => 0 );
 

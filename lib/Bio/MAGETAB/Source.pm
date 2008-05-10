@@ -8,7 +8,7 @@ use Moose;
 BEGIN { extends 'Bio::MAGETAB::Material' };
 
 has 'providers'           => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Contact]',
+                               isa        => 'ArrayRef[Str]',
                                auto_deref => 1,
                                required   => 0 );
 
