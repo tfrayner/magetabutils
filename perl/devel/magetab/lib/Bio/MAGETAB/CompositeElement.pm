@@ -16,11 +16,6 @@ has 'databaseEntries'     => ( is         => 'rw',
                                auto_deref => 1,
                                required   => 0 );
 
-has 'reporters'           => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Reporter]',
-                               auto_deref => 1,
-                               required   => 0 );
-
 has 'comments'            => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
                                auto_deref => 1,
