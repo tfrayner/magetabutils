@@ -19,7 +19,9 @@ has 'object_cache'          => ( is         => 'rw',
                                  required   => 0 );
 
 # We use a Module::List approach to load everything in the
-# Bio::MAGETAB namespace.
+# Bio::MAGETAB namespace. FIXME at some point we'll probably want to
+# hard-code this, both for safety in future and to remove the
+# Module::List dependency.
 
 # Non-recursive, so we can set up e.g. a Util subdirectory without
 # breaking anything.
