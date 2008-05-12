@@ -17,6 +17,7 @@ WriteMakefile(
         'Moose'           => "0.43",
         'Moose::Policy'   => "0.03",
         'Module::List'    => "0.001",
+        'Test::Exception' => "0.26",
 #        'Text::CSV_XS'    => "0.28",
     },
     EXE_FILES    => [
