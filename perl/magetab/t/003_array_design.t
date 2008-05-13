@@ -65,7 +65,7 @@ my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 2, value => 3 );
 my @co2 = Bio::MAGETAB::Comment->new( name => 2, value => 3 );
 my @de2;
 for ( 1..3 ) {
-    push @de2, Bio::MAGETAB::Reporter->new( name => "test 2 $_" );
+    push @de2, Bio::MAGETAB::CompositeElement->new( name => "test 2 $_" );
 }
 
 my %secondary_attr = (

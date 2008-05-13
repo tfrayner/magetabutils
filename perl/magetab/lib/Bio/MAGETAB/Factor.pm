@@ -13,6 +13,8 @@ has 'name'                => ( is         => 'rw',
 
 has 'type'                => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
+                               clearer    => 'clear_type',
+                               predicate  => 'has_type',
                                required   => 0 );
 
 no Moose;

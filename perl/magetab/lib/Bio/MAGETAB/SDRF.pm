@@ -12,6 +12,10 @@ has 'nodes'               => ( is         => 'rw',
                                auto_deref => 1,
                                required   => 1 );
 
+has 'uri'                 => ( is         => 'rw',
+                               isa        => 'Str',   # FIXME needs URI data type
+                               required   => 1 );
+
 no Moose;
 
 1;

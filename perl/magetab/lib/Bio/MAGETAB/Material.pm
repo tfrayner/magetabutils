@@ -25,16 +25,22 @@ has 'name'                => ( is         => 'rw',
 
 has 'type'                => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
-                               required   => 1 );
+                               clearer    => 'clear_type',
+                               predicate  => 'has_type',
+                               required   => 0 );
 
 has 'characteristics'     => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::ControlledTerm]',
                                auto_deref => 1,
+                               clearer    => 'clear_characteristics',
+                               predicate  => 'has_characteristics',
                                required   => 0 );
 
 has 'measurements'        => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Measurement]',
                                auto_deref => 1,
+                               clearer    => 'clear_measurements',
+                               predicate  => 'has_measurements',
                                required   => 0 );
 
 no Moose;

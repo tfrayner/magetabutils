@@ -15,16 +15,34 @@ INIT {
     use CommonTests qw(test_class);
 }
 
+require Bio::MAGETAB::ControlledTerm;
+require Bio::MAGETAB::ArrayDesign;
+
+my $ct = Bio::MAGETAB::ControlledTerm->new( category => 1, value => 2 );
+my $ad = Bio::MAGETAB::ArrayDesign->new( name => 1 );
+
 my %required_attr = (
+    name           => 'test',
+    technologyType => $ct,
 );
 
 my %optional_attr = (
+    arrayDesign    => $ad,
 );
 
 my %bad_attr = (
+    name           => [],
+    technologyType => 'test',
+    arrayDesign    => 'test',
 );
 
+my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 1, value => 'test' );
+my $ad2 = Bio::MAGETAB::ArrayDesign->new( name => 2 );
+
 my %secondary_attr = (
+    name           => 'test2',
+    technologyType => $ct2,
+    arrayDesign    => $ad2,
 );
 
 my $obj = test_class(
@@ -35,4 +53,4 @@ my $obj = test_class(
     \%secondary_attr,
 );
 
-ok( $obj->isa('Bio::MAGETAB::Node'), 'object has correct superclass' );
+ok( $obj->isa('Bio::MAGETAB::Event'), 'object has correct superclass' );
