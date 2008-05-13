@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: Makefile.PL 1859 2007-12-17 13:20:58Z tfrayner $
+# $Id$
 
 use strict;
 use warnings;
@@ -29,6 +29,7 @@ WriteMakefile(
     NAME         => 'Bio::MAGETAB',
     VERSION_FROM => 'lib/Bio/MAGETAB.pm', # finds \$VERSION
     AUTHOR       => 'Tim F. Rayner (tfrayner@gmail.com)',
+    LICENSE      => 'gpl',
     ABSTRACT     => 'Parser and data model for the MAGE-TAB format.',
     PREREQ_PM => {
         'Moose'           => "0.43",
