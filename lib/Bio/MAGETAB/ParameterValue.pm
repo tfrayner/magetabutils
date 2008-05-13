@@ -12,8 +12,10 @@ has 'measurement'         => ( is         => 'rw',
                                required   => 1 );
 
 has 'comments'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGE::Comment]',
+                               isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
                                auto_deref => 1,
+                               clearer    => 'clear_comments',
+                               predicate  => 'has_comments',
                                required   => 0 );
 
 has 'parameter'           => ( is         => 'rw',

@@ -20,6 +20,8 @@ has 'outputNode'           => ( is         => 'rw',
 has 'protocolApplications' => ( is         => 'rw',
                                 isa        => 'ArrayRef[Bio::MAGETAB::ProtocolApplication]',
                                 auto_deref => 1,
+                                clearer    => 'clear_protocolApplications',
+                                predicate  => 'has_protocolApplications',
                                 required   => 0 );
 
 # We use an "around" method to wrap this, rather than a trigger, so
