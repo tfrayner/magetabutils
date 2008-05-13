@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: 003_term_source.t 891 2008-05-09 23:51:17Z tfrayner $
+# $Id$
 
 use strict;
 use warnings;
