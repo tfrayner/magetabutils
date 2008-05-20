@@ -78,6 +78,13 @@ sub BUILD {
 
     my ( $self, $params ) = @_;
 
+    foreach my $param ( keys %{ $params } ) {
+        my $getter = "get_$param";
+        unless ( $self->can( $getter ) ) {
+            confess("ERROR: Unrecognised parameter: $param");
+        }
+    }
+
     # Set the BaseClass container to the latest instance of this
     # class. FIXME this may get confusing; might be better just to get
     # the user to set this themselves?
