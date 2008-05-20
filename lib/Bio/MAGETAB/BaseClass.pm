@@ -22,6 +22,7 @@ package Bio::MAGETAB::BaseClass;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Carp;
 use List::Util qw(first);
 use Bio::MAGETAB;
 
@@ -29,6 +30,13 @@ use Bio::MAGETAB;
 sub BUILD {
 
     my ( $self, $params ) = @_;
+
+    foreach my $param ( keys %{ $params } ) {
+        my $getter = "get_$param";
+        unless ( $self->can( $getter ) ) {
+            confess("ERROR: Unrecognised parameter: $param");
+        }
+    }
 
     if ( blessed $self eq __PACKAGE__ ) {
         confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
