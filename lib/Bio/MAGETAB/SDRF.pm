@@ -22,6 +22,8 @@ package Bio::MAGETAB::SDRF;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Bio::MAGETAB::Types qw(Uri);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'nodes'               => ( is         => 'rw',
@@ -30,7 +32,8 @@ has 'nodes'               => ( is         => 'rw',
                                required   => 1 );
 
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Str',   # FIXME needs URI data type
+                               isa        => 'Uri',
+                               coerce     => 1,
                                required   => 1 );
 
 no Moose;

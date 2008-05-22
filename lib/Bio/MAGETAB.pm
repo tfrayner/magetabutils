@@ -21,7 +21,6 @@ package Bio::MAGETAB;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
-use Module::List qw(list_modules);
 
 use Bio::MAGETAB::BaseClass;
 
@@ -35,21 +34,55 @@ has 'object_cache'          => ( is         => 'rw',
                                  isa        => 'HashRef',
                                  required   => 0 );
 
-# We use a Module::List approach to load everything in the
-# Bio::MAGETAB namespace. FIXME at some point we'll probably want to
-# hard-code this, both for safety in future and to remove the
-# Module::List dependency.
-
 # Non-recursive, so we can set up e.g. a Util subdirectory without
 # breaking anything.
-my $magetab_modules = list_modules( __PACKAGE__ . '::', { list_modules => 1 } );
+my $magetab_modules = [
+    qw(
+       Bio::MAGETAB::ArrayDesign
+       Bio::MAGETAB::Assay
+       Bio::MAGETAB::BaseClass
+       Bio::MAGETAB::Comment
+       Bio::MAGETAB::CompositeElement
+       Bio::MAGETAB::Contact
+       Bio::MAGETAB::ControlledTerm
+       Bio::MAGETAB::Data
+       Bio::MAGETAB::DataAcquisition
+       Bio::MAGETAB::DataFile
+       Bio::MAGETAB::DataMatrix
+       Bio::MAGETAB::DatabaseEntry
+       Bio::MAGETAB::DesignElement
+       Bio::MAGETAB::Edge
+       Bio::MAGETAB::Event
+       Bio::MAGETAB::Extract
+       Bio::MAGETAB::Factor
+       Bio::MAGETAB::FactorValue
+       Bio::MAGETAB::Feature
+       Bio::MAGETAB::Investigation
+       Bio::MAGETAB::LabeledExtract
+       Bio::MAGETAB::Material
+       Bio::MAGETAB::MatrixColumn
+       Bio::MAGETAB::MatrixRow
+       Bio::MAGETAB::Measurement
+       Bio::MAGETAB::Node
+       Bio::MAGETAB::Normalization
+       Bio::MAGETAB::ParameterValue
+       Bio::MAGETAB::Protocol
+       Bio::MAGETAB::ProtocolApplication
+       Bio::MAGETAB::ProtocolParameter
+       Bio::MAGETAB::Publication
+       Bio::MAGETAB::Reporter
+       Bio::MAGETAB::SDRF
+       Bio::MAGETAB::Sample
+       Bio::MAGETAB::Source
+       Bio::MAGETAB::TermSource
+   ) ];
 
 # Load each module and install an accessor to return all the objects
 # of each given class. FIXME use Lingua::EN::Inflect to get the
 # correct plurals here (e.g. get_dataMatrices). FIXME it would also be
 # good if superclasses could return their subclass instances as well
 # (e.g. get_nodes also returns Material objects).
-foreach my $module ( sort keys %{ $magetab_modules } ) {
+foreach my $module ( @{ $magetab_modules } ) {
 
     ## no critic ProhibitStringyEval
     eval "require $module";
