@@ -22,6 +22,8 @@ package Bio::MAGETAB::ArrayDesign;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Bio::MAGETAB::Types qw(Uri);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'name'                => ( is         => 'rw',
@@ -41,9 +43,10 @@ has 'version'             => ( is         => 'rw',
                                required   => 0 );
 
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Str',   # FIXME needs URI type
+                               isa        => 'Uri',
                                clearer    => 'clear_uri',
                                predicate  => 'has_uri',
+                               coerce     => 1,
                                required   => 0 );
 
 has 'provider'            => ( is         => 'rw',

@@ -48,7 +48,7 @@ around 'set_inputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
-    $self->_reciprocate_attribute_setting(
+    $self->_reciprocate_1toN_attribute_setting(
         $attr,
         $node,
         'inputNode',
@@ -63,7 +63,7 @@ around 'set_outputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
-    $self->_reciprocate_attribute_setting(
+    $self->_reciprocate_1toN_attribute_setting(
         $attr,
         $node,
         'outputNode',

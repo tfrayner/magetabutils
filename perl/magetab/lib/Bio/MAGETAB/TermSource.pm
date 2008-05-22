@@ -22,6 +22,8 @@ package Bio::MAGETAB::TermSource;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Bio::MAGETAB::Types qw(Uri);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'name'                => ( is         => 'rw',
@@ -29,9 +31,10 @@ has 'name'                => ( is         => 'rw',
                                required   => 1 );
 
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Str',    # FIXME needs URI data type.
+                               isa        => 'Uri',
                                clearer    => 'clear_uri',
                                predicate  => 'has_uri',
+                               coerce     => 1,
                                required   => 0 );
 
 has 'version'             => ( is         => 'rw',

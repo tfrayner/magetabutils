@@ -24,7 +24,6 @@ use Moose;
 
 use Carp;
 use List::Util qw(first);
-use Bio::MAGETAB;
 
 # This is an abstract class; block direct instantiation.
 sub BUILD {
@@ -42,17 +41,17 @@ sub BUILD {
         confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
     }
 
-    my $container = __PACKAGE__->get_container();
-
-    $container->add_object( $self );
+    if ( my $container = __PACKAGE__->get_container() ) {
+        $container->add_object( $self );
+    }
 
     return;
 }
 
 {   # This is a class variable pointing to the container object with
-    # which all instantiated BaseClass objects register.
+    # which, when set, instantiated BaseClass objects will register.
 
-    my $container = Bio::MAGETAB->new();
+    my $container;
 
     sub set_container {
 
@@ -71,7 +70,7 @@ sub BUILD {
 
 # This method is used as a wrapper to ensure that reciprocating
 # relationships are maintained, even when updating object attributes.
-sub _reciprocate_attribute_setting {
+sub _reciprocate_1toN_attribute_setting {
 
     # $attr :       CODEREF for setting attribute
     #                 (see Moose docs, particularly with regard to "around").
@@ -100,7 +99,7 @@ sub _reciprocate_attribute_setting {
             foreach my $item ( $t->$target_getter() ) {
                 push @cleaned, $item unless ( $item eq $self );
             }
-            $t->$target_setter( \@cleaned );
+            $t->{ $target_slot } = \@cleaned;
         }
     }
 
@@ -115,7 +114,7 @@ sub _reciprocate_attribute_setting {
         my @current = $t->$target_getter();
         unless ( first { $_ eq $self } @current ) {
             push @current, $self;
-            $t->$target_setter( \@current );
+            $t->{ $target_slot } = \@current;
         }
     }
 

@@ -34,9 +34,10 @@ WriteMakefile(
     PREREQ_PM => {
         'Moose'           => "0.43",
         'Moose::Policy'   => "0.03",
-        'Module::List'    => "0.001",
         'Test::Exception' => "0.26",
-#        'Text::CSV_XS'    => "0.28",
+        'MooseX::Types'   => "0.04",
+        'Params::Coerce'  => "0.14",
+        'URI'             => "1.35",
     },
     EXE_FILES    => [
     ],

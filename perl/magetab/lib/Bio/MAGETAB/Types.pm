@@ -17,32 +17,26 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Data;
+use strict;
+use warnings;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
-use Moose;
+package Bio::MAGETAB::Types;
 
-use Bio::MAGETAB::Types qw(Uri);
+use MooseX::Types
+    -declare => [ qw( Uri ) ];
 
-BEGIN { extends 'Bio::MAGETAB::Node' };
+use URI;
+use Params::Coerce;
 
-# This is an abstract class; block direct instantiation.
-sub BUILD {
+subtype 'Uri'
+    => as 'Object'
+    => where { $_->isa('URI') };
 
-    my ( $self, $params ) = @_;
+coerce 'Uri'
+    => from 'Object'
+    => via { $_->isa('URI')
+                 ? $_
+                 : Params::Coerce::coerce( 'URI', $_ ) }
+    => from 'Str'
+    => via { URI->new( $_ ) };
 
-    if ( blessed $self eq __PACKAGE__ ) {
-        confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
-    }
-
-    return;
-}
-
-has 'uri'                 => ( is       => 'rw',
-                               isa      => 'Uri',
-                               coerce   => 1,
-                               required => 1 );
-
-no Moose;
-
-1;
