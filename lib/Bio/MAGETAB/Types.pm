@@ -38,5 +38,13 @@ coerce 'Uri'
                  ? $_
                  : Params::Coerce::coerce( 'URI', $_ ) }
     => from 'Str'
-    => via { URI->new( $_ ) };
+    => via {
+        my $uri = URI->new( $_ );
+
+        # We assume here that thet default URI scheme is "file".
+        unless ( $uri->scheme() ) {
+            $uri->scheme('file');
+        }
+        return $uri;
+    };
 
