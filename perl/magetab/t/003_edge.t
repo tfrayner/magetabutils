@@ -89,13 +89,9 @@ ok( $obj->isa('Bio::MAGETAB::BaseClass'), 'object has correct superclass' );
 my $ex2 = Bio::MAGETAB::Extract->new( name => 'test extract 2' );
 my $ex3 = Bio::MAGETAB::Extract->new( name => 'test extract 3' );
 
-# FIXME needs to test reciprocal relationship
+# Test reciprocal relationship between nodes and edges.
 is( $obj->get_outputNode(), $ex, 'initial state prior to reciprocity test' );
 lives_ok( sub{ $obj->set_outputNode($ex2) }, 'setting outputNode via self' );
 is_deeply( $ex2->get_inputEdges(), $obj, 'sets inputEdges in target node' );
 lives_ok( sub{ $ex3->set_inputEdges( [ $obj ] ) }, 'setting inputEdges via target node' );
-
-TODO : {
-    local $TODO = 'Reciprocal associations only set via Edge for now; needs to be implemented for Node also.';
-    is( $obj->get_outputNode(), $ex3, 'sets outputNode in self' );
-}
+is( $obj->get_outputNode(), $ex3, 'sets outputNode in self' );
