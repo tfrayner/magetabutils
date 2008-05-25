@@ -22,6 +22,8 @@ package Bio::MAGETAB::Edge;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use List::Util qw(first);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'inputNode'            => ( is         => 'rw',
@@ -48,7 +50,7 @@ around 'set_inputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
-    $self->_reciprocate_1toN_attribute_setting(
+    $self->_reciprocate_nodes_to_edges(
         $attr,
         $node,
         'inputNode',
@@ -63,13 +65,52 @@ around 'set_outputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
-    $self->_reciprocate_1toN_attribute_setting(
+    $self->_reciprocate_nodes_to_edges(
         $attr,
         $node,
         'outputNode',
         'inputEdges',
     );
 };
+
+# This method is used as a wrapper to ensure that reciprocating
+# relationships are maintained, even when updating object attributes.
+sub _reciprocate_nodes_to_edges {
+
+    # $attr :       CODEREF for setting attribute
+    #                 (see Moose docs, particularly with regard to "around").
+    # $node:        The node with which $self has a reciprocal relationship.
+    #                 This can be either a scalar or an arrayref.
+    # $self_slot:   The name of the slot pointing from $self to $node.
+    # $node_slot:   The name of the slot pointing from $node to $self.
+    my ( $self, $attr, $node, $self_slot, $node_slot ) = @_;
+
+    my $self_getter = "get_$self_slot";
+    my $node_getter = "get_$node_slot";
+
+    # Remove $self from the list held by the old $node.
+    my $old_node = $self->$self_getter();
+    if ( $old_node ) {
+
+        my @cleaned;
+        foreach my $item ( $old_node->$node_getter() ) {
+            push @cleaned, $item unless ( $item eq $self );
+        }
+        $old_node->{ $node_slot } = \@cleaned;
+    }
+
+    # Set the appropriate $self attribute to point to $node.
+    $attr->( $self, $node );
+
+    # Make sure $node points to us.
+    my @current = $node->$node_getter();
+    unless ( first { $_ eq $self } @current ) {
+        push @current, $self;
+        $node->{ $node_slot } = \@current;
+    }
+
+    return;
+}
 
 no Moose;
 
