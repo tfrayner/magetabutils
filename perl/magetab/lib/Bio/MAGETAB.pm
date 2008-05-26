@@ -32,6 +32,7 @@ our $VERSION = 0.1;
 # with this instance (which, by default, is all of them).
 has 'object_cache'          => ( is         => 'rw',
                                  isa        => 'HashRef',
+                                 default    => sub{ {} },
                                  required   => 0 );
 
 # Non-recursive, so we can set up e.g. a Util subdirectory without
@@ -78,10 +79,16 @@ my $magetab_modules = [
    ) ];
 
 # Load each module and install an accessor to return all the objects
-# of each given class. FIXME use Lingua::EN::Inflect to get the
-# correct plurals here (e.g. get_dataMatrices). FIXME it would also be
-# good if superclasses could return their subclass instances as well
-# (e.g. get_nodes also returns Material objects).
+# of each given class. FIXME it would also be good if superclasses
+# could return their subclass instances as well (e.g. get_nodes also
+# returns Material objects).
+my %irregular_plural = (
+    'BaseClass'     => 'BaseClasses',
+    'Data'          => 'Data',
+    'DataMatrix'    => 'DataMatrices',
+    'DatabaseEntry' => 'DatabaseEntries',
+);
+
 foreach my $module ( @{ $magetab_modules } ) {
 
     ## no critic ProhibitStringyEval
@@ -95,14 +102,20 @@ foreach my $module ( @{ $magetab_modules } ) {
     my $slot = $module;
     my $namespace = __PACKAGE__;
     $slot =~ s/^${namespace}:://;
+    $slot = $irregular_plural{$slot} || "${slot}s";
     $slot = lcfirst($slot);
 
     {
         no strict qw(refs);
 
-        *{"get_${slot}s"} = sub {
+        *{"get_${slot}"} = sub {
             my ( $self ) = @_;
             return $self->get_objects( $module );
+	};
+
+        *{"has_${slot}"} = sub {
+            my ( $self ) = @_;
+            return scalar $self->get_objects( $module ) ? 1 : q{};
 	};
     }
 }
@@ -121,7 +134,7 @@ sub BUILD {
     # Set the BaseClass container to the latest instance of this
     # class. FIXME this may get confusing; might be better just to get
     # the user to set this themselves?
-    Bio::MAGETAB::BaseClass->set_container( $self );
+    Bio::MAGETAB::BaseClass->set_ClassContainer( $self );
 
     return;
 }
@@ -145,10 +158,10 @@ sub get_objects {
 
         # FIXME consider better validation of $class here.
         if ( my $objhash = $self->get_object_cache()->{ $class } ) {
-            return [ values %{ $objhash } ];
+            return values %{ $objhash };
         }
         else {
-            return [];
+            return;
         }
     }
 
@@ -159,7 +172,7 @@ sub get_objects {
             push @objects, values %{ $objhash };
         }
 
-        return \@objects;
+        return @objects;
     }
 }
 
