@@ -49,8 +49,10 @@ my %required_attr = (
     protocol        => $prot,
 );
 
+# Dates can be flexibly expressed as anything Date::Manip will
+# understand.
 my %optional_attr = (
-    date            => '2008-01-01',
+    date            => '2008-01-01T00:00:00',
     parameterValues => [ $pval ],
     performers      => [ 'test performer' ],
     comments        => [ $comm ],
@@ -70,13 +72,19 @@ my $meas2 = Bio::MAGETAB::Measurement->new( type => 'test measurement', value =>
 my $pval2 = Bio::MAGETAB::ParameterValue->new( parameter => $parm2, measurement => $meas2 );
 my $comm2 = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest 2' );
 
+# N.B. dates may also be expressed as a hashref to be passed to
+# DateTime->new(), but we don't test that here.
 my %secondary_attr = (
     protocol        => $prot2,
-    date            => '2008-01-01',
+    date            => DateTime->new( year => 2008, month=> 01, day=> 01 ),
     parameterValues => [ $pval2 ],
     performers      => [ 'test performer2', 'test performer3' ],
     comments        => [ $comm2 ],
 );
+
+# We need to specify UTC as the time zone, since Date::Manip returns
+# UTC times by default.
+$ENV{'TZ'} = 'UTC';
 
 my $obj = test_class(
     'Bio::MAGETAB::ProtocolApplication',

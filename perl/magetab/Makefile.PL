@@ -23,8 +23,7 @@ use strict;
 use warnings;
 
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
 WriteMakefile(
     NAME         => 'Bio::MAGETAB',
     VERSION_FROM => 'lib/Bio/MAGETAB.pm', # finds \$VERSION
@@ -32,12 +31,15 @@ WriteMakefile(
     LICENSE      => 'gpl',
     ABSTRACT     => 'Parser and data model for the MAGE-TAB format.',
     PREREQ_PM => {
-        'Moose'           => "0.43",
-        'Moose::Policy'   => "0.03",
-        'Test::Exception' => "0.26",
-        'MooseX::Types'   => "0.04",
-        'Params::Coerce'  => "0.14",
-        'URI'             => "1.35",
+        'Moose'                       => "0.43",
+        'Moose::Policy'               => "0.03",
+        'Test::Exception'             => "0.26",
+        'MooseX::Types'               => "0.04",
+        'Params::Coerce'              => "0.14",
+        'URI'                         => "1.35",
+        'Date::Manip'                 => "5.44",
+        'DateTime'                    => "0.4302",
+        'DateTime::Format::DateManip' => "0.04",
     },
     EXE_FILES    => [
     ],
