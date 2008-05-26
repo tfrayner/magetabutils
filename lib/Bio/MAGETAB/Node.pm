@@ -39,21 +39,29 @@ sub BUILD {
 has 'inputEdges'          => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
                                auto_deref => 1,
+                               clearer    => 'clear_inputEdges',
+                               predicate  => 'has_inputEdges',
                                required   => 0 );
 
 has 'outputEdges'         => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
                                auto_deref => 1,
+                               clearer    => 'clear_outputEdges',
+                               predicate  => 'has_outputEdges',
                                required   => 0 );
 
 has 'factorValues'        => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::FactorValue]',
                                auto_deref => 1,
+                               clearer    => 'clear_factorValues',
+                               predicate  => 'has_factorValues',
                                required   => 0 );
 
-has 'comment'             => ( is         => 'rw',
+has 'comments'            => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
                                auto_deref => 1,
+                               clearer    => 'clear_comments',
+                               predicate  => 'has_comments',
                                required   => 0 );
 
 # We use an "around" method to wrap this, rather than a trigger, so

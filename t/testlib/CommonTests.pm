@@ -95,6 +95,11 @@ sub test_instantiation {
         ok( ! $obj->$predicate, qq{and optional "$key" attribute predicate method agrees} );
     }
 
+    # Required attributes with an unrecognised impostor; should fail.
+    my %with_unrecognised = ( 'this_is_not_a_recognised_attribute' => 1, %{ $required } );
+    dies_ok( sub { $obj = instantiate( $class, \%with_unrecognised ) },
+              "instantiation with an unrecognised arg fails" );
+
     # Construct a full instance as our return value.
     my $all = { %{ $optional }, %{ $required } };
     lives_ok( sub { $obj = instantiate( $class, $all      ) },
@@ -107,6 +112,7 @@ sub test_instantiation {
         my $getter = "get_$key";
         is( $obj->$getter, $value, qq{with the correct "$key" attribute} );
     }
+    ok( ! defined $obj->get_ClassContainer(), 'and no container object set' );
 
     # Check predicate method behaviour - after opt attr setting.
     while ( my ( $key, $value ) = each %{ $optional } ) {

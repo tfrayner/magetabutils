@@ -40,7 +40,7 @@ sub BUILD {
         confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
     }
 
-    if ( my $container = __PACKAGE__->get_container() ) {
+    if ( my $container = __PACKAGE__->get_ClassContainer() ) {
         $container->add_object( $self );
     }
 
@@ -52,14 +52,14 @@ sub BUILD {
 
     my $container;
 
-    sub set_container {
+    sub set_ClassContainer {
 
         my ( $self, $cont ) = @_;
         
         $container = $cont;
     }
 
-    sub get_container {
+    sub get_ClassContainer {
 
         my ( $self ) = @_;
 

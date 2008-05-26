@@ -30,3 +30,5 @@ BEGIN {
 }
 
 dies_ok( sub { Bio::MAGETAB::Material->new() }, 'abstract class cannot be instantiated' );
+
+# FIXME more tests needed here.
