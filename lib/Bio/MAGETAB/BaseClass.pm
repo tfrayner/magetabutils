@@ -68,8 +68,7 @@ sub BUILD {
 }
 
 # Make the classes immutable. In theory this speeds up object
-# instantiation, this is however untested and may even need to be done
-# separately for each subclass.
+# instantiation for a small compilation time cost.
 __PACKAGE__->meta->make_immutable();
 
 no Moose;

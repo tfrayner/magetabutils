@@ -58,6 +58,8 @@ has 'date'                => ( is         => 'rw',
                                coerce     => 1,
                                required   => 0 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

@@ -46,6 +46,8 @@ has 'factor'              => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Factor',
                                required   => 1 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

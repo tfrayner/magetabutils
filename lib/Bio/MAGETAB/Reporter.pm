@@ -61,6 +61,8 @@ has 'groups'              => ( is         => 'rw',
                                predicate  => 'has_groups',
                                required   => 0 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

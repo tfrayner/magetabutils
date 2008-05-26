@@ -38,6 +38,8 @@ has 'matrixRows'          => ( is         => 'rw',
                                auto_deref => 1,
                                required   => 1 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;
