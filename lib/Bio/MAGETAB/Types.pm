@@ -23,20 +23,24 @@ use warnings;
 package Bio::MAGETAB::Types;
 
 use MooseX::Types
-    -declare => [ qw( Uri ) ];
+    -declare => [ qw( Uri Date ) ];
 
 use URI;
+use DateTime;
 use Params::Coerce;
 
 subtype 'Uri'
+
     => as 'Object'
     => where { $_->isa('URI') };
 
 coerce 'Uri'
+
     => from 'Object'
     => via { $_->isa('URI')
                  ? $_
                  : Params::Coerce::coerce( 'URI', $_ ) }
+
     => from 'Str'
     => via {
         my $uri = URI->new( $_ );
@@ -48,3 +52,25 @@ coerce 'Uri'
         return $uri;
     };
 
+subtype 'Date'
+
+    => as 'Object'
+    => where { $_->isa('DateTime') };
+
+coerce 'Date'
+
+    => from 'Object'
+    => via { $_->isa('DateTime')
+                 ? $_
+                 : Params::Coerce::coerce( 'DateTime', $_ ) }
+
+    => from 'HashRef'
+    => via {
+        DateTime->new(%$_);
+    }
+
+    => from 'Str'
+    => via {
+        require DateTime::Format::DateManip;
+        DateTime::Format::DateManip->parse_datetime($_);
+    };

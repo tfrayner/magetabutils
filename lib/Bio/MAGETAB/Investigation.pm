@@ -22,6 +22,8 @@ package Bio::MAGETAB::Investigation;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Bio::MAGETAB::Types qw(Date);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'title'               => ( is         => 'rw',
@@ -35,15 +37,17 @@ has 'description'         => ( is         => 'rw',
                                required   => 0 );
 
 has 'date'                => ( is         => 'rw',
-                               isa        => 'Str',   # FIXME needs Date type
+                               isa        => 'Date',
                                clearer    => 'clear_date',
                                predicate  => 'has_date',
+                               coerce     => 1,
                                required   => 0 );
 
 has 'publicReleaseDate'   => ( is         => 'rw',
-                               isa        => 'Str',   # FIXME needs Date type
+                               isa        => 'Date',
                                clearer    => 'clear_publicReleaseDate',
                                predicate  => 'has_publicReleaseDate',
+                               coerce     => 1,
                                required   => 0 );
 
 has 'contacts'            => ( is         => 'rw',

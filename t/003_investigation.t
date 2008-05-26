@@ -24,6 +24,8 @@ use warnings;
 
 use Test::More qw(no_plan);
 
+use DateTime;
+
 BEGIN {
     use_ok( 'Bio::MAGETAB::Investigation' );
 }
@@ -57,12 +59,14 @@ my $comm = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'value' 
 my $norm = Bio::MAGETAB::Normalization->new( name => 'test norm' );
 my $sdrf = Bio::MAGETAB::SDRF->new( nodes => [ $norm ], uri => 'http://test.com' );
 
+# Dates can be flexibly expressed as anything Date::Manip will
+# understand.
 my %optional_attr = (
     publications        => [ $publ ],
     protocols           => [ $prot ],
     contacts            => [ $cont ],
-    date                => '2008-01-01',
-    publicReleaseDate   => '2009-01-01',
+    date                => '2008-01-01T00:00:00',
+    publicReleaseDate   => '2009-01-01T00:00:00',
     description         => 'test description',
     designTypes         => [ $cote ],
     replicateTypes      => [ $cote ],
@@ -102,13 +106,15 @@ my $comm2 = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'value 
 my $norm2 = Bio::MAGETAB::Normalization->new( name => 'test norm 2' );
 my $sdrf2 = Bio::MAGETAB::SDRF->new( nodes => [ $norm2 ], uri => 'file:///~/test.txt' );
 
+# N.B. dates may also be expressed as a hashref to be passed to
+# DateTime->new(), but we don't test that here.
 my %secondary_attr = (
     title               => 'test2',
     publications        => [ $publ2 ],
     protocols           => [ $prot2 ],
     contacts            => [ $cont2 ],
-    date                => '2008-01-02',
-    publicReleaseDate   => '2009-01-02',
+    date                => DateTime->new( year => 2008, month=> 01, day=> 02 ),
+    publicReleaseDate   => DateTime->new( year => 2009, month=> 01, day=> 02 ),
     description         => 'test description 2',
     designTypes         => [ $cote2 ],
     replicateTypes      => [ $cote2 ],
@@ -119,6 +125,10 @@ my %secondary_attr = (
     comments            => [ $comm2 ],
     sdrfs               => [ $sdrf2 ],
 );
+
+# We need to specify UTC as the time zone, since Date::Manip returns
+# UTC times by default.
+$ENV{'TZ'} = 'UTC';
 
 my $obj = test_class(
     'Bio::MAGETAB::Investigation',
