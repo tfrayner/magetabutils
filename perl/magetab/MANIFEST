@@ -41,6 +41,7 @@ lib/Bio/MAGETAB/Sample.pm
 lib/Bio/MAGETAB/SDRF.pm
 lib/Bio/MAGETAB/Source.pm
 lib/Bio/MAGETAB/TermSource.pm
+lib/Bio/MAGETAB/Types.pm
 t/001_load.t
 t/002_base_class.t
 t/002_data.t

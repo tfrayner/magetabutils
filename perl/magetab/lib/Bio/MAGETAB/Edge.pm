@@ -112,6 +112,8 @@ sub _reciprocate_nodes_to_edges {
     return;
 }
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

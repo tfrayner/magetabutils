@@ -52,6 +52,8 @@ has 'unit'                => ( is         => 'rw',
                                predicate  => 'has_unit',
                                required   => 0 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

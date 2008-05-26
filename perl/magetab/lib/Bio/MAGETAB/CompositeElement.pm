@@ -42,6 +42,8 @@ has 'comments'            => ( is         => 'rw',
                                predicate  => 'has_comments',
                                required   => 0 );
 
+__PACKAGE__->meta->make_immutable();
+
 no Moose;
 
 1;

@@ -74,3 +74,7 @@ coerce 'Date'
         require DateTime::Format::DateManip;
         DateTime::Format::DateManip->parse_datetime($_);
     };
+
+no Moose;
+
+1;
