@@ -24,6 +24,8 @@ use Moose;
 
 use Bio::MAGETAB::BaseClass;
 
+use List::Util qw(first);
+
 # Convenience class for module loading and object tracking.
 
 our $VERSION = 0.1;
@@ -78,10 +80,6 @@ my $magetab_modules = [
        Bio::MAGETAB::TermSource
    ) ];
 
-# Load each module and install an accessor to return all the objects
-# of each given class. FIXME it would also be good if superclasses
-# could return their subclass instances as well (e.g. get_nodes also
-# returns Material objects).
 my %irregular_plural = (
     'BaseClass'     => 'BaseClasses',
     'Data'          => 'Data',
@@ -89,6 +87,8 @@ my %irregular_plural = (
     'DatabaseEntry' => 'DatabaseEntries',
 );
 
+# Load each module and install an accessor to return all the objects
+# of each given class (and their subclasses).
 foreach my $module ( @{ $magetab_modules } ) {
 
     ## no critic ProhibitStringyEval
@@ -139,13 +139,37 @@ sub BUILD {
     return;
 }
 
-sub add_object {
+sub add_objects {
 
-    my ( $self, $object ) = @_;
+    my ( $self, @objects ) = @_;
 
     my $obj_hash = $self->get_object_cache();
-    $obj_hash->{ blessed $object }{ $object } = $object;
+
+    foreach my $object ( @objects ) {
+
+        my $class = blessed $object;
+        unless ( first { $_ eq $class } @{ $magetab_modules } ) {
+            confess( qq{Error: Not a Bio::MAGETAB class: "$class"} );
+        }
+
+        $obj_hash->{ $class }{ $object } = $object;
+    }
+
     $self->set_object_cache( $obj_hash );
+
+    return;
+}
+
+sub _check_superclass {
+
+    # Return true if $target is a superclass of $class, undef otherwise.
+    my ( $self, $class, $target ) = @_;
+
+    foreach my $superclass ( $class->meta->superclasses() ) {
+        if ( $superclass eq $target ) {
+            return 1;
+        }
+    }
 
     return;
 }
@@ -156,13 +180,25 @@ sub get_objects {
 
     if ( $class ) {
 
-        # FIXME consider better validation of $class here.
+        # We validate $class here.
+        unless ( first { $_ eq $class } @{ $magetab_modules } ) {
+            confess( qq{Error: Not a Bio::MAGETAB class: "$class"} );
+        }
+
+        # Recurse through all possible classes to check for subclasses
+        # (e.g. so that get_nodes() will return Material objects).
+        my @members;
+        foreach my $magetab_class ( @{ $magetab_modules } ) {
+            if ( $self->_check_superclass( $magetab_class, $class ) ) {
+                push @members, $self->get_objects( $magetab_class );
+            }
+        }
+
         if ( my $objhash = $self->get_object_cache()->{ $class } ) {
-            return values %{ $objhash };
+            push @members, values %{ $objhash };
         }
-        else {
-            return;
-        }
+
+        return @members;
     }
 
     else {
