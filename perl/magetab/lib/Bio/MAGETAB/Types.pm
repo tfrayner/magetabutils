@@ -23,10 +23,11 @@ use warnings;
 package Bio::MAGETAB::Types;
 
 use MooseX::Types
-    -declare => [ qw( Uri Date ) ];
+    -declare => [ qw( Uri Date Email ) ];
 
 use URI;
 use DateTime;
+use Email::Valid;
 use Params::Coerce;
 
 subtype 'Uri'
@@ -74,6 +75,11 @@ coerce 'Date'
         require DateTime::Format::DateManip;
         DateTime::Format::DateManip->parse_datetime($_);
     };
+
+subtype 'Email'
+
+    => as 'Str'
+    => where { Email::Valid->address( $_ ) };
 
 no Moose;
 
