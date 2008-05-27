@@ -22,7 +22,7 @@ package Bio::MAGETAB::Material;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-BEGIN { extends 'Bio::MAGETAB::Node' };
+BEGIN { extends 'Bio::MAGETAB::Node'; };
 
 # This is an abstract class; block direct instantiation.
 sub BUILD {

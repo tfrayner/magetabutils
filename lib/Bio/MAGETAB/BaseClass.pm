@@ -23,6 +23,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
+use Scalar::Util qw(weaken);
 
 # This is an abstract class; block direct instantiation.
 sub BUILD {
@@ -41,7 +42,8 @@ sub BUILD {
     }
 
     if ( my $container = __PACKAGE__->get_ClassContainer() ) {
-        $container->add_object( $self );
+        weaken $self;
+        $container->add_objects( $self );
     }
 
     return;

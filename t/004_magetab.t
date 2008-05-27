@@ -46,7 +46,9 @@ my $obj;
 lives_ok( sub{ $obj = Bio::MAGETAB->new() }, 'can create a MAGETAB object' );
 ok( $obj->isa('Bio::MAGETAB'), 'of the correct class' );
 ok( ! $obj->has_databaseEntries(), 'with no associated DatabaseEntry objects' );
-is( $obj->get_databaseEntries(), (), 'with no associated DatabaseEntry objects' );
+
+# Evaluated in scalar context, this gives zero for an empty array..
+is( $obj->get_databaseEntries(), 0, 'and get_databaseEntries agrees' );
 
 # Now create a new object that will associate with this container automatically.
 my $db2;
@@ -63,19 +65,33 @@ ok( $obj->has_databaseEntries(), 'container has associated DatabaseEntry objects
 is_deeply( $obj->get_databaseEntries(), $db2, 'container object lists one DatabaseEntry' );
 
 # We can add objects to the container:
-lives_ok( sub { $obj->add_object( $db1 ) }, 'Can add objects to the container' );
+lives_ok( sub { $obj->add_objects( $db1 ) }, 'Can add objects to the container' );
 is_deeply( [ sort $obj->get_databaseEntries() ], [ sort $db2, $db1 ],
            'container object lists two DatabaseEntries' );
 
 # But not duplicates:
-lives_ok( sub { $obj->add_object( $db2 ) }, 'Can try adding duplicate objects to the container' );
+lives_ok( sub { $obj->add_objects( $db2 ) }, 'Can try adding duplicate objects to the container' );
 is_deeply( [ sort $obj->get_databaseEntries() ], [ sort $db2, $db1 ],
            'but container object still only lists two DatabaseEntries' );
 
 # Full listing of objects.
 my $norm;
-lives_ok( sub { $norm = Bio::MAGETAB::Normalization->new( name => "test" ) },
+lives_ok( sub { $norm = Bio::MAGETAB::Normalization->new( name => "test normalization" ) },
           'instantiates a Normalization object' );
 is_deeply( [ sort $obj->get_objects() ], [ sort $db2, $db1, $norm ],
-           'container object still only lists objects from both classes' );
+           'container object now lists objects from both classes' );
 
+# Check the return values for accessors listing objects from superclasses. 
+my $mat;
+lives_ok( sub { $mat = Bio::MAGETAB::Sample->new( name => "test sample" ) },
+          'instantiates a Sample object' );
+is_deeply( $obj->get_normalizations(), $norm,
+           'get_normalizations returns all normalizations' );
+is_deeply( $obj->get_events(), $norm,
+           'get_events returns all events' );
+is_deeply( $obj->get_samples(), $mat,
+           'get_samples returns all samples' );
+is_deeply( $obj->get_materials(), $mat,
+           'get_materials returns all materials' );
+is_deeply( [ sort $obj->get_nodes() ], [ sort $mat, $norm ],
+           'get_nodes returns all nodes' );
