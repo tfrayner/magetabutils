@@ -22,6 +22,8 @@ package Bio::MAGETAB::Contact;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Bio::MAGETAB::Types qw( Email );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'lastName'            => ( is         => 'rw',
@@ -41,7 +43,7 @@ has 'midInitials'         => ( is         => 'rw',
                                required   => 0 );
 
 has 'email'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => 'Email',
                                clearer    => 'clear_email',
                                predicate  => 'has_email',
                                required   => 0 );

@@ -40,6 +40,7 @@ WriteMakefile(
         'Date::Manip'                 => "5.44",
         'DateTime'                    => "0.4302",
         'DateTime::Format::DateManip' => "0.04",
+        'Email::Valid'                => "0.179",
     },
     EXE_FILES    => [
     ],

@@ -22,6 +22,8 @@ package Bio::MAGETAB::Node;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use Scalar::Util qw(weaken);
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 # This is an abstract class; block direct instantiation.
@@ -108,7 +110,10 @@ sub _reciprocate_edges_to_nodes {
 
     # Make sure $edges points to us. Since Edge->Node is 1..* we can
     # just overwrite the node attribute in the edges without worrying
-    # about what else it might have pointed to.
+    # about what else it might have pointed to. The Edge-to-Node
+    # association is weakened to break a cicular reference on object
+    # destruction.
+    weaken $self;
     foreach my $t ( @$edges ) {
         $t->{ $edge_slot } = $self;
     }
