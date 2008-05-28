@@ -95,3 +95,10 @@ is_deeply( $obj->get_materials(), $mat,
            'get_materials returns all materials' );
 is_deeply( [ sort $obj->get_nodes() ], [ sort $mat, $norm ],
            'get_nodes returns all nodes' );
+
+# Check that we can delete objects.
+lives_ok( sub { $obj->delete_objects( $db2 ) }, 'can delete objects from the container' );
+is_deeply( $obj->get_databaseEntries(), $db1,
+           'and get_databaseEntries reflects this' );
+is_deeply( [ sort $obj->get_objects() ], [ sort $db1, $norm, $mat ],
+           'as does get_objects' );
