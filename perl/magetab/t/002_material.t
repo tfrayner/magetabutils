@@ -29,6 +29,24 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Material' );
 }
 
+INIT {
+    use lib 't/testlib';
+    use CommonTests qw(test_methods);
+}
+
 dies_ok( sub { Bio::MAGETAB::Material->new() }, 'abstract class cannot be instantiated' );
 
-# FIXME more tests needed here.
+# Very basic tests that methods exist. Anything more would require
+# instantiation.
+my @expected = qw(
+    get_name
+    get_type
+    get_characteristics
+    get_measurements
+    set_name
+    set_type
+    set_characteristics
+    set_measurements
+);
+
+test_methods( 'Bio::MAGETAB::Material', \@expected );
