@@ -160,6 +160,27 @@ sub add_objects {
     return;
 }
 
+sub delete_objects {
+
+    my ( $self, @objects ) = @_;
+
+    my $obj_hash = $self->get_object_cache();
+
+    foreach my $object ( @objects ) {
+
+        my $class = blessed $object;
+        unless ( first { $_ eq $class } @{ $magetab_modules } ) {
+            confess( qq{Error: Not a Bio::MAGETAB class: "$class"} );
+        }
+
+        delete $obj_hash->{ $class }{ $object }
+    }
+
+    $self->set_object_cache( $obj_hash );
+
+    return;
+}
+
 sub _check_superclass {
 
     # Return true if $target is a superclass of $class, undef otherwise.
