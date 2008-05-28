@@ -181,20 +181,6 @@ sub delete_objects {
     return;
 }
 
-sub _check_superclass {
-
-    # Return true if $target is a superclass of $class, undef otherwise.
-    my ( $self, $class, $target ) = @_;
-
-    foreach my $superclass ( $class->meta->superclasses() ) {
-        if ( $superclass eq $target ) {
-            return 1;
-        }
-    }
-
-    return;
-}
-
 sub get_objects {
 
     my ( $self, $class ) = @_;
@@ -206,17 +192,13 @@ sub get_objects {
             confess( qq{Error: Not a Bio::MAGETAB class: "$class"} );
         }
 
-        # Recurse through all possible classes to check for subclasses
+        # Recurse through all possible subclasses
         # (e.g. so that get_nodes() will return Material objects).
         my @members;
-        foreach my $magetab_class ( @{ $magetab_modules } ) {
-            if ( $self->_check_superclass( $magetab_class, $class ) ) {
-                push @members, $self->get_objects( $magetab_class );
+        foreach my $subclass ( $class, $class->meta->subclasses() ) {
+            if ( my $objhash = $self->get_object_cache()->{ $subclass } ) {
+                push @members, values %{ $objhash };
             }
-        }
-
-        if ( my $objhash = $self->get_object_cache()->{ $class } ) {
-            push @members, values %{ $objhash };
         }
 
         return @members;
