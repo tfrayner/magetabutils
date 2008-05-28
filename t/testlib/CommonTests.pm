@@ -195,3 +195,14 @@ sub test_class {
     # This needs to be a valid instance; further tests may be run.
     return $instance;
 }
+
+sub test_methods {
+
+    my ( $class, $expected ) = @_;
+
+    foreach my $method ( @{ $expected } ) {
+        ok( $class->can( $method ), "$class can $method" );
+    }
+
+    return;
+}
