@@ -38,12 +38,12 @@ use Bio::MAGETAB::ControlledTerm;
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 1, value => 2 );
 
 my %required_attr = (
+    title      => 'test title',
 );
 
 my %optional_attr = (
     pubMedID   => '23998712',
     authorList => 'test authors',
-    title      => 'test title',
     DOI        => '12342349o87',
     status     => $ct,
 );

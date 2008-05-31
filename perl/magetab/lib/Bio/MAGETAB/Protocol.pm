@@ -52,6 +52,12 @@ has 'type'                => ( is         => 'rw',
                                predicate  => 'has_type',
                                required   => 0 );
 
+has 'contact'             => ( is         => 'rw',
+                               isa        => 'Str',
+                               clearer    => 'clear_contact',
+                               predicate  => 'has_contact',
+                               required   => 0 );
+
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
