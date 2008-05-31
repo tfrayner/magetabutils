@@ -25,6 +25,17 @@ use Moose;
 use Carp;
 use Scalar::Util qw(weaken);
 
+# FIXME we need tests for these two.
+has 'authority'           => ( is         => 'rw',
+                               isa        => 'Str',
+                               default    => q{},
+                               required   => 1 );
+
+has 'namespace'           => ( is         => 'rw',
+                               isa        => 'Str',
+                               default    => q{},
+                               required   => 1 );
+
 # This is an abstract class; block direct instantiation.
 sub BUILD {
 

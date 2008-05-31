@@ -46,6 +46,7 @@ my %optional_attr = (
     software => 'test software',
     hardware => 'test hardware',
     type     => $ct,
+    contact  => 'nearly forgot this',
 );
 
 my %bad_attr = (
@@ -54,6 +55,7 @@ my %bad_attr = (
     software => [],
     hardware => [],
     type     => 'test',
+    contact  => [],
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'unit', value => 'name 2' );
@@ -64,6 +66,7 @@ my %secondary_attr = (
     software => 'test software 2',
     hardware => 'test hardware 2',
     type     => $ct2,
+    contact  => 'another one',
 );
 
 my $obj = test_class(

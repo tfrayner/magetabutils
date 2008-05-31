@@ -26,9 +26,7 @@ BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'title'               => ( is         => 'rw',
                                isa        => 'Str',
-                               clearer    => 'clear_title',
-                               predicate  => 'has_title',
-                               required   => 0 );
+                               required   => 1 );
 
 has 'authorList'          => ( is         => 'rw',
                                isa        => 'Str',
