@@ -24,7 +24,6 @@ use Moose;
 
 use Carp;
 use List::Util qw(first);
-use Readonly;
 
 use Bio::MAGETAB::Util::Reader::Builder;
 
@@ -40,123 +39,141 @@ has 'text_store'          => ( is         => 'rw',
                                default    => sub { {} },
                                required   => 1 );
 
-# Dispatch table to direct each field to the appropriate place in the
-# text_store hashref. First argument is the internal tag used to group
-# the fields into concepts, the second is the Bio::MAGETAB attribute
-# name for the object.
-Readonly my $DISPATCH => {
-    qr/Investigation *Title/i
-        => sub{ $self->_add_singleton_datum('investigation', 'title',          @_) },
-    qr/Date *Of *Experiment/i
-        => sub{ $self->_add_singleton_datum('investigation', 'date',           @_) },
-    qr/Public *Release *Date/i
-        => sub{ $self->_add_singleton_datum('investigation', 'publicReleaseDate', @_) },
-    qr/Experiment *Description/i
-        => sub{ $self->_add_singleton_datum('investigation', 'description',    @_) },
-    qr/SDRF *Files?/i
-        => sub{ $self->_add_singleton_data('investigation', 'sdrfs',   @_) },
+has 'dispatch_table'      => ( is         => 'rw',
+                               isa        => 'HashRef',
+                               default    => sub { {} },
+                               required   => 1 );
 
-    qr/Experimental *Factor *Names?/i
-        => sub{ $self->_add_grouped_data('factor', 'name',       @_) },
-    qr/Experimental *Factor *Types?/i
-        => sub{ $self->_add_grouped_data('factor', 'type',       @_) },
-    qr/Experimental *Factor *(Types?)? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('factor', 'termSource', @_) },
-    qr/Experimental *Factor *(Types?)? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('factor', 'accession',  @_) },
+my $COMMENT_TAG = qr/\A \s* Comment \s* \[ ([^\]]+) \] \s* \z/ixms;
 
-    qr/Person *Last *Names?/i
-        => sub{ $self->_add_grouped_data('person', 'lastName',    @_) },
-    qr/Person *First *Names?/i
-        => sub{ $self->_add_grouped_data('person', 'firstName',   @_) },
-    qr/Person *Mid *Initials?/i
-        => sub{ $self->_add_grouped_data('person', 'midInitials', @_) },
-    qr/Person *Emails?/i
-        => sub{ $self->_add_grouped_data('person', 'email',       @_) },
-    qr/Person *Phones?/i
-        => sub{ $self->_add_grouped_data('person', 'phone',       @_) },
-    qr/Person *Fax(es)?/i
-        => sub{ $self->_add_grouped_data('person', 'fax',         @_) },
-    qr/Person *Address(es)?/i
-        => sub{ $self->_add_grouped_data('person', 'address',     @_) },
-    qr/Person *Affiliations?/i
-        => sub{ $self->_add_grouped_data('person', 'organization', @_) },
-    qr/Person *Roles?/i
-        => sub{ $self->_add_grouped_data('person', 'roles',       @_) },
-    qr/Person *Roles? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('person', 'termSource',  @_) },
-    qr/Person *Roles? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('person', 'accession',  @_) },
+# Define some standard regexps:
+my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
+my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
+my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
 
-    qr/Experimental *Designs?/i
-        => sub{ $self->_add_grouped_data('design', 'value',     @_) },
-    qr/Experimental *Designs? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('design', 'termSource', @_) },
-    qr/Experimental *Designs? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('design', 'accession', @_) },
-    qr/Quality *Control *Types?/i
-        => sub{ $self->_add_grouped_data('qualitycontrol', 'value',       @_) },
-    qr/Quality *Control *(Types?)? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('qualitycontrol', 'termSource', @_) },
-    qr/Quality *Control *(Types?)? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('qualitycontrol', 'accession', @_) },
-    qr/Replicate *Types?/i
-        => sub{ $self->_add_grouped_data('replicate',      'value',       @_) },
-    qr/Replicate *(Types?)? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('replicate',      'termSource', @_) },
-    qr/Replicate *(Types?)? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('replicate',      'accession', @_) },
-    qr/Normali[sz]ation *Types?/i
-        => sub{ $self->_add_grouped_data('normalization',  'value',       @_) },
-    qr/Normali[sz]ation *(Types?)? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('normalization',  'termSource', @_) },
-    qr/Normali[sz]ation *(Types?)? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('normalization',  'accession', @_) },
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    # Dispatch table to direct each field to the appropriate place in
+    # the text_store hashref. First argument is the internal tag used
+    # to group the fields into concepts, the second is the
+    # Bio::MAGETAB attribute name for the object.
+    my $dispatch = {
+        qr/Investigation *Title/i
+            => sub{ $self->_add_singleton_datum('investigation', 'title',          @_) },
+        qr/Date *Of *Experiment/i
+            => sub{ $self->_add_singleton_datum('investigation', 'date',           @_) },
+        qr/Public *Release *Date/i
+            => sub{ $self->_add_singleton_datum('investigation', 'publicReleaseDate', @_) },
+        qr/Experiment *Description/i
+            => sub{ $self->_add_singleton_datum('investigation', 'description',    @_) },
+        qr/SDRF *Files?/i
+            => sub{ $self->_add_singleton_data('investigation', 'sdrfs',   @_) },
+
+        qr/Experimental *Factor *Names?/i
+            => sub{ $self->_add_grouped_data('factor', 'name',       @_) },
+        qr/Experimental *Factor *Types?/i
+            => sub{ $self->_add_grouped_data('factor', 'type',       @_) },
+        qr/Experimental *Factor *(Types?)? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('factor', 'termSource', @_) },
+        qr/Experimental *Factor *(Types?)? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('factor', 'accession',  @_) },
+
+        qr/Person *Last *Names?/i
+            => sub{ $self->_add_grouped_data('person', 'lastName',    @_) },
+        qr/Person *First *Names?/i
+            => sub{ $self->_add_grouped_data('person', 'firstName',   @_) },
+        qr/Person *Mid *Initials?/i
+            => sub{ $self->_add_grouped_data('person', 'midInitials', @_) },
+        qr/Person *Emails?/i
+            => sub{ $self->_add_grouped_data('person', 'email',       @_) },
+        qr/Person *Phones?/i
+            => sub{ $self->_add_grouped_data('person', 'phone',       @_) },
+        qr/Person *Fax(es)?/i
+            => sub{ $self->_add_grouped_data('person', 'fax',         @_) },
+        qr/Person *Address(es)?/i
+            => sub{ $self->_add_grouped_data('person', 'address',     @_) },
+        qr/Person *Affiliations?/i
+            => sub{ $self->_add_grouped_data('person', 'organization', @_) },
+        qr/Person *Roles?/i
+            => sub{ $self->_add_grouped_data('person', 'roles',       @_) },
+        qr/Person *Roles? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('person', 'termSource',  @_) },
+        qr/Person *Roles? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('person', 'accession',  @_) },
+
+        qr/Experimental *Designs?/i
+            => sub{ $self->_add_grouped_data('design', 'value',     @_) },
+        qr/Experimental *Designs? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('design', 'termSource', @_) },
+        qr/Experimental *Designs? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('design', 'accession', @_) },
+        qr/Quality *Control *Types?/i
+            => sub{ $self->_add_grouped_data('qualitycontrol', 'value',       @_) },
+        qr/Quality *Control *(Types?)? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('qualitycontrol', 'termSource', @_) },
+        qr/Quality *Control *(Types?)? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('qualitycontrol', 'accession', @_) },
+        qr/Replicate *Types?/i
+            => sub{ $self->_add_grouped_data('replicate',      'value',       @_) },
+        qr/Replicate *(Types?)? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('replicate',      'termSource', @_) },
+        qr/Replicate *(Types?)? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('replicate',      'accession', @_) },
+        qr/Normali[sz]ation *Types?/i
+            => sub{ $self->_add_grouped_data('normalization',  'value',       @_) },
+        qr/Normali[sz]ation *(Types?)? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('normalization',  'termSource', @_) },
+        qr/Normali[sz]ation *(Types?)? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('normalization',  'accession', @_) },
  
-    qr/PubMed *IDs?/i
-        => sub{ $self->_add_grouped_data('publication', 'pubmedid',   @_) },
-    qr/Publication *DOIs?/i
-        => sub{ $self->_add_grouped_data('publication', 'doi',        @_) },
-    qr/Publication *Authors? *Lists?/i
-        => sub{ $self->_add_grouped_data('publication', 'authorlist', @_) },
-    qr/Publication *Titles?/i
-        => sub{ $self->_add_grouped_data('publication', 'title',      @_) },
-    qr/Publication *Status/i
-        => sub{ $self->_add_grouped_data('publication', 'status',     @_) },
-    qr/Publication *Status *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('publication', 'termSource', @_) },
-    qr/Publication *Status *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('publication', 'accession', @_) },
+        qr/PubMed *IDs?/i
+            => sub{ $self->_add_grouped_data('publication', 'pubmedid',   @_) },
+        qr/Publication *DOIs?/i
+            => sub{ $self->_add_grouped_data('publication', 'doi',        @_) },
+        qr/Publication *Authors? *Lists?/i
+            => sub{ $self->_add_grouped_data('publication', 'authorlist', @_) },
+        qr/Publication *Titles?/i
+            => sub{ $self->_add_grouped_data('publication', 'title',      @_) },
+        qr/Publication *Status/i
+            => sub{ $self->_add_grouped_data('publication', 'status',     @_) },
+        qr/Publication *Status *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('publication', 'termSource', @_) },
+        qr/Publication *Status *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('publication', 'accession', @_) },
 
-    qr/Protocol *Names?/i
-        => sub{ $self->_add_grouped_data('protocol', 'name',        @_) },
-    qr/Protocol *Descriptions?/i
-        => sub{ $self->_add_grouped_data('protocol', 'text', @_) },
-    qr/Protocol *Parameters?/i
-        => sub{ $self->_add_grouped_data('protocol', 'parameters',  @_) },
-    qr/Protocol *Hardwares?/i
-        => sub{ $self->_add_grouped_data('protocol', 'hardware',    @_) },
-    qr/Protocol *Softwares?/i
+        qr/Protocol *Names?/i
+            => sub{ $self->_add_grouped_data('protocol', 'name',        @_) },
+        qr/Protocol *Descriptions?/i
+            => sub{ $self->_add_grouped_data('protocol', 'text', @_) },
+        qr/Protocol *Parameters?/i
+            => sub{ $self->_add_grouped_data('protocol', 'parameters',  @_) },
+        qr/Protocol *Hardwares?/i
+            => sub{ $self->_add_grouped_data('protocol', 'hardware',    @_) },
+        qr/Protocol *Softwares?/i
         => sub{ $self->_add_grouped_data('protocol', 'software',    @_) },
-    qr/Protocol *Contacts?/i
-        => sub{ $self->_add_grouped_data('protocol', 'contact',     @_) },
-    qr/Protocol *Types?/i
-        => sub{ $self->_add_grouped_data('protocol', 'type',        @_) },
-    qr/Protocol *(Types?)? *Term *Source *REF/i
-        => sub{ $self->_add_grouped_data('protocol', 'termSource',  @_) },
-    qr/Protocol *(Types?)? *Term *Accession *Numbers?/i
-        => sub{ $self->_add_grouped_data('protocol', 'accession',  @_) },
+        qr/Protocol *Contacts?/i
+            => sub{ $self->_add_grouped_data('protocol', 'contact',     @_) },
+        qr/Protocol *Types?/i
+            => sub{ $self->_add_grouped_data('protocol', 'type',        @_) },
+        qr/Protocol *(Types?)? *Term *Source *REF/i
+            => sub{ $self->_add_grouped_data('protocol', 'termSource',  @_) },
+        qr/Protocol *(Types?)? *Term *Accession *Numbers?/i
+            => sub{ $self->_add_grouped_data('protocol', 'accession',  @_) },
 
-    qr/Term *Source *Names?/i
-        => sub{ $self->_add_grouped_data('termsource', 'name',     @_) },
-    qr/Term *Source *Files?/i
-        => sub{ $self->_add_grouped_data('termsource', 'uri',      @_) },
-    qr/Term *Source *Versions?/i
-        => sub{ $self->_add_grouped_data('termsource', 'version',  @_) },
+        qr/Term *Source *Names?/i
+            => sub{ $self->_add_grouped_data('termsource', 'name',     @_) },
+        qr/Term *Source *Files?/i
+            => sub{ $self->_add_grouped_data('termsource', 'uri',      @_) },
+        qr/Term *Source *Versions?/i
+            => sub{ $self->_add_grouped_data('termsource', 'version',  @_) },
+    };
 
-};
+    $self->set_dispatch_table( $dispatch );
 
-Readonly my $COMMENT_TAG => qr/\A \s* Comment \s* \[ ([^\]]+) \] \s* \z/ixms;
+    return;
+}
 
 ##################
 # Public methods #
@@ -219,9 +236,10 @@ sub _create_controlled_terms {
     my @terms;
     foreach my $term_data ( @{ $self->get_text_store()->{ $type } } ) {
 
-        my $termsource = $self->get_builder()->get_term_source(
-            $term_data->{'termSource'},
-        );
+        my $termsource;
+        if ( my $ts = $term_data->{'termSource'} ) {
+            $termsource = $self->get_builder()->get_term_source( $ts );
+        }
 
         my $args = {
             'category'   => $category,
@@ -245,9 +263,10 @@ sub _create_factors {
     my @factors;
     foreach my $f_data ( @{ $self->get_text_store()->{ 'factor' } } ) {
 
-        my $termsource = $self->get_builder()->get_term_source(
-            $f_data->{'termSource'},
-        );
+        my $termsource;
+        if ( my $ts = $f_data->{'termSource'} ) {
+            $termsource = $self->get_builder()->get_term_source( $ts );
+        }
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ExperimentalFactorCategory',
@@ -276,9 +295,10 @@ sub _create_people {
     my @people;
     foreach my $p_data ( @{ $self->get_text_store()->{ 'person' } } ) {
 
-        my $termsource = $self->get_builder()->get_term_source(
-            $p_data->{'termSource'},
-        );
+        my $termsource;
+        if ( my $ts = $p_data->{'termSource'} ) {
+            $termsource = $self->get_builder()->get_term_source( $ts );
+        }
 
         my $roles = map {
             $self->get_builder()->find_or_create_controlled_term({
@@ -308,9 +328,10 @@ sub _create_protocols {
     my @protocols;
     foreach my $p_data ( @{ $self->get_text_store()->{ 'protocol' } } ) {
 
-        my $termsource = $self->get_builder()->get_term_source(
-            $p_data->{'termSource'},
-        );
+        my $termsource;
+        if ( my $ts = $p_data->{'termSource'} ) {
+            $termsource = $self->get_builder()->get_term_source( $ts );
+        }
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ProtocolType',
@@ -345,9 +366,10 @@ sub _create_publications {
     my @publications;
     foreach my $p_data ( @{ $self->get_text_store()->{ 'publication' } } ) {
 
-        my $termsource = $self->get_builder()->get_term_source(
-            $p_data->{'termSource'},
-        );
+        my $termsource;
+        if ( my $ts = $p_data->{'termSource'} ) {
+            $termsource = $self->get_builder()->get_term_source( $ts );
+        }
 
         my $status = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'PublicationStatus',
@@ -460,7 +482,7 @@ sub _read_as_arrayref {
         my $line = join( q{}, @$larry );
         next FILE_LINE if ( $line =~ $RE_EMPTY_STRING );
 
-        # Allow hash comments (FIXME NOT IN SPEC).
+        # Allow hash comments.
         next FILE_LINE if ( $line =~ $RE_COMMENTED_STRING );
 
 	# Strip surrounding whitespace from each element.
@@ -550,7 +572,7 @@ sub _validate_arrayref_tags {
 	    @{ $array_of_rows };
 
     # A list of acceptable tags, expressed as qr//
-    my @acceptable = keys %{ $DISPATCH };
+    my @acceptable = keys %{ $self->get_dispatch_table() };
     while ( my ( $tag, $values ) = each %idf_hash ) {
 
 	# N.B. acceptable tag REs may contain whitespace; no x option
@@ -626,7 +648,7 @@ sub _retrieve_sub {
 
     my $rc;
 
-    while ( my ( $key, $sub ) = each %{ $DISPATCH } ) {
+    while ( my ( $key, $sub ) = each %{ $self->get_dispatch_table() } ) {
 
 	# $key may contain whitespace, no x option here.
 	if ( $tag =~ /\A\s*$key\s*\z/ms ) {

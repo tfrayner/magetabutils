@@ -52,6 +52,25 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                default    => 0,
                                required   => 1 );
 
+sub _create_object {
+
+    my ( $self, $class, $id, $data ) = @_;
+
+    # Initial object creation. Namespace, authority can both be
+    # overridden by $data, hence the order here.
+    $obj = $class->new(
+        'namespace' => $self->get_namespace(),
+        'authority' => $self->get_authority(),
+        %{ $data },
+    );
+
+    # FIXME are we sure we want to store these in the cache here?
+    # ProtocolApp/ParamValue not terribly useful...
+    $self->get_object_cache()->{ $class }{ $id } = $obj;
+
+    return $obj;
+}
+
 sub _find_or_create_object {
 
     my ( $self, $class, $id, $data ) = @_;
@@ -92,19 +111,15 @@ sub _find_or_create_object {
     }
     else {
 
-        # Initial object creation. Namespace, authority can both be
-        # overridden by $data, hence the order here.
-        $obj = $class->new(
-            'namespace' => $self->get_namespace(),
-            'authority' => $self->get_authority(),
-            %{ $data },
-        );
-        $self->get_object_cache()->{ $class }{ $id } = $obj;
+        $obj = $self->_create_object( $class, $id, $data );
     }
 
     return $obj;
 }
 
+# Hash of method types (find_or_create_*, get_*), pointing to an
+# arrayref indicating the class to instantiate and the attributes to
+# use in defining a unique internal identifier.
 my %method_map = (
     'termsource'      => [ 'Bio::MAGETAB::TermSource',
                            qw( name ) ],
@@ -121,6 +136,10 @@ my %method_map = (
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
+    # FIXME other things needed here... or special-case this not to reuse old objects.
+    'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
+                           qw( protocol ) ],
+
     'parameter'       => [ 'Bio::MAGETAB::ProtocolParameter',
                            qw( name protocol ) ],
 
@@ -129,6 +148,22 @@ my %method_map = (
 
     'publication'     => [ 'Bio::MAGETAB::Publication',
                            qw( title ) ],
+
+    'source'          => [ 'Bio::MAGETAB::Source',
+                           qw( name ) ],
+
+    'sample'          => [ 'Bio::MAGETAB::Sample',
+                           qw( name ) ],
+
+    'extract'         => [ 'Bio::MAGETAB::Extract',
+                           qw( name ) ],
+
+    'labeled_extract' => [ 'Bio::MAGETAB::LabeledExtract',
+                           qw( name ) ],
+
+    'edge'            => [ 'Bio::MAGETAB::Edge',
+                           qw( inputNode outputNode ) ],
+
 );
 
 {
@@ -140,7 +175,10 @@ my %method_map = (
         # Getter only; if the object is unfound, fail unless we're
         # being cool about it.
         *{"get_${item}"} = sub {
-            my ( $self, $id ) = @_;
+            my ( $self, @id_parts ) = @_;
+
+            my $id = join(chr(0), map { $data->{$_} } sort @id_parts);
+
             if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
                 return $retval;
             }
@@ -153,7 +191,11 @@ my %method_map = (
                 eval {
                     my $data = {};
 
-                    # Simplest case where the ID is constructed from only one field.
+                    # Simplest (and most useful) case where the ID is
+                    # constructed from only one field. FIXME this may
+                    # be generalizable using @id_parts, but ordering
+                    # may end up being unconstrained so this may not
+                    # work.
                     if ( scalar @id_fields == 1 ) {
                         $data->{ $id_fields[0] } = $id;
                     }
@@ -170,6 +212,7 @@ my %method_map = (
             }
 	};
 
+        # Flexible method to update a previous object or create a new one.
         *{"find_or_create_${item}"} = sub {
             my ( $self, $data ) = @_;
 
@@ -182,6 +225,25 @@ my %method_map = (
             my $id = join(chr(0), map { $data->{$_} } sort @id_fields);
 
             return $self->_find_or_create_object(
+                $class,
+                $id,
+                $data,
+            );
+        };
+
+        # Sometimes we just want to instantiate whatever (ProtocolApps, ParamValues).
+        *{"create_${item}"} = sub {
+            my ( $self, $data ) = @_;
+
+            foreach my $field ( @id_fields ) {
+                unless ( defined $data->{ $field } ) {
+                    confess(qq{Error: No "$field" attribute for $class.\n});
+                }
+            }
+
+            my $id = join(chr(0), map { $data->{$_} } sort @id_fields);
+
+            return $self->_create_object(
                 $class,
                 $id,
                 $data,
