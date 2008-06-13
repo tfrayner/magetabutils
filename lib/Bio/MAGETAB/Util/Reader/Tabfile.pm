@@ -25,6 +25,7 @@ use Moose;
 use Bio::MAGETAB::Types qw(Uri);
 
 use Carp;
+use charnames qw( :full );
 use Text::CSV_XS;
 
 has 'uri'                => ( is         => 'rw',
@@ -189,9 +190,11 @@ sub _check_linebreaks {
 
     my ( $self ) = @_;
 
-    my $fh = $self->_get_filehandle();
+    my $path = $self->_get_filepath();
 
     my $bytelength = -s $path;
+
+    my $fh = $self->_get_filehandle();
 
     # Count all the line endings. This can get memory intensive
     # (implicit list generation, can be over 1,000,000 entries for
