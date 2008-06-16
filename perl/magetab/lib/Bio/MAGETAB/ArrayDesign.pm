@@ -36,6 +36,12 @@ has 'accession'           => ( is         => 'rw',
                                predicate  => 'has_accession',
                                required   => 0 );
 
+has 'termSource'          => ( is         => 'rw',
+                               isa        => 'Bio::MAGETAB::TermSource',
+                               clearer    => 'clear_termSource',
+                               predicate  => 'has_termSource',
+                               required   => 0 );
+
 has 'version'             => ( is         => 'rw',
                                isa        => 'Str',
                                clearer    => 'clear_version',

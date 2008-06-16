@@ -164,6 +164,21 @@ my %method_map = (
     'edge'            => [ 'Bio::MAGETAB::Edge',
                            qw( inputNode outputNode ) ],
 
+    'array_design'    => [ 'Bio::MAGETAB::ArrayDesign',
+                           qw( name ) ],
+
+    'assay'           => [ 'Bio::MAGETAB::Assay',
+                           qw( name ) ],
+
+    'data_acquisition' => [ 'Bio::MAGETAB::DataAcquisition',
+                           qw( name ) ],
+
+    'data_file'        => [ 'Bio::MAGETAB::DataFile',
+                           qw( uri ) ],
+
+    'data_matrix'      => [ 'Bio::MAGETAB::DataMatrix',
+                           qw( uri ) ],
+
 );
 
 {

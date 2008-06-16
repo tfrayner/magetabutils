@@ -45,12 +45,16 @@ for ( 1..3 ) {
     push @de, Bio::MAGETAB::Reporter->new( name => "test $_" );
 }
 
+use Bio::MAGETAB::TermSource;
+my $ts = Bio::MAGETAB::TermSource->new( name => 'test term source' );
+
 my %required_attr = (
     name        => 'test array design',
 );
 
 my %optional_attr = (
     accession           => 'A-TEST-1111',
+    termSource          => $ts,
     version             => '1.21b',
     uri                 => 'http://dummy.com/array_design.txt',
     technologyType      => $ct,
@@ -66,6 +70,7 @@ my %optional_attr = (
 my %bad_attr = (
     name                => [],
     accession           => [],
+    termSource          => 'test',
     version             => [],
     uri                 => [],
     technologyType      => 'test',
@@ -85,9 +90,11 @@ for ( 1..3 ) {
     push @de2, Bio::MAGETAB::CompositeElement->new( name => "test 2 $_" );
 }
 
+my $ts2 = Bio::MAGETAB::TermSource->new( name => 'test term source 2' );
 my %secondary_attr = (
     name                => 'test array design 2',
     accession           => 'A-TEST-1112',
+    termSource          => $ts2,
     version             => '1.23b',
     uri                 => 'http://dummy.com/array_design2.txt',
     technologyType      => $ct2,
