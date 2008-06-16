@@ -207,6 +207,24 @@ sub create_source {
     return $source;
 }
 
+sub _link_to_previous {
+
+    my ( $self, $obj, $previous, $protocolapps ) = @_;
+
+    if ( $previous ) {
+        my $edge = $self->get_builder()->find_or_create_edge({
+            inputNode  => $previous,
+            outputNode => $obj,
+        });
+
+        if ( $protocolapps && scalar @{ $protocolapps } ) {
+            $edge->set_protocolApplications( $protocolapps );
+        }
+    }
+
+    return;
+}
+
 sub create_sample {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
@@ -217,16 +235,7 @@ sub create_sample {
         name => $name,
     });
 
-    if ( $previous ) {
-        my $edge = $self->get_builder()->find_or_create_edge({
-            inputNode  => $previous,
-            outputNode => $sample,
-        });
-
-        if ( $protocolapps && scalar @{ $protocolapps } ) {
-            $edge->set_protocolApplications( $protocolapps );
-        }
-    }
+    $self->_link_to_previous( $sample, $previous, $protocolapps );
 
     return $sample;
 }
@@ -241,16 +250,7 @@ sub create_extract {
         name => $name,
     });
 
-    if ( $previous ) {
-        my $edge = $self->get_builder()->find_or_create_edge({
-            inputNode  => $previous,
-            outputNode => $extract,
-        });
-
-        if ( $protocolapps && scalar @{ $protocolapps } ) {
-            $edge->set_protocolApplications( $protocolapps );
-        }
-    }
+    $self->_link_to_previous( $extract, $previous, $protocolapps );
 
     return $extract;
 }
@@ -276,16 +276,7 @@ sub create_labeled_extract {
         label => $dummy_label,
     });
 
-    if ( $previous ) {
-        my $edge = $self->get_builder()->find_or_create_edge({
-            inputNode  => $previous,
-            outputNode => $labeled_extract,
-        });
-
-        if ( $protocolapps && scalar @{ $protocolapps } ) {
-            $edge->set_protocolApplications( $protocolapps );
-        }
-    }
+    $self->_link_to_previous( $labeled_extract, $previous, $protocolapps );
 
     return $labeled_extract;
 }
@@ -474,31 +465,29 @@ sub add_unit_to_thing {
     return;
 }
 
-sub extract_protocolapps_by_type : PRIVATE {
+sub create_technology_type {
 
-    my ( $self, $protocolapps, $desired_types ) = @_;
+    my ( $self, $assay, $value, $termsource, $accession ) = @_;
 
-    my ( @wanted_apps, @other_apps );
+    return if ( $value =~ $BLANK );
 
-    # FIXME? at the moment we just look at protocol type for
-    # disambiguation.
-    foreach my $app ( @{ $protocolapps || [] } ) {
-	my $protocol = $app->get_protocol();
-	my $oe       = $protocol->get_type();
-	my $is_hyb;
-	if ( $oe ) {
-	    my $type = $oe->get_value();
-	    if ( first { $type eq $_ } @{ $desired_types || [] } ) {
-		push (@wanted_apps, $app);
-		$is_hyb++;
-	    }
-	}
-	unless ( $is_hyb ) {
-	    push (@other_apps, $app);
-	}
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source( $termsource );
     }
 
-    return ( \@wanted_apps, \@other_apps );
+    my $type = $self->get_builder()->find_or_create_controlled_term({
+        category   => 'TechnologyType',    #FIXME hard-coded.
+        value      => $value,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
+
+    if ( $assay ) {
+        $assay->set_technologyType( $type );
+    }
+
+    return $type;
 }
 
 sub create_hybridization {
@@ -507,20 +496,17 @@ sub create_hybridization {
 
     return if ( $name =~ $BLANK );
 
-    my $hybridization = $self->get_builder()->find_or_create_hybridization({
-        name => $name,
+    my $default_type = $self->get_builder()->find_or_create_controlled_term({
+        category   => 'TechnologyType',    #FIXME hard-coded.
+        value      => 'hybridization',     #FIXME hard-coded.
     });
 
-    if ( $previous ) {
-        my $edge = $self->get_builder()->find_or_create_edge({
-            inputNode  => $previous,
-            outputNode => $hybridization,
-        });
+    my $hybridization = $self->get_builder()->find_or_create_assay({
+        name           => $name,
+        technologyType => $default_type,
+    });
 
-        if ( $protocolapps && scalar @{ $protocolapps } ) {
-            $edge->set_protocolApplications( $protocolapps );
-        }
-    }
+    $self->_link_to_previous( $hybridization, $previous, $protocolapps );
 
     return $hybridization;
 }
@@ -531,692 +517,144 @@ sub create_assay {
 
     return if ( $name =~ $BLANK );
 
-    my $identifier_template = $self->generate_id_template( "assay.$name" );
+    my $dummy_type = $self->get_builder()->find_or_create_controlled_term({
+        category   => 'TechnologyType',    #FIXME hard-coded.
+        value      => 'unknown',           #FIXME hard-coded.
+    });
 
-    $channel ||= 'Unknown';
-    my $label = $self->label_bag( $channel, {dye => $channel} );
+    # Pre-delete the dummy term.
+    $self->get_builder()->get_magetab()->delete_objects( $dummy_type );
 
-    my $assay = $self->pba_bag(
-	$name,
-	{
-	    name                => $name,
-	    derived_from        => $previous,
-	    label               => $label,
-	    identifier_template => $identifier_template,
-	    hyb_protocolapps    => [ @{ $protocolapps } ],  # needs to be a copy.
-	    is_assay            => 1,
-	},
-    );
+    my $assay = $self->get_builder()->find_or_create_assay({
+        name           => $name,
+        technologyType => $dummy_type,
+    });
+
+    $self->_link_to_previous( $assay, $previous, $protocolapps );
 
     return $assay;
 }
 
 sub create_array {
 
-    my ( $self, $accession, $namespace, $termsource, $alt_accession, $pba ) = @_;
+    my ( $self, $name, $namespace, $termsource, $accession, $assay ) = @_;
 
-    # accession is the term in the Array Design REF column;
-    # alt_accession is the optional contents of the Term Accession
-    # Number column; we use it preferentially where given.
+    # $name is the term in the Array Design REF column;
+    # $accession is the optional contents of the Term Accession
+    # Number column.
 
-    return if ( $accession =~ $BLANK );
+    return if ( $name =~ $BLANK );
 
-    $accession = $alt_accession || ( ( $namespace || q{} ) . $accession );
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+    }
 
-    my $arraydesign = $self->arraydesign_bag(
-	$accession,
-	{
-	    accession  => $accession,
-	    termsource => $termsource,
-	},
-    );
+    my $array_design = $self->get_builder()->find_or_create_array({
+        name       => $name,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
 
-    my $hybname = $pba->getName();
+    if ( $assay ) {
+        $assay->set_arrayDesign( $array_design );
+    }
 
-    my $identifier_template = $self->generate_id_template( $hybname );
-
-    my $array = $self->array_bag(
-	$hybname,
-	{
-	    identifier_template => $identifier_template,
-	    arraydesign         => $arraydesign,
-	    armanuf_bag         => $self->get_bags->{armanuf},
-	},
-    );
-
-    my $hyb = $pba->getBioAssayCreation();
-
-    $hyb->setArray( $array );
-
-    return $array;
+    return $array_design;
 }
 
 sub create_scan {
 
-    my ( $self, $name, $hyb_pba, $protocolapps, $channel, $previous_material ) = @_;
+    my ( $self, $name, $previous, $protocolapps ) = @_;
 
     return if ( $name =~ $BLANK );
 
-    # Unless $hyb_pba is a true hyb-level PBA, make a new one.
-    my @old_pbas;
-    unless (    $hyb_pba
-	     && $hyb_pba->isa('Bio::MAGE::BioAssay::PhysicalBioAssay')
-	     && $hyb_pba->getBioAssayCreation() ) {
+    my $scan = $self->get_builder()->find_or_create_data_acquisition({
+        name => $name,
+    });
 
-	my $hybname;
-	if (    $hyb_pba 
-	     && $hyb_pba->can('getName')
-	     && $hyb_pba->getName() ) {
-	    $hybname = $hyb_pba->getName();
-	}
-	my $hyb_protoapps;
-	( $hyb_protoapps, $protocolapps )
-	    = $self->extract_protocolapps_by_type(
-		$protocolapps,
-		[ 'hybridization' ],
-	    );
-	$hyb_pba = $self->create_hybridization(
-	    $hybname || "hyb $name",
-	    $previous_material,
-	    $hyb_protoapps,
-	    $channel,
-	);
-	@old_pbas = $hyb_pba;
-    }
+    $self->_link_to_previous( $scan, $previous, $protocolapps );
 
-    unless ( $hyb_pba && $hyb_pba->isa('Bio::MAGE::BioAssay::PhysicalBioAssay') ) {
-	croak("Error: PBA is incorrect type: " . ref $hyb_pba);
-    }
-
-    # If this is truly a virgin $hyb_pba, we need to remove the
-    # original BioAssayTreatment generated by create_hybridization.
-    my @cleaned_bats;
-    foreach my $bat ( @{ $hyb_pba->getBioAssayTreatments || [] } ) {
-	unless ( $bat->getTarget()->getIdentifier eq $hyb_pba->getIdentifier() ) {
-	    push @cleaned_bats, $bat
-	}
-    }
-    $hyb_pba->setBioAssayTreatments(\@cleaned_bats);
-
-    my $identifier_template = $self->generate_id_template( "scan.$name" );
-
-    # Note the hashref below *should* be unnecessary, but it's
-    # included here just in case.
-    $channel ||= 'Unknown';
-    my $label = $self->label_bag( $channel, {dye => $channel} );
-
-    # Create a channel-specific PBA.
-    my $channel_pba = $self->create_perchannel_pba(
-	$identifier_template,
-	$channel,
-	$label,
-	$hyb_pba,
-	$name,
-    );
-		
-    # Create/update the merged PBA here. Note that the .merged suffix
-    # convention is assumed in other modules for mapping the hyb PBA
-    # to the merged PBA and vice versa.
-    my $merged_pba = $self->extended_pba_bag(
-	$name,
-	{
-	    identifier_template => $identifier_template,
-	    name                => $name,
-	    label               => $label,
-	    scan_protocolapps   => [ @{ $protocolapps } ],  # needs to be a copy.
-	},
-    );
-
-    # Link the merged and channel-specific PBAs.
-    my $scan_id_template = "$identifier_template.$channel.merged";
-    $channel_pba->setBioAssayTreatments(
-	[
-	    $self->new_scan(
-		{
-		    identifier_template => $scan_id_template,
-		    name                => $name,
-		    pba                 => $merged_pba,
-		    target              => $merged_pba,
-		},
-	    )
-	]
-    );
-
-    return wantarray
-	   ? ( $merged_pba, $channel_pba, @old_pbas )
-	   : $merged_pba;
-}
-
-sub create_image {
-
-    my ( $self, $imagefile, $pba, $protocolapps, $channel, $previous_material ) = @_;
-
-    return if ( $imagefile =~ $BLANK );
-
-    # Unless $pba is a true scan-level PBA, make a new one.
-    # ( Scanning PBAs have no BAC; FIXME check that the BAT target is $pba? ).
-    my @old_pbas;
-    unless (    $pba
-	     && $pba->isa('Bio::MAGE::BioAssay::PhysicalBioAssay')
-	     && ! $pba->getBioAssayCreation() ) {
-
-	my $scanname;
-	if (    $pba 
-	     && $pba->can('getName')
-	     && $pba->getName() ) {
-	    $scanname = $pba->getName();
-	}
-	my $channel_pba;
-	($pba, $channel_pba, @old_pbas) = $self->create_scan(
-	    $scanname || $imagefile,
-	    $pba,
-	    $protocolapps,
-	    $channel,
-	    $previous_material,
-	);
-	push( @old_pbas, $pba, $channel_pba );
-    }
-
-    my $identifier_template = $self->generate_id_template( $imagefile );
-
-    # FIXME no support for ImageFormat OEs as yet (not in
-    # specification). We attempt here to derive it from the image
-    # filename extension.
-    my %known = (
-	tif    => 'TIFF',
-	tiff   => 'TIFF',
-	jpg    => 'JPEG',
-	jpeg   => 'JPEG',
-	png    => 'PNG',
-	gif    => 'GIF',
-    );
-
-    my $format = 'unknown';
-    if ( my ( $ext ) = ( $imagefile =~ m/\.(\w{3,4})$/ ) ) {
-	if ( my $term = $known{lc($ext)} ) {
-	    $format = $term;
-	}
-    }
-
-    my $image = $self->image_bag(
-	$imagefile,
-	{
-	    identifier_template => $identifier_template,
-	    uri                 => $imagefile,
-	    format              => $format,
-	},
-    );
-
-    $self->add_images_to_pba( [ $image ], $pba )
-	if $pba;
-
-    return wantarray
-	  ? ( $image, @old_pbas )
-	  : $image;
-}
-
-sub create_raw_data_file {
-
-    my ( $self,
-	 $name,
-	 $pba,
-	 $protocolapps,
-	 $array_accession,
-	 $channel,
-	 $previous_material, ) = @_;
-
-    return if ( $name =~ $BLANK );
-
-    my $identifier_template = $self->generate_id_template( $name );
-    my $filename = "$name.proc";
-
-    # Allow Affy CEL to be coded as native when skip_datafiles is
-    # used.
-    if ( $self->get_skip_datafiles() ) {
-	$filename = $name;
-	if ( $name =~ /\.CEL \z/ixms ) {
-	    $self->add_native_filetypes( $filename, 'CEL' );
-	}
-    }
-
-    my $mbad = $self->mbad_bag(
-	$name,
-	{
-	    name                => $name,
-	    filename            => $filename,
-	    identifier_template => $identifier_template,
-	}
-    );
-
-    my ( $mba, @old_pbas) = $self->create_feature_extraction(
-	$name,
-	$pba,
-	$protocolapps,
-	$channel,
-	$previous_material,
-	$mbad,
-    );
-
-    unless ( $mbad->getBioAssayDimension() ) {
-	my $bad = Bio::MAGE::BioAssayData::BioAssayDimension->new(
-	    identifier => "$identifier_template.MeasuredBioAssayDimension",
-	    bioAssays  => [ $mba ],
-	);
-	$mbad->setBioAssayDimension($bad);
-    }
-
-    my $datafile = $self->create_datafile(
-	$name,
-	'raw',
-	$mbad,
-	$array_accession,
-    );
-
-    $self->add_datafiles( $datafile );
-
-    return wantarray ? ( $mba, $mbad, @old_pbas ) : $mba;
-}
-
-sub create_feature_extraction : PRIVATE {
-
-    my ( $self,
-	 $name,
-	 $pba,
-	 $protocolapps,
-	 $channel,
-	 $previous_material,
-	 $mbad, ) = @_;
-
-    return if ( $name =~ $BLANK );
-    
-    # Unless $pba is a true scan-level PBA, make a new one.
-    # ( Scanning PBAs have no BAC; FIXME check that the BAT target is $pba? ).
-    my @old_pbas;
-    unless (    $pba
-	     && $pba->isa('Bio::MAGE::BioAssay::PhysicalBioAssay')
-	     && ! $pba->getBioAssayCreation() ) {
-
-	my $scan_protoapps;
-	( $scan_protoapps, $protocolapps )
-	    = $self->extract_protocolapps_by_type(
-		$protocolapps,
-		[ 'image_acquisition', 'hybridization' ]
-	    );
-
-	# Scan name incorporates hyb name if available; this will help
-	# when creating Illumina scan objects.
-	my $scanname;
-	if (    $pba 
-	     && $pba->can('getName')
-	     && $pba->getName() ) {
-	    $scanname = $pba->getName();
-	}
-	my $channel_pba;
-	($pba, $channel_pba, @old_pbas) = $self->create_scan(
-	    $scanname || $name,
-	    $pba,
-	    $scan_protoapps,
-	    $channel,
-	    $previous_material,
-	);
-	push( @old_pbas, $pba, $channel_pba );
-    }
-
-    my $identifier_template = $self->generate_id_template( $name );
-
-    my $mba = $self->mba_bag(
-	$name,
-	{
-	    identifier_template    => $identifier_template,
-	    name                   => $name,
-	    physical_bioassay      => $pba,
-	    protocolapps           => [ @{ $protocolapps } ],  # needs to be a copy.
-	    measured_bioassay_data => $mbad,
-	},
-    );
-
-    return wantarray ? ( $mba, @old_pbas ) : $mba;
+    return $scan;
 }
 
 sub create_normalization {
 
-    my ( $self,
-	 $name,
-	 $previous_event,
-	 $protocolapps,
-	 $channel,
-	 $previous_material, ) = @_;
+    my ( $self, $name, $previous, $protocolapps ) = @_;
 
     return if ( $name =~ $BLANK );
 
-    # Unless $previous_event is at least MBA or DBA, make a new MBA.
-    my @old_bioassays;
-    unless (    $previous_event
-	     && (   $previous_event->isa('Bio::MAGE::BioAssay::MeasuredBioAssay')
-	 	 || $previous_event->isa('Bio::MAGE::BioAssay::DerivedBioAssay') ) ) {
-
-	my $fext_protoapps;
-	( $fext_protoapps, $protocolapps )
-	    = $self->extract_protocolapps_by_type(
-		$protocolapps,
-		[ 'feature_extraction', 'image_acquisition', 'hybridization' ]
-	    );
-
-	my $fextname;
-	if (    $previous_event 
-	     && $previous_event->can('getName')
-	     && $previous_event->getName() ) {
-	    $fextname = $previous_event->getName();
-	}
-	($previous_event, @old_bioassays) = $self->create_feature_extraction(
-	    $fextname || $name,
-	    $previous_event,
-	    $fext_protoapps,
-	    $channel,
-	    $previous_material,
-	);
-	push( @old_bioassays, $previous_event );
-    }
-
-    my $identifier_template = $self->generate_id_template( $name );
-
-    my $dba = $self->dba_bag(
-	$name,
-	{
-	    identifier_template => $identifier_template,
-	    name                => $name,
-	    source_bioassays    => [ $previous_event ],
-	    bioassaymap_bag     => $self->get_bags()->{bam},
-	},
-    );
-
-    return ( $dba, $protocolapps, @old_bioassays );
-}
-
-sub create_normalized_data {
-
-    my ( $self,
-	 $name,
-	 $dba,
-	 $protocolapps,
-	 $previous_data,
-	 $array_accession,
-	 $channel,
-	 $previous_material, ) = @_;
-
-    return if ( $name =~ $BLANK );
-
-    # Unless $dba is an actual DBA, make a new DBA.
-    my @old_bioassays;
-    unless (    $dba
-	     && $dba->isa('Bio::MAGE::BioAssay::DerivedBioAssay') ) {
-	my $fext_protoapps;
-	( $fext_protoapps, $protocolapps )
-	    = $self->extract_protocolapps_by_type(
-		$protocolapps,
-		[ 'feature_extraction', 'image_acquisition', 'hybridization' ]
-	    );
-
-	# Here we just default to the file name as internal identifier.
-	my $exhausted_fext_apps;
-	($dba, $exhausted_fext_apps, @old_bioassays) = $self->create_normalization(
-	    $name,
-	    $dba,
-	    $fext_protoapps,
-	    $channel,
-	    $previous_material,
-	);
-
-	# N.B. $exhausted_fext_apps should be empty here.
-	unless ( ! scalar( @{ $exhausted_fext_apps || [] } ) ) {
-	    die("Internal error: Some feature extraction protocol apps unused.");
-	}
-
-	push( @old_bioassays, $dba );
-    }
-
-    if ( ! defined($dba) ) {
-	warn("Undefined DBA object (no Normalization Name?); will not create DBAData $name.\n");
-	return;
-    }
-
-    my $identifier_template = $self->generate_id_template( $name );
-    my $filename = "$name.proc";
-
-    # Allow Affy CHP to be coded as native when skip_datafiles is
-    # used.
-    if ( $self->get_skip_datafiles() ) {
-	$filename = $name;
-	if ( $name =~ /\.CHP \z/ixms ) {
-	    $self->add_native_filetypes( $filename, 'CHP' );
-	}
-    }
-
-    my $dbad = $self->dbad_bag(
-	$name,
-	{
-	    name                    => $name,
-	    filename                => $filename,
-	    identifier_template     => $identifier_template,
-	    protocolapps            => [ @{ $protocolapps } ],  # needs to be a copy.
-	    source_bioassay_dataset => $previous_data ? [ $previous_data ] : undef,
-	    bioassay_map            => $dba->getDerivedBioAssayMap(),
-	}
-    );
-
-    # Add DBAD to DBA.
-    $self->add_dbad_to_dba($dbad, $dba);
-
-    unless ( $dbad->getBioAssayDimension() ) {
-	my $bad = Bio::MAGE::BioAssayData::BioAssayDimension->new(
-	    identifier => "$identifier_template.DerivedBioAssayDimension",
-	    bioAssays  => [ $dba ],
-	);
-	$dbad->setBioAssayDimension($bad);
-    }
-
-    my $datafile = $self->create_datafile(
-	$name,
-	'normalized',
-	$dbad,
-	$array_accession,
-    );
-
-    $self->add_datafiles( $datafile );
-
-    return ($dbad, @old_bioassays);
-}
-
-sub create_raw_data_matrix {
-
-    my ( $self, $name, $protocolapps, $array_accession ) = @_;
-
-    # FIXME nothing done with $protocolapps yet; since this is a
-    # feature extraction protocol, and MeasuredBioAssayData doesn't
-    # have ProducerTransformation, they must be attached to the
-    # MBA. We don't create those until we've read the file, however.
-
-    # In effect, this boils down to a requirement that Scan Name be
-    # used in conjunction with Array Data Matrix File if the hybs are
-    # multi-channel, or if there's a scan protocol (since otherwise
-    # the scan PBAs are not created either). Feature extraction
-    # protocol cannot be supported on Array Data Matrix File at this
-    # time. All these BioAssay objects would also have to be inferred
-    # not only here but also in the data matrix management code. Since
-    # Array Data Matrix is an edge use-case (Illumina, by contrast, is
-    # handled as Array Data File).
-
-    return if ( $name =~ $BLANK );
-
-    my $identifier_template = $self->generate_id_template( $name );
-    my $filename = "$name.proc";
-
-    # Allow files to be coded as native when skip_datafiles is
-    # used.
-    if ( $self->get_skip_datafiles() ) {
-	$filename = $name;
-    }
-
-    my $mbad = $self->mbad_bag(
-	$name,
-	{
-	    name                => $name,
-	    filename            => $filename,
-	    identifier_template => $identifier_template,
-	}
-    );
-
-    my $datafile = $self->create_datafile(
-	$name,
-	$CONFIG->get_RAW_DM_FILE_TYPE(),
-	$mbad,
-	$array_accession,
-    );
-
-    $self->add_datafiles( $datafile );
-
-    return $mbad;
-}
-
-sub create_norm_data_matrix {
-
-    my ( $self,
-	 $name,
-	 $protocolapps,
-	 $array_accession,
-	 $dba,
-	 $channel,
-	 $previous_material, ) = @_;
-
-    return if ( $name =~ $BLANK );
-
-    # Unless $dba is an actual DBA, make a new DBA.
-    my @old_bioassays;
-    unless (    $dba
-	     && $dba->isa('Bio::MAGE::BioAssay::DerivedBioAssay') ) {
-	my $fext_protoapps;
-	( $fext_protoapps, $protocolapps )
-	    = $self->extract_protocolapps_by_type(
-		$protocolapps,
-		[ 'feature_extraction', 'image_acquisition', 'hybridization' ]
-	    );
-
-	my $exhausted_fext_apps;
-	($dba, $exhausted_fext_apps, @old_bioassays) = $self->create_normalization(
-	    $name,
-	    $dba,
-	    $fext_protoapps,
-	    $channel,
-	    $previous_material,
-	);
-
-	# N.B. $exhausted_fext_apps should be empty here.
-	unless ( ! scalar( @{ $exhausted_fext_apps || [] } ) ) {
-	    die("Internal error: Some feature extraction protocol apps unused.");
-	}
-
-	push( @old_bioassays, $dba );
-    }
-
-    my $identifier_template = $self->generate_id_template( $name );
-    my $filename = "$name.proc";
-
-    # Allow files to be coded as native when skip_datafiles is
-    # used.
-    if ( $self->get_skip_datafiles() ) {
-	$filename = $name;
-    }
-
-    my $dbad = $self->dbad_bag(
-	$name,
-	{
-	    name                    => $name,
-	    filename                => $filename,
-	    identifier_template     => $identifier_template,
-	    protocolapps            => [ @{ $protocolapps } ],  # needs to be a copy.
-	}
-    );
-
-    # Add DBAD to DBA.
-    $self->add_dbad_to_dba($dbad, $dba);
-
-    my $txn;
-    unless ( $txn = $dbad->getProducerTransformation() ) {
-	$txn = Bio::MAGE::BioAssayData::Transformation->new(
-	    identifier => "$identifier_template.Transformation",
-	    name       => $name,
-	);
-	$dbad->setProducerTransformation( $txn );
-    }
-
-    my $mapping;
-    unless ( $mapping = $txn->getBioAssayMapping() ) {
-	$mapping = Bio::MAGE::BioAssayData::BioAssayMapping->new();
-	$txn->setBioAssayMapping( $mapping );
-    }
-
-    my $found;
-    foreach my $map ( @{ $mapping->getBioAssayMaps() || [] } ) {
-	if ( my $target = $map->getBioAssayMapTarget() ) {
-	    if ( $target->getIdentifier() eq $dba->getIdentifier() ) {
-		$found++;
-	    }
-	}
-    }
-    unless ( $found ) {
-	my $map = $self->bam_bag(
-	    $dba->getName(),
-	    {
-		identifier_template => $identifier_template,
-		target_bioassay     => $dba,
-	    },
-	);
-	$mapping->addBioAssayMaps( $map );
-    }
-
-    my $datafile = $self->create_datafile(
-	$name,
-	$CONFIG->get_FGEM_FILE_TYPE(),
-	$dbad,
-	$array_accession,
-    );
-
-    $self->add_datafiles( $datafile );
-
-    return $dbad;
-}
-
-sub create_datafile {
-
-    my ( $self, $filename, $datatype, $bad, $array_accession ) = @_;
-
-    unless ( defined $array_accession ) {
-	warn("Error: Datafile $filename needs an array accession number.\n");
-	$array_accession = 'Unknown';
-    }
-
-    my ( $path, $name );
-    if ( $self->get_skip_datafiles() ) {
-	$path = $filename;
-	$name = $filename;
-    }
-    else {
-	$path = get_filepath_from_uri(
-	    $filename,
-	    $self->get_source_directory(),
-	);
-	$name = basename( $path );
-    }
-
-    my $file = ArrayExpress::Datafile->new({
-	path            => $path,
-	name            => $name,
-	data_type       => $datatype,
-	mage_badata     => $bad,
-	array_design_id => $array_accession,
+    my $normalization = $self->get_builder()->find_or_create_normalization({
+        name => $name,
     });
 
-    return $file;
+    $self->_link_to_previous( $normalization, $previous, $protocolapps );
+
+    return $normalization;
+}
+
+sub create_data_file {
+
+    my ( $self, $uri, $previous, $protocolapps ) = @_;
+
+    return if ( $uri =~ $BLANK );
+
+    # FIXME we need a data format, but MAGE-TAB has nowhere to specify
+    # it. This is a very basic start on a way to automatically derive
+    # formats from what we know. Consider putting this in a separate
+    # method which can then be subclassed. Possible additions include
+    # parsing the CEL, CHP headers to get the exact format version.
+    my %known = (
+        'cel'    => 'CEL',
+        'chp'    => 'CHP',
+        'gpr'    => 'GPR',
+	'tif'    => 'TIFF',
+	'tiff'   => 'TIFF',
+	'jpg'    => 'JPEG',
+	'jpeg'   => 'JPEG',
+	'png'    => 'PNG',
+	'gif'    => 'GIF',
+    );
+
+    my $format_str = 'unknown';
+    if ( my ( $ext ) = ( $uri =~ m/\. (\w{3,4}) \z/xms ) ) {
+	if ( my $term = $known{lc($ext)} ) {
+	    $format_str = $term;
+	}
+    }
+
+    my $format = $self->get_builder()->find_or_create_controlled_term({
+        category => 'DataFormat',    # FIXME hard-coded.
+        value    => $format_str,
+    });
+
+    # FIXME we may also need a dataType attribute (e.g. 'image',
+    # 'raw', 'derived').
+    my $data_file = $self->get_builder()->find_or_create_data_file({
+        uri        => $uri,
+        dataFormat => $format,
+    });
+
+    $self->_link_to_previous( $data_file, $previous, $protocolapps );
+
+    return $data_file;
+}
+
+sub create_data_matrix {
+
+    my ( $self, $uri, $previous, $protocolapps ) = @_;
+
+    return if ( $uri =~ $BLANK );
+
+    # FIXME there's a lot more here to get, probably by actually
+    # parsing the data matrix file.
+    my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
+        uri => $uri,
+    });
+
+    $self->_link_to_previous( $data_file, $previous, $protocolapps );
+
+    return $data_matrix;
 }
 
 sub create_factorvalue_value {
@@ -2192,9 +1630,7 @@ __DATA__
                                           # Reset some global variables.
                                           $::channel           = 'Unknown';
                                           $::array_accession   = undef;
-                                          $::previous_material = undef;
-                                          $::previous_event    = undef;
-                                          $::previous_data     = undef;
+                                          $::previous_node     = undef;
                                           @::protocolapp_list  = ();
 
                                           # Generate the objects.
@@ -2277,7 +1713,7 @@ __DATA__
                                               unshift( @_, $obj ) and
                                                   &{ $sub } if (ref $sub eq 'CODE');  
                                           }
-                                          $::previous_material = $obj if $obj;
+                                          $::previous_node = $obj if $obj;
                                           return $obj; 
                                      };
                                    }
@@ -2290,7 +1726,7 @@ __DATA__
                                           my $name = shift;
                                           my $obj  = $::sdrf->create_sample(
                                               $name,
-                                              $::previous_material,
+                                              $::previous_node,
                                               \@::protocolapp_list,
                                           );
                                           @::protocolapp_list = () if $obj;
@@ -2298,7 +1734,7 @@ __DATA__
                                               unshift( @_, $obj ) and
                                                   &{ $sub } if (ref $sub eq 'CODE');  
                                           }
-                                          $::previous_material = $obj if $obj;
+                                          $::previous_node = $obj if $obj;
                                           return $obj; 
                                      };
                                    }
@@ -2311,7 +1747,7 @@ __DATA__
                                           my $name = shift;
                                           my $obj  = $::sdrf->create_extract(
                                               $name,
-                                              $::previous_material,
+                                              $::previous_node,
                                               \@::protocolapp_list,
                                           );
                                           @::protocolapp_list = () if $obj;
@@ -2319,7 +1755,7 @@ __DATA__
                                               unshift( @_, $obj ) and
                                                   &{ $sub } if (ref $sub eq 'CODE');  
                                           }
-                                          $::previous_material = $obj if $obj;
+                                          $::previous_node = $obj if $obj;
                                           return $obj; 
                                      };
                                    }
@@ -2332,7 +1768,7 @@ __DATA__
                                           my $name = shift;
                                           my $obj  = $::sdrf->create_labeled_extract(
                                               $name,
-                                              $::previous_material,
+                                              $::previous_node,
                                               \@::protocolapp_list,
                                           );
                                           @::protocolapp_list = () if $obj;
@@ -2340,7 +1776,7 @@ __DATA__
                                               unshift( @_, $obj ) and
                                                   &{ $sub } if (ref $sub eq 'CODE');  
                                           }
-                                          $::previous_material = $obj if $obj;
+                                          $::previous_node = $obj if $obj;
                                           return $obj; 
                                      };
                                    }
@@ -2814,7 +2250,7 @@ __DATA__
                                          my $name = shift;
                                          my $obj  = $::sdrf->create_hybridization(
                                              $name,
-                                             $::previous_material,
+                                             $::previous_node,
                                              \@::protocolapp_list,
                                              $::channel,
                                          );
@@ -2823,7 +2259,7 @@ __DATA__
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_event = $obj if $obj;
+                                         $::previous_node = $obj if $obj;
                                          return $obj;
                                       };
                                     }
@@ -2840,7 +2276,7 @@ __DATA__
                                          my $name = shift;
                                          my $obj  = $::sdrf->create_assay(
                                              $name,
-                                             $::previous_material,
+                                             $::previous_node,
                                              \@::protocolapp_list,
                                              $::channel,
                                          );
@@ -2850,7 +2286,7 @@ __DATA__
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
 
-                                         $::previous_event = $obj if $obj;
+                                         $::previous_node = $obj if $obj;
                                          return $obj;
                                       };
                                     }
@@ -2880,8 +2316,7 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $type = $::sdrf->create_ontologyentry('TechnologyType', @args);
-                                         $::sdrf->set_technology_type($assay, $type) if ($assay && $type);
+                                         my $type = $::sdrf->create_technology_type( $assay, @args );
                                          return $type;
                                      };
                                    }
@@ -2892,22 +2327,20 @@ __DATA__
 
                                    { $return = sub {
                                          my $name = shift;
-                                         my ($obj, $channel_obj, @ret_obj) = $::sdrf->create_scan(
+                                         my $obj = $::sdrf->create_scan(
                                              $name,
-                                             $::previous_event,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::channel,
-                                             $::previous_material,
                                          );
                                          @::protocolapp_list = () if $obj;
-                                         $::previous_event = $obj if $obj;
-                                         push @ret_obj, $obj if $obj;
-                                         push @ret_obj, $channel_obj if $channel_obj;
+
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 push (@ret_obj, &{ $sub }) if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         return @ret_obj; # Includes channel and merged PBAs; hybs where autogenerated.
+
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                       };
                                     }
 
@@ -2918,20 +2351,18 @@ __DATA__
     normalization:             normalization_name norm_attribute(s?)
 
                                    { $return = sub {
-                                         my ( $obj, $apps, @old_bioassays ) = $::sdrf->create_normalization(
+                                         my $obj = $::sdrf->create_normalization(
                                              shift,
-                                             $::previous_event,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::channel,
-                                             $::previous_material,
                                          );
                                          @::protocolapp_list = @{ $apps || [] } if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_event = $obj if $obj;
-                                         return ( $obj, @old_bioassays );    # DBA; MBA, PBAs if autogenerated.
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
@@ -2949,22 +2380,18 @@ __DATA__
     array_data:                array_data_file comment(s?)
 
                                    { $return = sub {
-                                         my ($obj, $data, @oldpbas) = $::sdrf->create_raw_data_file(
+                                         my $obj = $::sdrf->create_data_file(
                                              shift,
-                                             $::previous_event,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::array_accession,
-                                             $::channel,
-                                             $::previous_material,
                                          );
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_event = $obj  if $obj;
-                                         $::previous_data  = $data if $data;
-                                         return ($obj, @oldpbas);    # MBA; PBAs if autogenerated.
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
@@ -2973,22 +2400,18 @@ __DATA__
     derived_array_data:        derived_array_data_file comment(s?)
 
                                    { $return = sub {
-                                         my ($obj, @old_bioassays) = $::sdrf->create_normalized_data(
+                                         my $obj = $::sdrf->create_data_file(
                                              shift,
-                                             $::previous_event,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::previous_data,
-                                             $::array_accession,
-                                             $::channel,
-                                             $::previous_material,
                                          );
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_data = $obj if $obj;
-                                         return ($obj, @old_bioassays);    # DBAData
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
@@ -2997,18 +2420,18 @@ __DATA__
     array_data_matrix:         array_data_matrix_file comment(s?)
 
                                    { $return = sub {
-                                         my ($obj, @old_pbas) = $::sdrf->create_raw_data_matrix(
+                                         my $obj = $::sdrf->create_data_matrix(
                                              shift,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::array_accession,
                                          );
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_data = $obj if $obj;
-                                         return ($obj, @old_pbas);    # MBAData; PBAs if autogenerated.
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
@@ -3017,21 +2440,18 @@ __DATA__
     derived_array_data_matrix: derived_array_data_matrix_file comment(s?)
 
                                    { $return = sub {
-                                         my ($obj, @old_bioassays) = $::sdrf->create_norm_data_matrix(
+                                         my $obj = $::sdrf->create_data_matrix(
                                              shift,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::array_accession,
-                                             $::previous_event,
-                                             $::channel,
-                                             $::previous_material,
                                          );
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         $::previous_data = $obj if $obj;
-                                         return ($obj, @old_bioassays);    # DBAData
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
@@ -3040,18 +2460,19 @@ __DATA__
     image:                     image_file comment(s?)
 
                                    { $return = sub {
-                                         my ( $obj, @old_pbas ) = $::sdrf->create_image(
+                                         my $obj = $::sdrf->create_data_file(
                                              shift,
-                                             $::previous_event,
+                                             $::previous_node,
                                              \@::protocolapp_list,
-                                             $::channel,
-                                             $::previous_material,
+#                                             $::channel,
+#                                             $::previous_material,
                                          );
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  
                                          }
-                                         return ( $obj, @old_pbas );    # Image; hyb PBA if autogenerated.
+                                         $::previous_node = $obj if $obj;
+                                         return $obj;
                                      };
                                    }
 
