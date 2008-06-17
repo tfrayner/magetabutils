@@ -40,11 +40,11 @@ my $norm = Bio::MAGETAB::Normalization->new( name => 'test norm' );
 my $row  = Bio::MAGETAB::SDRFRow->new( nodes => [ $norm ] );
 
 my %required_attr = (
-    sdrfRows       => [ $row ],
     uri            => 'file://localhost/data/sdrf1.txt',
 );
 
 my %optional_attr = (
+    sdrfRows       => [ $row ],
 );
 
 my %bad_attr = (
