@@ -35,6 +35,25 @@ sub BUILD {
     if ( blessed $self eq __PACKAGE__ ) {
         confess("ERROR: Attempt to instantiate abstract class " . __PACKAGE__);
     }
+        
+    if ( defined $params->{'inputEdges'} ) {
+        $self->_reciprocate_edges_to_nodes(
+            $params->{'inputEdges'},
+            'outputNode',
+        );
+    }
+    if ( defined $params->{'outputEdges'} ) {
+        $self->_reciprocate_edges_to_nodes(
+            $params->{'outputEdges'},
+            'inputNode',
+        );
+    }
+    if ( defined $params->{'sdrfRows'} ) {
+        $self->_reciprocate_sdrf_rows_to_nodes(
+            $params->{'sdrfRows'},
+            'nodes',
+        );
+    }
 
     return;
 }
@@ -75,7 +94,6 @@ around 'set_inputEdges' => sub {
     my ( $attr, $self, $edges ) = @_;
 
     $self->_reciprocate_edges_to_nodes(
-        $attr,
         $edges,
         'outputNode',
     );
@@ -88,39 +106,54 @@ around 'set_outputEdges' => sub {
 
     my ( $attr, $self, $edges ) = @_;
 
+    # Set the appropriate $self attribute to point to $edges.
+    $attr->( $self, $edges );
+
     $self->_reciprocate_edges_to_nodes(
-        $attr,
         $edges,
         'inputNode',
     );
+
+    return;
 };
 
 around 'set_sdrfRows' => sub {
 
     my ( $attr, $self, $sdrf_rows ) = @_;
 
+    # Set the appropriate $self attribute to point to $rows.
+    $attr->( $self, $sdrf_rows );
+
     $self->_reciprocate_sdrf_rows_to_nodes(
-        $attr,
         $sdrf_rows,
         'nodes',
     );
+
+    return;
 };
 
-# FIXME sdrfRows needs the same treatment.
+around 'clear_sdrfRows' => sub {
+
+    my ( $attr, $self ) = @_;
+
+    foreach my $row ( $self->get_sdrfRows() ) {
+        my @new_nodes = grep { $_ ne $self } $row->get_nodes();
+        $row->{'nodes'} = \@new_nodes;
+    }
+
+    # Make sure we actually delete the sdrfRows.
+    $attr->( $self );
+
+    return;
+};
 
 # This method is used as a wrapper to ensure that reciprocating
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_edges_to_nodes {
 
-    # $attr :       CODEREF for setting attribute
-    #                 (see Moose docs, particularly with regard to "around").
     # $edges:       The edges with which $self has a reciprocal relationship.
-    # $self_slot:     The name of the slot pointing from $self to $edge.
     # $edge_slot:   The name of the slot pointing from $edge to $self.
-    my ( $self, $attr, $edges, $edge_slot ) = @_;
-
-    # Set the appropriate $self attribute to point to $edges.
-    $attr->( $self, $edges );
+    my ( $self, $edges, $edge_slot ) = @_;
 
     # Make sure $edges points to us. Since Edge->Node is 1..* we can
     # just overwrite the node attribute in the edges without worrying
@@ -139,17 +172,11 @@ sub _reciprocate_edges_to_nodes {
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_sdrf_rows_to_nodes {
 
-    # $attr :       CODEREF for setting attribute
-    #                 (see Moose docs, particularly with regard to "around").
     # $rows:       The rows with which $self has a reciprocal relationship.
-    # $self_slot:     The name of the slot pointing from $self to $row.
     # $row_slot:   The name of the slot pointing from $row to $self.
-    my ( $self, $attr, $rows, $row_slot ) = @_;
+    my ( $self, $rows, $row_slot ) = @_;
 
     my $row_getter  = "get_$row_slot";
-
-    # Set the appropriate $self attribute to point to $rows.
-    $attr->( $self, $rows );
 
     # Make sure $rows points to us. Row->Node is 1..* so we can
     # just add the node attribute in the rows without worrying

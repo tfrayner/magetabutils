@@ -26,6 +26,28 @@ use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    if ( defined $params->{'inputNode'} ) {
+        $self->_reciprocate_nodes_to_edges(
+            $params->{'inputNode'},
+            'inputNode',
+            'outputEdges',
+        );
+    }
+    if ( defined $params->{'outputNode'} ) {
+        $self->_reciprocate_nodes_to_edges(
+            $params->{'outputNode'},
+            'outputNode',
+            'inputEdges',
+        );
+    }
+
+    return;
+}
+
 has 'inputNode'            => ( is         => 'rw',
                                 isa        => 'Bio::MAGETAB::Node',
                                 weak_ref   => 1,
@@ -50,8 +72,10 @@ around 'set_inputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
+    # Set the appropriate $self attribute to point to $node.
+    $attr->( $self, $node );
+
     $self->_reciprocate_nodes_to_edges(
-        $attr,
         $node,
         'inputNode',
         'outputEdges',
@@ -65,8 +89,10 @@ around 'set_outputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
+    # Set the appropriate $self attribute to point to $node.
+    $attr->( $self, $node );
+
     $self->_reciprocate_nodes_to_edges(
-        $attr,
         $node,
         'outputNode',
         'inputEdges',
@@ -77,13 +103,11 @@ around 'set_outputNode' => sub {
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_nodes_to_edges {
 
-    # $attr :       CODEREF for setting attribute
-    #                 (see Moose docs, particularly with regard to "around").
     # $node:        The node with which $self has a reciprocal relationship.
     #                 This can be either a scalar or an arrayref.
     # $self_slot:   The name of the slot pointing from $self to $node.
     # $node_slot:   The name of the slot pointing from $node to $self.
-    my ( $self, $attr, $node, $self_slot, $node_slot ) = @_;
+    my ( $self, $node, $self_slot, $node_slot ) = @_;
 
     my $self_getter = "get_$self_slot";
     my $node_getter = "get_$node_slot";
@@ -98,9 +122,6 @@ sub _reciprocate_nodes_to_edges {
         }
         $old_node->{ $node_slot } = \@cleaned;
     }
-
-    # Set the appropriate $self attribute to point to $node.
-    $attr->( $self, $node );
 
     # Make sure $node points to us.
     my @current = $node->$node_getter();

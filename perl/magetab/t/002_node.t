@@ -41,11 +41,9 @@ dies_ok( sub { Bio::MAGETAB::Node->new() }, 'abstract class cannot be instantiat
 my @expected = qw(
     get_inputEdges
     get_outputEdges
-    get_factorValues
     get_comments
     set_inputEdges
     set_outputEdges
-    set_factorValues
     set_comments
 );
 
