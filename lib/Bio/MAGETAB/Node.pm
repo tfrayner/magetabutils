@@ -23,6 +23,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Scalar::Util qw(weaken);
+use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
@@ -52,18 +53,18 @@ has 'outputEdges'         => ( is         => 'rw',
                                predicate  => 'has_outputEdges',
                                required   => 0 );
 
-has 'factorValues'        => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::FactorValue]',
-                               auto_deref => 1,
-                               clearer    => 'clear_factorValues',
-                               predicate  => 'has_factorValues',
-                               required   => 0 );
-
 has 'comments'            => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
                                auto_deref => 1,
                                clearer    => 'clear_comments',
                                predicate  => 'has_comments',
+                               required   => 0 );
+
+has 'sdrfRows'            => ( is         => 'rw',
+                               isa        => 'ArrayRef[Bio::MAGETAB::SDRFRow]',
+                               auto_deref => 1,
+                               clearer    => 'clear_sdrfRows',
+                               predicate  => 'has_sdrfRows',
                                required   => 0 );
 
 # We use an "around" method to wrap this, rather than a trigger, so
@@ -94,6 +95,19 @@ around 'set_outputEdges' => sub {
     );
 };
 
+around 'set_sdrfRows' => sub {
+
+    my ( $attr, $self, $sdrf_rows ) = @_;
+
+    $self->_reciprocate_sdrf_rows_to_nodes(
+        $attr,
+        $sdrf_rows,
+        'nodes',
+    );
+};
+
+# FIXME sdrfRows needs the same treatment.
+
 # This method is used as a wrapper to ensure that reciprocating
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_edges_to_nodes {
@@ -116,6 +130,38 @@ sub _reciprocate_edges_to_nodes {
     weaken $self;
     foreach my $t ( @$edges ) {
         $t->{ $edge_slot } = $self;
+    }
+
+    return;
+}
+
+# This method is used as a wrapper to ensure that reciprocating
+# relationships are maintained, even when updating object attributes.
+sub _reciprocate_sdrf_rows_to_nodes {
+
+    # $attr :       CODEREF for setting attribute
+    #                 (see Moose docs, particularly with regard to "around").
+    # $rows:       The rows with which $self has a reciprocal relationship.
+    # $self_slot:     The name of the slot pointing from $self to $row.
+    # $row_slot:   The name of the slot pointing from $row to $self.
+    my ( $self, $attr, $rows, $row_slot ) = @_;
+
+    my $row_getter  = "get_$row_slot";
+
+    # Set the appropriate $self attribute to point to $rows.
+    $attr->( $self, $rows );
+
+    # Make sure $rows points to us. Row->Node is 1..* so we can
+    # just add the node attribute in the rows without worrying
+    # about what else it might have pointed to.
+    foreach my $t ( @$rows ) {
+       
+        # Make sure $t points to us.
+        my @current = $t->$row_getter();
+        unless ( first { $_ eq $self } @current ) {
+            push @current, $self;
+            $t->{ $row_slot } = \@current;
+        }
     }
 
     return;

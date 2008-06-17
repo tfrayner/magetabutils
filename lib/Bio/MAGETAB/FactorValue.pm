@@ -36,12 +36,6 @@ has 'term'                => ( is         => 'rw',
                                predicate  => 'has_term',
                                required   => 0 );
 
-has 'channel'             => ( is         => 'rw',
-                               isa        => 'Bio::MAGETAB::ControlledTerm',
-                               clearer    => 'clear_channel',
-                               predicate  => 'has_channel',
-                               required   => 0 );
-
 has 'factor'              => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Factor',
                                required   => 1 );

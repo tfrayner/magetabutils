@@ -35,6 +35,7 @@ INIT {
 
 use Bio::MAGETAB::ControlledTerm;
 use Bio::MAGETAB::Measurement;
+use Bio::MAGETAB::SDRFRow;
 
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test' );
 my $me = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
@@ -75,3 +76,14 @@ my $obj = test_class(
 );
 
 ok( $obj->isa('Bio::MAGETAB::Material'), 'object has correct superclass' );
+
+my $row  = Bio::MAGETAB::SDRFRow->new( nodes => [ $obj ] );
+my $ex3  = Bio::MAGETAB::Extract->new( name  => 'test extract 3' );
+my $row2 = Bio::MAGETAB::SDRFRow->new( nodes => [ $ex3 ] );
+
+# Test reciprocal relationship between nodes and sdrfRows.
+is_deeply( [ $obj->get_sdrfRows() ], [ $row ],
+           'initial state prior to reciprocity test' );
+is_deeply( $row->get_nodes(), $obj, 'sets nodes in target sdrfRow' );
+lives_ok( sub{ $obj->set_sdrfRows( [ $row2 ] ) }, 'setting sdrfRows via self' );
+is_deeply( [ sort $obj->get_nodes() ], [ sort $row, $row2 ], 'adds nodes to self' );

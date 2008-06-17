@@ -22,7 +22,7 @@ package Bio::MAGETAB::Protocol;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-BEGIN { extends 'Bio::MAGETAB::BaseClass' };
+BEGIN { extends 'Bio::MAGETAB::DatabaseEntry' };
 
 has 'name'                => ( is         => 'rw',
                                isa        => 'Str',

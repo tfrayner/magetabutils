@@ -24,23 +24,11 @@ use Moose;
 
 use Bio::MAGETAB::Types qw(Uri);
 
-BEGIN { extends 'Bio::MAGETAB::BaseClass' };
+BEGIN { extends 'Bio::MAGETAB::DatabaseEntry' };
 
 has 'name'                => ( is         => 'rw',
                                isa        => 'Str',
                                required   => 1 );
-
-has 'accession'           => ( is         => 'rw',
-                               isa        => 'Str',
-                               clearer    => 'clear_accession',
-                               predicate  => 'has_accession',
-                               required   => 0 );
-
-has 'termSource'          => ( is         => 'rw',
-                               isa        => 'Bio::MAGETAB::TermSource',
-                               clearer    => 'clear_termSource',
-                               predicate  => 'has_termSource',
-                               required   => 0 );
 
 has 'version'             => ( is         => 'rw',
                                isa        => 'Str',
