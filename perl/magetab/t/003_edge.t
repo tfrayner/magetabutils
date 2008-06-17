@@ -95,3 +95,21 @@ lives_ok( sub{ $obj->set_outputNode($ex2) }, 'setting outputNode via self' );
 is_deeply( $ex2->get_inputEdges(), $obj, 'sets inputEdges in target node' );
 lives_ok( sub{ $ex3->set_inputEdges( [ $obj ] ) }, 'setting inputEdges via target node' );
 is( $obj->get_outputNode(), $ex3, 'sets outputNode in self' );
+
+# Test for reciprocal relationship establishment on instantiation.
+my $obj2;
+lives_ok( sub{ $obj2 = Bio::MAGETAB::Edge->new( inputNode => $ex, outputNode => $ex2 ) },
+          'edge instantiation with nodes' );
+is( $obj2->get_inputNode(), $ex, 'sets inputNode' );
+is( $obj2->get_outputNode(), $ex2, 'and outputNode' );
+is( $ex->get_outputEdges(), $obj2, 'and outputEdges in target node' );
+is( $ex2->get_inputEdges(), $obj2, 'and inputEdges in target node' );
+
+# Test for reciprocity in deletion.
+dies_ok( sub{ $ex2->clear_inputEdges() }, 'attempt to disconnect edges from node fails' );
+
+# Check object destruction.
+lives_ok( sub{ $obj2->DESTROY() }, 'object destruction succeeds' );
+is( $ex->get_outputEdges(), undef, 'and resets outputEdges in target node' );
+is( $ex2->get_inputEdges(), undef, 'and resets inputEdges in target node' );
+

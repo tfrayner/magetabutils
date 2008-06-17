@@ -107,10 +107,12 @@ my %secondary_attr = (
     comments            => \@co2,
 );
 
-test_class(
+my $obj = test_class(
     'Bio::MAGETAB::ArrayDesign',
     \%required_attr,
     \%optional_attr,
     \%bad_attr,
     \%secondary_attr,
 );
+
+ok( $obj->isa('Bio::MAGETAB::DatabaseEntry'), 'object has correct superclass' );

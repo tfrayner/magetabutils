@@ -26,8 +26,8 @@ use Bio::MAGETAB::Types qw(Uri);
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
-has 'nodes'               => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Node]',
+has 'sdrfRows'            => ( is         => 'rw',
+                               isa        => 'ArrayRef[Bio::MAGETAB::SDRFRow]',
                                auto_deref => 1,
                                required   => 1 );
 

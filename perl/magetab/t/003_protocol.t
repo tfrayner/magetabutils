@@ -77,4 +77,4 @@ my $obj = test_class(
     \%secondary_attr,
 );
 
-ok( $obj->isa('Bio::MAGETAB::BaseClass'), 'object has correct superclass' );
+ok( $obj->isa('Bio::MAGETAB::DatabaseEntry'), 'object has correct superclass' );

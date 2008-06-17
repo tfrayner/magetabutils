@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id$
+# $Id: 003_sdrf.t 900 2008-05-13 13:07:43Z tfrayner $
 
 use strict;
 use warnings;
@@ -25,7 +25,7 @@ use warnings;
 use Test::More qw(no_plan);
 
 BEGIN {
-    use_ok( 'Bio::MAGETAB::SDRF' );
+    use_ok( 'Bio::MAGETAB::SDRFRow' );
 }
 
 INIT {
@@ -34,34 +34,32 @@ INIT {
 }
 
 use Bio::MAGETAB::Normalization;
-use Bio::MAGETAB::SDRFRow;
+use Bio::MAGETAB::Extract;
 
 my $norm = Bio::MAGETAB::Normalization->new( name => 'test norm' );
-my $row  = Bio::MAGETAB::SDRFRow->new( nodes => [ $norm ] );
 
 my %required_attr = (
-    sdrfRows       => [ $row ],
-    uri            => 'file://localhost/data/sdrf1.txt',
+    nodes          => [ $norm ],
 );
 
 my %optional_attr = (
+    rowNumber      => 10,
 );
 
 my %bad_attr = (
-    sdrfRows       => 'test',
-    uri            => [],
+    nodes          => 'test',
+    rowNumber      => 'test',
 );
 
 my $norm2 = Bio::MAGETAB::Normalization->new( name => 'test norm 2' );
-my $row2  = Bio::MAGETAB::SDRFRow->new( nodes => [ $norm2 ] );
 
 my %secondary_attr = (
-    sdrfRows       => [ $row, $row2 ],
-    uri            => 'file://localhost/data/sdrf2.txt',
+    nodes          => [ $norm, $norm2 ],
+    rowNumber      => 23,
 );
 
 my $obj = test_class(
-    'Bio::MAGETAB::SDRF',
+    'Bio::MAGETAB::SDRFRow',
     \%required_attr,
     \%optional_attr,
     \%bad_attr,
@@ -69,3 +67,14 @@ my $obj = test_class(
 );
 
 ok( $obj->isa('Bio::MAGETAB::BaseClass'), 'object has correct superclass' );
+
+my $ex2 = Bio::MAGETAB::Extract->new( name => 'test extract 2' );
+my $ex3 = Bio::MAGETAB::Extract->new( name => 'test extract 3' );
+
+# Test reciprocal relationship between nodes and sdrfRows.
+is_deeply( [ sort $obj->get_nodes() ], [ sort $norm, $norm2 ],
+           'initial state prior to reciprocity test' );
+lives_ok( sub{ $obj->set_nodes( [ $ex2 ] ) }, 'setting nodes via self' );
+is_deeply( $ex2->get_sdrfRows(), $obj, 'sets sdrfRows in target node' );
+lives_ok( sub{ $ex3->set_sdrfRows( [ $obj ] ) }, 'setting sdrfRows via target node' );
+is_deeply( [ sort $obj->get_nodes() ], [ sort $ex2, $ex3 ], 'adds nodes to self' );
