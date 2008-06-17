@@ -29,7 +29,9 @@ BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 has 'sdrfRows'            => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::SDRFRow]',
                                auto_deref => 1,
-                               required   => 1 );
+                               clearer    => 'clear_sdrfRows',
+                               predicate  => 'has_sdrfRows',
+                               required   => 0 );
 
 has 'uri'                 => ( is         => 'rw',
                                isa        => 'Uri',

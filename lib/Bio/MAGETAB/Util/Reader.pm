@@ -80,11 +80,10 @@ sub parse {
     # FIXME parse the SDRFS etc. here
     foreach my $sdrf_file (@$sdrfs) {
 
-	# FIXME stitch the SDRFs together here.
+	# FIXME stitch the SDRFs together here. NB is this actually needed in the new MAGETAB world?
 
     }
 
-    my $datafiles = [];
     if ( scalar @$sdrfs ) {
 
 	# FIXME only one SDRF supported for now:
@@ -102,7 +101,9 @@ sub parse {
 #	    skip_datafiles             => $self->get_skip_datafiles(),
 	});
 
-        $datafiles = $sdrf_parser->parse();
+        my $sdrf_rows = $sdrf_parser->parse();
+
+        $sdrf->set_sdrfRows( $sdrf_rows );
     }
 
     return wantarray

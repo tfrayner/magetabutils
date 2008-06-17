@@ -61,6 +61,7 @@ sub parse {
     my $csv_parser = $self->_get_csv_parser();
 
     my $larry;
+    my @sdrf_rows;
 
     # Run through the rest of the file with the row-level parser.
     FILE_LINE:
@@ -79,7 +80,17 @@ sub parse {
 	}
 
 	# FIXME some error handling wouldn't go amiss here.
-	$row_parser->(@$larry);
+	my $objects = $row_parser->(@$larry);
+
+        # Post-process Nodes and FactorValues.
+        my @nodes = grep { $_ && $_->isa('Bio::MAGETAB::Node') } @{ $objects };
+        my @factorvals = grep { $_ && $_->isa('Bio::MAGETAB::FactorValue') } @{ $objects };
+
+        push @sdrf_rows, Bio::MAGETAB::SDRFRow->new(
+            factorValues => \@factorvals,
+            nodes        => \@nodes,
+            channel      => FIXME; use $::channel or something? or check @nodes for LabeledExtract?,
+        );
     }
 
     # Check we've parsed to the end of the file.
@@ -94,11 +105,7 @@ sub parse {
 	);
     }
 
-#    $self->simplify_single_channels();
-
-#    $self->propagate_fvs_to_datafiles();
-
-    return; #$self->get_datafiles();
+    return \@sdrf_rows;
 }
 
 sub parse_header {
@@ -320,12 +327,11 @@ sub create_protocolapplication {
 
         $ts_obj   = $self->get_builder()->get_term_source( $termsource );
         $protocol = $self->get_builder()->find_or_create_protocol({
-            name      => $name,
+            name       => $name,
+            accession  => $accession,
+            termSource => $ts_obj,
+            namespace  => $namespace,
         });
-
-        $protocol->set_namespace( $namespace ) if defined $namespace;
-
-#        $protocol->set_term_source( FIXME not what I actually want ) if $ts_obj;
     }
     elsif ( $namespace ) {
 
@@ -545,16 +551,34 @@ sub create_array {
 
     return if ( $name =~ $BLANK );
 
-    my $ts_obj;
-    if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
-    }
+    my $array_design;
 
-    my $array_design = $self->get_builder()->find_or_create_array({
-        name       => $name,
-        accession  => $accession,
-        termSource => $ts_obj,
-    });
+    # If we have a valid namespace or termsource, let it through.
+    if ( $termsource ) {
+
+        $ts_obj   = $self->get_builder()->get_term_source( $termsource );
+        $array_design = $self->get_builder()->find_or_create_array_design({
+            name       => $name,
+            accession  => $accession,
+            termSource => $ts_obj,
+            namespace  => $namespace,
+        });
+    }
+    elsif ( $namespace ) {
+
+        # FIXME what about authority here?
+        $array_design = $self->get_builder()->find_or_create_array_design({
+            name       => $name,
+            namespace  => $namespace,
+        });
+    }
+    else {
+
+        # Simple case; this call will die if $name is not valid.
+        $array_design = $self->get_builder()->get_array_design({
+            name       => $name,
+        });
+    }
 
     if ( $assay ) {
         $assay->set_arrayDesign( $array_design );
@@ -647,16 +671,17 @@ sub create_data_matrix {
     return if ( $uri =~ $BLANK );
 
     # FIXME there's a lot more here to get, probably by actually
-    # parsing the data matrix file.
+    # parsing the data matrix file. This won't work as it stands.
     my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
         uri => $uri,
     });
 
-    $self->_link_to_previous( $data_file, $previous, $protocolapps );
+    $self->_link_to_previous( $data_matrix, $previous, $protocolapps );
 
     return $data_matrix;
 }
 
+##### FIXME continue refactoring from here...
 sub create_factorvalue_value {
 
     my ( $self, $factorname, $altcategory, $value, $termsource, $accession ) = @_;
@@ -1652,18 +1677,6 @@ __DATA__
                                           if ( scalar @_ ) {
                                               die("Error: SDRF row not completely parsed: " . join("\n", @_));
                                           }
-
-                                          # Post-process BioAssays and FactorValues.
-                                          my @bioassays
-                                              = grep { $_ && $_->isa('Bio::MAGE::BioAssay::BioAssay') }
-                                                  @objects;
-                                          my @factorvals
-                                              = grep { $_ && $_->isa('Bio::MAGE::Experiment::FactorValue') }
-                                                  @objects;     
-                                          $::sdrf->add_factorvals_to_bioassays(
-                                              \@factorvals,
-                                              \@bioassays,
-                                          );
 
                                           return \@objects;
                                      };
