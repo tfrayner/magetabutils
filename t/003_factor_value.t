@@ -48,14 +48,12 @@ my %required_attr = (
 my %optional_attr = (
     measurement => $me,
     term        => $ct,
-    channel     => $ct,
 );
 
 my %bad_attr = (
     factor      => 'test',
     measurement => 'test',
     term        => 'test',
-    channel     => 'test',
 );
 
 my $fa2 = Bio::MAGETAB::Factor->new( name => 'test factor2' );
@@ -66,7 +64,6 @@ my %secondary_attr = (
     factor      => $fa2,
     measurement => $me2,
     term        => $ct2,
-    channel     => $ct2,
 );
 
 my $obj = test_class(

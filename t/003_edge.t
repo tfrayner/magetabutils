@@ -102,14 +102,14 @@ lives_ok( sub{ $obj2 = Bio::MAGETAB::Edge->new( inputNode => $ex, outputNode => 
           'edge instantiation with nodes' );
 is( $obj2->get_inputNode(), $ex, 'sets inputNode' );
 is( $obj2->get_outputNode(), $ex2, 'and outputNode' );
-is( $ex->get_outputEdges(), $obj2, 'and outputEdges in target node' );
-is( $ex2->get_inputEdges(), $obj2, 'and inputEdges in target node' );
+is_deeply( $ex->get_outputEdges(), $obj2, 'and outputEdges in target node' );
+is_deeply( [ sort $ex2->get_inputEdges() ], [ sort $obj, $obj2 ], 'and inputEdges in target node' );
 
-# Test for reciprocity in deletion.
-dies_ok( sub{ $ex2->clear_inputEdges() }, 'attempt to disconnect edges from node fails' );
-
-# Check object destruction.
-lives_ok( sub{ $obj2->DESTROY() }, 'object destruction succeeds' );
-is( $ex->get_outputEdges(), undef, 'and resets outputEdges in target node' );
-is( $ex2->get_inputEdges(), undef, 'and resets inputEdges in target node' );
+# This should live, and allow garbage collection to destroy both the
+# edge and any protocol apps attached to it. The edge still references
+# $ex2, but the ref is weakened. This is okay because edges don't have
+# multiple outputNodes etc. and so aren't really reusable. FIXME
+# consider removing the edge object from any Bio::MAGETAB container,
+# though.
+lives_ok( sub{ $ex2->clear_inputEdges() }, 'attempt to disconnect edges from node succeeds' );
 

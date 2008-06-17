@@ -27,6 +27,21 @@ use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    if ( defined $params->{'nodes'} ) {
+        $self->set_nodes( $params->{'nodes'} );
+        $self->_reciprocate_nodes_to_sdrf_rows(
+            $params->{'nodes'},
+            'sdrfRows',
+        );
+    }
+
+    return;
+}
+
 has 'nodes'               => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Node]',
                                auto_deref => 1,
@@ -56,12 +71,13 @@ has 'channel'             => ( is         => 'rw',
 # and remove this edge.
 around 'set_nodes' => sub {
 
-    my ( $attr, $self, $node ) = @_;
+    my ( $attr, $self, $nodes ) = @_;
+
+    # Set the appropriate $self attribute to point to $node.
+    $attr->( $self, $nodes );
 
     $self->_reciprocate_nodes_to_sdrf_rows(
-        $attr,
-        $node,
-        'nodes',
+        $nodes,
         'sdrfRows',
     );
 };
@@ -70,17 +86,11 @@ around 'set_nodes' => sub {
 # relationships are maintained, even when updating object attributes.
 sub _reciprocate_nodes_to_sdrf_rows {
 
-    # $attr :       CODEREF for setting attribute
-    #                 (see Moose docs, particularly with regard to "around").
     # $node:        The node with which $self has a reciprocal relationship.
-    # $self_slot:   The name of the slot pointing from $self to $node.
     # $node_slot:   The name of the slot pointing from $node to $self.
-    my ( $self, $attr, $nodes, $self_slot, $node_slot ) = @_;
+    my ( $self, $nodes, $node_slot ) = @_;
 
     my $node_getter = "get_$node_slot";
-
-    # Set the appropriate $self attribute to point to $node.
-    $attr->( $self, $nodes );
 
     # The Node-to-Row association is weakened to break a cicular
     # reference on object destruction.
@@ -97,7 +107,6 @@ sub _reciprocate_nodes_to_sdrf_rows {
 
     return;
 }
-
 
 __PACKAGE__->meta->make_immutable();
 

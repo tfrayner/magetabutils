@@ -78,3 +78,15 @@ lives_ok( sub{ $obj->set_nodes( [ $ex2 ] ) }, 'setting nodes via self' );
 is_deeply( $ex2->get_sdrfRows(), $obj, 'sets sdrfRows in target node' );
 lives_ok( sub{ $ex3->set_sdrfRows( [ $obj ] ) }, 'setting sdrfRows via target node' );
 is_deeply( [ sort $obj->get_nodes() ], [ sort $ex2, $ex3 ], 'adds nodes to self' );
+
+# Check that we can update the sdrfRows on a node (reflexively).
+my $obj2;
+lives_ok( sub{ $obj2 = Bio::MAGETAB::SDRFRow->new( nodes => [ $ex2, $ex3 ] ) },
+          'SDRFRow initialization succeeds' );
+is_deeply( [ sort $obj2->get_nodes() ], [ sort $ex2, $ex3 ], 'setting nodes correctly' );
+is_deeply( [ sort $ex2->get_sdrfRows() ], [ sort $obj, $obj2 ], 'and adds sdrfRow to target correctly' );
+
+# Check that we can selectively delete nodes from an SDRFRow (reflexively).
+lives_ok( sub{ $ex3->clear_sdrfRows() }, 'node can clear sdrfRow' );
+is( $ex3->get_sdrfRows(), undef, 'sdrfRow cleared correctly' );
+is_deeply( [ $obj2->get_nodes() ], [ $ex2 ], 'and updates SDRFRow nodes correctly' );

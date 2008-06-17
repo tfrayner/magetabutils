@@ -39,6 +39,7 @@ lib/Bio/MAGETAB/Publication.pm
 lib/Bio/MAGETAB/Reporter.pm
 lib/Bio/MAGETAB/Sample.pm
 lib/Bio/MAGETAB/SDRF.pm
+lib/Bio/MAGETAB/SDRFRow.pm
 lib/Bio/MAGETAB/Source.pm
 lib/Bio/MAGETAB/TermSource.pm
 lib/Bio/MAGETAB/Types.pm
@@ -78,6 +79,7 @@ t/003_publication.t
 t/003_reporter.t
 t/003_sample.t
 t/003_sdrf.t
+t/003_sdrf_row.t
 t/003_source.t
 t/003_term_source.t
 t/004_magetab.t

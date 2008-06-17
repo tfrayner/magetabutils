@@ -47,9 +47,10 @@ use Bio::MAGETAB::Factor;
 use Bio::MAGETAB::TermSource;
 use Bio::MAGETAB::Comment;
 use Bio::MAGETAB::SDRF;
+use Bio::MAGETAB::SDRFRow;
 use Bio::MAGETAB::Normalization;
 
-my $publ = Bio::MAGETAB::Publication->new();
+my $publ = Bio::MAGETAB::Publication->new( title => 'test publication' );
 my $prot = Bio::MAGETAB::Protocol->new( name => 'test protocol' );
 my $cont = Bio::MAGETAB::Contact->new( lastName => 'test contact' );
 my $cote = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test' );
@@ -57,7 +58,8 @@ my $fact = Bio::MAGETAB::Factor->new( name => 'test factor' );
 my $teso = Bio::MAGETAB::TermSource->new( name => 'test termsource' );
 my $comm = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'value' );
 my $norm = Bio::MAGETAB::Normalization->new( name => 'test norm' );
-my $sdrf = Bio::MAGETAB::SDRF->new( nodes => [ $norm ], uri => 'http://test.com' );
+my $srow = Bio::MAGETAB::SDRFRow->new( nodes => [ $norm ] );
+my $sdrf = Bio::MAGETAB::SDRF->new( sdrfRows => [ $srow ], uri => 'http://test.com' );
 
 # Dates can be flexibly expressed as anything Date::Manip will
 # understand.
@@ -96,7 +98,7 @@ my %bad_attr = (
     sdrfs               => 'test',
 );
 
-my $publ2 = Bio::MAGETAB::Publication->new( pubMedID => '12345678' );
+my $publ2 = Bio::MAGETAB::Publication->new( pubMedID => '12345678', title => 'test title 2' );
 my $prot2 = Bio::MAGETAB::Protocol->new( name => 'test protocol 2' );
 my $cont2 = Bio::MAGETAB::Contact->new( lastName => 'test contact 2' );
 my $cote2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
@@ -104,7 +106,8 @@ my $fact2 = Bio::MAGETAB::Factor->new( name => 'test factor 2' );
 my $teso2 = Bio::MAGETAB::TermSource->new( name => 'test termsource 2' );
 my $comm2 = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'value 2' );
 my $norm2 = Bio::MAGETAB::Normalization->new( name => 'test norm 2' );
-my $sdrf2 = Bio::MAGETAB::SDRF->new( nodes => [ $norm2 ], uri => 'file:///~/test.txt' );
+my $srow2 = Bio::MAGETAB::SDRFRow->new( nodes => [ $norm2 ] );
+my $sdrf2 = Bio::MAGETAB::SDRF->new( sdrfRows => [ $srow, $srow2 ], uri => 'file:///~/test.txt' );
 
 # N.B. dates may also be expressed as a hashref to be passed to
 # DateTime->new(), but we don't test that here.

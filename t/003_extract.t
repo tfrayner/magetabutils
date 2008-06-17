@@ -85,5 +85,7 @@ my $row2 = Bio::MAGETAB::SDRFRow->new( nodes => [ $ex3 ] );
 is_deeply( [ $obj->get_sdrfRows() ], [ $row ],
            'initial state prior to reciprocity test' );
 is_deeply( $row->get_nodes(), $obj, 'sets nodes in target sdrfRow' );
+
+# Check that set_sdrfRows incurs an addition of nodes to the target SDRFRow.
 lives_ok( sub{ $obj->set_sdrfRows( [ $row2 ] ) }, 'setting sdrfRows via self' );
-is_deeply( [ sort $obj->get_nodes() ], [ sort $row, $row2 ], 'adds nodes to self' );
+is_deeply( [ sort $row2->get_nodes() ], [ sort $obj, $ex3 ], 'adds nodes to SDRFRow' );
