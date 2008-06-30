@@ -46,6 +46,12 @@ has 'type'                => ( is         => 'rw',
                                predicate  => 'has_type',
                                required   => 0 );
 
+has 'description'         => ( is         => 'rw',
+                               isa        => 'Str',
+                               clearer    => 'clear_description',
+                               predicate  => 'has_description',
+                               required   => 0 );
+
 has 'characteristics'     => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::ControlledTerm]',
                                auto_deref => 1,

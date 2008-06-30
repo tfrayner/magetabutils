@@ -25,7 +25,7 @@ use Moose;
 BEGIN { extends 'Bio::MAGETAB::Data' };
 
 has 'format'              => ( is       => 'rw',
-                               isa      => 'Str',
+                               isa      => 'Bio::MAGETAB::ControlledTerm',
                                required => 1 );
 
 __PACKAGE__->meta->make_immutable();

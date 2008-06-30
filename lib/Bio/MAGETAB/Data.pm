@@ -43,6 +43,10 @@ has 'uri'                 => ( is       => 'rw',
                                coerce   => 1,
                                required => 1 );
 
+has 'type'                => ( is       => 'rw',
+                               isa      => 'Bio::MAGETAB::ControlledTerm',
+                               required => 1 );
+
 __PACKAGE__->meta->make_immutable();
 
 no Moose;

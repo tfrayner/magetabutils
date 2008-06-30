@@ -33,9 +33,14 @@ INIT {
     use CommonTests qw(test_class);
 }
 
+use Bio::MAGETAB::ControlledTerm;
+my $format = Bio::MAGETAB::ControlledTerm->new( category => 'format', value => 'CEL' );
+my $type   = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 'test' );
+
 my %required_attr = (
     uri           => 'file://localhost/home/user/data.txt',
-    format        => 'CEL',
+    format        => $format,
+    type          => $type,
 );
 
 my %optional_attr = (
@@ -43,12 +48,17 @@ my %optional_attr = (
 
 my %bad_attr = (
     uri            => [],
-    format         => [],
+    format         => 'test',
+    type           => 'test',
 );
+
+my $format2 = Bio::MAGETAB::ControlledTerm->new( category => 'format', value => 'CEL2' );
+my $type2   = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 'test2' );
 
 my %secondary_attr = (
     uri           => 'file://localhost2/home/user/data.txt',
-    format        => 'CEL',
+    format        => $format2,
+    type          => $type2,
 );
 
 my $obj = test_class(
