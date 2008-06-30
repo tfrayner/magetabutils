@@ -58,7 +58,7 @@ sub _create_object {
 
     # Initial object creation. Namespace, authority can both be
     # overridden by $data, hence the order here.
-    $obj = $class->new(
+    my $obj = $class->new(
         'namespace' => $self->get_namespace(),
         'authority' => $self->get_authority(),
         %{ $data },
@@ -195,7 +195,7 @@ my %method_map = (
         *{"get_${item}"} = sub {
             my ( $self, @id_parts ) = @_;
 
-            my $id = join(chr(0), map { $data->{$_} } sort @id_parts);
+            my $id = join(chr(0), sort @id_parts);
 
             if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
                 return $retval;

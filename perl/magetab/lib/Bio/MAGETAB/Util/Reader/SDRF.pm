@@ -246,7 +246,7 @@ sub create_providers {
         my $found = first { $_ eq $name } @preexisting;
 
         unless ( $found ) {
-            push @prexisting, $name;
+            push @preexisting, $name;
         }
     }
     
@@ -479,7 +479,7 @@ sub create_performers {
         my $found = first { $_ eq $name } @preexisting;
 
         unless ( $found ) {
-            push @prexisting, $name;
+            push @preexisting, $name;
         }
     }
     
@@ -488,7 +488,7 @@ sub create_performers {
     return \@names;
 }
 
-sub create_description {
+sub create_date {
 
     my ( $self, $date, $proto_app ) = @_;
 
@@ -708,7 +708,7 @@ sub create_array {
     # If we have a valid namespace or termsource, let it through.
     if ( $termsource ) {
 
-        $ts_obj   = $self->get_builder()->get_term_source( $termsource );
+        my $ts_obj   = $self->get_builder()->get_term_source( $termsource );
         $array_design = $self->get_builder()->find_or_create_array_design({
             name       => $name,
             accession  => $accession,
@@ -950,8 +950,8 @@ sub _add_comment_to_thing {
     }   @preexisting;
 
     unless ( $found ) {
-        push @prexisting, $comment;
-        $thing->set_comments( \@prexisting );
+        push @preexisting, $comment;
+        $thing->set_comments( \@preexisting );
     }
 
     return;
@@ -966,7 +966,7 @@ sub create_comment {
     my $comment = $self->get_builder()->create_comment({
 	name  => $name,
 	value => $value,
-    );
+    });
 
     $self->_add_comment_to_thing( $comment, $thing )
 	if $thing;
@@ -1001,7 +1001,6 @@ sub _add_characteristic_to_material {
 
     return unless ( $material && $char );
 
-    my $found;
     my @preexisting = $material->get_characteristics();
 
     my $new_category = $self->_get_characteristic_type( $char );
@@ -1347,7 +1346,10 @@ __DATA__
 
                                          $::sdrf->create_providers( shift, $source );
 
-# FIXME we attach comments to the source, rather than the provider (model problem FIXME? or at least remove comments from the production.)
+                      # FIXME we attach comments to the source, rather
+                      # than the provider (model problem FIXME? or at
+                      # least remove comments from the production.)
+
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $source ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');
@@ -1562,7 +1564,10 @@ __DATA__
 
                                          $::sdrf->create_performers( shift, $protocolapp );
 
-# FIXME we attach comments to the protocolapp, rather than the performer (model problem FIXME? or at least remove comments from the production.)
+                 # FIXME we attach comments to the protocolapp, rather
+                 # than the performer (model problem FIXME?  or at
+                 # least remove comments from the production.)
+
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $protocolapp ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');
