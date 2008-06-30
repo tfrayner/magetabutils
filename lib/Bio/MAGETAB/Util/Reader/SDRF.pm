@@ -232,6 +232,40 @@ sub create_source {
     return $source;
 }
 
+sub create_providers {
+
+    my ( $self, $providers, $source ) = @_;
+
+    return if ( $providers =~ $BLANK );
+
+    my @names = split /\s*;\s*/, $providers;
+
+    my @preexisting = $source->get_providers();
+
+    foreach my $name ( @names ) {
+        my $found = first { $_ eq $name } @preexisting;
+
+        unless ( $found ) {
+            push @prexisting, $name;
+        }
+    }
+    
+    $source->set_providers( \@preexisting );
+
+    return \@names;
+}
+
+sub create_description {
+
+    my ( $self, $description, $describable ) = @_;
+
+    return if ( $description =~ $BLANK );
+
+    $describable->set_description( $description ) if $describable;
+
+    return $description;
+}
+
 sub _link_to_previous {
 
     my ( $self, $obj, $previous, $protocolapps ) = @_;
@@ -308,7 +342,7 @@ sub create_labeled_extract {
 
 sub create_label {
 
-    my ( $self, $dyename, $termsource, $accession, $le ) = @_;
+    my ( $self, $dyename, $le, $termsource, $accession ) = @_;
 
     return if ( $dyename =~ $BLANK );
 
@@ -327,6 +361,68 @@ sub create_label {
     $le->set_label( $label ) if $le;
 
     return $label;
+}
+
+sub create_characteristic_value {
+
+    my ( $self, $category, $value, $material, $termsource, $accession ) = @_;
+
+    return if ( $value =~ $BLANK );
+
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+    }
+
+    my $term = $self->get_builder()->find_or_create_controlled_term({
+        category   => $category,
+        value      => $value,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
+
+    $self->_add_characteristic_to_material( $term, $material ) if $material;
+
+    return $term;
+}
+
+sub create_characteristic_measurement {
+
+    my ( $self, $type, $value, $material ) = @_;
+
+    return if ( $value =~ $BLANK );
+
+    my $measurement = $self->get_builder()->create_measurement({
+        type  => $type,
+        value => $value,
+    });
+    
+    $self->_add_characteristic_to_material( $measurement, $material ) if $material;
+
+    return $measurement;
+}
+
+sub create_material_type {
+
+    my ( $self, $value, $material, $termsource, $accession ) = @_;
+
+    return if ( $value =~ $BLANK );
+
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+    }
+
+    my $term = $self->get_builder()->find_or_create_controlled_term({
+        category   => 'MaterialType',    # FIXME hard-coded
+        value      => $value,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
+
+    $material->set_type( $term ) if $material;
+
+    return $term;
 }
 
 sub create_protocolapplication {
@@ -362,12 +458,45 @@ sub create_protocolapplication {
         $protocol = $self->get_builder()->get_protocol( $name );
     }
 
-    # FIXME we really need more at the point of instantiation; grammar may need changing.
     my $protocol_app = $self->get_builder()->create_protocol_application({
         protocol => $protocol,
     });
 
     return $protocol_app;
+}
+
+sub create_performers {
+
+    my ( $self, $performers, $proto_app ) = @_;
+
+    return if ( $performers =~ $BLANK );
+
+    my @names = split /\s*;\s*/, $performers;
+
+    my @preexisting = $proto_app->get_performers();
+
+    foreach my $name ( @names ) {
+        my $found = first { $_ eq $name } @preexisting;
+
+        unless ( $found ) {
+            push @prexisting, $name;
+        }
+    }
+    
+    $proto_app->set_performers( \@preexisting );
+
+    return \@names;
+}
+
+sub create_description {
+
+    my ( $self, $date, $proto_app ) = @_;
+
+    return if ( $date =~ $BLANK );
+
+    $proto_app->set_date( $date ) if $proto_app;
+
+    return $date;
 }
 
 sub create_parametervalue {
@@ -387,7 +516,6 @@ sub create_parametervalue {
     my $parameterval = $self->get_builder()->create_parameter_value({
         parameter   => $parameter,
         measurement => $measurement,
-#        FIXME fun stuff here, also consider altering grammar for unit.
     });
 
     $self->_add_parameterval_to_protocolapp(
@@ -403,12 +531,12 @@ sub _add_parameterval_to_protocolapp {
     my ( $self, $parameterval, $protocolapp ) = @_;
 
     my $found;
-    if ( my $preexisting_values = $protocolapp->get_parameterValues() ) {
+    if ( my @preexisting = $protocolapp->get_parameterValues() ) {
 
 	my $parameter = $parameterval->get_parameter();
 	$found = first {
 	    $_->get_parameter() eq $parameter
-	}   @$preexisting_values;
+	}   @preexisting;
     }
     unless ( $found ) {
         my $values = $protocolapp->get_parameterValues();
@@ -422,7 +550,7 @@ sub _add_parameterval_to_protocolapp {
 # FIXME OE as adjunct to parameter not supported by MAGE-TAB model.
 # At the moment (v1.1 DRAFT) it seems that OE is not required, but
 # we'll keep this here in case that ever changes.
-sub add_value_to_parameter {
+sub _add_value_to_parameter {
 
     my ( $self, $parameter, $termsource, $accession ) = @_;
 
@@ -451,7 +579,7 @@ sub add_value_to_parameter {
 
 sub create_unit {
 
-    my ( $self, $type, $name, $termsource, $accession ) = @_;
+    my ( $self, $type, $name, $thing, $termsource, $accession ) = @_;
 
     return if ( $name =~ $BLANK );
 
@@ -467,20 +595,29 @@ sub create_unit {
         termSource => $ts_obj,
     });
 
+    # Add unit to $thing, where given.
+    if ( $thing ) {
+        $self->_add_unit_to_thing( $unit, $thing );
+    }
+
     return $unit;
 }
 
-sub add_unit_to_thing {
+sub _add_unit_to_thing {
 
     my ( $self, $unit, $thing ) = @_;
 
     return unless ( $unit && $thing );
 
+    # Either $thing has a unit, or a measurement.
     if ( $thing->can('set_unit') ) {
-	$thing->set_unit( $unit );
+        $thing->set_unit( $unit );
     }
-    else {
-	croak("Error: Cannot process argument: $thing (" . blessed($thing) .")");
+    elsif ( my $meas = $thing->has_measurement() ) {
+        $meas->set_unit( $unit );
+    }
+    else{
+        croak("Error: Cannot process argument: $thing (" . blessed($thing) .")");
     }
 
     return;
@@ -488,7 +625,7 @@ sub add_unit_to_thing {
 
 sub create_technology_type {
 
-    my ( $self, $assay, $value, $termsource, $accession ) = @_;
+    my ( $self, $value, $assay, $termsource, $accession ) = @_;
 
     return if ( $value =~ $BLANK );
 
@@ -700,7 +837,7 @@ sub create_data_matrix {
     return $data_matrix;
 }
 
-sub get_fv_category_from_factor {
+sub _get_fv_category_from_factor {
 
     my ( $self, $factor ) = @_;
 
@@ -744,7 +881,7 @@ sub create_factorvalue_value {
     else {
 
         # Otherwise derive it from the factor type.
-        $category = $self->get_fv_category_from_factor( $exp_factor );
+        $category = $self->_get_fv_category_from_factor( $exp_factor );
     }
 
     my $term = $self->get_builder()->find_or_create_controlled_term({
@@ -764,7 +901,7 @@ sub create_factorvalue_value {
 
 sub create_factorvalue_measurement {
 
-    my ( $self, $factorname, $altcategory, $value, $unit ) = @_;
+    my ( $self, $factorname, $altcategory, $value ) = @_;
 
     return if ( $value =~ $BLANK );
 
@@ -781,13 +918,12 @@ sub create_factorvalue_measurement {
     else {
 
         # Otherwise derive it from the factor type.
-        $category = $self->get_fv_category_from_factor( $exp_factor );
+        $category = $self->_get_fv_category_from_factor( $exp_factor );
     }
 
     my $measurement = $self->get_builder()->create_measurement({
         type  => $category,
         value => $value,
-        unit  => $unit,
     });
     
     my $factorvalue = $self->get_builder()->find_or_create_factor_value({
@@ -798,7 +934,7 @@ sub create_factorvalue_measurement {
     return $factorvalue;
 }
 
-sub add_comment_to_thing {
+sub _add_comment_to_thing {
 
     my ( $self, $comment, $thing ) = @_;
 
@@ -832,13 +968,34 @@ sub create_comment {
 	value => $value,
     );
 
-    $self->add_comment_to_thing( $comment, $thing )
+    $self->_add_comment_to_thing( $comment, $thing )
 	if $thing;
 
     return $comment;
 }
 
-sub add_char_to_material {
+sub _get_characteristic_type {
+
+    my ( $self, $char ) = @_;
+
+    # Handle both ControlledTerm and Measurement. Both have value
+    # attributes, but Measurement has type while ControlledTerm has
+    # category.
+    my $getter;
+    if ( blessed($char) eq 'Bio::MAGETAB::ControlledTerm' ) {
+        $getter = "get_category";
+    }
+    elsif ( blessed($char) eq 'Bio::MAGETAB::Measurement' ) {
+        $getter = "get_type";
+    }
+    else {
+        croak("Cannot process argument: $char (" . blessed($char) .")");
+    }
+
+    return $char->$getter;
+}
+
+sub _add_characteristic_to_material {
 
     my ( $self, $char, $material ) = @_;
 
@@ -847,11 +1004,13 @@ sub add_char_to_material {
     my $found;
     my @preexisting = $material->get_characteristics();
 
-    my $new_category = $char->get_category();
+    my $new_category = $self->_get_characteristic_type( $char );
     my $new_value    = $char->get_value();
+    my $new_class    = blessed $char;
     my $found = first {
-        $_->get_category() eq $new_category
-     && $_->get_value()    eq $new_value;
+        $self->_get_characteristic_type( $_ ) eq $new_category
+     && $_->get_value()                       eq $new_value
+     && blessed $_                            eq $new_class
     }   @preexisting;
 
     unless ( $found ) {
@@ -1033,107 +1192,127 @@ __DATA__
 
     characteristic_heading:    /Characteristics?/i
 
-    characteristic:            characteristic_heading
+    characteristic:            characteristic_meas
+                             | characteristic_value
+
+    characteristic_meas:       characteristic_heading
                                <skip:' *'> bracket_term
-                               <skip:' *\x{0} *'> char_fv_attribute(?)
+                               <skip:' *\x{0} *'> unit
 
                                    { $return = sub {
                                          my $material = shift;
 
-                                         my $char;
-                                         if ( ref $item[5][0] eq 'CODE' ) {
+                                         # Add a measurement with unit to the material.
+                                         my $char = $::sdrf->create_characteristic_measurement(
+                                             $item[3], shift, $material,
+                                         );
 
-                                             # Add a unit (nested OE) to the material.
-                                             my $oe_meas;
-                                             # FIXME we never want to do this now; figure out the MAGE-TAB version
-                                             ( $char, $oe_meas )
-                                                 = $::sdrf->create_nested_oe_measurement($item[3], shift);
-                                             unshift( @_, $oe_meas );
-                                             my $unit = &{ $item[5][0] };
-                                             $::sdrf->add_char_to_material($char, $material);
+                                         unshift( @_, $char );
+                                         my $unit = &{ $item[5] };
+
+                                         return $char;
+                                     };
+                                   }
+
+    characteristic_value:      characteristic_heading
+                               <skip:' *'> bracket_term
+                               <skip:' *\x{0} *'> termsource(?)
+
+                                   { $return = sub {
+                                         my $material = shift;
+
+                                         # Value
+                                         my $value = shift;
+
+                                         my @args;
+                                         if ( ref $item[5][0] eq 'ARRAY' ) {
+
+                                             # Term Source
+                                             push @args, shift;
+
+                                             # Accession
+                                             push @args, ($item[5][0][1] eq 'term_accession')
+                                                         ? shift
+                                                         : undef;
                                          }
                                          else {
 
-                                             # Value
-                                             my @args = shift;
-
-                                             if ( ref $item[5][0] eq 'ARRAY' ) {
-
-                                                 # Term Source
-                                                 push @args, shift;
-
-                                                 # Accession
-                                                 push @args, ($item[5][0][1] eq 'term_accession')
-                                                             ? shift
-                                                             : undef;
-                                             }
-                                             else {
-
-                                                 # No term source given
-                                                 push @args, undef, undef;
-                                             }
-
-                                             $char = $::sdrf->create_ontologyentry($item[3], @args);
-                                             $::sdrf->add_char_to_material($char, $material);
+                                             # No term source given
+                                             push @args, undef, undef;
                                          }
+
+                                         my $char = $::sdrf->create_characteristic_value(
+                                             $item[3], $value, $material, @args,
+                                         );
+
                                          return $char;
                                      };
                                    }
 
     factor_value_heading:      /Factor *Values?/i
 
-    factor_value:              factor_value_heading
+    factor_value:              factor_value_meas
+                             | factor_value_value
+
+    factor_value_meas:         factor_value_heading
                                <skip:' *'> bracket_term parens_term(?)
-                               <skip:' *\x{0} *'> char_fv_attribute(?)
+                               <skip:' *\x{0} *'> unit
 
                                    { $return = sub {
-                                         my ($fv, $ef);
-                                         if ( ref $item[6][0] eq 'CODE' ) {
-                                             my $value = shift;
 
-                                             # Attach the unit to the measurement.
-                                             unshift( @_, undef );
-                                             my $unit = &{ $item[6][0] };
+                                         # Value
+                                         my $value = shift;
 
-                                             $fv = $::sdrf->create_factorvalue_measurement(
-                                                 $item[3],
-                                                 $item[4][0],
-                                                 $value,
-                                                 $unit,
-                                             );
-                                         }
-                                         else {
+                                         # Attach the unit to the measurement.
+                                         my $fv = $::sdrf->create_factorvalue_measurement(
+                                             $item[3],
+                                             $item[4][0],
+                                             $value,
+                                         );
 
-                                             # Value
-                                             my @args = shift;
+                                         unshift( @_, $fv );
+                                         my $unit = &{ $item[6] };
 
-                                             if ( ref $item[6][0] eq 'ARRAY' ) {
-
-                                                 # Term Source
-                                                 push @args, shift;
-
-                                                 # Accession
-                                                 push @args, ($item[6][0][1] eq 'term_accession')
-                                                             ? shift
-                                                             : undef;
-                                             }
-                                             else {
-
-                                                 # No term source given
-                                                 push @args, undef, undef;
-                                             }
-                                             $fv = $::sdrf->create_factorvalue_value(
-                                                 $item[3],
-                                                 $item[4][0],
-                                                 @args,
-                                             );
-                                         }
                                          return $fv;
                                      };
                                    }
 
-    char_fv_attribute:         unit
-                             | termsource
+    factor_value_value:       factor_value_heading
+                               <skip:' *'> bracket_term parens_term(?)
+                               <skip:' *\x{0} *'> termsource(?)
+
+                                   { $return = sub {
+
+                                         # Value
+                                         my $value = shift;
+
+                                         my @args;
+                                         if ( ref $item[6][0] eq 'ARRAY' ) {
+
+                                             # Term Source
+                                             push @args, shift;
+
+                                             # Accession
+                                             push @args, ($item[6][0][1] eq 'term_accession')
+                                                         ? shift
+                                                         : undef;
+                                         }
+                                         else {
+
+                                             # No term source given
+                                             push @args, undef, undef;
+                                         }
+
+                                         my $fv = $::sdrf->create_factorvalue_value(
+                                             $item[3],
+                                             $item[4][0],
+                                             $value,
+                                             @args,
+                                         );
+
+                                         return $fv;
+                                     };
+                                   }
 
     bracket_term:              /\A \[ [ ]* ([^\x{0}\]]+?) [ ]* \]/xms
 
@@ -1165,9 +1344,8 @@ __DATA__
 
                                    { $return = sub {
                                          my $source = shift;
-                                         my @names  = split /\s*;\s*/, shift;
 
-                                         $source->set_providers( \@names );
+                                         $::sdrf->create_providers( shift, $source );
 
 # FIXME we attach comments to the source, rather than the provider (model problem FIXME? or at least remove comments from the production.)
                                          foreach my $sub (@{$item[2]}){
@@ -1187,8 +1365,9 @@ __DATA__
                                          my $material = shift;
 
                                          # Value
-                                         my @args = shift;
+                                         my $value = shift;
 
+                                         my @args;
                                          if ( ref $item[2][0] eq 'ARRAY' ) {
 
                                              # Term Source
@@ -1204,8 +1383,11 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $type = $::sdrf->create_ontologyentry('MaterialType', @args);
-                                         $material->set_materialType( $type ) if ($material && $type);
+
+                                         my $type = $::sdrf->create_material_type(
+                                             $value, $material, @args,
+                                         );
+
                                          return $type;
                                      };
                                    }
@@ -1235,7 +1417,7 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $label = $::sdrf->create_label($::channel, @args, $labeled_extract);
+                                         my $label = $::sdrf->create_label($::channel, $labeled_extract, @args);
                                          return $label;
                                      };
                                    }
@@ -1245,8 +1427,8 @@ __DATA__
                                    { $return = sub {
                                          my $describable = shift;
                                          my $description = shift;
-                                         # FIXME check $description against $BLANK
-                                         $describable->set_description($description) if $description;
+
+                                         return $::sdrf->create_description( $description, $describable );
                                      };
                                    }
 
@@ -1290,10 +1472,8 @@ __DATA__
 
                                           my $obj  = $::sdrf->create_protocolapplication(@args);
 
-                                          # Add to the global ProtApp list immediately so that
-                                          # parameter units can be sorted out without
-                                          # having to pass $obj through.
-#                                          push(@::protocolapp_list, $obj) if $obj;
+                                          # Add to the global ProtApp list immediately.
+                                          push(@::protocolapp_list, $obj) if $obj;
 
                                           foreach my $sub (@{$item[6]}){
                                               unshift( @_, $obj ) and
@@ -1319,48 +1499,16 @@ __DATA__
                                          my $value       = shift;
                                          my $obj = $::sdrf->create_parametervalue($item[3], $value, $protocolapp);
                                          foreach my $sub (@{$item[5]}){
-                                             if ( ref $sub eq 'CODE' ) {
 
-                                                  # Unit, Comment
-                                                  unshift( @_, $obj );
-                                                  my $attr = &{ $sub };
-
-                                                  if ( defined $attr
-                                                      && $attr->isa('Bio::MAGETAB::ControlledTerm') ) {
-                                                      $::sdrf->add_unit_to_thing( $attr, $obj->get_measurement() );
-                                                  }
-                                             }
-                                             elsif ( ref $sub eq 'ARRAY' ) {
-
-# FIXME OE as adjunct to parameter not supported by MAGE-TAB model.
-# At the moment (v1.1 DRAFT) it seems that OE is not required, but
-# we'll keep this here in case that ever changes.
-
-                                                 warn("ControlledTerm not supported for ParameterValue.");
-
-#                                                 # Value
-#                                                 my @args;
-#
-#                                                 # Term Source
-#                                                 push @args, shift;
-#
-#                                                 # Accession
-#                                                 push @args, ($sub->[1] eq 'term_accession')
-#                                                             ? shift
-#                                                             : undef;
-#
-#                                                 $::sdrf->add_value_to_parameter(
-#                                                     $obj,
-#                                                     @args,
-#                                                 );
-                                             }
+                                              # Unit, Comment
+                                              unshift( @_, $obj );
+                                              my $attr = &{ $sub };
                                          }
                                          return $obj;
                                      };
                                    }
 
     parameter_attributes:      unit
-                             | termsource
                              | comment
 
     unit_heading:              /Unit/i
@@ -1371,9 +1519,13 @@ __DATA__
 
                                    { $return = sub {
 
-                                         # Unit name
-                                         my @args = shift;
+                                         # Thing having unit.
+                                         my $thing = shift;
 
+                                         # Unit name
+                                         my $name = shift;
+
+                                         my @args;
                                          if ( ref $item[5][0] eq 'ARRAY' ) {
 
                                              # Term Source
@@ -1392,6 +1544,8 @@ __DATA__
 
                                          my $unit = $::sdrf->create_unit(
                                              $item[3],
+                                             $name,
+                                             $thing,
                                              @args,
                                          );
 
@@ -1405,9 +1559,8 @@ __DATA__
 
                                    { $return = sub {
                                          my $protocolapp = shift;
-                                         my @names       = split /\s*;\s*/, shift;
 
-                                         $protocolapp->set_performers( \@names );
+                                         $::sdrf->create_performers( shift, $protocolapp );
 
 # FIXME we attach comments to the protocolapp, rather than the performer (model problem FIXME? or at least remove comments from the production.)
                                          foreach my $sub (@{$item[2]}){
@@ -1424,8 +1577,8 @@ __DATA__
                                    { $return = sub {
                                          my $protocolapp = shift;
                                          my $date        = shift;
-                                         $protocolapp->set_date( $date );
-                                         return $date;
+
+                                         return $::sdrf->create_date( $date, $protocolapp );
                                      };
                                    }
 
@@ -1537,8 +1690,9 @@ __DATA__
                                          my $assay = shift;
 
                                          # Value
-                                         my @args = shift;
+                                         my $value = shift;
 
+                                         my @args;
                                          if ( ref $item[2][0] eq 'ARRAY' ) {
 
                                              # Term Source
@@ -1554,7 +1708,9 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $type = $::sdrf->create_technology_type( $assay, @args );
+                                         my $type = $::sdrf->create_technology_type(
+                                             $value, $assay, @args,
+                                         );
                                          return $type;
                                      };
                                    }
@@ -1705,8 +1861,6 @@ __DATA__
                                              'image',
                                              $::previous_node,
                                              \@::protocolapp_list,
-#                                             $::channel,
-#                                             $::previous_material,
                                          );
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
