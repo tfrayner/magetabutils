@@ -64,6 +64,8 @@ sub parse {
     my @sdrf_rows;
 
     # Run through the rest of the file with the row-level parser.
+    my $row_number = 1;
+
     FILE_LINE:
     while ( $larry = $csv_parser->getline($sdrf_fh) ) {
     
@@ -85,12 +87,28 @@ sub parse {
         # Post-process Nodes and FactorValues.
         my @nodes = grep { $_ && $_->isa('Bio::MAGETAB::Node') } @{ $objects };
         my @factorvals = grep { $_ && $_->isa('Bio::MAGETAB::FactorValue') } @{ $objects };
+        my @labeled_extracts = grep { $_ && $_->isa('Bio::MAGETAB::LabeledExtract') } @nodes;
+
+        my $channel;
+        if ( scalar @labeled_extracts == 1 ) {
+            my $val = $labeled_extracts[0]->get_label()->get_value();
+            $channel = $self->get_builder()->find_or_create_controlled_term({
+                category => 'Channel',    # FIXME hard-coded.
+                value    => $val,
+            });
+        }
+        elsif ( scalar @labeled_extracts > 1 ) {
+            carp("WARNING: multiple labeled extracts in SDRF Row.\n");
+        }
 
         push @sdrf_rows, Bio::MAGETAB::SDRFRow->new(
             factorValues => \@factorvals,
             nodes        => \@nodes,
-            channel      => FIXME; use $::channel or something? or check @nodes for LabeledExtract?,
+            channel      => $channel,
+            rowNumber    => $row_number,
         );
+
+        $row_number++;
     }
 
     # Check we've parsed to the end of the file.
@@ -315,9 +333,6 @@ sub create_protocolapplication {
 
     my ( $self, $name, $namespace, $termsource, $accession ) = @_;
 
-    # FIXME do something more with Term Source, accession? MAGE-TAB
-    # model probably needs fixing here.
-
     return if ( $name =~ $BLANK );
 
     my ( $protocol, $ts_obj );
@@ -375,7 +390,7 @@ sub create_parametervalue {
 #        FIXME fun stuff here, also consider altering grammar for unit.
     });
 
-    $self->add_parameterval_to_protocolapp(
+    $self->_add_parameterval_to_protocolapp(
 	$parameterval,
 	$protocolapp,
     ) if $protocolapp;
@@ -383,7 +398,7 @@ sub create_parametervalue {
     return $parameterval;
 }
 
-sub add_parameterval_to_protocolapp : PRIVATE {
+sub _add_parameterval_to_protocolapp {
 
     my ( $self, $parameterval, $protocolapp ) = @_;
 
@@ -619,7 +634,7 @@ sub create_normalization {
 
 sub create_data_file {
 
-    my ( $self, $uri, $previous, $protocolapps ) = @_;
+    my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
     return if ( $uri =~ $BLANK );
 
@@ -652,11 +667,15 @@ sub create_data_file {
         value    => $format_str,
     });
 
-    # FIXME we may also need a dataType attribute (e.g. 'image',
-    # 'raw', 'derived').
+    my $type = $self->get_builder()->find_or_create_controlled_term({
+        category => 'DataType',    # FIXME hard-coded.
+        value    => $type_str,
+    });
+
     my $data_file = $self->get_builder()->find_or_create_data_file({
         uri        => $uri,
-        dataFormat => $format,
+        format     => $format,
+        type       => $type,
     });
 
     $self->_link_to_previous( $data_file, $previous, $protocolapps );
@@ -681,15 +700,40 @@ sub create_data_matrix {
     return $data_matrix;
 }
 
-##### FIXME continue refactoring from here...
+sub get_fv_category_from_factor {
+
+    my ( $self, $factor ) = @_;
+
+    my $category;
+    if ( my $ef_oe = $factor->get_type() ) {
+                 
+	# Otherwise, derive the category from the EF term:
+	my @ef_catparts = split /_/, $ef_oe->get_value();
+	$category = join(q{}, map{ ucfirst($_) } @ef_catparts);
+    }
+    else {
+
+        # Fall back to a default category.
+        $category = 'FactorValue';
+    }
+
+    return $category;
+}
+
 sub create_factorvalue_value {
 
     my ( $self, $factorname, $altcategory, $value, $termsource, $accession ) = @_;
 
     return if ( $value =~ $BLANK );
 
-    my ($factorvalue, $exp_factor)
-	= $self->create_generic_factorvalue( $factorname, $value, $altcategory );
+    my $exp_factor = $self->get_builder()->get_factor({
+        name => $factorname,
+    });
+    
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+    }
 
     my $category;
     if ( $altcategory ) {
@@ -699,20 +743,21 @@ sub create_factorvalue_value {
     }
     else {
 
-	# Otherwise, derive the category from the EF term:
-	my $ef_oe = $exp_factor->getCategory()
-	    or croak("Error: Experimental Factor $factorname has no type.");
-
-	my @ef_catparts = split /_/, $ef_oe->getValue();
-
-	$category = join(q{}, map{ ucfirst($_) } @ef_catparts);
+        # Otherwise derive it from the factor type.
+        $category = $self->get_fv_category_from_factor( $exp_factor );
     }
 
-    my $oe = $self->create_ontologyentry( $category, $value, $termsource, $accession );
+    my $term = $self->get_builder()->find_or_create_controlled_term({
+        category   => $category,
+        value      => $value,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
 
-    $factorvalue->setValue( $oe );
-
-    $self->add_factorvalue_to_factor( $factorvalue, $exp_factor );
+    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
+        factor => $exp_factor,
+        value  => $term,
+    });
 
     return $factorvalue;
 }
@@ -723,97 +768,74 @@ sub create_factorvalue_measurement {
 
     return if ( $value =~ $BLANK );
 
-    # Note: $altcategory is ignored for measurement.
+    my $exp_factor = $self->get_builder()->get_factor({
+        name => $factorname,
+    });
 
-    my $unitname;
-    if ( $unit ) {
-        $unitname = $self->get_unitname_for_unit( $unit );
+    my $category;
+    if ( $altcategory ) {
+
+	# If we're given a category in parentheses, use it.
+	$category = $altcategory;
+    }
+    else {
+
+        # Otherwise derive it from the factor type.
+        $category = $self->get_fv_category_from_factor( $exp_factor );
     }
 
-    # Here we're retasking the altcategory slot for unitname; this is
-    # a bit naughty. FIXME.
-    my ($factorvalue, $exp_factor) = $self->create_generic_factorvalue(
-        $factorname,
-        $value,
-        $unitname,
-    );
-
-    my $measurement = Bio::MAGE::Measurement::Measurement->new(
-	value => $value,
+    my $measurement = $self->get_builder()->create_measurement({
+        type  => $category,
+        value => $value,
         unit  => $unit,
-    );
+    });
+    
+    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
+        factor       => $exp_factor,
+        measurement  => $measurement,
+    });
 
-    $factorvalue->setMeasurement( $measurement );
-
-    # This has to be done *after* adding the unit to the term. It's
-    # now handled in the relevant grammar action.
-#    $self->add_factorvalue_to_factor( $factorvalue, $exp_factor );
-
-    return wantarray ? ($factorvalue, $exp_factor) : $factorvalue;
+    return $factorvalue;
 }
 
-sub create_generic_factorvalue : PRIVATE {
+sub add_comment_to_thing {
 
-    my ( $self, $factorname, $value, $altcategory ) = @_;
+    my ( $self, $comment, $thing ) = @_;
 
-    my $args;
-    if ( $self->get_in_relaxed_mode() ) {
-	$args = {name => $factorname, type => $factorname};
+    return unless ( $comment && $thing );
+
+    my @preexisting = $thing->get_comments();
+
+    my $new_name  = $comment->get_name();
+    my $new_value = $comment->get_value();
+    my $found = first {
+        $_->get_name()  eq $new_name
+     && $_->get_value() eq $new_value;
+    }   @preexisting;
+
+    unless ( $found ) {
+        push @prexisting, $comment;
+        $thing->set_comments( \@prexisting );
     }
 
-    my $exp_factor = $self->factor_bag(	$factorname, $args )
-	or croak(qq{Error: Experimental Factor Name not found: "$factorname"\n}); 
-
-    my $identifier_template = $self->generate_id_template(
-	$altcategory ? "$factorname.$altcategory.$value" : "$factorname.$value"
-    );
-
-    my $name = defined $altcategory ? "$value $altcategory" : $value;
-    my $factorvalue = $self->factorvalue_bag(
-	"$factorname.$name",
-	{
-	    identifier_template => $identifier_template,
-	    name                => $name,
-	},
-    );
-
-    return wantarray
-	   ? ( $factorvalue, $exp_factor )
-	   : $factorvalue;
+    return;
 }
 
-sub create_description {
+sub create_comment {
 
-    my ( $self, $text, $describable ) = @_;
-
-    return if ( $text =~ $BLANK );
-
-    my $description = Bio::MAGE::Description::Description->new(
-	text => $text,
-    );
-
-    $self->add_description_to_describable( $description, $describable)
-	if $describable;
-
-    return $description;
-}
-
-sub create_nvt {
-
-    my ( $self, $name, $value, $type, $extendable ) = @_;
+    my ( $self, $name, $value, $thing ) = @_;
 
     return if ( $value =~ $BLANK );
 
-    my $nvt = Bio::MAGE::NameValueType->new(
+    my $comment = $self->get_builder()->create_comment({
 	name  => $name,
 	value => $value,
-	type  => $type,
     );
 
-    $self->add_nvt_to_extendable( $nvt, $extendable )
-	if $extendable;
+    $self->add_comment_to_thing( $comment, $thing )
+	if $thing;
 
-    return $nvt;
+    return $comment;
 }
 
 sub add_char_to_material {
@@ -823,817 +845,21 @@ sub add_char_to_material {
     return unless ( $material && $char );
 
     my $found;
-    if ( my $preexisting_chars = $material->getCharacteristics() ) {
+    my @preexisting = $material->get_characteristics();
 
-	my $new_category = $char->getCategory();
-	my $new_value    = $char->getValue();
-	$found = first {
-	       $_->getCategory() eq $new_category
-	    && $_->getValue()    eq $new_value;
-	}   @$preexisting_chars;
-    }
-    $material->addCharacteristics($char) unless $found;
-
-    return;
-}
-
-sub set_material_type {
-
-    my ( $self, $material, $type ) = @_;
-
-    return unless ( $material && $type );
-
-    $material->setMaterialType($type);
-
-    return;
-}
-
-sub set_technology_type {
-
-    my ( $self, $assay, $type ) = @_;
-
-    return unless ( $assay && $type );
-
-    # Look through descriptions for a matching OE, or a description
-    # holding an OE with the same category.
-    my ( $found, $desc );
-    if ( my $descs = $assay->getDescriptions() ) {
-	foreach my $old ( @$descs ) {
-	    if ( my $oes = $old->getAnnotations() ) {
-		foreach my $oe ( @$oes ) {
-
-		    # Same category; record the description object.
-		    if ( $oe->getCategory() eq $type->getCategory() ) {
-			$desc = $old;
-
-			# Same value; we're done here.
-			if ( $oe->getValue() eq $type->getValue() ) {
-			    $found++;
-			}
-		    }
-		}
-	    }
-	}
-    }
+    my $new_category = $char->get_category();
+    my $new_value    = $char->get_value();
+    my $found = first {
+        $_->get_category() eq $new_category
+     && $_->get_value()    eq $new_value;
+    }   @preexisting;
 
     unless ( $found ) {
-	unless ( $desc ) {
-	    $desc = Bio::MAGE::Description::Description->new();
-	    $assay->addDescriptions( $desc );
-	}
-	$desc->addAnnotations( $type );
+        push @preexisting, $char;
+        $material->set_characteristics( \@preexisting );
     }
 
     return;
-}
-
-sub add_factorvals_to_bioassays {
-
-    my ( $self, $factorvals, $bioassays ) = @_;
-
-    # Generate a uniqued list of bioassays.
-    my %unique_ba = map { $_->getIdentifier() => $_ } @$bioassays;
-
-    # Takes a list of FactorValues and BioAssays, links the former to
-    # the latter, checking for duplicates.
-
-    # Add the factors if not already linked.
-    foreach my $ba ( values %unique_ba ) {
-	foreach my $fv ( @$factorvals ) {
-	    $self->add_factorval_to_bioassay( $fv, $ba );
-	}
-    }
-
-    return;
-}
-
-sub add_provider_to_source : PRIVATE {
-
-    my ( $self, $provider, $source ) = @_;
-
-    my $found;
-    if ( my $preexisting_people = $source->getSourceContact() ) {
-
-	my $new_id = $provider->getIdentifier();
-	$found = first {
-	    $_->getIdentifier()     eq $new_id
-	}   @$preexisting_people;
-    }
-    $source->addSourceContact($provider) unless $found;
-
-    return;
-}
-
-sub add_description_to_describable : PRIVATE {
-
-    my ( $self, $description, $describable ) = @_;
-
-    my $found;
-    if ( my $preexisting_descs = $describable->getDescriptions() ) {
-
-	my $new_text = $description->getText();
-	$found = first {
-	    $_->getText()     eq $new_text
-	}   @$preexisting_descs;
-    }
-    $describable->addDescriptions($description) unless $found;
-
-    return;
-}
-
-sub add_nvt_to_extendable : PRIVATE {
-
-    my ( $self, $nvt, $extendable ) = @_;
-
-    my $found;
-    if ( my $preexisting_nvts = $extendable->getPropertySets() ) {
-
-	my $new_name  = $nvt->getName();
-	my $new_value = $nvt->getValue();
-	$found = first {
-	       $_->getName()  eq $new_name
-	    && $_->getValue() eq $new_value;
-	}   @$preexisting_nvts;
-    }
-    $extendable->addPropertySets($nvt) unless $found;
-
-    return;
-}
-
-sub add_factorvalue_to_factor {
-
-    my ( $self, $fv, $factor ) = @_;
-
-    my $found;
-    my $name = $fv->getName();
-    if ( my $preexisting_fvs = $factor->getFactorValues() ) {
-	if ( my $value = $fv->getValue() ) {
-	    my $new_cat = $value->getCategory();
-	    my $new_val = $value->getValue();
-	    $found = first {
-		my $oldvalue = $_->getValue;
-		$oldvalue
-	     && ($oldvalue->getCategory() eq $new_cat )
-	     && ($oldvalue->getValue()    eq $new_val )
-	    } @$preexisting_fvs;
-	}
-	elsif ( my $measurement = $fv->getMeasurement() ) {
-	    my $new_val  = $measurement->getValue();
-	    my $new_unit = $self->get_unitname_from_measure($measurement);
-	    $found = first {
-		my $oldmeas = $_->getMeasurement();
-		$oldmeas
-	    &&  $oldmeas->getValue() eq $new_val
-	    && ($self->get_unitname_from_measure($oldmeas) eq $new_unit)
-	    } @$preexisting_fvs;
-	}
-	elsif ( defined $name ) {
-	    $found = first {
-		$_->getName() eq $name
-	    } @$preexisting_fvs;
-	}
-	else {
-	    croak("Error: FactorValue has no value, measurement or name.");
-	}
-    }
-
-    $factor->addFactorValues($fv) unless $found;
-
-    return;
-}
-
-sub get_unitname_from_measure : PRIVATE {
-
-    my ( $self, $measurement ) = @_;
-
-    my $unitname;
-    if ( my $unit = $measurement->getUnit() ) {
-	$unitname = $self->get_unitname_for_unit( $unit );
-    }
-
-    # Return empty string on failure; this value will be used in
-    # string comparisons so should not be undef.
-    return defined $unitname ? $unitname : q{};
-}
-    
-sub get_unit_for_param : PRIVATE {
-
-    my ( $self, $parameter ) = @_;
-
-    return unless $parameter;
-
-    my $defaultval = $parameter->getDefaultValue();
-
-    if ($defaultval) {
-	return $defaultval->getUnit();
-    }
-
-    return;
-}
-
-sub get_unitname_for_unit : PRIVATE {
-
-    my ( $self, $unit ) = @_;
-
-    return unless $unit;
-
-    my $unitname = $unit->getUnitNameCV();
-    if ( ! $unitname || $unitname eq 'other' ) {
-	$unitname = $unit->getUnitName() || 'other';
-    }
-    
-    return $unitname;
-}
-
-sub create_single_treatment : PRIVATE {
-
-    my ( $self, $app, $bmm, $order, $default_action ) = @_;
-
-    my $action;
-    if ( $app ) {
-
-	# Use Storable::dclone to copy the ProtocolType OE and reset
-	# the category to Action.
-	my $protocol = $app->getProtocol();
-	if ( my $type = $protocol->getType() ) {
-	    $action = dclone($protocol->getType());
-	    $action->setCategory('Action');
-	}
-    }
-
-    unless ( $action ) {
-
-	# Fall back to a generic default.
-	$action = $self->create_ontologyentry(
-	    'Action',
-	    ($default_action || 'specified_biomaterial_action'),
-	);
-    }
-
-    # Quick and dirty, we may want to revisit this FIXME
-    my $identifier = $self->generate_id_template(
-	unique_identifier() . '.Treatment',
-    );
-
-    my $treatment = Bio::MAGE::BioMaterial::Treatment->new(
-	identifier                    => $identifier,
-	action                        => $action,
-	order                         => $order,
-	sourceBioMaterialMeasurements => [ $bmm ],
-    );
-
-    $treatment->setProtocolApplications( [ $app ] ) if $app;
-
-    return $treatment;
-}
-
-sub create_material_treatments : PRIVATE {
-
-    my ( $self, $protocolapps, $previous, $default_action ) = @_;
-
-    my @treatments;
-
-    # One BioMaterialMeasurement used for all Treatments.
-    my $bmm;
-    if ( $previous ) {
-	$bmm = Bio::MAGE::BioMaterial::BioMaterialMeasurement->new(
-	    bioMaterial => $previous,
-	);
-    }
-
-    # If ProtocolApps supplied, generate a treatment for each.
-    my $order = 1;
-    foreach my $app ( @{ $protocolapps } ) {
-
-	my $treatment = $self->create_single_treatment(
-	    $app,
-	    $bmm,
-	    $order,
-	);
-	$order++;
-	push @treatments, $treatment;
-    }
-
-    # Fall back to a single treatment if there's no protocol
-    # applications, but there is a source material.
-    if ( ! scalar( @treatments ) && $bmm ) {
-	my $treatment = $self->create_single_treatment(
-	    undef,
-	    $bmm,
-	    1,
-	    $default_action,
-	);
-	push @treatments, $treatment;
-    }
-
-    return \@treatments;
-}
-
-sub add_treatments_to_material : PRIVATE {
-
-    my ( $self, $treatments, $material ) = @_;
-
-    # FIXME compare old source materials with the new ones, add and
-    # maybe renumber the treatment order if possible?
-
-    # Lookup table of treatments by order (NB this is *not* infallible
-    # FIXME).
-    my %old_treatments = map { $_->getOrder() => $_ }
-	@{ $material->getTreatments() || [] };
-
-    foreach my $new ( @$treatments ) {
-
-	# See if we've seen this treatment before. This relies on the
-	# object having the same order attribute FIXME.
-	if ( my $old = $old_treatments{ $new->getOrder() } ) {
-	    $self->update_treatment_info( $old, $new );
-	}
-	else{
-	    $material->addTreatments($new);
-	}
-    }
-
-    return;
-}
-
-sub update_treatment_info : PRIVATE {
-
-    my ( $self, $old, $new ) = @_;
-
-    if ( my $bmms = $new->getSourceBioMaterialMeasurements() ) {
-	foreach my $bmm ( @{ $bmms } ) {
-	    $self->add_source_to_treatment( $bmm, $old );
-	}
-    }
-
-    if ( my $apps = $new->getProtocolApplications() ) {
-	foreach my $app ( @{ $apps } ) {
-	    $self->add_protocolapp_to_treatment( $app, $old );
-	}
-    }
-
-    return;
-}
-
-sub add_source_to_treatment : PRIVATE {
-
-    my ( $self, $source_bmm, $treatment ) = @_;
-
-    my $found;
-    if ( my $preexisting_bmms
-	     = $treatment->getSourceBioMaterialMeasurements() ) {
-	my $new_id = $source_bmm->getBioMaterial()->getIdentifier();
-	$found = first {
-	    $_->getBioMaterial()->getIdentifier() eq $new_id;
-	}   @$preexisting_bmms;
-    }
-    $treatment->addSourceBioMaterialMeasurements($source_bmm)
-	unless $found;
-
-    return;
-}
-
-sub add_protocolapp_to_treatment : PRIVATE {
-
-    my ( $self, $protoapp, $treatment ) = @_;
-
-    my $found;
-    if ( my $preexisting_apps
-	     = $treatment->getProtocolApplications() ) {
-	my $new_id = $protoapp->getProtocol()->getIdentifier();
-	$found = first {
-	    $_->getProtocol()->getIdentifier() eq $new_id;
-	}   @$preexisting_apps;
-    }
-    $treatment->addProtocolApplications($protoapp)
-	unless $found;
-
-    return;
-}
-
-sub add_images_to_pba : PRIVATE {
-
-    my ( $self, $images, $pba ) = @_;
-
-    my @image_acquisitions;
-
-    # Capture all the ImageAcquisitions attached to $pba
-    foreach my $bat ( @{ $pba->getBioAssayTreatments() || [] } ) {
-	if ( $bat->isa('Bio::MAGE::BioAssay::ImageAcquisition') ) {
-	    push @image_acquisitions, $bat;
-	}
-    }
-
-    # Create ImageAcquisition if necessary, then add $images to all
-    # IAs in the PBA.
-    unless ( scalar @image_acquisitions ) {
-	my $ia_identifier = $pba->getIdentifier();
-	$ia_identifier =~ s/PhysicalBioAssay \z/ImageAcquisition/xms;
-	my $ia = Bio::MAGE::BioAssay::ImageAcquisition->new(
-	    identifier       => $ia_identifier,
-	    target           => $pba,
-	    physicalBioAssay => $pba,
-	);
-	push @image_acquisitions, $ia;
-    }
-
-    foreach my $ia ( @image_acquisitions ) {
-	foreach my $image ( @$images ) {
-	    my $found = first {
-		$_->getURI() eq $image->getURI()
-	    } @{ $ia->getImages() || [] };
-	    $ia->addImages( $image ) unless $found;
-	}
-    }
-
-    foreach my $image ( @$images ) {
-	my $found = first {
-	    $_->getURI() eq $image->getURI()
-	} @{ $pba->getPhysicalBioAssayData() || [] };
-	$pba->addPhysicalBioAssayData( $image ) unless $found;
-    }
-
-    return;
-}
-
-sub add_basource_to_map : PRIVATE {
-
-    my ( $self, $bioassay, $map ) = @_;
-
-    my $found;
-    if ( my $sources = $map->getSourceBioAssays() ) {
-	my $new_id = $bioassay->getIdentifier();
-	$found = first {
-	    $_->getIdentifier() eq $new_id
-	} @$sources;
-    }
-    $map->addSourceBioAssays( $bioassay ) unless $found;
-
-    return;
-}
-    
-sub create_perchannel_pba : PRIVATE {
-
-    my ( $self, $identifier_template, $channelname, $label, $hyb_pba, $scanname ) = @_;
-
-    $channelname ||= 'Unknown';
-    my $new_id_template  = "$identifier_template.$channelname";
-
-    # The following convention is assumed when adding FactorValues to
-    # all the BioAssays in a row.
-    my $channel_pba_name = "$scanname.$channelname";
-
-    # We don't pass $args->{derived_from} down to the extended PBA
-    # generation; this is used as a flag to indicate hyb-level PBAs
-    # only.
-    my $channel_pba = $self->extended_pba_bag(
-	$channel_pba_name,
-	{
-	    identifier_template => $new_id_template,
-	    name                => $channel_pba_name,
-	    label               => $label,
-	},
-    );
-
-    # Add a BioAssayTreatment pointing from $hyb_pba to channel PBAs
-    # here.
-    my %preexisting;
-    if ( my $old_treats = $hyb_pba->getBioAssayTreatments() ) {
-	foreach my $treat ( @$old_treats ) {
-	    if ( my $old_pba = $treat->getPhysicalBioAssay() ) {
-		$preexisting{ $old_pba->getIdentifier() }++;
-	    }
-	}
-    }
-    unless ( $preexisting{ $channel_pba->getIdentifier() } ) {
-	$hyb_pba->addBioAssayTreatments(
-	    $self->new_scan(
-		{
-		    identifier_template => $new_id_template,
-		    name                => $channel_pba_name,
-		    pba                 => $channel_pba,
-		    target              => $channel_pba,
-		},
-	    )
-	);
-    }
-
-    return $channel_pba;
-}
-
-sub add_dbad_to_dba : PRIVATE {
-
-    my ( $self, $dbad, $dba ) = @_;
-
-    my $found;
-    if ( my $preexisting_dbads = $dba->getDerivedBioAssayData() ) {
-	my $new_id = $dbad->getIdentifier();
-	$found = first { $_->getIdentifier() eq $new_id }
-	    @$preexisting_dbads;
-    }
-    $dba->addDerivedBioAssayData( $dbad ) unless $found;
-
-    return;
-}
-    
-sub add_datafiles : PRIVATE {
-
-    my ( $self, @datafiles ) = @_;
-
-    foreach my $file ( @datafiles ) {
-	$datafiles_cache{ ident $self }{ $file->get_path() } = $file;
-    }
-
-    return;
-} 
-
-sub get_datafiles {
-
-    my ( $self ) = @_;
-
-    # Return sorted alphabetically by name for the moment FIXME.
-    return [
-	map { $datafiles_cache{ ident $self }{$_} }
-        sort keys %{ $datafiles_cache{ ident $self } }
-    ];
-}
-
-sub get_sdrf_filehandle {
-
-    my ( $self ) = @_;
-
-    unless ( $sdrf_filehandle{ident $self} ) {
-	if ( my $file = $self->get_sdrf() ) {
-	    open (my $fh, '<', $file)
-		or croak("Error opening SDRF for reading: $!\n");
-	    $sdrf_filehandle{ident $self} = $fh;
-	}
-	else {
-	    confess("Error: No SDRF filename given.");
-	}
-    }
-    return $sdrf_filehandle{ident $self};
-}
-
-sub get_filename : RESTRICTED {
-
-    my ( $self ) = @_;
-    
-    return $self->get_sdrf();
-}
-    
-sub simplify_single_channels : PRIVATE {
-
-    # Snip out the extra PBAs used for two-colour coding for the
-    # single-channel hybs.
-    my ( $self ) = @_;
-
-    foreach my $hyb_pba ( @{ $self->pba_bag() } ) {
-
-	next unless ( scalar( @{ $hyb_pba->getChannels() || [] } ) == 1 );
-
-	BAT:
-	foreach my $bat ( @{ $hyb_pba->getBioAssayTreatments() || [] } ) {
-	    my $ch_pba = $bat->getTarget();
-
-	    # If scans were never generated, we could have just the hyb PBA.
-	    next BAT if ( $ch_pba->getIdentifier() eq $hyb_pba->getIdentifier()
-			      && $ch_pba->getBioAssayCreation() );
-
-	    my $mrg_pba;
-	    if ( my $ch_bats = $ch_pba->getBioAssayTreatments() ) {
-		warn ("WARNING: discarding all but first BioAssayTreatment.")
-		    if (scalar(@$ch_bats) > 1 );
-		if ( scalar(@$ch_bats) ) {
-		    $mrg_pba = $ch_bats->[0]->getTarget();
-		}
-	    }
-
-	    # Repoint the merged PBA data to the hyb PBA. Note that
-	    # this overwrites any BATs associated with $hyb_pba; this
-	    # was necessary to allow clean deletion of $ch_pba (don't
-	    # ask me why; I assume a reference needs weakening
-	    # somewhere, presumably in the $hyb_pba BAT).
-	    if ( $mrg_pba ) {
-		my ($images, $protocolapps, $mbas, $dbas)
-		    = $self->strip_pba_for_repointing($mrg_pba);
-		$self->repoint_pba_data(
-		    $images,
-		    $protocolapps,
-		    $mbas,
-		    $dbas,
-		    $hyb_pba,
-		    $mrg_pba->getName(),
-		);
-	    }
-
-	    # Also strip the channel PBA. This appears to remove
-	    # references to $mrg_pba.
-	    $self->strip_pba_for_repointing($ch_pba);
-
-	    # Delete the old PBA objects from the bags.
-	    $self->extended_pba_bag($ch_pba->getName(), 'delete');
-#		    or die("Error: Unable to delete unwanted channel PBA: "
-#			       . $ch_pba->getName());
-	    if ( $mrg_pba ) {
-		$self->extended_pba_bag($mrg_pba->getName(), 'delete');
-#		    or die("Error: Unable to delete unwanted merging PBA: "
-#			       . $mrg_pba->getName());
-	    }
-
-	    # We remove the identifiers; this will cause an exception
-	    # if there's a problem with these objects hanging around
-	    # later (better that than silent failure).
-	    $ch_pba->setIdentifier("");
-	    $mrg_pba->setIdentifier("") if $mrg_pba;
-	}
-    }
-
-    return;
-}
-
-sub strip_pba_for_repointing : PRIVATE {
-
-    my ( $self, $pba ) = @_;
-
-    my (%oldimages, %oldprotocolapps, %oldmbas, %olddbas);
-
-    # Gather associations from one hyb to be transferred to another.
-    
-    # Images first.
-    foreach my $image ( @{ $pba->getPhysicalBioAssayData() || [] } ) {
-	$oldimages{ $image->getIdentifier() } = $image;
-    }
-    $pba->setPhysicalBioAssayData([]);
-
-    # Process Images associated with the BAT (should be
-    # the same, but you never know).
-    my $bat = $pba->getBioAssayTreatments()->[0];
-    if ( $bat ) {
-	if ( $bat->isa('Bio::MAGE::BioAssay::ImageAcquisition') ) {
-	    foreach my $image ( @{ $bat->getImages() || [] } ) {
-		$oldimages{ $image->getIdentifier() } = $image;
-	    }
-	}
-
-	# ProtocolApps.
-	foreach my $pa ( @{ $bat->getProtocolApplications() || [] } ) {
-	    $oldprotocolapps{ $pa } = $pa;
-	}
-    }
-
-    $pba->setBioAssayTreatments([]);
-    
-    # MBAs.
-    foreach my $mba ( @{ $self->mba_bag() } ) {
-	if ( my $fext = $mba->getFeatureExtraction() ) {
-	    if ( my $pba_ref = $fext->getPhysicalBioAssaySource() ) {
-		if ( $pba_ref->getIdentifier() eq $pba->getIdentifier() ) {
-		    $oldmbas{ $mba->getIdentifier() } = $mba;
-		}
-	    }
-	}
-    }
-
-    # DBAs (e.g. in the absence of raw data this can happen).
-    foreach my $dba ( @{ $self->dba_bag() } ) {
-	if ( my $maps = $dba->getDerivedBioAssayMap() ) {
-	    foreach my $map ( @$maps ) {
-		my @new_sources;
-		if ( my $bas = $map->getSourceBioAssays() ) {
-		    foreach my $ba ( @$bas ) {
-			if ( $ba->getIdentifier() eq $pba->getIdentifier() ) {
-			    $olddbas{ $dba->getIdentifier() } = $dba;
-			}
-			else {
-			    push @new_sources, $ba;
-			}
-		    }
-		}
-
-		# Break the link between $pba and map.
-		$map->setSourceBioAssays(\@new_sources);
-	    }
-	}
-    }
-
-    $pba->setBioAssayFactorValues([]);
-    $pba->setChannels([]);
-
-    return (
-	[values %oldimages],
-	[values %oldprotocolapps],
-	[values %oldmbas],
-	[values %olddbas],
-    );
-}
-
-sub repoint_pba_data : PRIVATE {
-
-    my ( $self,
-	 $oldimages,
-	 $oldprotocolapps,
-	 $oldmbas,
-	 $olddbas,
-	 $pba,
-	 $name ) = @_;
-
-    my $identifier = $self->generate_id_template($name) . '.ImageAcquisition';
-    my $bat = Bio::MAGE::BioAssay::ImageAcquisition->new(
-	identifier       => $identifier,
-	target           => $pba,
-	name             => $name,
-#	physicalBioAssay => $pba,
-    );
-
-    # Reattach any Images moved from old BAT.
-    if ( scalar ( @{ $oldimages || [] } ) ) {
-	$self->add_images_to_pba( $oldimages, $pba );
-    }
-
-    # Reattach old protocolapps from old BAT.
-    foreach my $pa ( @{ $oldprotocolapps || [] } ) {
-	$self->add_protocolapp_to_treatment( $pa, $bat );
-    }
-
-    # Repoint any MBAs previously pointing to $hyb_pba.
-    if ( scalar ( @{ $oldmbas || [] } ) ) {
-	foreach my $mba ( @$oldmbas ) {
-	    my $fext = $mba->getFeatureExtraction();
-	    $fext->setPhysicalBioAssaySource($pba);
-	}
-    }
-
-    # Repoint any DBAs previously pointing to $hyb_pba.
-    if ( scalar ( @{ $olddbas || [] } ) ) {
-	foreach my $dba ( @$olddbas ) {
-	    my $maps = $dba->getDerivedBioAssayMap();
-	    foreach my $map ( @$maps ) {
-		$self->add_basource_to_map( $pba, $map );
-	    }
-	}
-    }
-
-    $pba->setBioAssayTreatments( [ $bat ] );
-
-    return;
-}
-
-sub propagate_fvs_to_datafiles : PRIVATE {
-
-    my ( $self ) = @_;
-
-    FILE:
-    foreach my $file ( @{ $self->get_datafiles || [] } ) {
-
-	my $badata;
-	next FILE unless ( $badata = $file->get_mage_badata() );
-
-	my $badim;
-	next FILE unless ( $badim = $badata->getBioAssayDimension() );
-
-	foreach my $bioassay ( @{ $badim->getBioAssays() || [] } ) {
-
-	    FACTORVALUE:
-	    foreach my $fv ( @{ $bioassay->getBioAssayFactorValues() || [] } ) {
-		my ( $category, $value );
-		if ( my $oe = $fv->getValue() ) {
-		    $category = $oe->getCategory();
-		    $value    = $oe->getValue();
-		}
-		elsif ( my $measurement = $fv->getMeasurement() ) {
-		    my $unit = $measurement->getUnit();
-		    $category = $unit
-			      ? ( $unit->getUnitNameCV() || $unit->getUnitName() )
-			      : 'UNKNOWN';
-		    $value    = $measurement->getValue();
-		}
-		else {
-		    next FACTORVALUE;
-		}
-		$file->add_factor_value( $category, $value );
-	    }
-	}
-    }
-
-    return;
-}
-
-sub add_native_filetypes : PRIVATE {
-    my ( $self, %type ) = @_;
-
-    foreach my $filename ( keys %type ) {
-        $native_filetypes{ident $self}{$filename} = $type{$filename};
-    }
-    return $native_filetypes{ident $self};
-}
-
-sub get_blank_regexp {
-
-    # Allow access to the RE we're using to detect blanks.
-    my ( $self ) = @_;
-
-    return $BLANK;
 }
 
 1;
@@ -1869,15 +1095,12 @@ __DATA__
                                              unshift( @_, undef );
                                              my $unit = &{ $item[6][0] };
 
-                                             ($fv, $ef) = $::sdrf->create_factorvalue_measurement(
+                                             $fv = $::sdrf->create_factorvalue_measurement(
                                                  $item[3],
                                                  $item[4][0],
                                                  $value,
                                                  $unit,
                                              );
-
-                                             # This has to be done after adding the unit.
-                                             $::sdrf->add_factorvalue_to_factor( $fv, $ef ) if $fv;
                                          }
                                          else {
 
@@ -1982,7 +1205,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
                                          my $type = $::sdrf->create_ontologyentry('MaterialType', @args);
-                                         $::sdrf->set_material_type( $material, $type ) if ($material && $type);
+                                         $material->set_materialType( $type ) if ($material && $type);
                                          return $type;
                                      };
                                    }
@@ -2021,7 +1244,9 @@ __DATA__
 
                                    { $return = sub {
                                          my $describable = shift;
-                                         return $::sdrf->create_description(shift, $describable);
+                                         my $description = shift;
+                                         # FIXME check $description against $BLANK
+                                         $describable->set_description($description) if $description;
                                      };
                                    }
 
@@ -2030,8 +1255,8 @@ __DATA__
     comment:                   comment_heading <skip:' *'> bracket_term
 
                                    { $return = sub {
-                                         my $extendable = shift;
-                                         return $::sdrf->create_nvt($item[3], shift, undef, $extendable);
+                                         my $thing = shift;
+                                         return $::sdrf->create_comment($item[3], shift, $thing);
                                      };
                                    }
 
@@ -2395,6 +1620,7 @@ __DATA__
                                    { $return = sub {
                                          my $obj = $::sdrf->create_data_file(
                                              shift,
+                                             'raw',
                                              $::previous_node,
                                              \@::protocolapp_list,
                                          );
@@ -2415,6 +1641,7 @@ __DATA__
                                    { $return = sub {
                                          my $obj = $::sdrf->create_data_file(
                                              shift,
+                                             'derived',
                                              $::previous_node,
                                              \@::protocolapp_list,
                                          );
@@ -2475,6 +1702,7 @@ __DATA__
                                    { $return = sub {
                                          my $obj = $::sdrf->create_data_file(
                                              shift,
+                                             'image',
                                              $::previous_node,
                                              \@::protocolapp_list,
 #                                             $::channel,

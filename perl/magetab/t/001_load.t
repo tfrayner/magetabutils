@@ -63,6 +63,7 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Reporter' );
     use_ok( 'Bio::MAGETAB::Sample' );
     use_ok( 'Bio::MAGETAB::SDRF' );
+    use_ok( 'Bio::MAGETAB::SDRFRow' );
     use_ok( 'Bio::MAGETAB::Source' );
     use_ok( 'Bio::MAGETAB::TermSource' );
 }

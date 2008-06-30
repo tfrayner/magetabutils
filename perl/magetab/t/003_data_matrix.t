@@ -42,6 +42,7 @@ use Bio::MAGETAB::MatrixRow;
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'qt', value => 'test' );
 my $no = Bio::MAGETAB::Normalization->new( name => 'test' );
 my $rp = Bio::MAGETAB::Reporter->new( name => 'test' );
+my $ty = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 'test' );
 
 my $mc = Bio::MAGETAB::MatrixColumn->new(
     columnNumber     => 20,
@@ -59,6 +60,7 @@ my %required_attr = (
     rowIdentifierType => 'Reporter',
     matrixRows        => [ $mr ],
     matrixColumns     => [ $mc ],
+    type              => $ty,
 );
 
 my %optional_attr = (
@@ -69,11 +71,13 @@ my %bad_attr = (
     rowIdentifierType => [],
     matrixRows        => [ 'test' ],
     matrixColumns     => 'test',
+    type              => 'test',
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'qt', value => 'test2' );
 my $no2 = Bio::MAGETAB::Normalization->new( name => 'test2' );
 my $rp2 = Bio::MAGETAB::Reporter->new( name => 'test2' );
+my $ty2 = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 'test2' );
 
 my $mc2 = Bio::MAGETAB::MatrixColumn->new(
     columnNumber     => 202,
@@ -91,6 +95,7 @@ my %secondary_attr = (
     rowIdentifierType => 'CompositeElement',
     matrixRows        => [ $mr, $mr2 ],
     matrixColumns     => [ $mc, $mc2 ],
+    type              => $ty2,
 );
 
 my $obj = test_class(

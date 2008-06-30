@@ -45,6 +45,7 @@ my %required_attr = (
 
 my %optional_attr = (
     type            => $ct,
+    description     => 'test',
     characteristics => [ $ct ],
     measurements    => [ $me ],
     providers       => [ 'test' ],
@@ -53,6 +54,7 @@ my %optional_attr = (
 my %bad_attr = (
     name            => [],
     type            => 'test',
+    description     => [],
     characteristics => [ 'test' ],
     measurements    => 'test',
     providers       => 'test',
@@ -64,6 +66,7 @@ my $me2 = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
 my %secondary_attr = (
     name            => 'test2',
     type            => $ct2,
+    description     => 'test2',
     characteristics => [ $ct2 ],
     measurements    => [ $me2 ],
     providers       => [ 'test2' ],

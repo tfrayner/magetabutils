@@ -133,6 +133,9 @@ my %method_map = (
     'factor'          => [ 'Bio::MAGETAB::Factor',
                            qw( name ) ],
 
+    'factor_value'    => [ 'Bio::MAGETAB::FactorValue',
+                           qw( factor value measurement ) ],
+
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
