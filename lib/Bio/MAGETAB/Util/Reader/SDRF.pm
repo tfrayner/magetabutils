@@ -769,17 +769,16 @@ sub create_normalization {
     return $normalization;
 }
 
-sub create_data_file {
+sub find_data_format {
 
-    my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
+    my ( $self, $uri ) = @_;
 
-    return if ( $uri =~ $BLANK );
-
-    # FIXME we need a data format, but MAGE-TAB has nowhere to specify
+    # We need a data format, but MAGE-TAB has nowhere to specify
     # it. This is a very basic start on a way to automatically derive
-    # formats from what we know. Consider putting this in a separate
-    # method which can then be subclassed. Possible additions include
-    # parsing the CEL, CHP headers to get the exact format version.
+    # formats from what we know. This is in a separate method so that
+    # it can be easily overridden in subclasses. Possible additions
+    # include parsing the CEL, CHP headers to get the exact format
+    # version.
     my %known = (
         'cel'    => 'CEL',
         'chp'    => 'CHP',
@@ -803,6 +802,17 @@ sub create_data_file {
         category => 'DataFormat',    # FIXME hard-coded.
         value    => $format_str,
     });
+
+    return $format;
+}
+
+sub create_data_file {
+
+    my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
+
+    return if ( $uri =~ $BLANK );
+
+    my $format = $self->find_data_format( $uri );
 
     my $type = $self->get_builder()->find_or_create_controlled_term({
         category => 'DataType',    # FIXME hard-coded.
