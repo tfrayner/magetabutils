@@ -33,11 +33,6 @@ use Bio::MAGETAB::Util::Reader::Builder;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
-has 'builder'             => ( is         => 'ro',
-                               isa        => 'Bio::MAGETAB::Util::Reader::Builder',
-                               default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
-                               required   => 1 );
-
 # Define some standard regexps:
 my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
 my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
@@ -85,8 +80,8 @@ sub parse {
 	my $objects = $row_parser->(@$larry);
 
         # Post-process Nodes and FactorValues.
-        my @nodes = grep { $_ && $_->isa('Bio::MAGETAB::Node') } @{ $objects };
-        my @factorvals = grep { $_ && $_->isa('Bio::MAGETAB::FactorValue') } @{ $objects };
+        my @nodes            = grep { $_ && $_->isa('Bio::MAGETAB::Node') } @{ $objects };
+        my @factorvals       = grep { $_ && $_->isa('Bio::MAGETAB::FactorValue') } @{ $objects };
         my @labeled_extracts = grep { $_ && $_->isa('Bio::MAGETAB::LabeledExtract') } @nodes;
 
         my $channel;

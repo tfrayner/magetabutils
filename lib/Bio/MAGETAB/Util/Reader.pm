@@ -66,6 +66,7 @@ sub parse {
     my $builder = Bio::MAGETAB::Util::Reader::Builder->new(
         namespace => $self->get_namespace(),
         authority => $self->get_authority(),
+        relaxed_parser => FIXME,
     );
 
     my $idf_parser = Bio::MAGETAB::Util::Reader::IDF->new({
@@ -94,7 +95,10 @@ sub parse {
 	$self->logprint('magetab',
 			sprintf("Processing SDRF: %s\n\n", $sdrf_file));
 
-	my $sdrf_parser = ArrayExpress::MAGETAB::SDRF->new({
+        # FIXME consider optionally passing in a Bio::MAGETAB::SDRF
+        # object here, so the SDRF parser API could make a little more
+        # sense.
+	my $sdrf_parser = Bio::MAGETAB::Util::Reader::SDRF->new({
 	    uri                        => $sdrf_file,
             builder                    => $builder,
             container                  => $magetab_container,    # for BaseClass->set_ClassContainer

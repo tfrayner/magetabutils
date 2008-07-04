@@ -29,11 +29,6 @@ use Bio::MAGETAB::Util::Reader::Builder;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
-has 'builder'             => ( is         => 'ro',
-                               isa        => 'Bio::MAGETAB::Util::Reader::Builder',
-                               default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
-                               required   => 1 );
-
 has 'text_store'          => ( is         => 'rw',
                                isa        => 'HashRef',
                                default    => sub { {} },

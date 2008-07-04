@@ -182,6 +182,9 @@ my %method_map = (
     'data_matrix'      => [ 'Bio::MAGETAB::DataMatrix',
                            qw( uri ) ],
 
+    'matrix_column'    => [ 'Bio::MAGETAB::MatrixColumn',
+                           qw( columnNumber ) ],
+
 );
 
 {
