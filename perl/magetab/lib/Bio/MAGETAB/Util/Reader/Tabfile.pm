@@ -36,6 +36,11 @@ has 'eol_char'           => ( is         => 'rw',
                               isa        => 'Str',
                               required   => 0 );
 
+has 'builder'            => ( is         => 'ro',
+                              isa        => 'Bio::MAGETAB::Util::Reader::Builder',
+                              default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
+                              required   => 1 );
+
 sub _calculate_eol_char {
 
     my ( $self ) = @_;
