@@ -54,12 +54,18 @@ my %required_attr = (
 my %optional_attr = (
     comments          => \@co,
     databaseEntries   => \@db,
+    chromosome        => 'chr10',
+    startPosition     => 100000,
+    endPosition       => 1000510,
 );
 
 my %bad_attr = (
-    name            => [],
-    comments        => 'test',
-    databaseEntries => 'test',
+    name              => [],
+    comments          => 'test',
+    databaseEntries   => 'test',
+    chromosome        => [],
+    startPosition     => 'eleven',
+    endPosition       => [],
 );
 
 my @db2 = Bio::MAGETAB::DatabaseEntry->new( accession => 'test 2' );
@@ -69,6 +75,9 @@ my %secondary_attr = (
     name              => 'test2',
     comments          => \@co2,
     databaseEntries   => \@db2,
+    chromosome        => 'chr21',
+    startPosition     => 100030,
+    endPosition       => 105051,
 );
 
 my $obj = test_class(

@@ -29,4 +29,22 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::DesignElement' );
 }
 
+INIT {
+    use lib 't/testlib';
+    use CommonTests qw(test_methods);
+}
+
 dies_ok( sub { Bio::MAGETAB::DesignElement->new() }, 'abstract class cannot be instantiated' );
+
+# Very basic tests that methods exist. Anything more would require
+# instantiation.
+my @expected = qw(
+    get_chromosome
+    set_chromosome
+    get_startPosition
+    set_startPosition
+    get_endPosition
+    set_endPosition
+);
+
+test_methods( 'Bio::MAGETAB::DesignElement', \@expected );
