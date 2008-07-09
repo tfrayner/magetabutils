@@ -59,6 +59,9 @@ my %optional_attr = (
     sequence          => 'atcg',
     databaseEntries   => \@db,
     compositeElements => \@ce,
+    chromosome        => 'chr1',
+    startPosition     => 100000,
+    endPosition       => 100051,
 );
 
 my %bad_attr = (
@@ -68,6 +71,9 @@ my %bad_attr = (
     sequence          => [],
     databaseEntries   => \@ce,
     compositeElements => \@db,
+    chromosome        => [],
+    startPosition     => 'ten',
+    endPosition       => [],
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
@@ -79,6 +85,9 @@ my %secondary_attr = (
     sequence          => 'atcg',
     databaseEntries   => [ $db[0] ],
     compositeElements => [ $ce[1] ],
+    chromosome        => 'chr12',
+    startPosition     => 2100000,
+    endPosition       => 2100051,
 );
 
 my $obj = test_class(

@@ -36,6 +36,24 @@ sub BUILD {
     return;
 }
 
+has 'chromosome'          => ( is         => 'rw',
+                               isa        => 'Str',
+                               clearer    => 'clear_chromosome',
+                               predicate  => 'has_chromosome',
+                               required   => 0 );
+
+has 'startPosition'       => ( is         => 'rw',
+                               isa        => 'Int',
+                               clearer    => 'clear_startPosition',
+                               predicate  => 'has_startPosition',
+                               required   => 0 );
+
+has 'endPosition'         => ( is         => 'rw',
+                               isa        => 'Int',
+                               clearer    => 'clear_endPosition',
+                               predicate  => 'has_endPosition',
+                               required   => 0 );
+
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
