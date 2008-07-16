@@ -24,19 +24,25 @@ use Moose;
 
 BEGIN { extends 'Bio::MAGETAB::Data' };
 
-has 'rowIdentifierType'   => ( is       => 'rw',
-                               isa      => 'Str',
-                               required => 1 );
+has 'rowIdentifierType'   => ( is         => 'rw',
+                               isa        => 'Str',
+                               clearer    => 'clear_rowIdentifierType',
+                               predicate  => 'has_rowIdentifierType',
+                               required   => 0 );
 
 has 'matrixColumns'       => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::MatrixColumn]',
+                               clearer    => 'clear_matrixColumns',
+                               predicate  => 'has_matrixColumns',
                                auto_deref => 1,
-                               required   => 1 );
+                               required   => 0 );
 
 has 'matrixRows'          => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::MatrixRow]',
+                               clearer    => 'clear_matrixRows',
+                               predicate  => 'has_matrixRows',
                                auto_deref => 1,
-                               required   => 1 );
+                               required   => 0 );
 
 __PACKAGE__->meta->make_immutable();
 
