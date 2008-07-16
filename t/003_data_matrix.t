@@ -57,13 +57,13 @@ my $mr = Bio::MAGETAB::MatrixRow->new(
 
 my %required_attr = (
     uri               => 'http://www.madeupdatafiles.org/mydata.txt',
-    rowIdentifierType => 'Reporter',
-    matrixRows        => [ $mr ],
-    matrixColumns     => [ $mc ],
     type              => $ty,
 );
 
 my %optional_attr = (
+    rowIdentifierType => 'Reporter',
+    matrixRows        => [ $mr ],
+    matrixColumns     => [ $mc ],
 );
 
 my %bad_attr = (

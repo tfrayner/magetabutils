@@ -75,6 +75,7 @@ my $magetab_modules = [
        Bio::MAGETAB::Publication
        Bio::MAGETAB::Reporter
        Bio::MAGETAB::SDRF
+       Bio::MAGETAB::SDRFRow
        Bio::MAGETAB::Sample
        Bio::MAGETAB::Source
        Bio::MAGETAB::TermSource

@@ -831,10 +831,13 @@ sub create_data_matrix {
 
     return if ( $uri =~ $BLANK );
 
-    # FIXME there's a lot more here to get, probably by actually
-    # parsing the data matrix file. This won't work as it stands.
+    # There's a lot more metadata to acquire here, by actually parsing
+    # the data matrix file. We do that later after everything else has
+    # been parsed, so that we can reliably map matrix columns to
+    # nodes.
     my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
-        uri => $uri,
+        uri  => $uri,
+        type => FIXME,   # pass this in from the grammar itself?
     });
 
     $self->_link_to_previous( $data_matrix, $previous, $protocolapps );

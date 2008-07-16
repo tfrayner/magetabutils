@@ -185,6 +185,15 @@ my %method_map = (
     'matrix_column'    => [ 'Bio::MAGETAB::MatrixColumn',
                            qw( columnNumber ) ],
 
+    'matrix_row'       => [ 'Bio::MAGETAB::MatrixRow',
+                           qw( rowNumber ) ],
+
+    'reporter'          => [ 'Bio::MAGETAB::Reporter',
+                           qw( name ) ],
+
+    'composite_element' => [ 'Bio::MAGETAB::CompositeElement',
+                           qw( name ) ],
+
 );
 
 {

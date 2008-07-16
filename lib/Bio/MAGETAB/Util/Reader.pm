@@ -101,13 +101,23 @@ sub parse {
 	my $sdrf_parser = Bio::MAGETAB::Util::Reader::SDRF->new({
 	    uri                        => $sdrf_file,
             builder                    => $builder,
-            container                  => $magetab_container,    # for BaseClass->set_ClassContainer
+#            container                  => $magetab_container,    # for BaseClass->set_ClassContainer
 #	    skip_datafiles             => $self->get_skip_datafiles(),
 	});
 
         my $sdrf_rows = $sdrf_parser->parse();
 
         $sdrf->set_sdrfRows( $sdrf_rows );
+    }
+
+    # FIXME Parse through all the DataMatrix objects.
+    foreach my $matrix ( $magetab_container->get_DataMatrices() ) {
+        my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
+            magetab_object => $matrix,
+            builder        => $builder,           
+        });
+
+        $parser->parse();
     }
 
     return wantarray

@@ -26,11 +26,27 @@ use Carp;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
+has 'magetab_object'     => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB::DataMatrix',
+                              required   => 0 );
+
 # FIXME the following should be in some standard location, maybe the superclass?
 # Define some standard regexps:
 my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
 my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
 my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
+
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    # FIXME not sure if this will work. When are required attributes checked by Moose?
+    if ( my $obj = $params->{'magetab_object'} ) {
+        $self->set_uri( $obj->get_uri() );
+    }
+
+    return;
+}
 
 sub parse {
 
@@ -73,20 +89,15 @@ sub parse {
                 = $self->_parse_qt_heading( $larry );
         }
         else {
-
-            # FIXME considerably unfinished as yet.
-            my %type_map = (
-                'Reporter' => sub { $self->get_builder()->get_reporter() }
+            my $element = $self->_parse_row_index(
+                $larry->[0],
+                $row_identifier_type,
+                $de_namespace,
             );
-
-            # FIXME don't forget to constrain this depending on
-            # $row_identifier_type and $de_namespace.
-
-            # FIXME how about thinking about namespace for
-            # Reporter/CompositeElement? And relaxing the parser
-            # strictness when there is one?
-
-            push @matrix_rows, $design_element_creator->();
+            push @matrix_rows, $self->get_builder()->create_matrix_row({
+                rowNumber     => $row_number,
+                designElement => $element,
+            });
         }
 
         $row_number++;
@@ -100,7 +111,7 @@ sub parse {
     # Create the MatrixColumn objects.
     my @matrix_columns;
     for ( my $col_number = 1; $col_number < scalar @{ $qts }; $col_number++ ) {
-        push @matrix_columns, $self->get_builder()->find_or_create_matrix_column({
+        push @matrix_columns, $self->get_builder()->create_matrix_column({
             columnNumber     => $col_number,
             quantitationType => $qts->[ $col_number ],
             referencedNodes  => $nodes->[ $col_number ],
@@ -108,14 +119,22 @@ sub parse {
         $col_number++;
     }
 
-    # Create the target DataMatrix object.
-    my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
-        uri               => $self->get_uri(),
-        type              => FIXME,
-        rowIdentifierType => $row_identifier_type,
-        matrixColumns     => \@matrix_columns,
-        matrixRows        => \@matrix_rows,
-    });
+    # Find or create the target DataMatrix object.
+    my $data_matrix;
+    if ( $data_matrix = $self->get_magetab_object() ) {
+        $data_matrix->set_rowIdentifierType( $row_identifier_type );
+        $data_matrix->set_matrixColumns( \@matrix_columns );
+        $data_matrix->set_matrixRows( \@matrix_rows );
+    }
+    else {
+        $data_matrix = $self->get_builder()->find_or_create_data_matrix({
+            uri               => $self->get_uri(),
+            type              => FIXME,
+            rowIdentifierType => $row_identifier_type,
+            matrixColumns     => \@matrix_columns,
+            matrixRows        => \@matrix_rows,
+        });
+    }
 
     return $data_matrix;
 }
@@ -195,6 +214,69 @@ sub _parse_qt_heading {
     }
 
     return ( \@qts, $row_identifier_type, $namespace );
+}
+
+sub _parse_row_index {
+
+    my ( $self, $index, $row_identifier_type, $de_namespace ) = @_;
+
+    my %type_map = (
+        'Reporter'          => 'reporter',
+        'Composite Element' => 'composite_element',
+        'Term Source'       => 'reporter',
+        'Coordinates'       => 'reporter',
+    );
+
+    # We constrain how objects are created depending on
+    # $row_identifier_type and $de_namespace, e.g. relaxing
+    # the parser strictness when there is a namespace.
+    my $method_prefix = $de_namespace ? 'find_or_create_'
+        : $row_identifier_type eq 'Coordinates' ? 'find_or_create_'
+        : $row_identifier_type eq 'Term Source' ? 'find_or_create_'
+        : 'get_';
+
+    my $method = $method_prefix . $type_map{ $row_identifier_type };
+
+    # Start off with just Reporter/CompositeElement; we add different
+    # arguments for Coordinates/Term Source style design elements.
+    my $args = {
+        name      => $index,
+        namespace => $de_namespace,
+    };
+
+    if ( $row_identifier_type eq 'Coordinates' ) {
+        my ( $chr, $start, $end ) = ( $index =~ /([^:-]+) : (\d+) - (\d+)/ixms );
+        unless ( defined $chr && defined $start && defined $end ) {
+            croak(qq{Error: unable to parse Coordinates "$index"; must be in chrX:123-456 format.\n});
+        }
+        $args->{'chromosome'}    = $chr;
+        $args->{'startPosition'} = $start;
+        $args->{'endPosition'}   = $end;
+    }
+    elsif ( $row_identfier_type eq 'Term Source' ) {
+
+        # Term Source Name must be in the $de_namespace (this is in
+        # the MAGE-TAB spec).
+        unless ( $de_namespace ) {
+            croak(qq{Error: Data Matrix Term Source must include Name, e.g. "Term Source REF:embl".\n});
+        }
+        my $ts_obj = $self->get_builder()->get_term_source($de_namespace);
+
+        # FIXME consider supporting semicolon-delimited accessions
+        # here (not currently part of MAGE-TAB spec).
+        my $term = $self->get_builder()->find_or_create_database_entry({
+            accession  => $index,
+            termSource => $ts_obj,
+        });
+        $args->{'databaseEntries'} = [ $term ];
+
+        # In such cases this isn't really a namespace, so we get rid of it.
+        delete $args->{'namespace'};
+    }
+
+    my $element = $self->get_builder()->$method($args);
+
+    return $element;
 }
 
 # Make the classes immutable. In theory this speeds up object
