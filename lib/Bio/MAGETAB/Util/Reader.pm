@@ -120,6 +120,17 @@ sub parse {
         $parser->parse();
     }
 
+    # FIXME Parse through all the ADFs.
+    foreach my $array ( $magetab_container->get_ArrayDesigns() ) {
+        if ( $array->get_uri() ) {
+            my $parser = Bio::MAGETAB::Util::Reader::ADF->new({
+                magetab_object => $array,
+                builder        => $builder,           
+            });
+            $parser->parse();
+        }
+    }
+
     return wantarray
 	   ? ( $investigation, $magetab_container )
 	   : $magetab_container;

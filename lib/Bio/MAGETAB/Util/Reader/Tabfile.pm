@@ -28,6 +28,8 @@ use Carp;
 use charnames qw( :full );
 use Text::CSV_XS;
 
+use Bio::MAGETAB::Util::Reader::Builder;
+
 has 'uri'                => ( is         => 'rw',
                               isa        => 'Uri',
                               required   => 1 );

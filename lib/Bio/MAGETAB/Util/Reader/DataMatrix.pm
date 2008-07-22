@@ -134,6 +134,7 @@ sub parse {
             matrixColumns     => \@matrix_columns,
             matrixRows        => \@matrix_rows,
         });
+        $self->set_magetab_object( $data_matrix );
     }
 
     return $data_matrix;
@@ -146,15 +147,15 @@ sub _parse_node_heading {
     my @nodes;
 
     my %type_map = (
-        qr/Normalization/i  => 'get_normalization',
-        qr/Scan         /i  => 'get_data_acquisition',
-        qr/Hybridization/i  => 'get_hybridization',
-        qr/Assay        /i  => 'get_assay',
+        qr/Normalization/ixms  => 'get_normalization',
+        qr/Scan         /ixms  => 'get_data_acquisition',
+        qr/Hybridization/ixms  => 'get_hybridization',
+        qr/Assay        /ixms  => 'get_assay',
         
-        qr/LabeledExtract/i => 'get_labeled_extract',
-        qr/Extract       /i => 'get_extract',
-        qr/Sample        /i => 'get_sample',
-        qr/Source        /i => 'get_source',
+        qr/LabeledExtract/ixms => 'get_labeled_extract',
+        qr/Extract       /ixms => 'get_extract',
+        qr/Sample        /ixms => 'get_sample',
+        qr/Source        /ixms => 'get_source',
 
         qr/(?:Derived)? [ ]? Array [ ]? Data [ ]? File/ixms => 'get_data_file',
     );
@@ -186,10 +187,10 @@ sub _parse_qt_heading {
     my ( $self, $larry ) = @_;
 
     my %type_map = (
-        qr/Reporter/i               => 'Reporter',
-        qr/Composite [ ]? Element/i => 'Composite Element',
-        qr/Term [ ]? Source/i       => 'Term Source',
-        qr/Coordinates/i            => 'Coordinates',
+        qr/Reporter/ixms               => 'Reporter',
+        qr/Composite [ ]? Element/ixms => 'Composite Element',
+        qr/Term [ ]? Source/ixms       => 'Term Source',
+        qr/Coordinates/ixms            => 'Coordinates',
     );
 
     my $row_identifier_type;

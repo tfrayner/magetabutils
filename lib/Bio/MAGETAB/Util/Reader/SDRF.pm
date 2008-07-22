@@ -33,6 +33,10 @@ use Bio::MAGETAB::Util::Reader::Builder;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
+has 'magetab_object'     => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB::SDRF',
+                              required   => 0 );
+
 # Define some standard regexps:
 my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
 my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
@@ -43,6 +47,18 @@ my $BLANK = qr/\A [ ]* \z/xms;
 my $GRAMMAR = join("\n", <DATA> );
 
 #my %skip_datafiles    : ATTR( :name<skip_datafiles>,      :default<undef> );
+
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    # FIXME not sure if this will work. When are required attributes checked by Moose?
+    if ( my $obj = $params->{'magetab_object'} ) {
+        $self->set_uri( $obj->get_uri() );
+    }
+
+    return;
+}
 
 sub parse {
 
@@ -133,7 +149,6 @@ sub parse_header {
     our ($previous_material,
 	 $previous_event,
 	 $previous_data,
-	 $array_accession,
 	 $channel);
 
     # FIXME add support for REF:namespaces (currently accepted, but
@@ -734,6 +749,24 @@ sub create_array {
     return $array_design;
 }
 
+sub create_array_from_file {
+
+    my ( $self, $uri, $assay ) = @_;
+
+    return if ( $uri =~ $BLANK );
+
+    my $array_design = $self->get_builder()->find_or_create_array_design({
+        name => $uri,    # FIXME this isn't exactly elegant.
+        uri  => $uri,
+    });
+
+    if ( $assay ) {
+        $assay->set_arrayDesign( $array_design );
+    }
+
+    return $array_design;
+}
+
 sub create_scan {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
@@ -1046,7 +1079,6 @@ __DATA__
 
                                           # Reset some global variables.
                                           $::channel           = 'Unknown';
-                                          $::array_accession   = undef;
                                           $::previous_node     = undef;
                                           @::protocolapp_list  = ();
 
@@ -1602,7 +1634,18 @@ __DATA__
 
     array_design_file:         array_design_file_heading comment(s?)
 
-                                   { die "ADFs not yet supported" }
+                                   { $return = sub {
+                                         my $hybridization = shift;
+                                         my $uri           = shift;
+                                  
+                                         my $obj = $::sdrf->create_array_from_file($uri, $hybridization);
+                                         foreach my $sub (@{$item[2]}){
+                                             unshift( @_, $obj ) and
+                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                         }
+                                         return $obj;
+                                     };
+                                   }
 
     array_design_ref_heading:  /Array *Design *REFs?/i
 
@@ -1613,10 +1656,9 @@ __DATA__
 
                                    { $return = sub {
                                          my $hybridization  = shift;
-                                         $::array_accession = shift;
 
                                          # array_accession, namespace_term
-                                         my @args = ( $::array_accession, $item[3][0] );
+                                         my @args = ( shift, $item[3][0] );
 
                                          if ( ref $item[5][0] eq 'ARRAY' ) {
 
