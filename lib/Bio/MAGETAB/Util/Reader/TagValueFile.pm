@@ -39,11 +39,6 @@ has 'dispatch_table'      => ( is         => 'rw',
 
 my $COMMENT_TAG = qr/\A \s* Comment \s* \[ ([^\]]+) \] \s* \z/ixms;
 
-# Define some standard regexps:
-my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
-my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
-my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
-
 ###################
 # Private methods #
 ###################
@@ -116,7 +111,7 @@ sub _read_as_arrayref {
 
     # First, determine the file linebreak type and generate a CSV
     # parser object.
-    my $csv_parser = $self->_get_csv_parser();
+    my $csv_parser = $self->_construct_csv_parser();
 
     # This is still required for Text::CSV_XS.
     local $/ = $self->_calculate_eol_char();
@@ -129,17 +124,11 @@ sub _read_as_arrayref {
     FILE_LINE:
     while ( $larry = $csv_parser->getline($fh) ) {
 
-        # Skip empty lines.
-        my $line = join( q{}, @$larry );
-        next FILE_LINE if ( $line =~ $RE_EMPTY_STRING );
-
-        # Allow hash comments.
-        next FILE_LINE if ( $line =~ $RE_COMMENTED_STRING );
+        # Skip empty lines, comments.
+        next FILE_LINE if $self->_can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-	foreach my $element ( @$larry ) {
-	    $element =~ s/$RE_SURROUNDED_BY_WHITESPACE/$1/xms;
-	}
+        $larry = $self->_strip_whitespace( $larry );
 
 	# Strip off empty trailing values.
 	my $end_value;
@@ -157,16 +146,7 @@ sub _read_as_arrayref {
     }
 
     # Check we've parsed to the end of the file.
-    my ( $error, $mess ) = $csv_parser->error_diag();
-    unless ( $error == 2012 ) {    # 2012 is the Text::CSV_XS EOF code.
-	croak(
-	    sprintf(
-		"Error in tab-delimited format: %s. Bad input was:\n\n%s\n",
-		$mess,
-		$csv_parser->error_input(),
-	    ),
-	);
-    }
+    $self->_confirm_full_parse( $csv_parser );
 
     return \@rows;
 }

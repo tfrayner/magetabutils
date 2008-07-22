@@ -38,9 +38,6 @@ has 'magetab_object'     => ( is         => 'rw',
                               required   => 0 );
 
 # Define some standard regexps:
-my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
-my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
-my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
 my $BLANK = qr/\A [ ]* \z/xms;
 
 # The Parse::RecDescent grammar is stored in the __DATA__ section, below.
@@ -69,7 +66,7 @@ sub parse {
 
     my $row_parser = $self->parse_header();
     my $sdrf_fh    = $self->_get_filehandle();
-    my $csv_parser = $self->_get_csv_parser();
+    my $csv_parser = $self->_construct_csv_parser();
 
     my $larry;
     my @sdrf_rows;
@@ -80,17 +77,11 @@ sub parse {
     FILE_LINE:
     while ( $larry = $csv_parser->getline($sdrf_fh) ) {
     
-        # Skip empty lines.
-        my $line = join( q{}, @$larry );
-        next FILE_LINE if ( $line =~ $RE_EMPTY_STRING );
-
-        # Allow hash comments.
-        next FILE_LINE if ( $line =~ $RE_COMMENTED_STRING );
+        # Skip empty lines, comments.
+        next FILE_LINE if $self->_can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-	foreach my $element ( @$larry ) {
-	    $element =~ s/$RE_SURROUNDED_BY_WHITESPACE/$1/xms;
-	}
+        $larry = $self->_strip_whitespace( $larry );
 
 	# FIXME some error handling wouldn't go amiss here.
 	my $objects = $row_parser->(@$larry);
@@ -123,16 +114,7 @@ sub parse {
     }
 
     # Check we've parsed to the end of the file.
-    my ( $error, $mess ) = $csv_parser->error_diag();
-    unless ( $error == 2012 ) {    # 2012 is the Text::CSV_XS EOF code.
-	croak(
-	    sprintf(
-		"Error in tab-delimited format: %s. Bad input was:\n\n%s\n",
-		$mess,
-		$csv_parser->error_input(),
-	    ),
-	);
-    }
+    $self->_confirm_full_parse( $csv_parser );
 
     return \@sdrf_rows;
 }
@@ -156,7 +138,7 @@ sub parse_header {
 
     # Check linebreaks; get first line as $header_string and generate
     # row-level parser.
-    my $csv_parser = $::sdrf->_get_csv_parser();
+    my $csv_parser = $::sdrf->_construct_csv_parser();
     my $sdrf_fh    = $::sdrf->_get_filehandle();
 
     # Get the header line - the first non-empty, non-comment line in the file.
@@ -164,12 +146,12 @@ sub parse_header {
     HEADERLINE:
     while ( $harry = $csv_parser->getline($sdrf_fh) ) {
 
+	# Skip empty and commented lines.
+        next HEADERLINE if $self->_can_ignore( $harry );
+
 	$header_string = join( qq{\x{0}}, @$harry );
 
-	# Skip empty and commented lines.
-        if (   $header_string
-	    && $header_string !~ $RE_EMPTY_STRING
-	    && $header_string !~ $RE_COMMENTED_STRING ) {
+        if ( $header_string ) {
 
 	    # We've found the header line. Add a starting skip
 	    # character for the benefit of the parser.
@@ -179,16 +161,7 @@ sub parse_header {
     }
 
     # Check we have no CSV parse errors.
-    my ( $error, $mess ) = $csv_parser->error_diag();
-    unless ( $harry || $error == 2012 ) {    # 2012 is the Text::CSV_XS EOF code.
-	croak(
-	    sprintf(
-		"Error in tab-delimited format: %s. Bad input was:\n\n%s\n",
-		$mess,
-		$csv_parser->error_input(),
-	    ),
-	);
-    }
+    $self->_confirm_full_parse( $csv_parser, $harry );
 
     # N.B. MAGE-TAB 1.1 SDRFs can actually be empty, so an empty
     # $header_string is valid at this point.

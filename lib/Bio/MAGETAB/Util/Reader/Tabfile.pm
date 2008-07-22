@@ -38,10 +38,67 @@ has 'eol_char'           => ( is         => 'rw',
                               isa        => 'Str',
                               required   => 0 );
 
+has 'csv_parser'         => ( is         => 'rw',
+                              isa        => 'Text::CSV_XS',
+                              required   => 0 );
+
 has 'builder'            => ( is         => 'ro',
                               isa        => 'Bio::MAGETAB::Util::Reader::Builder',
                               default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
                               required   => 1 );
+
+# Define some standard regexps:
+my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
+my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
+my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
+
+sub _can_ignore {
+
+    my ( $self, $larry ) = @_;
+
+    # Skip empty lines.
+    my $line = join( q{}, @$larry );
+    return 1 if ( $line =~ $RE_EMPTY_STRING );
+
+    # Allow hash comments.
+    return 1 if ( $line =~ $RE_COMMENTED_STRING );
+
+    return;
+}
+
+sub _strip_whitespace {
+
+    my ( $self, $larry ) = @_;
+
+    # Strip surrounding whitespace from each element.
+    foreach my $element ( @$larry ) {
+        $element =~ s/$RE_SURROUNDED_BY_WHITESPACE/$1/xms;
+    }
+
+    return $larry;
+}
+
+sub _confirm_full_parse {
+
+    my ( $self, $csv_parser, $nextline ) = @_;
+
+    # $nextline is an optional argument used to check for correct
+    # parsing in the middle of a file (where $error != 2012, but we
+    # don't want to throw an exception if we have a real $nextline).
+    $csv_parser ||= $self->_construct_csv_parser();
+
+    # Check we've parsed to the end of the file.
+    my ( $error, $mess ) = $csv_parser->error_diag();
+    unless ( $nextline || $error == 2012 ) {    # 2012 is the Text::CSV_XS EOF code.
+	croak(
+	    sprintf(
+		"Error in tab-delimited format: %s. Bad input was:\n\n%s\n",
+		$mess,
+		$csv_parser->error_input(),
+	    ),
+	);
+    }
+}
 
 sub _calculate_eol_char {
 
@@ -75,22 +132,26 @@ sub _calculate_eol_char {
     return $self->get_eol_char();
 }
 
-sub _get_csv_parser {
+sub _construct_csv_parser {
 
     my ( $self ) = @_;
 
-    # FIXME consider caching this in a private attribute?
-    my $csv_parser = Text::CSV_XS->new(
-        {   sep_char    => qq{\t},
-            quote_char  => qq{"},                   # default
-            escape_char => qq{"},                   # default
-            binary      => 1,
-            eol         => ( $self->calculate_eol_char() || "\n" ),
-	    allow_loose_quotes => 1,
-        }
-    );
+    # We cache this in a private attribute so each file only gets one
+    # parser (better for error trackage).
+    unless ( $self->get_csv_parser() ) {
+        my $csv_parser = Text::CSV_XS->new(
+            {   sep_char    => qq{\t},
+                quote_char  => qq{"},                   # default
+                escape_char => qq{"},                   # default
+                binary      => 1,
+                eol         => ( $self->_calculate_eol_char() || "\n" ),
+                allow_loose_quotes => 1,
+            }
+        );
+        $self->set_csv_parser( $csv_parser );
+    }
 
-    return $csv_parser;
+    return $self->get_csv_parser();
 }
 
 sub _get_filepath {
