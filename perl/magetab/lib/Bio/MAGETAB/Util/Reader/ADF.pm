@@ -30,12 +30,6 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::ArrayDesign',
                               required   => 0 );
 
-# FIXME the following should be in some standard location, maybe the superclass?
-# Define some standard regexps:
-my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
-my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
-my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
-
 sub BUILD {
 
     my ( $self, $params ) = @_;
@@ -106,13 +100,387 @@ sub parse {
     return $self->get_magetab_object();
 }
 
+sub _position_fh_at_section {
+
+    my ( $self, $section ) = @_;
+
+    # This has to be set for Text::CSV_XS.
+    local $/ = $self->_calculate_eol_char();
+
+    my $adf_fh     = $self->_get_filehandle();
+    my $csv_parser = $self->_construct_csv_parser();
+
+    seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
+
+    my $larry;
+    my $is_body;
+
+    HEADER_LINE:
+    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+    
+        # Skip empty lines, comments.
+        next HEADER_LINE if $self->_can_ignore( $larry );
+
+	# Strip surrounding whitespace from each element.
+        $larry = $self->_strip_whitespace( $larry );
+
+        # First useful line after the start of the ADF body.
+        if ( $is_body ) {
+            last HEADER_LINE;
+        }
+
+        # If we've seen the start of the main ADF body, note it.
+        if ( $larry[0] =~ /\A \[ [ ]* (?:$section) [ ]* \] \z/ixms ) {
+            $is_body++;
+            next HEADER_LINE;
+        }
+    }
+
+    $self->_confirm_full_parse( $csv_parser, $larry );
+
+    return ( $adf_fh, $larry );
+}
+
+sub _coerce_adf_main_headings {
+
+    my ( $self, $larry ) = @_;
+
+    my %mapping = (
+        qr/Block [ ]* Columns?/ixms
+            => 'block_column',
+
+        qr/Block [ ]* Rows?/ixms
+            => 'block_row',
+
+        qr/Columns?/ixms
+            => 'column',
+
+        qr/Rows?/ixms
+            => 'row',
+
+        qr/Reporter [ ]* Names?/ixms
+            => 'reporter_name',
+
+        qr/Reporter [ ]* Sequences?/ixms
+            => 'reporter_sequence',
+
+        qr/Reporter [ ]* Database [ ]* Entr(?:y|ies) [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
+            => 'reporter_database_entry',
+
+        qr/Reporter [ ]* Groups? [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
+            => 'reporter_group',
+
+        qr/Reporter [ ]* Groups? [ ]* Term [ ]* Source [ ]* REFs?/ixms
+            => 'reporter_group_term_source',
+
+        qr/Control [ ]* Types?/ixms
+            => 'control_type',
+
+        qr/Control [ ]* Types? [ ]* Term [ ]* Source [ ]* REFs?/ixms
+            => 'control_type_term_source',
+
+        qr/Composite [ ]* Element [ ]* Names?/ixms
+            => 'composite_element_name',
+
+        qr/Composite [ ]* Element [ ]* Database [ ]* Entr(?:y|ies) [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
+            => 'composite_element_database_entry',
+
+        qr/Composite [ ]* Element [ ]* Comments?/ixms
+            => 'composite_element_comment',
+    );
+
+    return $self->_coerce_adf_headings( $larry, \%mapping );
+}
+
+sub _coerce_adf_mapping_headings {
+
+    my ( $self, $larry ) = @_;
+
+    my %mapping = (
+        qr/Composite [ ]* Element [ ]* Names?/ixms
+            => 'composite_element_name',
+
+        qr/Map [ ]* 2 [ ]* Reporters?/ixms
+            => 'map2reporters',
+
+        qr/Composite [ ]* Element [ ]* Database [ ]* Entr(?:y|ies) [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
+            => 'composite_element_database_entry',
+
+        qr/Composite [ ]* Element [ ]* Comments?/ixms
+            => 'composite_element_comment',
+    );
+
+    return $self->_coerce_adf_headings( $larry, \%mapping );
+}
+
+sub _coerce_adf_headings {
+
+    my ( $self, $larry, $mapping ) = @_;
+
+    my @header;
+    foreach my $element ( @$larry ) {
+        my $found;
+        while ( my ( $regexp, $tag ) = each %$mapping ) {
+            if ( $element =~ /\A $regexp \z/xms ) {
+                push @header, [ $tag, $1 ];
+            }
+        }
+        unless ( $found ) {
+            croak("Error: Unrecognized ADF heading: $element\n");
+        }
+    }
+
+    return \@header;
+}
+
+sub _parse_mapping_section {
+
+    my ( $self ) = @_;
+
+    my ($adf_fh, $larry) = $self->_position_fh_at_section('mapping');
+    my $header = $self->_coerce_adf_mapping_headings( $larry );
+
+    unless ( $header && scalar @$header ) {
+        croak("Error: Unable to find ADF mapping section header line.\n");
+    }
+
+    # This has to be set for Text::CSV_XS.
+    local $/ = $self->_calculate_eol_char();
+
+    my $csv_parser = $self->_construct_csv_parser();
+
+    my @design_elements;
+
+    MAPPING_LINE:
+    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+
+        # Skip empty lines, comments.
+        next MAPPING_LINE if $self->_can_ignore( $larry );
+
+	# Strip surrounding whitespace from each element.
+        $larry = $self->_strip_whitespace( $larry );
+
+        my @row_elements = $self->_parse_adfrow( $larry, $header );
+
+        push @design_elements, @row_elements;
+    }
+
+    # Check we've parsed to the end of the file.
+    $self->_confirm_full_parse( $csv_parser );
+
+    # N.B. this *may* contain duplicates, beware.
+    return \@design_elements;
+}
+
 sub parse_body {
 
     my ( $self ) = @_;
 
-    # FIXME
+    my ($adf_fh, $larry) = $self->_position_fh_at_section('main');
+    my $header = $self->_coerce_adf_main_headings( $larry );
 
-    croak;
+    unless ( $header && scalar @$header ) {
+        croak("Error: Unable to find ADF main body header line.\n");
+    }
+
+    # This has to be set for Text::CSV_XS.
+    local $/ = $self->_calculate_eol_char();
+
+    my $csv_parser = $self->_construct_csv_parser();
+
+    my %design_elements;
+
+    BODY_LINE:
+    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+
+        # Skip empty lines, comments.
+        next BODY_LINE if $self->_can_ignore( $larry );
+
+	# Strip surrounding whitespace from each element.
+        $larry = $self->_strip_whitespace( $larry );
+
+        # If we find a mapping section, parse it also.
+        if ( $larry[0] =~ /\A \[ [ ]* (?:mapping) [ ]* \] \z/ixms ) {
+            my $mapped_elements = $self->_parse_mapping_section( $adf_fh );
+            foreach $element ( @$mapped_elements ) {
+                $design_elements{ $element } = $element;
+            }
+            last BODY_LINE;
+        }
+
+        my @row_elements = $self->_parse_adfrow( $larry, $header );
+
+        foreach my $element ( @row_elements ) {
+            $design_elements{ $element } = $element;
+        }
+    }
+
+    # Check we've parsed to the end of the file.
+    $self->_confirm_full_parse( $csv_parser );
+
+    # Add our DesignElements to our ArrayDesign
+    my $array_design;
+    if ( $array_design = $self->get_magetab_object() ) {
+        $array_design->set_designElements( [ values %design_elements ] );
+    }
+    else {
+        $array_design = $self->get_builder()->find_or_create_array_design({
+            name           => $self->get_uri(),
+            designElements => [ values %design_elements ],
+        });
+        $self->set_magetab_object( $array_design );
+    }
+
+    return;
+}
+
+sub _add_composite_to_reporter {
+
+    my ( $self, $composite, $reporter ) = @_;
+
+    my @previous = $reporter->get_compositeElements();
+    my $found = first { $composite eq $_ } @previous;
+    unless ( $found ) {
+        push @previous, $composite;
+        $reporter->set_compositeElements( \@previous );
+    }
+
+    return;
+}
+
+sub _parse_adfrow_for_feature {
+
+    my ( $self, $larry, $header ) = @_;
+
+    my %map = (
+        'block_column' => 'blockColumn',
+        'block_row'    => 'blockRow',
+        'column'       => 'column',
+        'row'          => 'row',
+    );
+
+    my %data;
+    for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        if ( my $attr = $map{ $header->[$i][0] } ) {
+            $data{ $attr } = $larry->[$i];
+        }
+    }
+
+    return \%data;
+}
+
+sub _parse_adfrow_for_reporter {
+
+    my ( $self, $larry, $header ) = @_;
+
+    my %map = ();
+
+    my %groupmap = ();
+
+    my %dbmap = ();
+
+    my (%data, @groups, @dbentries);
+    for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        if ( my $attr = $map{ $header->[$i][0] } ) {
+            if ( $attr eq 'groups' ) {
+                if ( my $group = $groupmap{ $header->[$i][1] } ) {
+                    push @groups, $self->get_builder()->find_or_create_controlled_term({
+                        category => $group,
+                        value    => $larry->[$i],
+                    });
+                }
+            }
+            elsif ( $attr eq 'databaseEntries' ) {
+                if ( my $db = $dbmap{ $header->[$i][1] } ) {
+                    my $ts_obj = $self->get_builder()->get_term_source( $db );  # FIXME check this.
+                    push @dbentries, $self->get_builder()->find_or_create_database_entry({
+                        accession  => $larry->[$i],   # FIXME split on semicolon and create multiple obj.
+                        termSource => $ts_obj,
+                    });
+                }
+            }
+            else {
+                $data{ $attr } = $larry->[$i];
+            }
+        }
+    }
+
+    # FIXME add term sources to groups, control types.
+
+    $data{'groups'}          = \@groups;
+    $data{'databaseEntries'} = \@dbentries;
+
+    return \%data;
+}
+
+sub _parse_adfrow_for_map2rep {
+
+    my ( $self, $larry, $header ) = @_;
+
+    my $map2reporter;
+    for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        if ( $header->[$i][0] eq 'map2reporters' ) {
+            $map2reporter = $larry->[$i];
+        }
+    }
+
+    return $map2reporter;
+}
+
+sub _parse_adfrow {
+
+    my ( $self, $larry, $header ) = @_;
+
+    my $feature_data = $self->_parse_adfrow_for_feature( $larry, $header );
+    my $feature;
+    my @required_feat_info = qw( blockColumn blockRow column row );
+    if ( all { defined($feature_data->{$_}) } @required_feat_info ) {
+        $feature = $self->get_builder()->find_or_create_feature( $feature_data );
+    }
+    elsif ( any { defined($feature_data->{$_}) } @required_feat_info ) {
+        croak("Error: Incomplete feature-level information provided in ADF.");
+    }
+
+    # FIXME
+    my $reporter_data = $self->_parse_adfrow_for_reporter( $larry, $header );
+    my $reporter;
+    if ( defined($reporter_data->{'name'}) ) {
+        $reporter = $self->get_builder()->find_or_create_reporter( $reporter_data );
+
+        # Link feature to reporter.
+        if ( $feature ) {
+            $feature->set_reporter( $reporter );
+        }
+    }
+
+    my $map2rep_data = $self->_parse_adfrow_for_map2rep( $larry, $header );
+    my @map2reporters;
+    if ( $map2rep_data ) {
+        foreach my $name ( split /\s*;\s*/, $map2rep_data ) {
+            push @map2reporters, $self->get_builder()->find_or_create_reporter({
+                name => $name,
+            });
+        }
+    }
+
+    # FIXME
+    my $composite_data = $self->_parse_adfrow_for_composite( $larry, $header );
+    my $composite;
+    if ( defined($composite_data->{'name'}) ) {
+        $composite = $self->get_builder()->find_or_create_composite_element( $composite_data );
+
+        # Link reporter to composite element.
+        if ( $reporter ) {
+            $self->_add_composite_to_reporter( $composite, $reporter );
+        }
+
+        # Link reporters from the mapping section to composite element.
+        foreach my $reporter ( @map2reporters ) {
+            $self->_add_composite_to_reporter( $composite, $reporter );
+        }            
+    }
+
+    return ( $feature, $reporter, $composite, @map2reporters );
 }
 
 sub parse_header {
@@ -204,24 +572,20 @@ sub _read_header_as_arrayref {
     local $/ = $self->_calculate_eol_char();
 
     my $adf_fh     = $self->_get_filehandle();
-    my $csv_parser = $self->_get_csv_parser();
+    my $csv_parser = $self->_construct_csv_parser();
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
+
+    my $larry;
 
     FILE_LINE:
     while ( $larry = $csv_parser->getline($adf_fh) ) {
     
-        # Skip empty lines.
-        my $line = join( q{}, @$larry );
-        next FILE_LINE if ( $line =~ $RE_EMPTY_STRING );
-
-        # Allow hash comments.
-        next FILE_LINE if ( $line =~ $RE_COMMENTED_STRING );
+        # Skip empty lines, comments.
+        next FILE_LINE if $self->_can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-	foreach my $element ( @$larry ) {
-	    $element =~ s/$RE_SURROUNDED_BY_WHITESPACE/$1/xms;
-	}
+        $larry = $self->_strip_whitespace( $larry );
 
         my ( $tag, @values ) = @$larry;
 
@@ -243,17 +607,7 @@ sub _read_header_as_arrayref {
 	push @rows, $larry;
     }
 
-    # Check we've parsed to the end of the file.
-    my ( $error, $mess ) = $csv_parser->error_diag();
-    unless ( $error == 2012 ) {    # 2012 is the Text::CSV_XS EOF code.
-	croak(
-	    sprintf(
-		"Error in tab-delimited format: %s. Bad input was:\n\n%s\n",
-		$mess,
-		$csv_parser->error_input(),
-	    ),
-	);
-    }
+    $self->_confirm_full_parse( $csv_parser, $larry );
 
     return \@rows;
 }

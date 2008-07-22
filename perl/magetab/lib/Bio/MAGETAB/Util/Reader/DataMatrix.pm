@@ -30,12 +30,6 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::DataMatrix',
                               required   => 0 );
 
-# FIXME the following should be in some standard location, maybe the superclass?
-# Define some standard regexps:
-my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
-my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
-my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
-
 sub BUILD {
 
     my ( $self, $params ) = @_;
@@ -56,7 +50,7 @@ sub parse {
     local $/ = $self->_calculate_eol_char();
 
     my $matrix_fh  = $self->_get_filehandle();
-    my $csv_parser = $self->_get_csv_parser();
+    my $csv_parser = $self->_construct_csv_parser();
 
     my $qts;
     my $nodes;
@@ -69,17 +63,11 @@ sub parse {
     FILE_LINE:
     while ( $larry = $csv_parser->getline($matrix_fh) ) {
     
-        # Skip empty lines.
-        my $line = join( q{}, @$larry );
-        next FILE_LINE if ( $line =~ $RE_EMPTY_STRING );
-
-        # Allow hash comments.
-        next FILE_LINE if ( $line =~ $RE_COMMENTED_STRING );
+        # Skip empty lines, comments.
+        next FILE_LINE if $self->_can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-	foreach my $element ( @$larry ) {
-	    $element =~ s/$RE_SURROUNDED_BY_WHITESPACE/$1/xms;
-	}
+        $larry = $self->_strip_whitespace( $larry );
 
         if ( $row_number == 1 ) {
             $nodes = $self->_parse_node_heading( $larry );
@@ -102,6 +90,9 @@ sub parse {
 
         $row_number++;
     }
+
+    # Confirm we've read to the end of the file.
+    $self->_confirm_full_parse( $csv_parser );
 
     # Sanity check.
     unless ( scalar @{ $qts } == scalar @{ $nodes } ) {
