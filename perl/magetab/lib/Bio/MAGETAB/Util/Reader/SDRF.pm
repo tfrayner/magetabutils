@@ -833,7 +833,7 @@ sub create_data_file {
 
 sub create_data_matrix {
 
-    my ( $self, $uri, $type, $previous, $protocolapps ) = @_;
+    my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
     return if ( $uri =~ $BLANK );
 
@@ -841,6 +841,12 @@ sub create_data_matrix {
     # the data matrix file. We do that later after everything else has
     # been parsed, so that we can reliably map matrix columns to
     # nodes.
+
+    my $type = $self->get_builder()->find_or_create_controlled_term({
+        category => 'DataType',    # FIXME hard-coded.
+        value    => $type_str,
+    });
+
     my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
         uri  => $uri,
         type => $type,
