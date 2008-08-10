@@ -123,9 +123,13 @@ sub parse {
 
         # This is typically a stand-alone DM. FIXME consider type as
         # another attribute or argument to this reader object?
+        my $type = $self->get_builder()->find_or_create_controlled_term({
+            category => 'DataType',    # FIXME hard-coded.
+            value    => 'unknown',
+        });
         $data_matrix = $self->get_builder()->find_or_create_data_matrix({
             uri               => $self->get_uri(),
-            type              => 'unknown',    # FIXME is there a way around this?
+            type              => $type,
             rowIdentifierType => $row_identifier_type,
             matrixColumns     => \@matrix_columns,
             matrixRows        => \@matrix_rows,
