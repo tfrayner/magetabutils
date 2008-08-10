@@ -147,7 +147,7 @@ sub parse_header {
     while ( $harry = $csv_parser->getline($sdrf_fh) ) {
 
 	# Skip empty and commented lines.
-        next HEADERLINE if $self->_can_ignore( $harry );
+        next HEADERLINE if $::sdrf->_can_ignore( $harry );
 
 	$header_string = join( qq{\x{0}}, @$harry );
 
@@ -161,7 +161,7 @@ sub parse_header {
     }
 
     # Check we have no CSV parse errors.
-    $self->_confirm_full_parse( $csv_parser, $harry );
+    $::sdrf->_confirm_full_parse( $csv_parser, $harry );
 
     # N.B. MAGE-TAB 1.1 SDRFs can actually be empty, so an empty
     # $header_string is valid at this point.
@@ -833,7 +833,7 @@ sub create_data_file {
 
 sub create_data_matrix {
 
-    my ( $self, $uri, $previous, $protocolapps ) = @_;
+    my ( $self, $uri, $type, $previous, $protocolapps ) = @_;
 
     return if ( $uri =~ $BLANK );
 
@@ -843,7 +843,7 @@ sub create_data_matrix {
     # nodes.
     my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
         uri  => $uri,
-        type => FIXME,   # pass this in from the grammar itself?
+        type => $type,
     });
 
     $self->_link_to_previous( $data_matrix, $previous, $protocolapps );
@@ -1846,6 +1846,7 @@ __DATA__
                                    { $return = sub {
                                          my $obj = $::sdrf->create_data_matrix(
                                              shift,
+                                             'raw',
                                              $::previous_node,
                                              \@::protocolapp_list,
                                          );
@@ -1866,6 +1867,7 @@ __DATA__
                                    { $return = sub {
                                          my $obj = $::sdrf->create_data_matrix(
                                              shift,
+                                             'derived',
                                              $::previous_node,
                                              \@::protocolapp_list,
                                          );

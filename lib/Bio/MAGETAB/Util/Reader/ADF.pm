@@ -130,7 +130,7 @@ sub _position_fh_at_section {
         }
 
         # If we've seen the start of the main ADF body, note it.
-        if ( $larry[0] =~ /\A \[ [ ]* (?:$section) [ ]* \] \z/ixms ) {
+        if ( $larry->[0] =~ /\A \[ [ ]* (?:$section) [ ]* \] \z/ixms ) {
             $is_body++;
             next HEADER_LINE;
         }
@@ -187,6 +187,10 @@ sub _coerce_adf_main_headings {
 
         qr/Composite [ ]* Element [ ]* Comments?/ixms
             => 'composite_element_comment',
+
+        # FIXME this isn't strictly according to the v1.1 specification.
+        qr/Composite [ ]* Element [ ]* Comments? \[ [ ]* (.+?) [ ]* \]/ixms
+            => 'composite_element_comment',
     );
 
     return $self->_coerce_adf_headings( $larry, \%mapping );
@@ -207,6 +211,10 @@ sub _coerce_adf_mapping_headings {
             => 'composite_element_database_entry',
 
         qr/Composite [ ]* Element [ ]* Comments?/ixms
+            => 'composite_element_comment',
+
+        # FIXME this isn't strictly according to the v1.1 specification.
+        qr/Composite [ ]* Element [ ]* Comments? \[ [ ]* (.+?) [ ]* \]/ixms
             => 'composite_element_comment',
     );
 
@@ -300,9 +308,9 @@ sub parse_body {
         $larry = $self->_strip_whitespace( $larry );
 
         # If we find a mapping section, parse it also.
-        if ( $larry[0] =~ /\A \[ [ ]* (?:mapping) [ ]* \] \z/ixms ) {
+        if ( $larry->[0] =~ /\A \[ [ ]* (?:mapping) [ ]* \] \z/ixms ) {
             my $mapped_elements = $self->_parse_mapping_section( $adf_fh );
-            foreach $element ( @$mapped_elements ) {
+            foreach my $element ( @$mapped_elements ) {
                 $design_elements{ $element } = $element;
             }
             last BODY_LINE;
@@ -352,6 +360,7 @@ sub _parse_adfrow_for_feature {
 
     my ( $self, $larry, $header ) = @_;
 
+    # Map our internal column tags to MAGETAB attributes.
     my %map = (
         'block_column' => 'blockColumn',
         'block_row'    => 'blockRow',
@@ -373,42 +382,105 @@ sub _parse_adfrow_for_reporter {
 
     my ( $self, $larry, $header ) = @_;
 
-    my %map = ();
+    my (%data, $group_ts, $ctype_ts);
 
-    my %groupmap = ();
+    # Map our internal column tags to MAGETAB attributes.
+    my %dispatch = (
+        'reporter_name'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'name'} = $lc; },
+        'reporter_sequence'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'sequence'} = $lc; },
+        'reporter_group'
+            => sub { my ( $hc, $lc ) = @_;
+                     push @{ $data{'groups'} },
+                         $self->get_builder()->find_or_create_controlled_term({
+                             category => $hc->[1],
+                             value    => $lc,
+                         }); },
+        'control_type'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'controlType'}
+                         = $self->get_builder()->find_or_create_controlled_term({
+                             category => 'ControlType',    # FIXME hard-coded.
+                             value    => $lc,
+                         }); },
+        'reporter_database_entry'
+            => sub { my ( $hc, $lc ) = @_;
+                     my $ts_obj = $self->get_builder()->get_term_source( $hc->[1] );
+                     push @{ $data{'databaseEntries'} },
+                         $self->get_builder()->find_or_create_database_entry({
+                             accession  => $lc,
+                             termSource => $ts_obj,
+                         }); },
+        'reporter_group_term_source',
+            => sub { my ( $hc, $lc ) = @_;
+                     $group_ts = $self->get_builder()->get_term_source( $lc ); },
+        'control_type_term_source',
+            => sub { my ( $hc, $lc ) = @_;
+                     $ctype_ts = $self->get_builder()->get_term_source( $lc ); },
+    );
 
-    my %dbmap = ();
-
-    my (%data, @groups, @dbentries);
+    # Call the dispatch methods to populate %data.
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
-        if ( my $attr = $map{ $header->[$i][0] } ) {
-            if ( $attr eq 'groups' ) {
-                if ( my $group = $groupmap{ $header->[$i][1] } ) {
-                    push @groups, $self->get_builder()->find_or_create_controlled_term({
-                        category => $group,
-                        value    => $larry->[$i],
-                    });
-                }
-            }
-            elsif ( $attr eq 'databaseEntries' ) {
-                if ( my $db = $dbmap{ $header->[$i][1] } ) {
-                    my $ts_obj = $self->get_builder()->get_term_source( $db );  # FIXME check this.
-                    push @dbentries, $self->get_builder()->find_or_create_database_entry({
-                        accession  => $larry->[$i],   # FIXME split on semicolon and create multiple obj.
-                        termSource => $ts_obj,
-                    });
-                }
-            }
-            else {
-                $data{ $attr } = $larry->[$i];
-            }
+        if ( my $sub = $dispatch{ $header->[$i][0] } ) {
+            $sub->( $header->[$i], $larry->[$i] );
         }
     }
 
-    # FIXME add term sources to groups, control types.
+    # Add term sources to groups, control types.
+    if ( $group_ts ) {
+        foreach my $group ( @{ $data{'groups'} } ) {
+            $group->set_termSource( $group_ts );
+        }
+    }
+    if ( $ctype_ts ) {
+        if ( my $ctype = $data{'controlType'} ) {
+            $ctype->set_termSource( $ctype_ts );
+        }
+    }
 
-    $data{'groups'}          = \@groups;
-    $data{'databaseEntries'} = \@dbentries;
+    return \%data;
+}
+
+sub _parse_adfrow_for_composite {
+
+    my ( $self, $larry, $header ) = @_;
+
+    my %data;
+
+    my %dispatch = (
+        'composite_element_name'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'name'} = $lc; },
+        'composite_element_database_entry'
+            => sub { my ( $hc, $lc ) = @_;
+                     my $ts_obj = $self->get_builder()->get_term_source( $hc->[1] );
+                     push @{ $data{'databaseEntries'} },
+                         $self->get_builder()->find_or_create_database_entry({
+                             accession  => $lc,
+                             termSource => $ts_obj,
+                         }); },
+        'composite_element_comment'
+            => sub { my ( $hc, $lc ) = @_;
+
+                     # We allow comment[] tags here, even though it
+                     # isn't actually in the v1.1 specification.
+                     my $name = defined $hc->[1] ? $hc->[1] : 'CompositeElementComment';
+                     push @{ $data{'comments'} },
+                         $self->get_builder()->create_comment({
+                             name  => $name,
+                             value => $lc,
+                         }); },
+    );
+
+    # Call the dispatch methods to populate %data.
+    for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        if ( my $sub = $dispatch{ $header->[$i][0] } ) {
+            $sub->( $header->[$i], $larry->[$i] );
+        }
+    }
 
     return \%data;
 }
@@ -441,7 +513,6 @@ sub _parse_adfrow {
         croak("Error: Incomplete feature-level information provided in ADF.");
     }
 
-    # FIXME
     my $reporter_data = $self->_parse_adfrow_for_reporter( $larry, $header );
     my $reporter;
     if ( defined($reporter_data->{'name'}) ) {
@@ -463,7 +534,6 @@ sub _parse_adfrow {
         }
     }
 
-    # FIXME
     my $composite_data = $self->_parse_adfrow_for_composite( $larry, $header );
     my $composite;
     if ( defined($composite_data->{'name'}) ) {
@@ -549,7 +619,7 @@ sub _generate_array_design {
     }
     else {
         $array_design = $self->get_builder()->find_or_create_array_design({
-            %data,
+            %{ $data },
             technologyType      => $technology_types->[0],
             surfaceType         => $surface_types->[0],
             substrateType       => $substrate_types->[0],
@@ -576,7 +646,7 @@ sub _read_header_as_arrayref {
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
 
-    my $larry;
+    my ( $larry, @rows );
 
     FILE_LINE:
     while ( $larry = $csv_parser->getline($adf_fh) ) {

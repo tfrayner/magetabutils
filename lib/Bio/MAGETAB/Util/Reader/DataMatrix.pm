@@ -61,7 +61,7 @@ sub parse {
     my $row_number = 1;
 
     FILE_LINE:
-    while ( $larry = $csv_parser->getline($matrix_fh) ) {
+    while ( my $larry = $csv_parser->getline($matrix_fh) ) {
     
         # Skip empty lines, comments.
         next FILE_LINE if $self->_can_ignore( $larry );
@@ -113,14 +113,19 @@ sub parse {
     # Find or create the target DataMatrix object.
     my $data_matrix;
     if ( $data_matrix = $self->get_magetab_object() ) {
+
+        # Created during e.g. an SDRF parse.
         $data_matrix->set_rowIdentifierType( $row_identifier_type );
         $data_matrix->set_matrixColumns( \@matrix_columns );
         $data_matrix->set_matrixRows( \@matrix_rows );
     }
     else {
+
+        # This is typically a stand-alone DM. FIXME consider type as
+        # another attribute or argument to this reader object?
         $data_matrix = $self->get_builder()->find_or_create_data_matrix({
             uri               => $self->get_uri(),
-            type              => FIXME,
+            type              => 'unknown',    # FIXME is there a way around this?
             rowIdentifierType => $row_identifier_type,
             matrixColumns     => \@matrix_columns,
             matrixRows        => \@matrix_rows,
@@ -166,7 +171,7 @@ sub _parse_node_heading {
 
     foreach my $node_list ( @{ $larry }[1..$#$larry] ) {
         push @nodes, [
-            map { $self->get_builder()->$getter( $_ ) } split /\s*;\s*/ $node_list,
+            map { $self->get_builder()->$getter( $_ ) } split /\s*;\s*/, $node_list,
         ];
     }
 
@@ -245,7 +250,7 @@ sub _parse_row_index {
         $args->{'startPosition'} = $start;
         $args->{'endPosition'}   = $end;
     }
-    elsif ( $row_identfier_type eq 'Term Source' ) {
+    elsif ( $row_identifier_type eq 'Term Source' ) {
 
         # Term Source Name must be in the $de_namespace (this is in
         # the MAGE-TAB spec).
