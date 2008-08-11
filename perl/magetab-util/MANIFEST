@@ -1,0 +1,13 @@
+MANIFEST
+Changes
+lib/Bio/MAGETAB/Util/Reader.pm
+lib/Bio/MAGETAB/Util/Reader/ADF.pm
+lib/Bio/MAGETAB/Util/Reader/Builder.pm
+lib/Bio/MAGETAB/Util/Reader/DataMatrix.pm
+lib/Bio/MAGETAB/Util/Reader/IDF.pm
+lib/Bio/MAGETAB/Util/Reader/SDRF.pm
+lib/Bio/MAGETAB/Util/Reader/Tabfile.pm
+lib/Bio/MAGETAB/Util/Reader/TagValueFile.pm
+LICENSE
+Makefile.PL
+t/001_load.t
