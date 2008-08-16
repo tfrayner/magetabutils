@@ -218,7 +218,15 @@ my %method_map = (
         *{"get_${item}"} = sub {
             my ( $self, @id_parts ) = @_;
 
-            my $id = join(chr(0), sort @id_parts);
+            # How to sort the multiple-attribute identifiers when
+            # fields haven't been specified? Here we just fudge the
+            # issue FIXME.
+            if ( scalar @id_fields > 1 ) {
+                my $str = join(', ', @id_parts);
+                croak(qq{Error: getter methods only supported for objects identified by }
+                          . qq{ a single attribute ($item is identified by $str).});
+            }
+            my $id = $id_parts[0];
 
             if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
                 return $retval;
