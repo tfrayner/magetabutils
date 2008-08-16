@@ -65,7 +65,9 @@ sub _create_object {
     );
 
     # FIXME are we sure we want to store these in the cache here?
-    # ProtocolApp/ParamValue not terribly useful...
+    # ProtocolApp/ParamValue not terribly useful... (but on the other
+    # hand, objects created should be found later by get_* and
+    # find_or_create_*)
     $self->get_object_cache()->{ $class }{ $id } = $obj;
 
     return $obj;
@@ -246,13 +248,13 @@ my %method_map = (
         *{"find_or_create_${item}"} = sub {
             my ( $self, $data ) = @_;
 
-            foreach my $field ( @id_fields ) {
-                unless ( defined $data->{ $field } ) {
-                    confess(qq{Error: No "$field" attribute for $class.\n});
-                }
+            unless ( first { defined $data->{ $_ } } @id_fields ) {
+                my $allowed = join(', ', @id_fields);
+                confess(qq{Error: No identifying attributes for $class.}
+                      . qq{ Must use at least one of the following: $allowed.\n});
             }
 
-            my $id = join(chr(0), map { $data->{$_} } sort @id_fields);
+            my $id = join(chr(0), map { $data->{$_} || q{} } sort @id_fields);
 
             return $self->_find_or_create_object(
                 $class,
@@ -265,13 +267,13 @@ my %method_map = (
         *{"create_${item}"} = sub {
             my ( $self, $data ) = @_;
 
-            foreach my $field ( @id_fields ) {
-                unless ( defined $data->{ $field } ) {
-                    confess(qq{Error: No "$field" attribute for $class.\n});
-                }
+            unless ( first { defined $data->{ $_ } } @id_fields ) {
+                my $allowed = join(', ', @id_fields);
+                confess(qq{Error: No identifying attributes for $class.}
+                      . qq{ Must use at least one of the following: $allowed.\n});
             }
 
-            my $id = join(chr(0), map { $data->{$_} } sort @id_fields);
+            my $id = join(chr(0), map { $data->{$_} || q{} } sort @id_fields);
 
             return $self->_create_object(
                 $class,
