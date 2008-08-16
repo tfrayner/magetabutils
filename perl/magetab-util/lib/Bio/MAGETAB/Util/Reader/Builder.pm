@@ -123,11 +123,17 @@ sub _find_or_create_object {
 # arrayref indicating the class to instantiate and the attributes to
 # use in defining a unique internal identifier.
 my %method_map = (
+    'investigation'   => [ 'Bio::MAGETAB::Investigation',
+                           qw( title ) ],
+
     'termsource'      => [ 'Bio::MAGETAB::TermSource',
                            qw( name ) ],
 
     'controlled_term' => [ 'Bio::MAGETAB::ControlledTerm',
                            qw( category value ) ],
+
+    'database_entry'  => [ 'Bio::MAGETAB::DatabaseEntry',
+                           qw( accession termSource ) ],
 
     'term_source'     => [ 'Bio::MAGETAB::TermSource',
                            qw( name ) ],
@@ -136,7 +142,7 @@ my %method_map = (
                            qw( name ) ],
 
     'factor_value'    => [ 'Bio::MAGETAB::FactorValue',
-                           qw( factor value measurement ) ],
+                           qw( factor term measurement ) ],
 
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
@@ -189,6 +195,9 @@ my %method_map = (
 
     'matrix_row'       => [ 'Bio::MAGETAB::MatrixRow',
                            qw( rowNumber ) ],
+
+    'feature'          => [ 'Bio::MAGETAB::Feature',
+                           qw( blockColumn blockRow column row ) ],
 
     'reporter'          => [ 'Bio::MAGETAB::Reporter',
                            qw( name ) ],
