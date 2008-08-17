@@ -171,7 +171,7 @@ my %method_map = (
 
     # Likewise, a protocol_application is needed here.
     'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
-                           qw( parameter value ) ],
+                           qw( parameter measurement ) ],
 
     'protocol_parameter' => [ 'Bio::MAGETAB::ProtocolParameter',
                            qw( name protocol ) ],
@@ -233,6 +233,13 @@ my %method_map = (
 
 );
 
+sub _create_id {
+
+    my ( $self, $data, $fields ) = @_;
+
+    return join(chr(0), map { $data->{$_} || q{} } sort @$fields);
+}
+
 {
     no strict qw(refs);
     while ( my( $item, $info ) = each %method_map ) {
@@ -242,17 +249,9 @@ my %method_map = (
         # Getter only; if the object is unfound, fail unless we're
         # being cool about it.
         *{"get_${item}"} = sub {
-            my ( $self, @id_parts ) = @_;
+            my ( $self, $data ) = @_;
 
-            # How to sort the multiple-attribute identifiers when
-            # fields haven't been specified? Here we just fudge the
-            # issue FIXME.
-            if ( scalar @id_fields > 1 ) {
-                my $str = join(', ', @id_parts);
-                croak(qq{Error: getter methods only supported for objects identified by }
-                          . qq{ a single attribute ($item is identified by $str).});
-            }
-            my $id = $id_parts[0];
+            my $id = $self->_create_id( $data, \@id_fields );
 
             if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
                 return $retval;
@@ -264,17 +263,6 @@ my %method_map = (
                 # anyway).
                 my $retval;
                 eval {
-                    my $data = {};
-
-                    # Simplest (and most useful) case where the ID is
-                    # constructed from only one field. FIXME this may
-                    # be generalizable using @id_parts, but ordering
-                    # may end up being unconstrained so this may not
-                    # work.
-                    if ( scalar @id_fields == 1 ) {
-                        $data->{ $id_fields[0] } = $id;
-                    }
-
                     $retval = $self->_find_or_create_object( $class, $id, $data );
                 };
                 if ( $EVAL_ERROR ) {
@@ -297,7 +285,7 @@ my %method_map = (
                       . qq{ Must use at least one of the following: $allowed.\n});
             }
 
-            my $id = join(chr(0), map { $data->{$_} || q{} } sort @id_fields);
+            my $id = $self->_create_id( $data, \@id_fields );
 
             return $self->_find_or_create_object(
                 $class,
@@ -316,7 +304,7 @@ my %method_map = (
                       . qq{ Must use at least one of the following: $allowed.\n});
             }
 
-            my $id = join(chr(0), map { $data->{$_} || q{} } sort @id_fields);
+            my $id = $self->_create_id( $data, \@id_fields );
 
             return $self->_create_object(
                 $class,
@@ -341,7 +329,7 @@ sub find_or_create_comment {
 
     # Object here is the object to which we're attaching the
     # comment. FIXME this may need a rethink when we come to the SDRF.
-    my $id = join(chr(0), map { $data->{$_} || q{} } sort qw( name value object ) );
+    my $id = $self->_create_id( $data, [ qw( name value object ) ] );
 
     return $self->_find_or_create_object(
         $class,

@@ -408,7 +408,9 @@ sub _parse_adfrow_for_reporter {
                          }); },
         'reporter_database_entry'
             => sub { my ( $hc, $lc ) = @_;
-                     my $ts_obj = $self->get_builder()->get_term_source( $hc->[1] );
+                     my $ts_obj = $self->get_builder()->get_term_source({
+                         'name' => $hc->[1],
+                     });
                      push @{ $data{'databaseEntries'} },
                          $self->get_builder()->find_or_create_database_entry({
                              accession  => $lc,
@@ -416,10 +418,14 @@ sub _parse_adfrow_for_reporter {
                          }); },
         'reporter_group_term_source',
             => sub { my ( $hc, $lc ) = @_;
-                     $group_ts = $self->get_builder()->get_term_source( $lc ); },
+                     $group_ts = $self->get_builder()->get_term_source({
+                         'name' => $lc,
+                     }); },
         'control_type_term_source',
             => sub { my ( $hc, $lc ) = @_;
-                     $ctype_ts = $self->get_builder()->get_term_source( $lc ); },
+                     $ctype_ts = $self->get_builder()->get_term_source({
+                         name => $lc,
+                     }); },
     );
 
     # Call the dispatch methods to populate %data.
@@ -456,7 +462,9 @@ sub _parse_adfrow_for_composite {
                      $data{'name'} = $lc; },
         'composite_element_database_entry'
             => sub { my ( $hc, $lc ) = @_;
-                     my $ts_obj = $self->get_builder()->get_term_source( $hc->[1] );
+                     my $ts_obj = $self->get_builder()->get_term_source({
+                         'name' => $hc->[1],
+                     });
                      push @{ $data{'databaseEntries'} },
                          $self->get_builder()->find_or_create_database_entry({
                              accession  => $lc,

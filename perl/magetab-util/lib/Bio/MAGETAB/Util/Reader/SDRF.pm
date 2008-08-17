@@ -331,7 +331,9 @@ sub create_label {
 
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $label = $self->get_builder()->find_or_create_controlled_term({
@@ -354,7 +356,9 @@ sub create_characteristic_value {
 
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $term = $self->get_builder()->find_or_create_controlled_term({
@@ -393,7 +397,9 @@ sub create_material_type {
 
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $term = $self->get_builder()->find_or_create_controlled_term({
@@ -419,7 +425,9 @@ sub create_protocolapplication {
     # If we have a valid namespace or termsource, let it through.
     if ( $termsource ) {
 
-        $ts_obj   = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj   = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
         $protocol = $self->get_builder()->find_or_create_protocol({
             name       => $name,
             accession  => $accession,
@@ -438,7 +446,9 @@ sub create_protocolapplication {
     else {
 
         # Simple case; this call will die if $name is not valid.
-        $protocol = $self->get_builder()->get_protocol( $name );
+        $protocol = $self->get_builder()->get_protocol({
+            'name' => $name,
+        });
     }
 
     my $protocol_app = $self->get_builder()->create_protocol_application({
@@ -491,7 +501,10 @@ sub create_parametervalue {
     my $protocol = $protocolapp->get_protocol();
     my $protname = $protocol->get_name() || q{};
 
-    my $parameter = $self->get_builder()->get_protocol_parameter( $paramname, $protocol );
+    my $parameter = $self->get_builder()->get_protocol_parameter({
+        'name'     => $paramname,
+        'protocol' => $protocol,
+    });
     my $measurement = $self->get_builder()->create_measurement({
         value => $value,
     });
@@ -539,7 +552,9 @@ sub _add_value_to_parameter {
 
     return if ( $termsource =~ $BLANK || ! $parameter );
 
-    my $ts_obj = $self->get_builder()->get_term_source( $termsource );
+    my $ts_obj = $self->get_builder()->get_term_source({
+        'name' => $termsource,
+    });
 
     # FIXME hard-coded category because MAGE-TAB has nowhere to
     # specify this at the moment.
@@ -568,7 +583,9 @@ sub create_unit {
 
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $unit = $self->get_builder()->find_or_create_controlled_term({
@@ -614,7 +631,9 @@ sub create_technology_type {
 
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $type = $self->get_builder()->find_or_create_controlled_term({
@@ -691,7 +710,9 @@ sub create_array {
     # If we have a valid namespace or termsource, let it through.
     if ( $termsource ) {
 
-        my $ts_obj   = $self->get_builder()->get_term_source( $termsource );
+        my $ts_obj   = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
         $array_design = $self->get_builder()->find_or_create_array_design({
             name       => $name,
             accession  => $accession,
@@ -889,7 +910,9 @@ sub create_factorvalue_value {
     
     my $ts_obj;
     if ( $termsource ) {
-        $ts_obj = $self->get_builder()->get_term_source( $termsource );
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
     }
 
     my $category;

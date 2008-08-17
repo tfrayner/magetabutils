@@ -199,7 +199,9 @@ sub _create_factors {
 
         my $termsource;
         if ( my $ts = $f_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source( $ts );
+            $termsource = $self->get_builder()->get_term_source({
+                'name' => $ts,
+            });
         }
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
@@ -231,7 +233,9 @@ sub _create_people {
 
         my $termsource;
         if ( my $ts = $p_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source( $ts );
+            $termsource = $self->get_builder()->get_term_source({
+                'name' => $ts,
+            });
         }
 
         my $roles = map {
@@ -264,7 +268,9 @@ sub _create_protocols {
 
         my $termsource;
         if ( my $ts = $p_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source( $ts );
+            $termsource = $self->get_builder()->get_term_source({
+                'name' => $ts,
+            });
         }
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
@@ -302,7 +308,9 @@ sub _create_publications {
 
         my $termsource;
         if ( my $ts = $p_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source( $ts );
+            $termsource = $self->get_builder()->get_term_source({
+                'name' => $ts,
+            });
         }
 
         my $status = $self->get_builder()->find_or_create_controlled_term({

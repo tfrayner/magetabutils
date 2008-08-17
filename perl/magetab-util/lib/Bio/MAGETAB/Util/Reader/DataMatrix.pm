@@ -173,9 +173,13 @@ sub _parse_node_heading {
         croak(qq{Error: Unable to parse Node type from header "$larry->[0]".\n});
     }
 
+    # Data files are internally identified by "uri"; all other nodes by "name".
+    my $id_field = $getter eq 'get_data_file' ? 'uri' : 'name';
     foreach my $node_list ( @{ $larry }[1..$#$larry] ) {
         push @nodes, [
-            map { $self->get_builder()->$getter( $_ ) } split /\s*;\s*/, $node_list,
+            map {
+                $self->get_builder()->$getter({ $id_field => $_ })
+            } split /\s*;\s*/, $node_list,
         ];
     }
 
@@ -261,7 +265,9 @@ sub _parse_row_index {
         unless ( $de_namespace ) {
             croak(qq{Error: Data Matrix Term Source must include Name, e.g. "Term Source REF:embl".\n});
         }
-        my $ts_obj = $self->get_builder()->get_term_source($de_namespace);
+        my $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $de_namespace,
+        });
 
         # FIXME consider supporting semicolon-delimited accessions
         # here (not currently part of MAGE-TAB spec).
@@ -273,6 +279,11 @@ sub _parse_row_index {
 
         # In such cases this isn't really a namespace, so we get rid of it.
         delete $args->{'namespace'};
+    }
+    else {
+
+        # Reporter, CompositeElement.
+        $args->{'name'} = $index;
     }
 
     my $element = $self->get_builder()->$method($args);

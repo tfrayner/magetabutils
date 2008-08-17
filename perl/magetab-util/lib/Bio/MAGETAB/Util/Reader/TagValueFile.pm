@@ -65,7 +65,9 @@ sub _create_controlled_terms {
 
         my $termsource;
         if ( my $ts = $term_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source( $ts );
+            $termsource = $self->get_builder()->get_term_source({
+                'name' => $ts,
+            });
         }
 
         my $args = {
