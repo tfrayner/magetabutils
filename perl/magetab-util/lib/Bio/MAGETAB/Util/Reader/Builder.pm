@@ -92,10 +92,17 @@ sub _find_or_create_object {
             if( defined $obj->$getter ) {
                 my $old = $obj->$getter;
                 if ( ref $old eq 'ARRAY' ) {
-
-                    # If this is a list attribute, add the new value.
-                    unless ( first { $_ eq $value } @{ $old } ) {
-                        push @{ $old }, $value;
+                    if ( ref $value eq 'ARRAY' ) {
+                        foreach my $item ( @$value ) {
+                         
+                            # If this is a list attribute, add the new value.
+                            unless ( first { $_ eq $item } @{ $old } ) {
+                                push @{ $old }, $item;
+                            }
+                        }
+                    }
+                    else {
+                        croak("Error: ArrayRef value expected for $class $attr");
                     }
                 }
                 else {
@@ -144,14 +151,29 @@ my %method_map = (
     'factor_value'    => [ 'Bio::MAGETAB::FactorValue',
                            qw( factor term measurement ) ],
 
+    'measurement'     => [ 'Bio::MAGETAB::Measurement',
+                           qw( type value minValue maxValue unit ) ],
+
+    'sdrf'            => [ 'Bio::MAGETAB::SDRF',
+                           qw( uri ) ],
+
+    # Also wants sdrf uri, methinks (and perhaps not nodes). FIXME
+    'sdrf_row'        => [ 'Bio::MAGETAB::SDRFRow',
+                           qw( rowNumber nodes ) ],
+
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
-    # FIXME other things needed here... or special-case this not to reuse old objects.
+    # FIXME other things needed here (like edge)... or special-case
+    # this not to reuse old objects.
     'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
                            qw( protocol ) ],
 
-    'parameter'       => [ 'Bio::MAGETAB::ProtocolParameter',
+    # Likewise, a protocol_application is needed here.
+    'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
+                           qw( parameter value ) ],
+
+    'protocol_parameter' => [ 'Bio::MAGETAB::ProtocolParameter',
                            qw( name protocol ) ],
 
     'contact'         => [ 'Bio::MAGETAB::Contact',
@@ -184,17 +206,21 @@ my %method_map = (
     'data_acquisition' => [ 'Bio::MAGETAB::DataAcquisition',
                            qw( name ) ],
 
+    'normalization'    => [ 'Bio::MAGETAB::Normalization',
+                           qw( name ) ],
+
     'data_file'        => [ 'Bio::MAGETAB::DataFile',
                            qw( uri ) ],
 
     'data_matrix'      => [ 'Bio::MAGETAB::DataMatrix',
                            qw( uri ) ],
 
+    # FIXME consider using the data matrix object as part of the internal ID?
     'matrix_column'    => [ 'Bio::MAGETAB::MatrixColumn',
-                           qw( columnNumber ) ],
+                           qw( columnNumber quantitationType referencedNodes ) ],
 
     'matrix_row'       => [ 'Bio::MAGETAB::MatrixRow',
-                           qw( rowNumber ) ],
+                           qw( rowNumber designElement ) ],
 
     'feature'          => [ 'Bio::MAGETAB::Feature',
                            qw( blockColumn blockRow column row ) ],

@@ -491,7 +491,7 @@ sub create_parametervalue {
     my $protocol = $protocolapp->get_protocol();
     my $protname = $protocol->get_name() || q{};
 
-    my $parameter = $self->get_builder()->get_parameter( $paramname, $protocol );
+    my $parameter = $self->get_builder()->get_protocol_parameter( $paramname, $protocol );
     my $measurement = $self->get_builder()->create_measurement({
         value => $value,
     });

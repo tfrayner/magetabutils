@@ -94,7 +94,7 @@ my $dummy_node1 = Bio::MAGETAB::DataAcquisition->new(
 my $dummy_node2 = Bio::MAGETAB::DataAcquisition->new(
     'name'  => 'node2',
 );
-my $dummy_node3 = Bio::MAGETAB::DataAcquisition->new(
+my $dummy_node3 = Bio::MAGETAB::Normalization->new(
     'name'  => 'node3',
 );
 my $dummy_factor = Bio::MAGETAB::Factor->new(
@@ -103,11 +103,31 @@ my $dummy_factor = Bio::MAGETAB::Factor->new(
 my $dummy_meas = Bio::MAGETAB::Measurement->new(
     'type'  => 'dummy measurement type',
 );
+my $dummy_meas2 = Bio::MAGETAB::Measurement->new(
+    'type'  => 'dummy measurement type 2',
+);
 my $dummy_rep = Bio::MAGETAB::Reporter->new(
     'name'  => 'dummy reporter',
 );
+my $dummy_proto = Bio::MAGETAB::Protocol->new(
+    'name'  => 'dummy protocol',
+);
+my $dummy_proto2 = Bio::MAGETAB::Protocol->new(
+    'name'  => 'dummy protocol 2',
+);
+my $dummy_param = Bio::MAGETAB::ProtocolParameter->new(
+    'name'     => 'dummy parameter',
+    'protocol' => $dummy_proto,
+);
 
-# Hash specifying the tests themselves.
+
+# Hash specifying the tests themselves. Keys are as follows:
+#
+#  class:  The expected class of the returned object.
+#  id:     A hashref containing key-value pairs identifying the object.
+#  attrs:  A hashref containing other essential attributes for object instantiation.
+#  unused: An identifier which hasn't been used in object creation, to test getter failure.
+#
 # FIXME objects identified by multiple attributes are not currently provided with a working getter method.
 # FIXME this list remains incomplete.
 my %test = (
@@ -203,15 +223,93 @@ my %test = (
                              'attrs'  => {},
                              'unused' => [ 'not a title' ],
                          },
-#    '' => { 'class'  => 'Bio::MAGETAB::',
-#                             'id'     => { '' => '' },
-#                       'attrs'  => { '' => '' },
-#                       'unused' => [ '' ],
-#                   },
+    'labeled_extract'   => { 'class'  => 'Bio::MAGETAB::LabeledExtract',
+                             'id'     => { 'name'  => 'test name' },
+                             'attrs'  => { 'label' => $dummy_cv },
+                             'unused' => [ 'not a name' ],
+                         },
+    'matrix_column'     => { 'class'  => 'Bio::MAGETAB::MatrixColumn',
+                             'id'     => { 'columnNumber'     => 1,
+                                           'quantitationType' => $dummy_cv,
+                                           'referencedNodes'  => [ $dummy_node3 ] },
+                             'attrs'  => {},
+                             'unused' => [ 2, $dummy_cv, [ $dummy_node2 ] ],
+                         },
+    'matrix_row'        => { 'class'  => 'Bio::MAGETAB::MatrixRow',
+                             'id'     => { 'rowNumber'     => 1,
+                                           'designElement' => $dummy_rep },
+                             'attrs'  => {},
+                             'unused' => [ 2, $dummy_rep ],
+                         },
+    'measurement'       => { 'class'  => 'Bio::MAGETAB::Measurement',
+                             'id'     => { 'type' => 'test',
+                                           'value' => '10',
+                                           'unit'  => $dummy_cv },
+                             'attrs'  => {},
+                             'unused' => [ 'test two', 11, $dummy_cv ],
+                         },
+    'normalization'     => { 'class'  => 'Bio::MAGETAB::Normalization',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
+                         },
+    'parameter_value'   => { 'class'  => 'Bio::MAGETAB::ParameterValue',
+                             'id'     => { 'parameter'   => $dummy_param,
+                                           'measurement' => $dummy_meas },
+                             'attrs'  => {},
+                             'unused' => [ $dummy_param, $dummy_meas2 ],
+                         },
+    'protocol'          => { 'class'  => 'Bio::MAGETAB::Protocol',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
+                         },
+    'protocol_application' => { 'class'  => 'Bio::MAGETAB::ProtocolApplication',
+                                'id'     => { 'protocol' => $dummy_proto },
+                                'attrs'  => {},
+                                'unused' => [ $dummy_proto2 ],
+                            },
+    'protocol_parameter'   => { 'class'  => 'Bio::MAGETAB::ProtocolParameter',
+                                'id'     => { 'name'     => 'test name',
+                                              'protocol' => $dummy_proto },
+                                'attrs'  => {},
+                                'unused' => [ 'test name 2', $dummy_proto2 ],
+                   },
     'publication'       => { 'class'  => 'Bio::MAGETAB::Publication',
                              'id'     => { 'title' => 'test title' },
                              'attrs'  => {},
                              'unused' => [ 'not a title' ],
+                         },
+    'reporter'          => { 'class'  => 'Bio::MAGETAB::Reporter',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
+                         },
+    'sdrf'              => { 'class'  => 'Bio::MAGETAB::SDRF',
+                             'id'     => { 'uri' => 'http://my.sdrf.uri' },
+                             'attrs'  => {},
+                             'unused' => [ 'http://not.my.uri' ],
+                         },
+    'sdrf_row'          => { 'class'  => 'Bio::MAGETAB::SDRFRow',
+                             'id'     => { 'rowNumber' => 1,
+                                           'nodes'     => [ $dummy_node3 ] },
+                             'attrs'  => {},
+                             'unused' => [ 2, [ $dummy_node2] ],
+                         },
+    'sample'            => { 'class'  => 'Bio::MAGETAB::Sample',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
+                         },
+    'source'            => { 'class'  => 'Bio::MAGETAB::Source',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
+                         },
+    'term_source'       => { 'class'  => 'Bio::MAGETAB::TermSource',
+                             'id'     => { 'name' => 'test name' },
+                             'attrs'  => {},
+                             'unused' => [ 'not a name' ],
                          },
 );
 
@@ -238,3 +336,5 @@ while ( my ( $method, $data ) = each %test ) {
                  qq{builder still fails to find non-existent $data->{class} object} );
     }
 }
+
+# TODO: test updating an object in find_or_create_*

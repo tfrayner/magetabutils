@@ -281,7 +281,7 @@ sub _create_protocols {
         my $protocol = $self->get_builder()->find_or_create_protocol( \%args );
 
         my $parameters = map {
-            $self->get_builder()->find_or_create_parameter({
+            $self->get_builder()->find_or_create_protocol_parameter({
                 'name'       => $_,
                 'protocol'   => $protocol,
             });
