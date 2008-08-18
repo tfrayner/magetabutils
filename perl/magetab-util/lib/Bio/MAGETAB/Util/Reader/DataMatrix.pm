@@ -46,6 +46,23 @@ sub parse {
 
     my ( $self ) = @_;
 
+    # Find or create the target DataMatrix object.
+    my $data_matrix;
+    unless ( $data_matrix = $self->get_magetab_object() ) {
+
+        # This is typically a stand-alone DM. FIXME consider type as
+        # another attribute or argument to this reader object?
+        my $type = $self->get_builder()->find_or_create_controlled_term({
+            category => 'DataType',    # FIXME hard-coded.
+            value    => 'unknown',
+        });
+        $data_matrix = $self->get_builder()->find_or_create_data_matrix({
+            uri               => $self->get_uri(),
+            type              => $type,
+        });
+        $self->set_magetab_object( $data_matrix );
+    }
+
     # This has to be set for Text::CSV_XS.
     local $/ = $self->_calculate_eol_char();
 
@@ -85,6 +102,7 @@ sub parse {
             push @matrix_rows, $self->get_builder()->create_matrix_row({
                 rowNumber     => $row_number,
                 designElement => $element,
+                data_matrix   => $data_matrix,
             });
         }
 
@@ -106,36 +124,14 @@ sub parse {
             columnNumber     => $col_number,
             quantitationType => $qts->[ $col_number ],
             referencedNodes  => $nodes->[ $col_number ],
+            data_matrix      => $data_matrix,
         });
         $col_number++;
     }
 
-    # Find or create the target DataMatrix object.
-    my $data_matrix;
-    if ( $data_matrix = $self->get_magetab_object() ) {
-
-        # Created during e.g. an SDRF parse.
-        $data_matrix->set_rowIdentifierType( $row_identifier_type );
-        $data_matrix->set_matrixColumns( \@matrix_columns );
-        $data_matrix->set_matrixRows( \@matrix_rows );
-    }
-    else {
-
-        # This is typically a stand-alone DM. FIXME consider type as
-        # another attribute or argument to this reader object?
-        my $type = $self->get_builder()->find_or_create_controlled_term({
-            category => 'DataType',    # FIXME hard-coded.
-            value    => 'unknown',
-        });
-        $data_matrix = $self->get_builder()->find_or_create_data_matrix({
-            uri               => $self->get_uri(),
-            type              => $type,
-            rowIdentifierType => $row_identifier_type,
-            matrixColumns     => \@matrix_columns,
-            matrixRows        => \@matrix_rows,
-        });
-        $self->set_magetab_object( $data_matrix );
-    }
+    $data_matrix->set_rowIdentifierType( $row_identifier_type );
+    $data_matrix->set_matrixColumns( \@matrix_columns );
+    $data_matrix->set_matrixRows( \@matrix_rows );
 
     return $data_matrix;
 }

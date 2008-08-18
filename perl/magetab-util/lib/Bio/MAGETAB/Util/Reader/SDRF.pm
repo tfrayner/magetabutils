@@ -259,6 +259,10 @@ sub _link_to_previous {
             outputNode => $obj,
         });
 
+        # FIXME this doesn't adequately address the possible options,
+        # in which PAs may be different between SDRF rows on what is
+        # (ostensibly) the same edge. This will probably work in 95%
+        # of cases, though.
         if ( $protocolapps && scalar @{ $protocolapps } ) {
             $edge->set_protocolApplications( $protocolapps );
         }
@@ -451,6 +455,8 @@ sub create_protocolapplication {
         });
     }
 
+    # FIXME it would be better to include the associated Edge and date
+    # here, if that's ever possible.
     my $protocol_app = $self->get_builder()->create_protocol_application({
         protocol => $protocol,
     });
@@ -512,6 +518,7 @@ sub create_parametervalue {
     my $parameterval = $self->get_builder()->create_parameter_value({
         parameter   => $parameter,
         measurement => $measurement,
+        protocol_application => $protocolapp,
     });
 
     $self->_add_parameterval_to_protocolapp(

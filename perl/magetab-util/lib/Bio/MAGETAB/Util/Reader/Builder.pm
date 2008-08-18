@@ -157,19 +157,15 @@ my %method_map = (
     'sdrf'            => [ 'Bio::MAGETAB::SDRF',
                            qw( uri ) ],
 
-    # Also wants sdrf uri, methinks (and perhaps not nodes). FIXME
     'sdrf_row'        => [ 'Bio::MAGETAB::SDRFRow',
-                           qw( rowNumber nodes ) ],
+                           qw( rowNumber ) ],
 
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
-    # FIXME other things needed here (like edge)... or special-case
-    # this not to reuse old objects.
     'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
-                           qw( protocol ) ],
+                           qw( protocol date ) ],
 
-    # Likewise, a protocol_application is needed here.
     'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
                            qw( parameter measurement ) ],
 
@@ -217,10 +213,10 @@ my %method_map = (
 
     # FIXME consider using the data matrix object as part of the internal ID?
     'matrix_column'    => [ 'Bio::MAGETAB::MatrixColumn',
-                           qw( columnNumber quantitationType referencedNodes ) ],
+                           qw( columnNumber ) ],
 
     'matrix_row'       => [ 'Bio::MAGETAB::MatrixRow',
-                           qw( rowNumber designElement ) ],
+                           qw( rowNumber ) ],
 
     'feature'          => [ 'Bio::MAGETAB::Feature',
                            qw( blockColumn blockRow column row ) ],
@@ -231,7 +227,35 @@ my %method_map = (
     'composite_element' => [ 'Bio::MAGETAB::CompositeElement',
                            qw( name ) ],
 
+    'comment'           => [ 'Bio::MAGETAB::Comment',
+                           qw( name value ) ],
+
 );
+
+# Arguments which aren't actual object attributes, but yet still
+# contribute to its identity.
+my %auxilliary_map = (
+    'sdrf_row'             => qw( sdrf ),
+    'comment'              => qw( object ),
+    'protocol_application' => qw( edge ),
+    'parameter_value'      => qw( protocol_application ),
+    'matrix_column'        => qw( data_matrix ),
+    'matrix_row'           => qw( data_matrix ),
+);
+
+sub _strip_auxilliary_info {
+
+    my ( $self, $item, $data ) = @_;
+
+    my %aux = map { $_ => 1 } ( $auxilliary_map{ $item } || [] );
+
+    my %new_data;
+    while ( my ( $key, $value ) = each %$data ) {
+        $new_data{ $key } = $value unless $aux{ $key };
+    }
+
+    return \%new_data;
+}
 
 sub _create_id {
 
@@ -252,6 +276,9 @@ sub _create_id {
             my ( $self, $data ) = @_;
 
             my $id = $self->_create_id( $data, \@id_fields );
+
+            # Strip out auxilliary identifier components.
+            $data = $self->_strip_auxilliary_info( $item, $data );
 
             if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
                 return $retval;
@@ -287,6 +314,9 @@ sub _create_id {
 
             my $id = $self->_create_id( $data, \@id_fields );
 
+            # Strip out auxilliary identifier components
+            $data = $self->_strip_auxilliary_info( $item, $data );
+
             return $self->_find_or_create_object(
                 $class,
                 $id,
@@ -306,6 +336,9 @@ sub _create_id {
 
             my $id = $self->_create_id( $data, \@id_fields );
 
+            # Strip out auxilliary identifier components
+            $data = $self->_strip_auxilliary_info( $item, $data );
+
             return $self->_create_object(
                 $class,
                 $id,
@@ -313,32 +346,6 @@ sub _create_id {
             );
         }
     }
-}
-
-sub find_or_create_comment {
-
-    my ( $self, $data ) = @_;
-
-    my $class = 'Bio::MAGETAB::Comment';
-
-    foreach my $field ( qw( name value ) ) {
-        unless ( defined $data->{ $field } ) {
-            confess(qq{Error: No "$field" attribute for $class.\n});
-        }
-    }
-
-    # Object here is the object to which we're attaching the
-    # comment. FIXME this may need a rethink when we come to the SDRF.
-    my $id = $self->_create_id( $data, [ qw( name value object ) ] );
-
-    return $self->_find_or_create_object(
-        $class,
-        $id,
-        {
-            'name'  => $data->{'name'},
-            'value' => $data->{'value'},
-        },
-    );
 }
 
 # Make the classes immutable. In theory this speeds up object

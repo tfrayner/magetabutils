@@ -30,6 +30,9 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::ArrayDesign',
                               required   => 0 );
 
+# Define some standard regexps:
+my $BLANK = qr/\A [ ]* \z/xms;
+
 sub BUILD {
 
     my ( $self, $params ) = @_;
@@ -369,7 +372,9 @@ sub _parse_adfrow_for_feature {
     );
 
     my %data;
+    COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        next COLUMN if $larry->[$i] =~ $BLANK;
         if ( my $attr = $map{ $header->[$i][0] } ) {
             $data{ $attr } = $larry->[$i];
         }
@@ -429,7 +434,9 @@ sub _parse_adfrow_for_reporter {
     );
 
     # Call the dispatch methods to populate %data.
+    COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        next COLUMN if $larry->[$i] =~ $BLANK;
         if ( my $sub = $dispatch{ $header->[$i][0] } ) {
             $sub->( $header->[$i], $larry->[$i] );
         }
@@ -484,7 +491,9 @@ sub _parse_adfrow_for_composite {
     );
 
     # Call the dispatch methods to populate %data.
+    COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        next COLUMN if $larry->[$i] =~ $BLANK;
         if ( my $sub = $dispatch{ $header->[$i][0] } ) {
             $sub->( $header->[$i], $larry->[$i] );
         }
@@ -498,7 +507,9 @@ sub _parse_adfrow_for_map2rep {
     my ( $self, $larry, $header ) = @_;
 
     my $map2reporter;
+    COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
+        next COLUMN if $larry->[$i] =~ $BLANK;
         if ( $header->[$i][0] eq 'map2reporters' ) {
             $map2reporter = $larry->[$i];
         }
