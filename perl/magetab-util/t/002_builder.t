@@ -129,9 +129,6 @@ my $dummy_matrix = Bio::MAGETAB::DataMatrix->new(
 #  id:     A hashref containing key-value pairs identifying the object.
 #  attrs:  A hashref containing other essential attributes for object instantiation.
 #  unused: An identifier which hasn't been used in object creation, to test getter failure.
-#
-# FIXME objects identified by multiple attributes are not currently provided with a working getter method.
-# FIXME this list remains incomplete.
 my %test = (
     'array_design'      => { 'class'  => 'Bio::MAGETAB::ArrayDesign',
                              'id'     => { 'name' => 'test name' },
@@ -143,7 +140,6 @@ my %test = (
                              'attrs'  => { 'technologyType' => $dummy_cv },
                              'unused' => { 'name' => 'not a name' },
                          },
-    # FIXME I suspect the comment methods may be hideously awry. This API may need changing.
     'comment'           => { 'class'  => 'Bio::MAGETAB::Comment',
                              'id'     => { 'name'   => 'test name',
                                            'value'  => 'test value',

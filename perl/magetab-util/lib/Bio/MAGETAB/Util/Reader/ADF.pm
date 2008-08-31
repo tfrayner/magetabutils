@@ -37,11 +37,6 @@ sub BUILD {
 
     my ( $self, $params ) = @_;
 
-    # FIXME not sure if this will work. When are required attributes checked by Moose?
-    if ( my $obj = $params->{'magetab_object'} ) {
-        $self->set_uri( $obj->get_uri() );
-    }
-
     my $dispatch = {
         qr/Array *Design *Name/i
             => sub{ $self->_add_singleton_datum('array_design', 'name', @_) },
@@ -119,7 +114,7 @@ sub _position_fh_at_section {
     my $is_body;
 
     HEADER_LINE:
-    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+    while ( $larry = $csv_parser->getline($adf_fh) ) {
     
         # Skip empty lines, comments.
         next HEADER_LINE if $self->_can_ignore( $larry );
@@ -231,9 +226,15 @@ sub _coerce_adf_headings {
     my @header;
     foreach my $element ( @$larry ) {
         my $found;
+
         while ( my ( $regexp, $tag ) = each %$mapping ) {
             if ( $element =~ /\A $regexp \z/xms ) {
                 push @header, [ $tag, $1 ];
+                $found++;
+
+                # Sadly we have to finish the while loop here, rather
+                # than calling last(), due to the way while and each
+                # work together.
             }
         }
         unless ( $found ) {
@@ -335,6 +336,10 @@ sub parse_body {
         $array_design->set_designElements( [ values %design_elements ] );
     }
     else {
+
+        # Typically either instantiation or header parsing will have
+        # populated magetab_object, so this is here just for
+        # completeness if parse_body ever gets called independently.
         $array_design = $self->get_builder()->find_or_create_array_design({
             name           => $self->get_uri(),
             designElements => [ values %design_elements ],
@@ -518,6 +523,26 @@ sub _parse_adfrow_for_map2rep {
     return $map2reporter;
 }
 
+# Copied directly from List::MoreUtils 0.21, rather than adding a
+# rather trivial dependency.
+sub any (&@) {
+    my $f = shift;
+    return if ! @_;
+    for (@_) {
+        return 1 if $f->();
+    }
+    return 0;
+}
+    
+sub all (&@) {
+    my $f = shift;
+    return if ! @_;
+    for (@_) {
+        return 0 if ! $f->();
+    }
+    return 1;
+}
+
 sub _parse_adfrow {
 
     my ( $self, $larry, $header ) = @_;
@@ -598,7 +623,7 @@ sub _generate_magetab {
     my ( $self ) = @_;
 
     my $magetab      = $self->get_builder()->get_magetab();
-    my $array_design = $self->_create_array_design();
+    my $array_design = $self->_generate_array_design();
 
     return ( $array_design, $magetab );
 }
@@ -631,21 +656,18 @@ sub _generate_array_design {
         $array_design->set_version            ( $data->{'version'}          );
         $array_design->set_provider           ( $data->{'provider'}         );
         $array_design->set_printingProtocol   ( $data->{'printingProtocol'} );
-        $array_design->set_technologyType     ( $technology_types->[0]      );
-        $array_design->set_surfaceType        ( $surface_types->[0]         );
-        $array_design->set_substrateType      ( $substrate_types->[0]       );
-        $array_design->set_sequencePolymerType( $polymer_types->[0]         );
     }
     else {
         $array_design = $self->get_builder()->find_or_create_array_design({
             %{ $data },
-            technologyType      => $technology_types->[0],
-            surfaceType         => $surface_types->[0],
-            substrateType       => $substrate_types->[0],
-            sequencePolymerType => $polymer_types->[0],
         });
         $self->set_magetab_object( $array_design );
     }
+
+    $array_design->set_technologyType     ( $technology_types->[0]      ) if @$technology_types;
+    $array_design->set_surfaceType        ( $surface_types->[0]         ) if @$surface_types;
+    $array_design->set_substrateType      ( $substrate_types->[0]       ) if @$substrate_types;
+    $array_design->set_sequencePolymerType( $polymer_types->[0]         ) if @$polymer_types;
 
     my $comments = $self->_create_comments();
     $array_design->set_comments( $comments );

@@ -45,18 +45,6 @@ my $GRAMMAR = join("\n", <DATA> );
 
 #my %skip_datafiles    : ATTR( :name<skip_datafiles>,      :default<undef> );
 
-sub BUILD {
-
-    my ( $self, $params ) = @_;
-
-    # FIXME not sure if this will work. When are required attributes checked by Moose?
-    if ( my $obj = $params->{'magetab_object'} ) {
-        $self->set_uri( $obj->get_uri() );
-    }
-
-    return;
-}
-
 sub parse {
 
     my ( $self ) = @_;

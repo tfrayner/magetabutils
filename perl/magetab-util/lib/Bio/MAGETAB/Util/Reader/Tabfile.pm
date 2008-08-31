@@ -32,6 +32,7 @@ use Bio::MAGETAB::Util::Reader::Builder;
 
 has 'uri'                => ( is         => 'rw',
                               isa        => 'Uri',
+                              coerce     => 1,
                               required   => 1 );
 
 has 'eol_char'           => ( is         => 'rw',
@@ -105,7 +106,7 @@ sub _calculate_eol_char {
     my ( $self ) = @_;
 
     unless ( $self->get_eol_char() ) {
-	my ($eols, $eol_char) = $self->check_linebreaks();
+	my ($eols, $eol_char) = $self->_check_linebreaks();
 	unless ( $eol_char ) {
 	    croak(
 		sprintf(
@@ -296,7 +297,7 @@ sub _check_linebreaks {
     }
 
     close($fh)
-        or croak("Error closing file $path in sub check_linebreaks: $!\n");
+        or croak("Error closing file $path in sub _check_linebreaks: $!\n");
 
     my $dos  = $dos_count;
     my $mac  = $mac_count  - $dos_count;

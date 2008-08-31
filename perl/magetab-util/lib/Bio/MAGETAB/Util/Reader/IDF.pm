@@ -27,6 +27,10 @@ use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::TagValueFile' };
 
+# FIXME consider having a magetab_object attribute (maybe linked to
+# Investigation?) here for consistency. Not as important for IDF,
+# which never knows about its own uri.
+
 sub BUILD {
 
     my ( $self, $params ) = @_;

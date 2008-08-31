@@ -61,7 +61,11 @@ sub _create_controlled_terms {
     my ( $self, $type, $category ) = @_;
 
     my @terms;
+    TERM:
     foreach my $term_data ( @{ $self->get_text_store()->{ $type } } ) {
+
+        # Value is required for all ControlledTerm objects.
+        next TERM unless defined $term_data->{'value'};
 
         my $termsource;
         if ( my $ts = $term_data->{'termSource'} ) {
@@ -188,13 +192,13 @@ sub _validate_arrayref_tags {
 	# Differently typed but identical tags.
 	if ( scalar (grep { defined $_ } values %$file_tags ) > 1 ) {
 	    my $tagstring = join(", ", keys %$file_tags);
-	    $self->raise_error(qq{Error: duplicated tag(s): "$tagstring"});
+	    croak(qq{Error: duplicated tag(s): "$tagstring"});
 	}
 
 	# Identically typed duplicate tags.
 	while ( my ($file_tag, $count) = each %$file_tags ) {
 	    if ( $count > 1 ) {
-		$self->raise_error(qq{Error: duplicated tag: "$file_tag"});
+		croak(qq{Error: duplicated tag: "$file_tag"});
 	    }
 	}
     }
@@ -214,7 +218,7 @@ sub _validate_arrayref_tags {
 
 	# Check for recognised tags here.
 	unless ( first { $tag =~ /\A\s*$_\s*\z/ms } @acceptable ) {
-	    $self->raise_error(qq{Error: unrecognized tag(s): "$tag"});
+	    croak(qq{Error: unrecognized tag(s): "$tag"});
 	}
 
 	# Empty Name tags are invalid and will cause fatal crashes
