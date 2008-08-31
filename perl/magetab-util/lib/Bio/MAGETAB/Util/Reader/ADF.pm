@@ -369,19 +369,34 @@ sub _parse_adfrow_for_feature {
     my ( $self, $larry, $header ) = @_;
 
     # Map our internal column tags to MAGETAB attributes.
-    my %map = (
-        'block_column' => 'blockColumn',
-        'block_row'    => 'blockRow',
-        'column'       => 'column',
-        'row'          => 'row',
+    my %data;
+    my %dispatch = (
+        'block_column'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'blockColumn'} = $lc; },
+        'block_row'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'blockRow'} = $lc; },
+        'column'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'column'} = $lc; },
+        'row'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'row'} = $lc; },
+        'reporter_name'
+            => sub { my ( $hc, $lc ) = @_;
+                     $data{'reporter'}
+                         = $self->get_builder()->find_or_create_reporter({
+                             name => $lc,
+                         }); },
     );
 
-    my %data;
+    # Call the dispatch methods to populate %data.
     COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
         next COLUMN if $larry->[$i] =~ $BLANK;
-        if ( my $attr = $map{ $header->[$i][0] } ) {
-            $data{ $attr } = $larry->[$i];
+        if ( my $sub = $dispatch{ $header->[$i][0] } ) {
+            $sub->( $header->[$i], $larry->[$i] );
         }
     }
 
@@ -561,11 +576,6 @@ sub _parse_adfrow {
     my $reporter;
     if ( defined($reporter_data->{'name'}) ) {
         $reporter = $self->get_builder()->find_or_create_reporter( $reporter_data );
-
-        # Link feature to reporter.
-        if ( $feature ) {
-            $feature->set_reporter( $reporter );
-        }
     }
 
     my $map2rep_data = $self->_parse_adfrow_for_map2rep( $larry, $header );
@@ -594,7 +604,7 @@ sub _parse_adfrow {
         }            
     }
 
-    return ( $feature, $reporter, $composite, @map2reporters );
+    return( grep { defined $_ } $feature, $reporter, $composite, @map2reporters );
 }
 
 sub parse_header {
@@ -652,10 +662,14 @@ sub _generate_array_design {
     # are 0..1 both in the specification and the model.
     my $array_design;
     if ( $array_design = $self->get_magetab_object() ) {
-        $array_design->set_name               ( $data->{'name'}             );
-        $array_design->set_version            ( $data->{'version'}          );
-        $array_design->set_provider           ( $data->{'provider'}         );
-        $array_design->set_printingProtocol   ( $data->{'printingProtocol'} );
+        $array_design->set_name               ( $data->{'name'} )
+                                     if defined $data->{'name'};
+        $array_design->set_version            ( $data->{'version'} )
+                                     if defined $data->{'version'};
+        $array_design->set_provider           ( $data->{'provider'} )
+                                     if defined $data->{'provider'};
+        $array_design->set_printingProtocol   ( $data->{'printingProtocol'} )
+                                     if defined $data->{'printingProtocol'};
     }
     else {
         $array_design = $self->get_builder()->find_or_create_array_design({
