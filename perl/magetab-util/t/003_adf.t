@@ -79,16 +79,37 @@ TODO: {
     is_deeply( $ad, $ad2, 'array design objects agree' );
 }
 
+# FIXME (IMPORTANT!) check the output against what we expect!
 # FIXME test with bad ADF input (unrecognized headers etc.)
 
 __DATA__
-[header]
-# FIXME we want more headings here, but also keep this comment!
-Array Design Name	Test array design
-
-[main]
-# FIXME more columns needed here also.
-Block Column	Block Row	Column	Row	Reporter Name	Reporter Sequence
-1	1	1	1	Test1	ATGC
-1	1	1	2	Test2	ATGC
-    
+[header]													
+# This is a comment.													
+Array Design Name	Test array design												
+Version	1												
+Provider	Roger Bannister												
+Printing Protocol	We found some genes, designed some primers, printed them.												
+Technology Type	so futuristic it hurts												
+Technology Type Term Source REF	RO												
+Surface Type	vaguely moonlike												
+Surface Type Term Source REF	RO												
+Substrate Type	molecular												
+Substrate Type Term Source REF	RO												
+Sequence Polymer Type	PVC												
+Sequence Polymer Type Term Source REF	RO												
+Term Source Name	RO	embl	refseq										
+Term Source File	http://www.random-ontology.org/file.obo												
+Term Source Version	0.1												
+Comment[Ceci n'est pas un comment]	all fun and games.												
+# Commenting here 'allows me to add another apostrophe.													
+													
+[main]													
+# FIXME more columns needed here also.													
+Block Column	Block Row	Column	Row	Reporter Name	Reporter Sequence	Reporter Group [Role]	Reporter Group Term Source REF	Control Type	Control Type Term Source REF	Reporter Database Entry [embl]	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment
+1	1	1	1	Test1	ATGC	control	RO	control_biosequence	RO	AK12334	CompTest1	NM_12344	random text
+1	1	1	2	Test2	ATGC	experimental	RO		RO	AW54321	CompTest2	NM_54321	more randomness
+    													
+[mapping]													
+Map2Reporters	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment [Testing a feature not in the spec]										
+Test1;Test2	CompTest3	NM_98765	another pointless comment										
+Test1	CompTest4	NM_56789	yet more pointlessness										

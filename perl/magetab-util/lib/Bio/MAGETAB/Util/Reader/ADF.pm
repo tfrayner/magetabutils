@@ -23,6 +23,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
+use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::TagValueFile' };
 
@@ -48,28 +49,28 @@ sub BUILD {
             => sub{ $self->_add_singleton_datum('array_design', 'printingProtocol', @_) },
 
         qr/Technology *Type/i
-            => sub{ $self->_add_grouped_data('technology', 'type',       @_) },
+            => sub{ $self->_add_grouped_data('technology', 'value',       @_) },
         qr/Technology *(?:Type)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('technology', 'termSource', @_) },
         qr/Technology *(?:Type)? *Term *Accession *Numbers?/i
             => sub{ $self->_add_grouped_data('technology', 'accession',  @_) },
 
         qr/Surface *Type/i
-            => sub{ $self->_add_grouped_data('surface', 'type',       @_) },
+            => sub{ $self->_add_grouped_data('surface', 'value',       @_) },
         qr/Surface *(?:Type)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('surface', 'termSource', @_) },
         qr/Surface *(?:Type)? *Term *Accession *Numbers?/i
             => sub{ $self->_add_grouped_data('surface', 'accession',  @_) },
 
         qr/Substrate *Type/i
-            => sub{ $self->_add_grouped_data('substrate', 'type',       @_) },
+            => sub{ $self->_add_grouped_data('substrate', 'value',       @_) },
         qr/Substrate *(?:Type)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('substrate', 'termSource', @_) },
         qr/Substrate *(?:Type)? *Term *Accession *Numbers?/i
             => sub{ $self->_add_grouped_data('substrate', 'accession',  @_) },
 
         qr/Sequence *Polymer *Type/i
-            => sub{ $self->_add_grouped_data('polymer', 'type',       @_) },
+            => sub{ $self->_add_grouped_data('polymer', 'value',       @_) },
         qr/Sequence *Polymer *(?:Type)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('polymer', 'termSource', @_) },
         qr/Sequence *Polymer *(?:Type)? *Term *Accession *Numbers?/i
@@ -187,7 +188,7 @@ sub _coerce_adf_main_headings {
             => 'composite_element_comment',
 
         # FIXME this isn't strictly according to the v1.1 specification.
-        qr/Composite [ ]* Element [ ]* Comments? \[ [ ]* (.+?) [ ]* \]/ixms
+        qr/Composite [ ]* Element [ ]* Comments? [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
             => 'composite_element_comment',
     );
 
@@ -212,7 +213,7 @@ sub _coerce_adf_mapping_headings {
             => 'composite_element_comment',
 
         # FIXME this isn't strictly according to the v1.1 specification.
-        qr/Composite [ ]* Element [ ]* Comments? \[ [ ]* (.+?) [ ]* \]/ixms
+        qr/Composite [ ]* Element [ ]* Comments? [ ]* \[ [ ]* (.+?) [ ]* \]/ixms
             => 'composite_element_comment',
     );
 
@@ -224,7 +225,16 @@ sub _coerce_adf_headings {
     my ( $self, $larry, $mapping ) = @_;
 
     my @header;
+    COLUMN:
     foreach my $element ( @$larry ) {
+
+        # We allow empty columns here, or multi-section ADFs won't
+        # work as expected.
+        if ( $element =~ $BLANK ) {
+            push @header, [ q{} ];
+            next COLUMN;
+        }
+
         my $found;
 
         while ( my ( $regexp, $tag ) = each %$mapping ) {
@@ -394,7 +404,7 @@ sub _parse_adfrow_for_feature {
     # Call the dispatch methods to populate %data.
     COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
-        next COLUMN if $larry->[$i] =~ $BLANK;
+        next COLUMN if ( $header->[$i][0] eq q{} || $larry->[$i] =~ $BLANK );
         if ( my $sub = $dispatch{ $header->[$i][0] } ) {
             $sub->( $header->[$i], $larry->[$i] );
         }
@@ -456,7 +466,7 @@ sub _parse_adfrow_for_reporter {
     # Call the dispatch methods to populate %data.
     COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
-        next COLUMN if $larry->[$i] =~ $BLANK;
+        next COLUMN if ( $header->[$i][0] eq q{} || $larry->[$i] =~ $BLANK );
         if ( my $sub = $dispatch{ $header->[$i][0] } ) {
             $sub->( $header->[$i], $larry->[$i] );
         }
@@ -513,7 +523,7 @@ sub _parse_adfrow_for_composite {
     # Call the dispatch methods to populate %data.
     COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
-        next COLUMN if $larry->[$i] =~ $BLANK;
+        next COLUMN if ( $header->[$i][0] eq q{} || $larry->[$i] =~ $BLANK );
         if ( my $sub = $dispatch{ $header->[$i][0] } ) {
             $sub->( $header->[$i], $larry->[$i] );
         }
@@ -529,7 +539,7 @@ sub _parse_adfrow_for_map2rep {
     my $map2reporter;
     COLUMN:
     for ( my $i = 0; $i < scalar @$larry; $i++ ) {
-        next COLUMN if $larry->[$i] =~ $BLANK;
+        next COLUMN if ( $header->[$i][0] eq q{} || $larry->[$i] =~ $BLANK );
         if ( $header->[$i][0] eq 'map2reporters' ) {
             $map2reporter = $larry->[$i];
         }
@@ -633,6 +643,7 @@ sub _generate_magetab {
     my ( $self ) = @_;
 
     my $magetab      = $self->get_builder()->get_magetab();
+    my $term_sources = $self->_create_termsources();
     my $array_design = $self->_generate_array_design();
 
     return ( $array_design, $magetab );

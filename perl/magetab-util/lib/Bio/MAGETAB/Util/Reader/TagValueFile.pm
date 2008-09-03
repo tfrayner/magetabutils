@@ -77,9 +77,10 @@ sub _create_controlled_terms {
         my $args = {
             'category'   => $category,
             'value'      => $term_data->{'value'},
-            'accession'  => $term_data->{'accession'},
-            'termSource' => $termsource,
         };
+        $args->{'accession'}  = $term_data->{'accession'}
+            if defined $term_data->{'accession'};
+        $args->{'termSource'} = $termsource if $termsource;
 
         my $term = $self->get_builder()->find_or_create_controlled_term( $args );
 
