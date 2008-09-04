@@ -42,6 +42,23 @@ sub test_parse {
     return $adf->get_magetab_object();
 }
 
+sub check_term {
+
+    my ( $cat, $val, $attr, $ad, $ts, $builder ) = @_;
+
+    my $method = "get_$attr";
+
+    my $ct;
+    lives_ok( sub { $ct = $builder->get_controlled_term({
+        category => $cat,
+        value    => $val,
+    }) }, "Builder returns a $cat term" );
+    is( $ct->get_termSource(), $ts, 'with the correct termSource' );
+    is_deeply( $ad->$method(), $ct, 'ArrayDesign $attr set correctly' );
+
+    return;
+}
+
 my $adf;
 
 # Instantiate with none of the required attributes.
@@ -80,6 +97,35 @@ TODO: {
 }
 
 # FIXME (IMPORTANT!) check the output against what we expect!
+my $builder;
+lives_ok( sub { $builder = $adf->get_builder(); }, 'ADF parser returns a Builder object' );
+is( ref $builder, 'Bio::MAGETAB::Util::Reader::Builder', 'of the correct class' );
+
+# Check that the term source was created.
+my $ts;
+lives_ok( sub { $ts = $builder->get_term_source({
+    name => 'RO',
+}) }, 'Builder returns a term source' );
+is( $ts->get_name(),    'RO',  'with the correct name' );
+is( $ts->get_version(), '0.1', 'and the correct version' );
+is( $ts->get_uri(), 'http://www.random-ontology.org/file.obo', 'and the correct uri' );
+
+# Check the basics.
+is( $ad->get_name(),     'Test array design', 'ArrayDesign name set correctly' );
+is( $ad->get_version(),  1,                   'ArrayDesign version set correctly' );
+is( $ad->get_provider(), 'Roger Bannister',   'ArrayDesign provider set correctly' );
+is( $ad->get_printingProtocol(), 'We printed some primers.', 'ArrayDesign protocol set correctly');
+
+# Check the controlled terms.
+check_term('TechnologyType', 'so futuristic it hurts', 'technologyType',      $ad, $ts, $builder);
+check_term('SurfaceType',    'vaguely moonlike',       'surfaceType',         $ad, $ts, $builder);
+check_term('SubstrateType',  'molecular',              'substrateType',       $ad, $ts, $builder);
+check_term('PolymerType',    'PVC',                    'sequencePolymerType', $ad, $ts, $builder);
+
+#is( $ad->get_(), '', 'ArrayDesign  set correctly' );
+#is( $ad->get_(), '', 'ArrayDesign  set correctly' );
+#is( $ad->get_(), '', 'ArrayDesign  set correctly' );
+#is( $ad->get_(), '', 'ArrayDesign  set correctly' );
 # FIXME test with bad ADF input (unrecognized headers etc.)
 
 __DATA__
@@ -88,7 +134,7 @@ __DATA__
 Array Design Name	Test array design												
 Version	1												
 Provider	Roger Bannister												
-Printing Protocol	We found some genes, designed some primers, printed them.												
+Printing Protocol	We printed some primers.												
 Technology Type	so futuristic it hurts												
 Technology Type Term Source REF	RO												
 Surface Type	vaguely moonlike												
