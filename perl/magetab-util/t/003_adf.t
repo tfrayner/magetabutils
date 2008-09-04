@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB::Util.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: 002_builder.t 1050 2008-08-18 23:27:32Z tfrayner $
+# $Id$
 
 use strict;
 use warnings;
@@ -122,7 +122,12 @@ check_term('SurfaceType',    'vaguely moonlike',       'surfaceType',         $a
 check_term('SubstrateType',  'molecular',              'substrateType',       $ad, $ts, $builder);
 check_term('PolymerType',    'PVC',                    'sequencePolymerType', $ad, $ts, $builder);
 
-#is( $ad->get_(), '', 'ArrayDesign  set correctly' );
+my $cm;
+lives_ok( sub { $cm = $builder->get_comment({
+    name  => q{Ceci n'est pas un comment},
+    value => 'all fun and games.',
+}) }, 'Builder returns a comment' );
+is_deeply( $ad->get_comments(), $cm, 'ArrayDesign comments set correctly' );
 #is( $ad->get_(), '', 'ArrayDesign  set correctly' );
 #is( $ad->get_(), '', 'ArrayDesign  set correctly' );
 #is( $ad->get_(), '', 'ArrayDesign  set correctly' );
