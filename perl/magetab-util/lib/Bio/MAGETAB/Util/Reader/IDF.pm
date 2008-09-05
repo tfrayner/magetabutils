@@ -53,7 +53,7 @@ sub BUILD {
         qr/Experiment *Description/i
             => sub{ $self->_add_singleton_datum('investigation', 'description',    @_) },
         qr/SDRF *Files?/i
-            => sub{ $self->_add_singleton_data('investigation', 'sdrfs',   @_) },
+            => sub{ $self->_add_singleton_data('sdrf', 'uris',   @_) },
 
         qr/Experimental *Factor *Names?/i
             => sub{ $self->_add_grouped_data('factor', 'name',       @_) },
@@ -113,11 +113,11 @@ sub BUILD {
             => sub{ $self->_add_grouped_data('normalization',  'accession', @_) },
  
         qr/PubMed *IDs?/i
-            => sub{ $self->_add_grouped_data('publication', 'pubmedid',   @_) },
+            => sub{ $self->_add_grouped_data('publication', 'pubMedID',   @_) },
         qr/Publication *DOIs?/i
-            => sub{ $self->_add_grouped_data('publication', 'doi',        @_) },
+            => sub{ $self->_add_grouped_data('publication', 'DOI',        @_) },
         qr/Publication *Authors? *Lists?/i
-            => sub{ $self->_add_grouped_data('publication', 'authorlist', @_) },
+            => sub{ $self->_add_grouped_data('publication', 'authorList', @_) },
         qr/Publication *Titles?/i
             => sub{ $self->_add_grouped_data('publication', 'title',      @_) },
         qr/Publication *Status/i
@@ -198,6 +198,21 @@ sub _generate_magetab {
     return ( $investigation, $magetab );
 }
 
+sub _create_sdrfs {
+
+    my ( $self ) = @_;
+
+    my @sdrfs;
+    foreach my $uri ( @{ $self->get_text_store()->{ 'sdrf' }{ 'uris' } } ) {
+        my $sdrf = $self->get_builder()->find_or_create_sdrf({
+            uri => $uri,
+        });
+        push @sdrfs, $sdrf;
+    }
+
+    return \@sdrfs;
+}
+
 sub _create_factors {
 
     my ( $self ) = @_;
@@ -215,9 +230,11 @@ sub _create_factors {
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ExperimentalFactorCategory',
             'value'      => $f_data->{'type'},
-            'accession'  => $f_data->{'accession'},
             'termSource' => $termsource,
         });
+
+        $type->set_accession( $f_data->{'accession'} )
+            if ( defined $f_data->{'accession'} && ! defined $type->get_accession() );
 
         my $args = {
             'name' => $f_data->{'name'},
@@ -246,18 +263,20 @@ sub _create_people {
             });
         }
 
-        my $roles = map {
-            $self->get_builder()->find_or_create_controlled_term({
+        my @roles = map {
+            my $role = $self->get_builder()->find_or_create_controlled_term({
                 'category'   => 'Roles',
                 'value'      => $_,
-                'accession'  => $p_data->{'accession'},
                 'termSource' => $termsource,
             });
+            $role->set_accession( $p_data->{'accession'} )
+                if ( defined $p_data->{'accession'} && ! defined $role->get_accession() );
+            $role;
         } split /\s*;\s*/, $p_data->{'roles'};
 
         my @wanted = grep { $_ !~ /^roles|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
-        $args{'roles'} = $roles;
+        $args{'roles'} = \@roles;
 
         my $person = $self->get_builder()->find_or_create_contact( \%args );
 
@@ -284,9 +303,11 @@ sub _create_protocols {
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ProtocolType',
             'value'      => $p_data->{'type'},
-            'accession'  => $p_data->{'accession'},
             'termSource' => $termsource,
         });
+
+        $type->set_accession( $p_data->{'accession'} )
+            if ( defined $p_data->{'accession'} && ! defined $type->get_accession() );
 
         my @wanted = grep { $_ !~ /^parameters|type|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
@@ -324,9 +345,11 @@ sub _create_publications {
         my $status = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'PublicationStatus',
             'value'      => $p_data->{'status'},
-            'accession'  => $p_data->{'accession'},
             'termSource' => $termsource,
         });
+
+        $status->set_accession( $p_data->{'accession'} )
+            if ( defined $p_data->{'accession'} && ! defined $status->get_accession() );
 
         my @wanted = grep { $_ !~ /^status|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
@@ -365,6 +388,8 @@ sub _create_investigation {
         'qualitycontrol', 'QualityControlDescriptionType',
     );
 
+    my $sdrfs = $self->_create_sdrfs();
+
     my $data = $self->get_text_store()->{'investigation'};
     
     my $investigation;
@@ -390,6 +415,7 @@ sub _create_investigation {
     $investigation->set_normalizationTypes  ( $normalization_types ) if @$normalization_types;
     $investigation->set_replicateTypes      ( $replicate_types     ) if @$replicate_types;
     $investigation->set_qualityControlTypes ( $qc_types            ) if @$qc_types;
+    $investigation->set_sdrfs               ( $sdrfs               ) if @$sdrfs;
 
     my $comments = $self->_create_comments();
     $investigation->set_comments( $comments );

@@ -109,7 +109,46 @@ is( $ts->get_uri(), 'http://www.random-ontology.org/file.obo', 'and the correct 
 
 __DATA__
 Investigation Title	Dummy title
-
+# This is a comment to be ignored.
+Experimental Design	dummy_design
+Experimental Design Term Source REF	RO
+Experimental Factor Name	DUMMYFACTOR
+Experimental Factor Type	dummy_factor
+Experimental Factor Term Source REF	RO
+Person Last Name	Bannister
+Person First Name	Bruce
+Person Mid Initials	B
+Person Email	greenmeanie@bannister.com
+Person Phone	01 234 5678
+Person Fax	01 234 6789
+Person Address	Arkansas, USA
+Person Affiliation	Projects-R-Us
+Person Roles	investigator
+Person Roles Term Source REF	RO
+Quality Control Type	poor
+Quality Control Term Source REF	RO
+Replicate Type	few
+Replicate Term Source REF	RO
+Normalization Type	none
+Normalization Term Source REF	RO
+Date of Experiment	2008-09-04
+Public Release Date	2009-09-04
+PubMed ID	1234567
+Publication DOI	doi:10.1186/1471-2105-7-489
+Publication Author List	Joe Schmoe, John Q. Public, Joseph Bloggs, Bruce Bannister
+Publication Title	How to make friends and influence government officials
+Publication Status	not published
+Publication Status Term Source REF	RO
+Experiment Description	not a real experiment
+Protocol Name	how to extract DNA
+Protocol Type	nucleic_acid_extraction
+Protocol Description	blah blah blah
+Protocol Parameters	strength; duration
+Protocol Hardware	big expensive machine
+Protocol Software	correspondingly expensive proprietary junk
+Protocol Contact	random string here
+Protocol Term Source REF	RO
+SDRF File	dummy.txt
 Term Source Name	RO
 Term Source File	http://www.random-ontology.org/file.obo
 Term Source Version	0.1  

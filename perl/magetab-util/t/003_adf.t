@@ -25,8 +25,7 @@ use warnings;
 use Test::More qw(no_plan);
 use Test::Exception;
 use File::Temp qw(tempfile);
-
-#use Bio::MAGETAB;
+use Scalar::Util qw(blessed);
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::ADF' );
@@ -66,13 +65,13 @@ dies_ok( sub{ $adf = Bio::MAGETAB::Util::Reader::ADF->new() },
          'instantiation without attributes' );
 
 # Populate our temporary test ADF file.
-my ( $fh, $filename ) = tempfile();
+my ( $fh, $filename ) = tempfile( UNLINK => 1 );
 while ( my $line = <DATA> ) {
     print $fh $line;
 }
 
-# FIXME or just close the fh here?
-seek ( $fh, 0, 0 ) or die("Error seeking in temporary filehandle.");
+# Close the filehandle, since we'll be using the filename only.
+close( $fh ) or die("Error closing filehandle: $!");
 
 # Test parsing.
 lives_ok( sub{ $adf = Bio::MAGETAB::Util::Reader::ADF->new( uri => $filename ) },
@@ -133,6 +132,39 @@ is_deeply( $ad->get_comments(), $cm, 'ArrayDesign comments set correctly' );
 #is( $ad->get_(), '', 'ArrayDesign  set correctly' );
 # FIXME test with bad ADF input (unrecognized headers etc.)
 
+# Aggregate design elements by class.
+my %de;
+foreach my $e ( $ad->get_designElements() ) {
+    push @{ $de{ blessed $e } }, $e;
+}
+
+# Check that our design elements are at least vaguely recognisable.
+my @de_ex = map { "Bio::MAGETAB::$_" } qw(CompositeElement Feature Reporter);
+is_deeply( [ sort keys %de ], \@de_ex, 'all designElements are of known classes' );
+
+# Check our features.
+foreach my $feat ( @{ $de{ 'Bio::MAGETAB::Feature' } } ) {
+    foreach my $attr ( qw( blockColumn blockRow column ) ) {
+        my $getter = "get_$attr";
+        is( $feat->$getter, 1, "feature has correct $attr" );
+    }
+    if ( $feat->get_row == 1 ) {
+        my $rep = $feat->get_reporter();
+        ok( $rep, 'feature is linked to a reporter' );
+        is( $rep->get_name(), 'Test1', 'with the expected name' );
+    }
+    elsif ( $feat->get_row == 2 ) {
+        my $rep = $feat->get_reporter();
+        ok( $rep, 'feature is linked to a reporter' );
+        is( $rep->get_name(), 'Test2', 'with the expected name' );
+    }
+    else {
+        die("Error: unexpected feature row " . $feat->get_row);
+    }
+}
+
+# FIXME don't forget to add Term Accession Numbers for all these things.
+
 __DATA__
 [header]													
 # This is a comment.													
@@ -158,7 +190,7 @@ Comment[Ceci n'est pas un comment]	all fun and games.
 # FIXME more columns needed here also.													
 Block Column	Block Row	Column	Row	Reporter Name	Reporter Sequence	Reporter Group [Role]	Reporter Group Term Source REF	Control Type	Control Type Term Source REF	Reporter Database Entry [embl]	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment
 1	1	1	1	Test1	ATGC	control	RO	control_biosequence	RO	AK12334	CompTest1	NM_12344	random text
-1	1	1	2	Test2	ATGC	experimental	RO		RO	AW54321	CompTest2	NM_54321	more randomness
+1	1	1	2	Test2	ATGG	experimental	RO		RO	AW54321	CompTest2	NM_54321	more randomness
     													
 [mapping]													
 Map2Reporters	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment [Testing a feature not in the spec]										
