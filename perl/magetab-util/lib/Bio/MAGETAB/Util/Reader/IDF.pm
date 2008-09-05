@@ -27,6 +27,10 @@ use List::Util qw(first);
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::TagValueFile' };
 
+has 'magetab_object'     => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB::Investigation',
+                              required   => 0 );
+
 # FIXME consider having a magetab_object attribute (maybe linked to
 # Investigation?) here for consistency. Not as important for IDF,
 # which never knows about its own uri.
@@ -177,7 +181,7 @@ sub parse {
     # Actually generate the Bio::MAGETAB objects.
     my ( $investigation, $magetab ) = $self->_generate_magetab();
 
-    return ( $investigation, $magetab );
+    return wantarray ? ( $investigation, $magetab ) : $investigation;
 }
 
 ###################
@@ -363,18 +367,29 @@ sub _create_investigation {
 
     my $data = $self->get_text_store()->{'investigation'};
     
-    my $investigation = $self->get_builder()->find_or_create_investigation({
-        %{ $data },
-        'contacts'            => $people,
-        'protocols'           => $protocols,
-        'publications'        => $publications,
-        'factors'             => $factors,
-        'termSources'         => $term_sources,
-        'designTypes'         => $design_types,
-        'normalizationTypes'  => $normalization_types,
-        'replicateTypes'      => $replicate_types,
-        'qualityControlTypes' => $qc_types,
-    });
+    my $investigation;
+    if ( $investigation = $self->get_magetab_object() ) {
+        while ( my ( $key, $value ) = each %{ $data } ) {
+            my $setter = "set_$key";
+            $investigation->$setter( $value ) if defined $value;
+        }
+    }
+    else {
+        $investigation = $self->get_builder()->find_or_create_investigation({
+            %{ $data },
+        });
+        $self->set_magetab_object( $investigation );
+    }
+
+    $investigation->set_contacts            ( $people              ) if @$people;
+    $investigation->set_protocols           ( $protocols           ) if @$protocols;
+    $investigation->set_publications        ( $publications        ) if @$publications;
+    $investigation->set_factors             ( $factors             ) if @$factors;
+    $investigation->set_termSources         ( $term_sources        ) if @$term_sources;
+    $investigation->set_designTypes         ( $design_types        ) if @$design_types;
+    $investigation->set_normalizationTypes  ( $normalization_types ) if @$normalization_types;
+    $investigation->set_replicateTypes      ( $replicate_types     ) if @$replicate_types;
+    $investigation->set_qualityControlTypes ( $qc_types            ) if @$qc_types;
 
     my $comments = $self->_create_comments();
     $investigation->set_comments( $comments );

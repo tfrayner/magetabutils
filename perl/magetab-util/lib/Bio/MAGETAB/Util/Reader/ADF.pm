@@ -673,14 +673,10 @@ sub _generate_array_design {
     # are 0..1 both in the specification and the model.
     my $array_design;
     if ( $array_design = $self->get_magetab_object() ) {
-        $array_design->set_name               ( $data->{'name'} )
-                                     if defined $data->{'name'};
-        $array_design->set_version            ( $data->{'version'} )
-                                     if defined $data->{'version'};
-        $array_design->set_provider           ( $data->{'provider'} )
-                                     if defined $data->{'provider'};
-        $array_design->set_printingProtocol   ( $data->{'printingProtocol'} )
-                                     if defined $data->{'printingProtocol'};
+        while ( my ( $key, $value ) = each %{ $data } ) {
+            my $setter = "set_$key";
+            $array_design->$setter( $value ) if defined $value;
+        }
     }
     else {
         $array_design = $self->get_builder()->find_or_create_array_design({
