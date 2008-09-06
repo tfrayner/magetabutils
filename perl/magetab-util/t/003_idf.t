@@ -26,34 +26,11 @@ use Test::More qw(no_plan);
 use Test::Exception;
 use File::Temp qw(tempfile);
 
+use lib 't/testlib';
+use CommonTests qw( test_parse check_term );
+
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::IDF' );
-}
-
-sub test_parse {
-
-    my ( $idf ) = @_;
-
-    $idf->parse();
-
-    return $idf->get_magetab_object();
-}
-
-sub check_term {
-
-    my ( $cat, $val, $attr, $inv, $ts, $builder ) = @_;
-
-    my $method = "get_$attr";
-
-    my $ct;
-    lives_ok( sub { $ct = $builder->get_controlled_term({
-        category => $cat,
-        value    => $val,
-    }) }, "Builder returns a $cat term" );
-    is( $ct->get_termSource(), $ts, 'with the correct termSource' );
-    is_deeply( $inv->$method(), $ct, 'ArrayDesign $attr set correctly' );
-
-    return;
 }
 
 my $idf;
@@ -63,13 +40,13 @@ dies_ok( sub{ $idf = Bio::MAGETAB::Util::Reader::IDF->new() },
          'instantiation without attributes' );
 
 # Populate our temporary test IDF file.
-my ( $fh, $filename ) = tempfile();
+my ( $fh, $filename ) = tempfile( UNLINK => 1 );
 while ( my $line = <DATA> ) {
     print $fh $line;
 }
 
-# FIXME or just close the fh here?
-seek ( $fh, 0, 0 ) or die("Error seeking in temporary filehandle.");
+# Close the filehandle, since we'll be using the filename only.
+close( $fh ) or die("Error closing filehandle: $!");
 
 # Test parsing.
 lives_ok( sub{ $idf = Bio::MAGETAB::Util::Reader::IDF->new( uri => $filename ) },
@@ -86,10 +63,7 @@ lives_ok( sub{ $idf = Bio::MAGETAB::Util::Reader::IDF->new( uri            => $f
 test_parse( $idf );
 
 # These really ought to look identical.
-#TODO: {
-#    local $TODO = 'designElements are unordered so this test fails.';
-    is_deeply( $inv, $inv2, 'investigation objects agree' );
-#}
+is_deeply( $inv, $inv2, 'investigation objects agree' );
 
 # FIXME (IMPORTANT!) check the output against what we expect!
 my $builder;

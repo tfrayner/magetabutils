@@ -133,7 +133,7 @@ sub _parse_node_heading {
     my %type_map = (
         qr/Normalization/ixms  => 'get_normalization',
         qr/Scan         /ixms  => 'get_data_acquisition',
-        qr/Hybridization/ixms  => 'get_hybridization',
+        qr/Hybridization/ixms  => 'get_assay',
         qr/Assay        /ixms  => 'get_assay',
         
         qr/LabeledExtract/ixms => 'get_labeled_extract',

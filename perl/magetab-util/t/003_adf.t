@@ -27,35 +27,11 @@ use Test::Exception;
 use File::Temp qw(tempfile);
 use Scalar::Util qw(blessed);
 
+use lib 't/testlib';
+use CommonTests qw( test_parse check_term );
+
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::ADF' );
-}
-
-sub test_parse {
-
-    my ( $adf ) = @_;
-
-    # FIXME to test: parse, parse_body, parse_header.
-    $adf->parse();
-
-    return $adf->get_magetab_object();
-}
-
-sub check_term {
-
-    my ( $cat, $val, $attr, $ad, $ts, $builder ) = @_;
-
-    my $method = "get_$attr";
-
-    my $ct;
-    lives_ok( sub { $ct = $builder->get_controlled_term({
-        category => $cat,
-        value    => $val,
-    }) }, "Builder returns a $cat term" );
-    is( $ct->get_termSource(), $ts, 'with the correct termSource' );
-    is_deeply( $ad->$method(), $ct, 'ArrayDesign $attr set correctly' );
-
-    return;
 }
 
 my $adf;
@@ -89,7 +65,6 @@ lives_ok( sub{ $adf = Bio::MAGETAB::Util::Reader::ADF->new( uri            => $f
 test_parse( $adf );
 
 # These really ought to look identical.
-#use Data::Dumper; die Dumper $ad2;
 TODO: {
     local $TODO = 'designElements are unordered so this test fails.';
     is_deeply( $ad, $ad2, 'array design objects agree' );
