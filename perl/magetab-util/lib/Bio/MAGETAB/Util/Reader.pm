@@ -26,6 +26,7 @@ use Bio::MAGETAB::Types qw(Uri);
 
 use Carp;
 
+use Bio::MAGETAB::Util::Reader::ADF;
 use Bio::MAGETAB::Util::Reader::IDF;
 use Bio::MAGETAB::Util::Reader::SDRF;
 use Bio::MAGETAB::Util::Reader::Builder;
@@ -44,13 +45,10 @@ has 'namespace'           => ( is         => 'rw',
                                default    => q{},
                                required   => 1 );
 
-#my %clobber           : ATTR( :name<clobber>, :default<0>  );
-#my %target_directory     : ATTR( :name<target_directory>,   :init_arg<target_directory>, );
-#my %source_directory     : ATTR( :get<source_directory>,    :init_arg<source_directory>,    :default<undef> );
-#my %is_standalone        : ATTR( :get<is_standalone>,       :init_arg<is_standalone>,       :default<0> );
-my %skip_datafiles       : ATTR( :get<skip_datafiles>,      :init_arg<skip_datafiles>,      :default<undef> );
-#my %in_relaxed_mode      : ATTR( :name<in_relaxed_mode>,    :default<0> );
-#my %ignore_size_limits   : ATTR( :name<ignore_size_limits>, :default<undef> );
+has 'relaxed_parser'      => ( is         => 'rw',
+                               isa        => 'Bool',
+                               default    => 0,
+                               required   => 1 );
 
 # Make this visible to users of the module.
 our $VERSION = 0.1;
@@ -64,9 +62,9 @@ sub parse {
 
     # We use this object to track MAGETAB object creation.
     my $builder = Bio::MAGETAB::Util::Reader::Builder->new(
-        namespace => $self->get_namespace(),
-        authority => $self->get_authority(),
-        relaxed_parser => FIXME,
+        namespace      => $self->get_namespace(),
+        authority      => $self->get_authority(),
+        relaxed_parser => $self->get_relaxed_parser(),
     );
 
     my $idf_parser = Bio::MAGETAB::Util::Reader::IDF->new({
@@ -76,56 +74,41 @@ sub parse {
 
     my ( $investigation, $magetab_container ) = $idf_parser->parse();
 
-    my $sdrfs = $investigation->get_SDRFs();
+    # FIXME parse the SDRFS etc. here. N.B. some extra stitching may be needed.
+    foreach my $sdrf ( @{ $investigation->get_SDRFS() } ) {
 
-    # FIXME parse the SDRFS etc. here
-    foreach my $sdrf_file (@$sdrfs) {
-
-	# FIXME stitch the SDRFs together here. NB is this actually needed in the new MAGETAB world?
-
-    }
-
-    if ( scalar @$sdrfs ) {
-
-	# FIXME only one SDRF supported for now:
-	my $sdrf_file = $sdrfs->[0];  # FIXME delete this line when ready.
-
-        # FIXME rewrite the SDRF URI according to our IDF URI.
-
-	$self->logprint('magetab',
-			sprintf("Processing SDRF: %s\n\n", $sdrf_file));
+        # FIXME rewrite the SDRF URI according to our IDF URI?
 
         # FIXME consider optionally passing in a Bio::MAGETAB::SDRF
         # object here, so the SDRF parser API could make a little more
         # sense.
 	my $sdrf_parser = Bio::MAGETAB::Util::Reader::SDRF->new({
-	    uri                        => $sdrf_file,
+	    uri                        => $sdrf->get_uri(),
             builder                    => $builder,
-#            container                  => $magetab_container,    # for BaseClass->set_ClassContainer
-#	    skip_datafiles             => $self->get_skip_datafiles(),
+            magetab_object             => $sdrf,
 	});
 
-        my $sdrf_rows = $sdrf_parser->parse();
-
-        $sdrf->set_sdrfRows( $sdrf_rows );
+        my $sdrf = $sdrf_parser->parse();
     }
 
-    # FIXME Parse through all the DataMatrix objects.
+    # Parse through all the DataMatrix objects.
     foreach my $matrix ( $magetab_container->get_DataMatrices() ) {
         my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
-            magetab_object => $matrix,
+            uri            => $matrix->get_uri(),
             builder        => $builder,           
+            magetab_object => $matrix,
         });
 
         $parser->parse();
     }
 
-    # FIXME Parse through all the ADFs.
+    # Parse through all the ADFs.
     foreach my $array ( $magetab_container->get_ArrayDesigns() ) {
         if ( $array->get_uri() ) {
             my $parser = Bio::MAGETAB::Util::Reader::ADF->new({
-                magetab_object => $array,
+                uri            => $array->get_uri(),
                 builder        => $builder,           
+                magetab_object => $array,
             });
             $parser->parse();
         }

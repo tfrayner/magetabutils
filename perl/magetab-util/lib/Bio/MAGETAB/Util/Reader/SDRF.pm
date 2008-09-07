@@ -43,8 +43,6 @@ my $BLANK = qr/\A [ ]* \z/xms;
 # The Parse::RecDescent grammar is stored in the __DATA__ section, below.
 my $GRAMMAR = join("\n", <DATA> );
 
-#my %skip_datafiles    : ATTR( :name<skip_datafiles>,      :default<undef> );
-
 sub parse {
 
     my ( $self ) = @_;
@@ -104,7 +102,16 @@ sub parse {
     # Check we've parsed to the end of the file.
     $self->_confirm_full_parse( $csv_parser );
 
-    return \@sdrf_rows;
+    # Find or create our SDRF object, and add the rows to it.
+    my $sdrf;
+    unless ( $sdrf = $self->get_magetab_object() ) {
+        $sdrf = $self->get_builder()->find_or_create_sdrf({
+            uri => $self->get_uri(),
+        });
+    }
+    $sdrf->set_sdrfRows( \@sdrf_rows ) if scalar @sdrf_rows;
+
+    return $sdrf;
 }
 
 sub parse_header {
@@ -406,6 +413,9 @@ sub create_material_type {
     return $term;
 }
 
+# FIXME consider reworking this and the create_parametervalue methods
+# to defer object creation until the Edge is defined (this allows for
+# better internal identification of these edges).
 sub create_protocolapplication {
 
     my ( $self, $name, $namespace, $termsource, $accession ) = @_;

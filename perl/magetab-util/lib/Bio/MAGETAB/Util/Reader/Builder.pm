@@ -48,7 +48,7 @@ has 'magetab'             => ( is         => 'ro',
                                required   => 1 );
 
 has 'relaxed_parser'      => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => 'Bool',
                                default    => 0,
                                required   => 1 );
 
