@@ -315,12 +315,14 @@ sub _create_protocols {
 
         my $protocol = $self->get_builder()->find_or_create_protocol( \%args );
 
-        my $parameters = map {
-            $self->get_builder()->find_or_create_protocol_parameter({
-                'name'       => $_,
-                'protocol'   => $protocol,
-            });
-        } split /\s*;\s*/, $p_data->{'parameters'};
+        if ( my $parameters = $p_data->{'parameters'} ) {
+            foreach my $paramname ( split /\s*;\s*/, $parameters ) {
+                $self->get_builder()->find_or_create_protocol_parameter({
+                    'name'       => $paramname,
+                    'protocol'   => $protocol,
+                });
+            }
+        }
 
 	push @protocols, $protocol;
     }

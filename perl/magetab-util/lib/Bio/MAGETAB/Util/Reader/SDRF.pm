@@ -179,7 +179,7 @@ sub parse_header {
     $::RD_HINT++;         # if defined, also suggestion remedies
 
     # Generate the grammar parser first.
-    my $parser = Parse::RecDescent->new($GRAMMAR) or die("Bad grammar!");
+    my $parser = Parse::RecDescent->new($GRAMMAR) or die("Bad grammar!: $@");
 
     # The parser should return a function which can process each SDRF
     # row as an array (row-level parser).
@@ -1391,7 +1391,7 @@ __DATA__
                                    { $return = sub {
                                          my $source = shift;
 
-                                         $::sdrf->create_providers( shift, $source );
+                                         my $names = $::sdrf->create_providers( shift, $source );
 
                       # FIXME we attach comments to the source, rather
                       # than the provider (model problem FIXME? or at
@@ -1402,7 +1402,7 @@ __DATA__
                                                  &{ $sub } if (ref $sub eq 'CODE');
                                          }
 
-                                         return @names;
+                                         return @$names;
                                      };
                                    }
 
@@ -1609,7 +1609,7 @@ __DATA__
                                    { $return = sub {
                                          my $protocolapp = shift;
 
-                                         $::sdrf->create_performers( shift, $protocolapp );
+                                         my $names = $::sdrf->create_performers( shift, $protocolapp );
 
                  # FIXME we attach comments to the protocolapp, rather
                  # than the performer (model problem FIXME?  or at
@@ -1620,7 +1620,7 @@ __DATA__
                                                  &{ $sub } if (ref $sub eq 'CODE');
                                          }
 
-                                         return @names;
+                                         return @$names;
                                      };
                                    }
 
@@ -1812,7 +1812,7 @@ __DATA__
                                              $::previous_node,
                                              \@::protocolapp_list,
                                          );
-                                         @::protocolapp_list = @{ $apps || [] } if $obj;
+                                         @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if (ref $sub eq 'CODE');  

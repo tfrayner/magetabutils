@@ -67,9 +67,10 @@ if ( $want_version ) {
 
 my $reader = Bio::MAGETAB::Util::Reader->new(
     idf            => $idf,
-    authority      => $authority,
-    namespace      => $namespace,
     relaxed_parser => $is_relaxed,
 );
+
+$reader->set_authority( $authority ) if defined $authority;
+$reader->set_namespace( $namespace ) if defined $namespace;
 
 $reader->parse();

@@ -56,12 +56,19 @@ sub _create_object {
 
     my ( $self, $class, $id, $data ) = @_;
 
+    # Strip out any undefined values, which will only create problems
+    # during object instantiation.
+    my %cleaned_data;
+    while ( my ( $key, $value ) = each %{ $data } ) {
+        $cleaned_data{ $key } = $value if defined $value;
+    }
+
     # Initial object creation. Namespace, authority can both be
     # overridden by $data, hence the order here.
     my $obj = $class->new(
         'namespace' => $self->get_namespace(),
         'authority' => $self->get_authority(),
-        %{ $data },
+        %cleaned_data,
     );
 
     # FIXME are we sure we want to store these in the cache here?

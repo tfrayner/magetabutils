@@ -33,7 +33,8 @@ use Bio::MAGETAB::Util::Reader::Builder;
 
 has 'idf'                 => ( is         => 'rw',
                                isa        => 'Uri',
-                               required   => 1 );
+                               required   => 1,
+                               coerce     => 1 );
 
 has 'authority'           => ( is         => 'rw',
                                isa        => 'Str',
@@ -57,9 +58,6 @@ sub parse {
 
     my ( $self ) = @_;
 
-    $self->logprint('magetab',
-		    sprintf("Processing IDF: %s\n\n", $self->get_idf()));
-
     # We use this object to track MAGETAB object creation.
     my $builder = Bio::MAGETAB::Util::Reader::Builder->new(
         namespace      => $self->get_namespace(),
@@ -75,7 +73,7 @@ sub parse {
     my ( $investigation, $magetab_container ) = $idf_parser->parse();
 
     # FIXME parse the SDRFS etc. here. N.B. some extra stitching may be needed.
-    foreach my $sdrf ( @{ $investigation->get_SDRFS() } ) {
+    foreach my $sdrf ( @{ $investigation->get_sdrfs() } ) {
 
         # FIXME rewrite the SDRF URI according to our IDF URI?
 
