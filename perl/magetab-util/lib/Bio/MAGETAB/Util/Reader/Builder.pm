@@ -93,7 +93,11 @@ sub _find_or_create_object {
 
         # Update the old object as appropriate (FIXME this probably
         # isn't perfect).
+        ATTR:
         while ( my ( $attr, $value ) = each %{ $data } ) {
+
+            next ATTR unless ( defined $value );
+
             my $getter = "get_$attr";
             my $setter = "set_$attr";
             if( defined $obj->$getter ) {
@@ -268,7 +272,7 @@ sub _create_id {
 
     my ( $self, $data, $fields ) = @_;
 
-    return join(chr(0), map { $data->{$_} || q{} } sort @$fields);
+    return join(q{; }.chr(0), map { $data->{$_} || q{} } sort @$fields);
 }
 
 {

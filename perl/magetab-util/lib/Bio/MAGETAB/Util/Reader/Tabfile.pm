@@ -39,6 +39,10 @@ has 'eol_char'           => ( is         => 'rw',
                               isa        => 'Str',
                               required   => 0 );
 
+has 'filehandle_cache'   => ( is         => 'rw',
+                              isa        => 'FileHandle',
+                              required   => 0 );
+
 has 'csv_parser'         => ( is         => 'rw',
                               isa        => 'Text::CSV_XS',
                               required   => 0 );
@@ -196,10 +200,13 @@ sub _get_filehandle {
 
     my ( $self ) = @_;
 
-    # FIXME store this in an attribute??
-    my $path = $self->_get_filepath();
-    open( my $fh, '<', $path )
-        or croak(qq{Error: Unable to open file "$path": $!});
+    my $fh;
+    unless ( $fh = $self->get_filehandle_cache ) {
+        my $path = $self->_get_filepath();
+        open( $fh, '<', $path )
+            or croak(qq{Error: Unable to open file "$path": $!});
+        $self->set_filehandle_cache( $fh );
+    }
 
     return $fh;
 }
@@ -296,8 +303,8 @@ sub _check_linebreaks {
 	}
     }
 
-    close($fh)
-        or croak("Error closing file $path in sub _check_linebreaks: $!\n");
+    seek($fh, 0, 0)
+        or croak("Error rewinding file $path in sub _check_linebreaks: $!\n");
 
     my $dos  = $dos_count;
     my $mac  = $mac_count  - $dos_count;

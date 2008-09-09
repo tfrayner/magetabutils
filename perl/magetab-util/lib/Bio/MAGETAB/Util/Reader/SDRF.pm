@@ -89,6 +89,7 @@ sub parse {
             carp("WARNING: multiple labeled extracts in SDRF Row.\n");
         }
 
+        # FIXME use Builder for this
         push @sdrf_rows, Bio::MAGETAB::SDRFRow->new(
             factorValues => \@factorvals,
             nodes        => \@nodes,
@@ -108,6 +109,7 @@ sub parse {
         $sdrf = $self->get_builder()->find_or_create_sdrf({
             uri => $self->get_uri(),
         });
+        $self->set_magetab_object( $sdrf );
     }
     $sdrf->set_sdrfRows( \@sdrf_rows ) if scalar @sdrf_rows;
 
@@ -306,7 +308,7 @@ sub create_labeled_extract {
     # container or the Builder object. This will be replaced later
     # when the Label column is parsed; this dummy just acts as a
     # fail-safe placeholder for a required attribute.
-    my $dummy_label = Bio::MAGETAB::Label->new(
+    my $dummy_label = Bio::MAGETAB::ControlledTerm->new(
         category => 'LabelCompound',
         value    => 'unknown',
     );
@@ -339,7 +341,7 @@ sub create_label {
         'category'   => 'LabelCompound',
         'value'      => $dyename,
         'accession'  => $accession,
-        'termSource' => $termsource,
+        'termSource' => $ts_obj,
     });
 
     $le->set_label( $label ) if $le;
@@ -510,6 +512,7 @@ sub create_parametervalue {
         'protocol' => $protocol,
     });
     my $measurement = $self->get_builder()->create_measurement({
+        type  => $paramname,
         value => $value,
     });
 
@@ -618,7 +621,8 @@ sub _add_unit_to_thing {
     if ( $thing->can('set_unit') ) {
         $thing->set_unit( $unit );
     }
-    elsif ( my $meas = $thing->has_measurement() ) {
+    elsif ( $thing->has_measurement() ) {
+        my $meas = $thing->get_measurement();
         $meas->set_unit( $unit );
     }
     else{
@@ -941,7 +945,7 @@ sub create_factorvalue_value {
 
     my $factorvalue = $self->get_builder()->find_or_create_factor_value({
         factor => $exp_factor,
-        value  => $term,
+        term   => $term,
     });
 
     return $factorvalue;
@@ -1049,7 +1053,16 @@ sub _add_characteristic_to_material {
 
     return unless ( $material && $char );
 
-    my @preexisting = $material->get_characteristics();
+    my @preexisting;
+    if ( blessed($char) eq 'Bio::MAGETAB::ControlledTerm' ) {
+        @preexisting = $material->get_characteristics();
+    }
+    elsif ( blessed($char) eq 'Bio::MAGETAB::Measurement' ) {
+        @preexisting = $material->get_measurements();
+    }
+    else {
+        croak("Cannot process argument: $char (" . blessed($char) .")");
+    }
 
     my $new_category = $self->_get_characteristic_type( $char );
     my $new_value    = $char->get_value();
@@ -1062,7 +1075,13 @@ sub _add_characteristic_to_material {
 
     unless ( $found ) {
         push @preexisting, $char;
-        $material->set_characteristics( \@preexisting );
+
+        if ( blessed($char) eq 'Bio::MAGETAB::ControlledTerm' ) {
+            $material->set_characteristics( \@preexisting );
+        }
+        else { # Must therefore be Bio::MAGETAB::Measurement
+            $material->set_measurements( \@preexisting );
+        }
     }
 
     return;
@@ -1402,7 +1421,7 @@ __DATA__
                                                  &{ $sub } if (ref $sub eq 'CODE');
                                          }
 
-                                         return @$names;
+                                         return @$names if defined $names;
                                      };
                                    }
 
@@ -1620,7 +1639,7 @@ __DATA__
                                                  &{ $sub } if (ref $sub eq 'CODE');
                                          }
 
-                                         return @$names;
+                                         return @$names if defined $names;
                                      };
                                    }
 
