@@ -262,7 +262,7 @@ sub _check_linebreaks {
     # Checks for Mac, Unix or Dos line endings by reading the whole
     # file in chunks, and regexp matching the various linebreak types.
     # Returns the appropriate linebreak for acceptable line breaks
-    # (line breaks must be unanimous FIXME), undef for not.
+    # (N.B. line breaks *must* be unanimous), undef for not.
 
     my ( $self ) = @_;
 

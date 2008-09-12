@@ -26,8 +26,6 @@ use Carp;
 use List::Util qw(first);
 use English qw( -no_match_vars );
 use Parse::RecDescent;
-#use Readonly;
-#use File::Basename;
 
 use Bio::MAGETAB::Util::Reader::Builder;
 
@@ -57,6 +55,15 @@ sub parse {
     my $larry;
     my @sdrf_rows;
 
+    # Find or create our SDRF object.
+    my $sdrf;
+    unless ( $sdrf = $self->get_magetab_object() ) {
+        $sdrf = $self->get_builder()->find_or_create_sdrf({
+            uri => $self->get_uri(),
+        });
+        $self->set_magetab_object( $sdrf );
+    }
+
     # Run through the rest of the file with the row-level parser.
     my $row_number = 1;
 
@@ -69,13 +76,13 @@ sub parse {
 	# Strip surrounding whitespace from each element.
         $larry = $self->_strip_whitespace( $larry );
 
-	# FIXME some error handling wouldn't go amiss here.
+        # Parse the line into Bio::MAGETAB objects using the row-level parser.
 	my $objects = $row_parser->(@$larry);
 
         # Post-process Nodes and FactorValues.
-        my @nodes            = grep { $_ && $_->isa('Bio::MAGETAB::Node') } @{ $objects };
-        my @factorvals       = grep { $_ && $_->isa('Bio::MAGETAB::FactorValue') } @{ $objects };
-        my @labeled_extracts = grep { $_ && $_->isa('Bio::MAGETAB::LabeledExtract') } @nodes;
+        my @nodes            = grep { $_ && UNIVERSAL::isa($_, 'Bio::MAGETAB::Node') }           @{ $objects };
+        my @factorvals       = grep { $_ && UNIVERSAL::isa($_, 'Bio::MAGETAB::FactorValue') }    @{ $objects };
+        my @labeled_extracts = grep { $_ && UNIVERSAL::isa($_, 'Bio::MAGETAB::LabeledExtract') } @nodes;
 
         my $channel;
         if ( scalar @labeled_extracts == 1 ) {
@@ -89,13 +96,15 @@ sub parse {
             carp("WARNING: multiple labeled extracts in SDRF Row.\n");
         }
 
-        # FIXME use Builder for this
-        push @sdrf_rows, Bio::MAGETAB::SDRFRow->new(
+        # We know we only see each row just once, and Builder uniques
+        # these by SDRF.
+        push @sdrf_rows, $self->get_builder()->create_sdrf_row({
             factorValues => \@factorvals,
             nodes        => \@nodes,
             channel      => $channel,
             rowNumber    => $row_number,
-        );
+            sdrf         => $sdrf,
+        });
 
         $row_number++;
     }
@@ -103,14 +112,7 @@ sub parse {
     # Check we've parsed to the end of the file.
     $self->_confirm_full_parse( $csv_parser );
 
-    # Find or create our SDRF object, and add the rows to it.
-    my $sdrf;
-    unless ( $sdrf = $self->get_magetab_object() ) {
-        $sdrf = $self->get_builder()->find_or_create_sdrf({
-            uri => $self->get_uri(),
-        });
-        $self->set_magetab_object( $sdrf );
-    }
+    # Add the rows to the SDRF object.
     $sdrf->set_sdrfRows( \@sdrf_rows ) if scalar @sdrf_rows;
 
     return $sdrf;
@@ -261,7 +263,33 @@ sub _link_to_previous {
         # (ostensibly) the same edge. This will probably work in 95%
         # of cases, though.
         if ( $protocolapps && scalar @{ $protocolapps } ) {
-            $edge->set_protocolApplications( $protocolapps );
+
+            # Our protocol apps and parameter values have previously
+            # been stored as hashrefs, deferring object creation until
+            # an Edge was created. We now instantiate the correct
+            # objects:
+            my @app_objs;
+            foreach my $proto_app ( @{ $protocolapps } ) {
+
+                # Prepare the proto_app hashref for object creation.
+                my $param_vals = $proto_app->{parameterValues};
+                delete $proto_app->{parameterValues};
+                $proto_app->{edge} = $edge;
+
+                # Generate a ProtocolApp keyed to this Edge.
+                my $app = $self->get_builder()->find_or_create_protocol_application( $proto_app );
+
+                # Generate ParameterVals keyed to this ProtocolApp.
+                if ( $param_vals && scalar @{ $param_vals } ) {
+                    my @val_objs = map {
+                        $_->{protocol_application} = $app;
+                        $self->get_builder()->find_or_create_parameter_value( $_ );
+                    } @{ $param_vals };
+                    $app->set_parameterValues( \@val_objs );
+                }
+            }
+                    
+            $edge->set_protocolApplications( \@app_objs );
         }
     }
 
@@ -415,9 +443,10 @@ sub create_material_type {
     return $term;
 }
 
-# FIXME consider reworking this and the create_parametervalue methods
-# to defer object creation until the Edge is defined (this allows for
-# better internal identification of these edges).
+# The create_protocolapplication and create_parametervalue methods
+# defer object creation until the Edge is defined (this allows for
+# better internal identification of these protocol apps and param
+# vals).
 sub create_protocolapplication {
 
     my ( $self, $name, $namespace, $termsource, $accession ) = @_;
@@ -455,11 +484,9 @@ sub create_protocolapplication {
         });
     }
 
-    # FIXME it would be better to include the associated Edge and date
-    # here, if that's ever possible.
-    my $protocol_app = $self->get_builder()->create_protocol_application({
-        protocol => $protocol,
-    });
+    # Just a hashref for now. See _link_to_previous for object
+    # creation.
+    my $protocol_app = { protocol => $protocol };
 
     return $protocol_app;
 }
@@ -472,7 +499,8 @@ sub create_performers {
 
     my @names = split /\s*;\s*/, $performers;
 
-    my @preexisting = $proto_app->get_performers();
+    # Protocol app is still a hashref at this stage.
+    my @preexisting = $proto_app->{performers} || ();
 
     foreach my $name ( @names ) {
         my $found = first { $_ eq $name } @preexisting;
@@ -482,7 +510,7 @@ sub create_performers {
         }
     }
     
-    $proto_app->set_performers( \@preexisting );
+    $proto_app->{performers} = \@preexisting if scalar @preexisting;
 
     return \@names;
 }
@@ -493,7 +521,8 @@ sub create_date {
 
     return if ( $date =~ $BLANK );
 
-    $proto_app->set_date( $date ) if $proto_app;
+    # Protocol app is still a hashref at this stage.
+    $proto_app->{date} = $date if $proto_app;
 
     return $date;
 }
@@ -504,23 +533,24 @@ sub create_parametervalue {
 
     return if ( $value =~ $BLANK );
 
-    my $protocol = $protocolapp->get_protocol();
-    my $protname = $protocol->get_name() || q{};
+    # Protocol app is still a hashref at this stage.
+    my $protocol = $protocolapp->{protocol};
 
     my $parameter = $self->get_builder()->get_protocol_parameter({
-        'name'     => $paramname,
-        'protocol' => $protocol,
+        name     => $paramname,
+        protocol => $protocol,
     });
     my $measurement = $self->get_builder()->create_measurement({
         type  => $paramname,
         value => $value,
     });
 
-    my $parameterval = $self->get_builder()->create_parameter_value({
+    # Just a hashref for now. See _link_to_previous for object
+    # creation.
+    my $parameterval = {
         parameter   => $parameter,
         measurement => $measurement,
-        protocol_application => $protocolapp,
-    });
+    };
 
     $self->_add_parameterval_to_protocolapp(
 	$parameterval,
@@ -535,17 +565,18 @@ sub _add_parameterval_to_protocolapp {
     my ( $self, $parameterval, $protocolapp ) = @_;
 
     my $found;
-    if ( my @preexisting = $protocolapp->get_parameterValues() ) {
 
-	my $parameter = $parameterval->get_parameter();
+    # Protocol app and Param value are still hashrefs at this stage.
+    if ( my $preexisting = ( $protocolapp->{parameterValues} || [] ) ) {
+        my $parameter = $parameterval->{'parameter'};
 	$found = first {
-	    $_->get_parameter() eq $parameter
-	}   @preexisting;
+	    $_->{'parameter'} eq $parameter
+	}   @$preexisting;
     }
     unless ( $found ) {
-        my $values = $protocolapp->get_parameterValues();
+        my $values = $protocolapp->{parameterValues} || [];
         push @{ $values }, $parameterval;
-        $protocolapp->set_parameterValues($values);
+        $protocolapp->{parameterValues} = $values;
     }
 
     return;
@@ -758,8 +789,17 @@ sub create_array_from_file {
 
     return if ( $uri =~ $BLANK );
 
+    # We just create a stub object here for now; the main Reader
+    # object will come back and fill in the details using the ADF
+    # parser. Use of the URI as name attribute here is problematic -
+    # the name attr acts as an internal identifier, but the ADF parser
+    # will replace this attribute with a correct name later and so the
+    # Builder identifier mechanism (get_array_design,
+    # find_or_create_array_design) is ultimately broken for
+    # ArrayDesign. FIXME consider just parsing the ADF right here
+    # rather than in the Reader.
     my $array_design = $self->get_builder()->find_or_create_array_design({
-        name => $uri,    # FIXME this isn't exactly elegant.
+        name => $uri,
         uri  => $uri,
     });
 
@@ -990,9 +1030,13 @@ sub _add_comment_to_thing {
 
     my ( $self, $comment, $thing ) = @_;
 
+    # NOTE that $thing can be either an object with get_/set_comments
+    # methods, or a hashref with a "comments" key (the latter is the
+    # case for ProtocolApplication, ParameterValue).
+
     return unless ( $comment && $thing );
 
-    my @preexisting = $thing->get_comments();
+    my @preexisting = blessed($thing) ? $thing->get_comments() : ( $thing->{comments} || () );
 
     my $new_name  = $comment->get_name();
     my $new_value = $comment->get_value();
@@ -1002,8 +1046,15 @@ sub _add_comment_to_thing {
     }   @preexisting;
 
     unless ( $found ) {
+        
         push @preexisting, $comment;
-        $thing->set_comments( \@preexisting );
+
+        if ( blessed($thing) ) {
+            $thing->set_comments( \@preexisting );
+        }
+        else {
+            $thing->{comments} = \@preexisting if scalar @preexisting;
+        }
     }
 
     return;
@@ -1088,6 +1139,9 @@ sub _add_characteristic_to_material {
 }
 
 1;
+
+# Below is the Parse::RecDescent grammar used to parse the SDRF header
+# line and generate the row-level parser.
 
 __DATA__
 
