@@ -1175,7 +1175,7 @@ __DATA__
                                                            @{$item[4]},
                                                            @{$item[5][0]},
                                                            @{$item[6]}){
-                                              if (ref $sub eq 'CODE') {
+                                              if ( UNIVERSAL::isa( $sub, 'CODE' ) ) {
                                                   my @obj = &{ $sub };
                                                   push @objects, @obj;
                                               }
@@ -1234,7 +1234,7 @@ __DATA__
                                           my $obj  = $::sdrf->create_source($name);
                                           foreach my $sub (@{$item[2]}){
                                               unshift( @_, $obj ) and
-                                                  &{ $sub } if (ref $sub eq 'CODE');  
+                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                           }
                                           $::previous_node = $obj if $obj;
                                           return $obj; 
@@ -1255,7 +1255,7 @@ __DATA__
                                           @::protocolapp_list = () if $obj;
                                           foreach my $sub (@{$item[2]}){
                                               unshift( @_, $obj ) and
-                                                  &{ $sub } if (ref $sub eq 'CODE');  
+                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                           }
                                           $::previous_node = $obj if $obj;
                                           return $obj; 
@@ -1276,7 +1276,7 @@ __DATA__
                                           @::protocolapp_list = () if $obj;
                                           foreach my $sub (@{$item[2]}){
                                               unshift( @_, $obj ) and
-                                                  &{ $sub } if (ref $sub eq 'CODE');  
+                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                           }
                                           $::previous_node = $obj if $obj;
                                           return $obj; 
@@ -1297,7 +1297,7 @@ __DATA__
                                           @::protocolapp_list = () if $obj;
                                           foreach my $sub (@{$item[2]}){
                                               unshift( @_, $obj ) and
-                                                  &{ $sub } if (ref $sub eq 'CODE');  
+                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                           }
                                           $::previous_node = $obj if $obj;
                                           return $obj; 
@@ -1350,13 +1350,13 @@ __DATA__
                                          my $value = shift;
 
                                          my @args;
-                                         if ( ref $item[5][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[5][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[5][0][1] eq 'term_accession')
+                                             push @args, ($item[5][0][1] && $item[5][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1412,13 +1412,13 @@ __DATA__
                                          my $value = shift;
 
                                          my @args;
-                                         if ( ref $item[6][0] eq 'ARRAY' ) {
+                                         if (  UNIVERSAL::isa( $item[6][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[6][0][1] eq 'term_accession')
+                                             push @args, ($item[6][0][1] && $item[6][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1478,7 +1478,7 @@ __DATA__
 
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $source ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );
                                          }
 
                                          return @$names if defined $names;
@@ -1496,13 +1496,13 @@ __DATA__
                                          my $value = shift;
 
                                          my @args;
-                                         if ( ref $item[2][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[2][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[2][0][1] eq 'term_accession')
+                                             push @args, ($item[2][0][1] && $item[2][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1530,13 +1530,13 @@ __DATA__
 
                                          my @args;
 
-                                         if ( ref $item[2][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[2][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[2][0][1] eq 'term_accession')
+                                             push @args, ($item[2][0][1] && $item[2][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1582,13 +1582,13 @@ __DATA__
                                           # Name, namespace_term
                                           my @args = (shift, $item[3][0]);
 
-                                          if ( ref $item[5][0] eq 'ARRAY' ) {
+                                          if ( UNIVERSAL::isa( $item[5][0], 'ARRAY' ) ) {
 
                                               # Term Source
                                               push @args, shift;
 
                                               # Accession
-                                              push @args, ($item[5][0][1] eq 'term_accession')
+                                              push @args, ($item[5][0][1] && $item[5][0][1] eq 'term_accession')
                                                           ? shift
                                                           : undef;
                                           }
@@ -1605,7 +1605,7 @@ __DATA__
 
                                           foreach my $sub (@{$item[6]}){
                                               unshift( @_, $obj ) and
-                                                  &{ $sub } if (ref $sub eq 'CODE');  
+                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                           }
                                           return $obj; 
                                      };
@@ -1654,13 +1654,13 @@ __DATA__
                                          my $name = shift;
 
                                          my @args;
-                                         if ( ref $item[5][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[5][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[5][0][1] eq 'term_accession')
+                                             push @args, ($item[5][0][1] && $item[5][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1696,7 +1696,7 @@ __DATA__
 
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $protocolapp ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );
                                          }
 
                                          return @$names if defined $names;
@@ -1727,7 +1727,7 @@ __DATA__
                                          my $obj = $::sdrf->create_array_from_file($uri, $hybridization);
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          return $obj;
                                      };
@@ -1746,13 +1746,13 @@ __DATA__
                                          # array_accession, namespace_term
                                          my @args = ( shift, $item[3][0] );
 
-                                         if ( ref $item[5][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[5][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[5][0][1] eq 'term_accession')
+                                             push @args, ($item[5][0][1] && $item[5][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1765,7 +1765,7 @@ __DATA__
                                          my $obj = $::sdrf->create_array(@args, $hybridization);
                                          foreach my $sub (@{$item[6]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          return $obj;
                                      };
@@ -1789,7 +1789,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -1815,7 +1815,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub ($item[2], $item[3][0]){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
 
                                          $::previous_node = $obj if $obj;
@@ -1834,13 +1834,13 @@ __DATA__
                                          my $value = shift;
 
                                          my @args;
-                                         if ( ref $item[2][0] eq 'ARRAY' ) {
+                                         if ( UNIVERSAL::isa( $item[2][0], 'ARRAY' ) ) {
 
                                              # Term Source
                                              push @args, shift;
 
                                              # Accession
-                                             push @args, ($item[2][0][1] eq 'term_accession')
+                                             push @args, ($item[2][0][1] && $item[2][0][1] eq 'term_accession')
                                                          ? shift
                                                          : undef;
                                          }
@@ -1871,7 +1871,7 @@ __DATA__
 
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
 
                                          $::previous_node = $obj if $obj;
@@ -1894,7 +1894,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -1924,7 +1924,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -1945,7 +1945,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -1966,7 +1966,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -1987,7 +1987,7 @@ __DATA__
                                          @::protocolapp_list = () if $obj;
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
@@ -2007,7 +2007,7 @@ __DATA__
                                          );
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
-                                                 &{ $sub } if (ref $sub eq 'CODE');  
+                                                 &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }
                                          $::previous_node = $obj if $obj;
                                          return $obj;
