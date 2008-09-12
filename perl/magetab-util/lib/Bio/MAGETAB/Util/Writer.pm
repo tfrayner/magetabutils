@@ -24,14 +24,44 @@ use Moose;
 
 use Carp;
 
+use Bio::MAGETAB::Util::Writer::IDF;
+use Bio::MAGETAB::Util::Writer::ADF;
+use Bio::MAGETAB::Util::Writer::SDRF;
+
 has 'magetab'            => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB',
                               required   => 1 );
 
-has 'filehandle'         => ( is         => 'rw',
-                              isa        => 'FileHandle',
-                              coerce     => 1,
-                              required   => 1 );
+sub write {
+
+    my ( $self ) = @_;
+
+    my $magetab = $self->get_magetab();
+    foreach my $investigation ( $self->get_investigations() ) {
+        my $filename = $investigation->get_title();
+
+        # Sanitize the file name.
+        $filename =~ s/[^A-Za-z0-9_-]+/_/g;
+
+        open( my $fh, '>', $filename )
+            or croak("Error: Unable to open IDF output file: $!");
+
+        my $writer = Bio::MAGETAB::Util::Writer::IDF->new(
+            magetab_object => $investigation,
+            filehandle     => $fh,
+        );
+
+        $writer->write();
+    }
+    foreach my $array ( $self->get_arrayDesigns() ) {
+        
+    }
+    foreach my $sdrf ( $self->get_sdrfs() ) {
+        
+    }
+
+    return;
+}
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.

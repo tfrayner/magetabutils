@@ -24,7 +24,14 @@ use Moose;
 
 use Carp;
 
-BEGIN { extends 'Bio::MAGETAB::Util::Writer' };
+has 'magetab'            => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB',
+                              required   => 1 );
+
+has 'filehandle'         => ( is         => 'rw',
+                              isa        => 'FileHandle',
+                              coerce     => 1,
+                              required   => 1 );
 
 has 'font'               => ( is         => 'rw',
                               isa        => 'Str',
