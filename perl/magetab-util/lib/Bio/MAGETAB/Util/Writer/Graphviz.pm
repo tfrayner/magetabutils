@@ -26,11 +26,35 @@ use Carp;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Writer' };
 
+has 'font'               => ( is         => 'rw',
+                              isa        => 'Str',
+                              default    => sub { 'courier' },
+                              required   => 1 );
+
 sub draw {
 
     my ( $self ) = @_;
 
     my $fh = $self->get_filehandle();
+
+    # This is our master colour table. Edit as necessary.
+    my %color = (
+        'white'        => '#ffffff',
+        'light_yellow' => '#f8ff98',
+        'red'          => '#ff5454',
+        'green'        => '#81ff6d',
+        'yellow'       => '#fff835',
+        'light_blue'   => '#add9e6',
+        'grey'         => '#c5c5c5',
+        'mauve'        => '#9b7bff',
+    );
+
+    # Which of our master colours should be used for each dye?
+    my %label_color = (
+        qr/\A Cy3    \z/ixms => $color{'green'},
+        qr/\A Cy5    \z/ixms => $color{'red'},
+        qr/\A biotin \z/ixms => $color{'mauve'},
+    );
 
     print $fh (<<'HEADER');
 digraph "Experiment"{
@@ -44,6 +68,8 @@ HEADER
     # Create all the nodes. FIXME prettify by class, Label colour and
     # the like.
     foreach my $node ( @nodes ) {
+
+        # Data nodes are identified by URI, everything else by Name.
         my $identifier;
         if ( UNIVERSAL::isa( $node, 'Bio::MAGETAB::Data' ) ) {
             $identifier = $node->get_uri();
@@ -51,15 +77,38 @@ HEADER
         else {
             $identifier = $node->get_name();
         }
+
+        # What class is the node?
         my $class = blessed( $node );
 
-        # FIXME these obviously want to be elaborated upon.
-        my $color = 'white';
-        my $font  = 'courier';
+        my $color = $color{'white'};
+        my $font  = $self->get_font();
+
+        # Start the label for the dot file. This will be expanded as we go. 
+        my $label = qq{$identifier\\n$class};
+
+        # Figure out LabelExtract colours.
+        if ( UNIVERSAL::can( $node, 'get_label' ) ) {
+
+            # Default colour for things lacking a recognised label.
+            $color = $color{'grey'};
             
-        print $fh ( qq{"$node" [label="$identifier\\n$class",}
+            my $labname = $node->get_label()->get_value();
+            $label .= qq{\\nLabel: $labname};
+
+            while ( my ( $re, $col ) = each %label_color ) {
+                if ( $labname =~ $re ) {
+                    $color = $col;
+
+                    # N.B. must allow the each loop to finish.
+                }
+            }
+        }
+
+        # Print out the node info.
+        print $fh ( qq{"$node" [label="$label",}
                   . qq{ color=black, shape=box, style=filled,}
-                  . qq{ color="$color", fontname=$font];\n} );
+                  . qq{ fillcolor="$color", fontname=$font];\n} );
     }
 
     # Draw all the edges we know about. FIXME this wants fancying up

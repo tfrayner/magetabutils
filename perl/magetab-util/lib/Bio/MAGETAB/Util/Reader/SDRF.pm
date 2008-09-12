@@ -649,7 +649,7 @@ sub _add_unit_to_thing {
     return unless ( $unit && $thing );
 
     # Either $thing has a unit, or a measurement.
-    if ( $thing->can('set_unit') ) {
+    if ( UNIVERSAL::can( $thing, 'set_unit') ) {
         $thing->set_unit( $unit );
     }
     elsif ( $thing->has_measurement() ) {
@@ -1137,6 +1137,12 @@ sub _add_characteristic_to_material {
 
     return;
 }
+
+# Make the classes immutable. In theory this speeds up object
+# instantiation for a small compilation time cost.
+__PACKAGE__->meta->make_immutable();
+
+no Moose;
 
 1;
 
