@@ -22,21 +22,18 @@
 use strict;
 use warnings;
 
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME         => 'Bio::MAGETAB::Util',
-    VERSION_FROM => 'lib/Bio/MAGETAB/Util/Reader.pm', # finds \$VERSION
-    AUTHOR       => 'Tim F. Rayner (tfrayner@gmail.com)',
-    LICENSE      => 'gpl',
-    ABSTRACT     => 'Import and export functions for the MAGE-TAB format.',
-    PREREQ_PM => {
-        'Bio::MAGETAB'                => "0.1",
-        'Moose'                       => "0.43",
-        'Moose::Policy'               => "0.03",
-        'Parse::RecDescent'           => "1.94",
-        'Text::CSV_XS'                => "0.32",
-    },
-    EXE_FILES    => [
-    ],
-);
+name     'Bio-MAGETAB-Util';
+abstract 'Import, export and visualization functions for the MAGE-TAB format.';
+all_from 'lib/Bio/MAGETAB/Util/Reader.pm';
+
+requires 'Bio::MAGETAB'                => '0.1';
+requires 'Moose'                       => '0.43';
+requires 'Moose::Policy'               => '0.03';
+requires 'Parse::RecDescent'           => '1.94';
+requires 'Text::CSV_XS'                => '0.32';
+
+install_script glob('script/*.pl');
+auto_install;
+WriteAll;
