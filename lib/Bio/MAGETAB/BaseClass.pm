@@ -43,7 +43,7 @@ sub BUILD {
 
     foreach my $param ( keys %{ $params } ) {
         my $getter = "get_$param";
-        unless ( $self->can( $getter ) ) {
+        unless ( UNIVERSAL::can( $self, $getter ) ) {
             confess("ERROR: Unrecognised parameter: $param");
         }
     }

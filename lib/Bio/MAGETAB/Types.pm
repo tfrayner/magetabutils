@@ -33,12 +33,12 @@ use Params::Coerce;
 subtype 'Uri'
 
     => as 'Object'
-    => where { $_->isa('URI') };
+    => where { UNIVERSAL::isa( $_, 'URI' ) };
 
 coerce 'Uri'
 
     => from 'Object'
-    => via { $_->isa('URI')
+    => via { UNIVERSAL::isa( $_, 'URI' )
                  ? $_
                  : Params::Coerce::coerce( 'URI', $_ ) }
 
@@ -56,12 +56,12 @@ coerce 'Uri'
 subtype 'Date'
 
     => as 'Object'
-    => where { $_->isa('DateTime') };
+    => where { UNIVERSAL::isa( $_, 'DateTime' ) };
 
 coerce 'Date'
 
     => from 'Object'
-    => via { $_->isa('DateTime')
+    => via { UNIVERSAL::isa( $_, 'DateTime' )
                  ? $_
                  : Params::Coerce::coerce( 'DateTime', $_ ) }
 
@@ -80,6 +80,10 @@ subtype 'Email'
 
     => as 'Str'
     => where { Email::Valid->address( $_ ) };
+
+# Make the classes immutable. In theory this speeds up object
+# instantiation for a small compilation time cost.
+__PACKAGE__->meta->make_immutable();
 
 no Moose;
 
