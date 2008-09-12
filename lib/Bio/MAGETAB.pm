@@ -17,7 +17,10 @@
 #
 # $Id$
 
+# Convenience class for module loading and object tracking.
 package Bio::MAGETAB;
+
+use 5.008001;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -25,8 +28,6 @@ use Moose;
 use Bio::MAGETAB::BaseClass;
 
 use List::Util qw(first);
-
-# Convenience class for module loading and object tracking.
 
 our $VERSION = 0.1;
 
@@ -219,5 +220,38 @@ sub get_objects {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=head1 NAME
+
+Bio::MAGETAB - A data model and supporting classes for the MAGE-TAB format.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB;
+ my $sample = Bio::MAGETAB::Sample->new(name => 'Sample 1');
+
+=head1 DESCRIPTION
+
+This is the core set of classes used to support the Bio::MAGETAB
+API. On its own this module is not terribly exciting, because all it
+does is provide a set of data structures and type constraints which
+help to reliably handle data in MAGE-TAB format. See the
+L<Bio::MAGETAB::Util> module for classes which can be used to read,
+write and visualize MAGE-TAB data.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util>, L<Bio::MAGETAB::Util::Reader>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

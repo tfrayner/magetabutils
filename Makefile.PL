@@ -22,26 +22,22 @@
 use strict;
 use warnings;
 
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME         => 'Bio::MAGETAB',
-    VERSION_FROM => 'lib/Bio/MAGETAB.pm', # finds \$VERSION
-    AUTHOR       => 'Tim F. Rayner (tfrayner@gmail.com)',
-    LICENSE      => 'gpl',
-    ABSTRACT     => 'Parser and data model for the MAGE-TAB format.',
-    PREREQ_PM => {
-        'Moose'                       => "0.43",
-        'Moose::Policy'               => "0.03",
-        'Test::Exception'             => "0.26",
-        'MooseX::Types'               => "0.04",
-        'Params::Coerce'              => "0.14",
-        'URI'                         => "1.35",
-        'Date::Manip'                 => "5.44",
-        'DateTime'                    => "0.4302",
-        'DateTime::Format::DateManip' => "0.04",
-        'Email::Valid'                => "0.179",
-    },
-    EXE_FILES    => [
-    ],
-);
+all_from 'lib/Bio/MAGETAB.pm';
+
+requires 'Moose'                       => '0.43';
+requires 'Moose::Policy'               => '0.03';
+requires 'Test::Exception'             => '0.26';
+requires 'MooseX::Types'               => '0.04';
+requires 'Params::Coerce'              => '0.14';
+requires 'URI'                         => '1.35';
+requires 'Date::Manip'                 => '5.44';
+requires 'DateTime'                    => '0.4302';
+requires 'DateTime::Format::DateManip' => '0.04';
+requires 'Email::Valid'                => '0.179';
+
+#install_script glob('script/*.pl');
+auto_install;
+WriteAll;
+
