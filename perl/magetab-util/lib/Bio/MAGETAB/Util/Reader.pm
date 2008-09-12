@@ -29,6 +29,7 @@ use Carp;
 use Bio::MAGETAB::Util::Reader::ADF;
 use Bio::MAGETAB::Util::Reader::IDF;
 use Bio::MAGETAB::Util::Reader::SDRF;
+use Bio::MAGETAB::Util::Reader::DataMatrix;
 use Bio::MAGETAB::Util::Reader::Builder;
 
 has 'idf'                 => ( is         => 'rw',
@@ -51,6 +52,11 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                default    => 0,
                                required   => 1 );
 
+has 'builder'             => ( is         => 'ro',
+                               isa        => 'Bio::MAGETAB::Util::Reader::Builder',
+                               default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
+                               required   => 1 );
+
 # Make this visible to users of the module.
 our $VERSION = 0.1;
 
@@ -59,11 +65,10 @@ sub parse {
     my ( $self ) = @_;
 
     # We use this object to track MAGETAB object creation.
-    my $builder = Bio::MAGETAB::Util::Reader::Builder->new(
-        namespace      => $self->get_namespace(),
-        authority      => $self->get_authority(),
-        relaxed_parser => $self->get_relaxed_parser(),
-    );
+    my $builder = $self->get_builder();
+    $builder->set_namespace(      $self->get_namespace()      );
+    $builder->set_authority(      $self->get_authority()      );
+    $builder->set_relaxed_parser( $self->get_relaxed_parser() );
 
     my $idf_parser = Bio::MAGETAB::Util::Reader::IDF->new({
 	uri     => $self->get_idf(),
@@ -77,9 +82,6 @@ sub parse {
 
         # FIXME rewrite the SDRF URI according to our IDF URI?
 
-        # FIXME consider optionally passing in a Bio::MAGETAB::SDRF
-        # object here, so the SDRF parser API could make a little more
-        # sense.
 	my $sdrf_parser = Bio::MAGETAB::Util::Reader::SDRF->new({
 	    uri                        => $sdrf->get_uri(),
             builder                    => $builder,
@@ -89,19 +91,8 @@ sub parse {
         my $sdrf = $sdrf_parser->parse();
     }
 
-    # Parse through all the DataMatrix objects.
-    foreach my $matrix ( $magetab_container->get_DataMatrices() ) {
-        my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
-            uri            => $matrix->get_uri(),
-            builder        => $builder,           
-            magetab_object => $matrix,
-        });
-
-        $parser->parse();
-    }
-
     # Parse through all the ADFs.
-    foreach my $array ( $magetab_container->get_ArrayDesigns() ) {
+    foreach my $array ( $magetab_container->get_arrayDesigns() ) {
         if ( $array->get_uri() ) {
             my $parser = Bio::MAGETAB::Util::Reader::ADF->new({
                 uri            => $array->get_uri(),
@@ -110,6 +101,17 @@ sub parse {
             });
             $parser->parse();
         }
+    }
+
+    # Parse through all the DataMatrix objects.
+    foreach my $matrix ( $magetab_container->get_dataMatrices() ) {
+        my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
+            uri            => $matrix->get_uri(),
+            builder        => $builder,           
+            magetab_object => $matrix,
+        });
+
+        $parser->parse();
     }
 
     return wantarray

@@ -18,11 +18,11 @@
 # along with Bio::MAGETAB::Util.  If not, see <http://www.gnu.org/licenses/>.
 #
 # $Id$
-#
-#
+
+
 # This is a very simplistic example script to illustrate how one might
 # use the Reader modules to parse a MAGE-TAB document into
-# Bio::MAGETAB objects in memory.
+# Bio::MAGETAB objects in memory, and generate an output Graphviz file.
 
 use strict;
 use warnings;
@@ -30,15 +30,23 @@ use warnings;
 use Getopt::Long;
 
 use Bio::MAGETAB::Util::Reader;
+use Bio::MAGETAB::Util::Writer::Graphviz;
 
 our $VERSION;
-my ( $idf, $is_relaxed, $authority, $namespace, $want_help, $want_version );
+my ( $idf,
+     $is_relaxed,
+     $authority,
+     $namespace,
+     $want_help,
+     $want_version,
+     $graph_file );
 
 GetOptions(
     "i|idf=s"       => \$idf,
     "a|authority=s" => \$authority,
     "n|namespace=s" => \$namespace,
     "r|relaxed"     => \$is_relaxed,
+    "g|graph=s"     => \$graph_file,
 );
 
 if ( $want_help || ! ($idf && -r $idf) ) {
@@ -52,6 +60,7 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -r :   Use "relaxed" parsing, where undeclared objects are created for you on the fly.
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
+    -g :   Filename to use for the ".dot" file if attempting to draw a graph of the SDRF using Graphviz.
     -v :   Print version information.
     -h :   Print this help.
 
@@ -74,3 +83,25 @@ $reader->set_authority( $authority ) if defined $authority;
 $reader->set_namespace( $namespace ) if defined $namespace;
 
 $reader->parse();
+
+if ( $graph_file ) {
+
+    open ( my $fh, '>', $graph_file )
+        or die("Error: Unable to open output file: $!");
+
+    my $writer = Bio::MAGETAB::Util::Writer::Graphviz->new({
+        magetab    => $reader->get_builder()->get_magetab(),
+        filehandle => $fh,
+    });
+
+    $writer->draw();
+
+    my $pngfile = "$graph_file.png";
+
+    print STDOUT ("Creating PNG graph file...\n");
+
+    system(qq{dot -Tpng -o "$pngfile" "$graph_file"}) == 0
+        or print STDERR (
+            "Error: Graph drawing requires that the Graphviz 'dot' program is installed and on your executable path.\n"
+        );
+}

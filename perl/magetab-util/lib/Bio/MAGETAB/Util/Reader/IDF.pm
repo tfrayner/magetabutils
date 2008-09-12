@@ -31,10 +31,6 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::Investigation',
                               required   => 0 );
 
-# FIXME consider having a magetab_object attribute (maybe linked to
-# Investigation?) here for consistency. Not as important for IDF,
-# which never knows about its own uri.
-
 sub BUILD {
 
     my ( $self, $params ) = @_;
