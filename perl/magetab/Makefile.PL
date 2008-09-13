@@ -28,7 +28,6 @@ all_from 'lib/Bio/MAGETAB.pm';
 
 requires 'Moose'                       => '0.43';
 requires 'Moose::Policy'               => '0.03';
-requires 'Test::Exception'             => '0.26';
 requires 'MooseX::Types'               => '0.04';
 requires 'Params::Coerce'              => '0.14';
 requires 'URI'                         => '1.35';
@@ -36,6 +35,8 @@ requires 'Date::Manip'                 => '5.44';
 requires 'DateTime'                    => '0.4302';
 requires 'DateTime::Format::DateManip' => '0.04';
 requires 'Email::Valid'                => '0.179';
+
+build_requires 'Test::Exception'       => '0.26';
 
 #install_script glob('script/*.pl');
 auto_install;
