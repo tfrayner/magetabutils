@@ -84,21 +84,37 @@ sub _collapse_contacts {
     return ( $list{'value'}, $list{'termSource'}, $list{'accession'} );
 }
 
-sub _get_thing_type_value {
+sub _get_thing_type {
     my ( $self, $thing ) = @_;
-    my $type = $thing->get_type();
-    return $type ? $type->get_value() : q{};
+    my $type;
+    if ( UNIVERSAL::can( $thing, 'get_type' ) ) {
+        $type = $thing->get_type();
+    }
+    elsif ( UNIVERSAL::can( $thing, 'get_status' ) ) {
+        $type = $thing->get_status();
+    }
+    else {
+        confess("Error: Cannot find a ControlledVocab-linked attribute for "
+                    . blessed $thing );
+    }
+    return $type;
 }
 
 sub _get_thing_type_value {
     my ( $self, $thing ) = @_;
-    my $type = $thing->get_type();
+    my $type = $self->_get_thing_type( $thing );
+    return $type ? $type->get_value() : q{};
+}
+
+sub _get_thing_type_accession {
+    my ( $self, $thing ) = @_;
+    my $type = $self->_get_thing_type( $thing );
     return $type ? $type->get_accession() : q{};
 }
 
 sub _get_thing_type_termsource_name {
     my ( $self, $thing ) = @_;
-    my $type = $thing->get_type();
+    my $type = $self->_get_thing_type( $thing );
     return $self->_get_type_termsource_name($type);
 }
 
@@ -145,21 +161,69 @@ sub write {
                              map { $self->_get_thing_type_accession($_) } @_ ] ) },
         ],
         'sdrfs' => [
-            sub { return ( [ 'SDRF Files',         map { $_->get_uri()        } @_ ] ) },
+            sub { return ( [ 'SDRF Files', map { $_->get_uri()        } @_ ] ) },
         ],
         'protocols' => [
+            sub { return ( [ 'Protocol Name',        map { $_->get_name()     } @_ ] ) },
+            sub { return ( [ 'Protocol Description', map { $_->get_text()     } @_ ] ) },
+            sub { return ( [ 'Protocol Software',    map { $_->get_software() } @_ ] ) },
+            sub { return ( [ 'Protocol Hardware',    map { $_->get_hardware() } @_ ] ) },
+            sub { return ( [ 'Protocol Contact',     map { $_->get_contact()  } @_ ] ) },
+            sub { return ( [ 'Protocol Type',
+                             map { $self->_get_thing_type_value($_) } @_ ] ) },
+            sub { return ( [ 'Protocol Term Source REF',
+                             map { $self->_get_thing_type_termsource_name($_) } @_ ] ) },
+            sub { return ( [ 'Protocol Term Accession Number',
+                             map { $self->_get_thing_type_accession($_) } @_ ] ) },
         ],
         'publications' => [
+            sub { return ( [ 'Publication Title',       map { $_->get_title()      } @_ ] ) },
+            sub { return ( [ 'Publication Author List', map { $_->get_authorList() } @_ ] ) },
+            sub { return ( [ 'PubMed ID',               map { $_->get_pubMedID()   } @_ ] ) },
+            sub { return ( [ 'Publication DOI',         map { $_->get_DOI()        } @_ ] ) },
+            sub { return ( [ 'Publication Status',
+                             map { $self->_get_thing_type_value($_) } @_ ] ) },
+            sub { return ( [ 'Publication Status Term Source REF',
+                             map { $self->_get_thing_type_termsource_name($_) } @_ ] ) },
+            sub { return ( [ 'Publication Status Term Accession Number',
+                             map { $self->_get_thing_type_accession($_) } @_ ] ) },
         ],
         'termSources' => [
+            sub { return ( [ 'Term Source Name',       map { $_->get_name()    } @_ ] ) },
+            sub { return ( [ 'Term Source Version',    map { $_->get_version() } @_ ] ) },
+            sub { return ( [ 'Term Source File',       map { $_->get_uri()     } @_ ] ) },
         ],
         'designTypes' => [
+            sub { return ( [ 'Experimental Design',
+                             map { $_->get_value()     } @_ ] ) },
+            sub { return ( [ 'Experimental Design Term Accession Number',
+                             map { $_->get_accession() } @_ ] ) },
+            sub { return ( [ 'Experimental Design Term Source REF',
+                             map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
         'normalizationTypes' => [
+            sub { return ( [ 'Normalization Type',
+                             map { $_->get_value()     } @_ ] ) },
+            sub { return ( [ 'Normalization Term Accession Number',
+                             map { $_->get_accession() } @_ ] ) },
+            sub { return ( [ 'Normalization Term Source REF',
+                             map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
         'replicateTypes' => [
+            sub { return ( [ 'Replicate Type',
+                             map { $_->get_value()     } @_ ] ) },
+            sub { return ( [ 'Replicate Term Accession Number',
+                             map { $_->get_accession() } @_ ] ) },
+            sub { return ( [ 'Replicate Term Source REF',
+                             map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
         'qualityControlTypes' => [
+            sub { return ( [ 'Quality Control Type',
+                             map { $_->get_value()     } @_ ] ) },
+            sub { return ( [ 'Quality Control Term Accession Number',
+                             map { $_->get_accession() } @_ ] ) },
+            sub { return ( [ 'Quality Control Term Source REF',
+                             map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
     );
 
