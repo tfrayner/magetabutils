@@ -28,7 +28,7 @@ use Carp;
 use charnames qw( :full );
 use Text::CSV_XS;
 
-use Bio::MAGETAB::Util::Reader::Builder;
+use Bio::MAGETAB::Util::Builder;
 
 has 'uri'                => ( is         => 'rw',
                               isa        => 'Uri',
@@ -48,8 +48,8 @@ has 'csv_parser'         => ( is         => 'rw',
                               required   => 0 );
 
 has 'builder'            => ( is         => 'ro',
-                              isa        => 'Bio::MAGETAB::Util::Reader::Builder',
-                              default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
+                              isa        => 'Bio::MAGETAB::Util::Builder',
+                              default    => sub { Bio::MAGETAB::Util::Builder->new() },
                               required   => 1 );
 
 # Define some standard regexps:

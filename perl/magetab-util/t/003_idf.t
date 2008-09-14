@@ -68,7 +68,7 @@ is_deeply( $inv, $inv2, 'investigation objects agree' );
 # FIXME (IMPORTANT!) check the output against what we expect!
 my $builder;
 lives_ok( sub { $builder = $idf->get_builder(); }, 'IDF parser returns a Builder object' );
-is( ref $builder, 'Bio::MAGETAB::Util::Reader::Builder', 'of the correct class' );
+is( ref $builder, 'Bio::MAGETAB::Util::Builder', 'of the correct class' );
 
 # Check that the term source was created.
 my $ts;

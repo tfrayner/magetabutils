@@ -49,6 +49,9 @@ sub _write_line {
 
     my $csv_writer = $self->_construct_csv_writer();
 
+    # Replace any undefined values with empty string.
+    @values = map { defined $_ ? $_ : q{} } @values;
+
     # Check we're not out of bounds.
     my @to_write = ( $field, @values );
     if ( scalar @to_write > $num_cols ) {

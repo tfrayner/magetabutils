@@ -31,6 +31,83 @@ has 'magetab_object'     => ( is         => 'ro',
                               isa        => 'Bio::MAGETAB::Investigation',
                               required   => 1 );
 
+sub _collapse_contacts {
+
+    my ( $self, @contacts ) = @_;
+
+    # Given a list of Contact objects, collapse them into a list of
+    # arrayrefs suitable for passing to $self->_write_line()
+
+    # This is just a convenience hash to store data
+    my %list = (
+        'value'         => [ 'Person Roles' ],
+        'termSource'    => [ 'Person Roles Term Source REF' ],
+        'accession'     => [ 'Person Roles Term Accession Number' ],
+    );
+    foreach my $contact ( @contacts ) {
+
+        # Multiple Role terms can be specified, separated by semicolons.
+        push @{ $list{'value'} },
+            ( join(';', map { $_->get_value() } $contact->get_roles() ) || q{} );
+
+        # Unfortunately as of the v1.1 specification, multiple
+        # TermSources and Accessions are a no-no. That makes this part
+        # a bit more complicated than it needs to be.
+        my (%ts_test, %acc_test, $ts1, $acc1);
+        foreach my $role ( $contact->get_roles() ) {
+
+            my $ts  = $role->get_termSource();
+            my $acc = $role->get_accession();
+
+            # Only store the first one of each.
+            $ts1  ||= $ts;
+            $acc1 ||= $acc;
+
+            $ts_test{  $ts  } = $ts  if $ts;
+            $acc_test{ $acc } = $acc if $acc;
+        }
+
+        # Warn where the model isn't quite in line with the spec.
+        if ( scalar grep { defined $_ } values %ts_test > 1 ) {
+            carp("Warning: Multiple Role Term Sources (unsupported by MAGE-TAB format).");
+        }
+        if ( scalar grep { defined $_ } values %acc_test > 1 ) {
+            carp("Warning: Multiple Role Term Accessions (unsupported by MAGE-TAB format).");
+        }
+
+        # Just output the first TermSource and/or Accession we encountered.
+        push @{ $list{'termSource'} }, ( $ts1 ? $ts1->get_name() : q{} );
+        push @{ $list{'accession'} },  ( $acc1 || q{} );
+    }
+
+    # This will be the eventual output order of the lines.
+    return ( $list{'value'}, $list{'termSource'}, $list{'accession'} );
+}
+
+sub _get_thing_type_value {
+    my ( $self, $thing ) = @_;
+    my $type = $thing->get_type();
+    return $type ? $type->get_value() : q{};
+}
+
+sub _get_thing_type_value {
+    my ( $self, $thing ) = @_;
+    my $type = $thing->get_type();
+    return $type ? $type->get_accession() : q{};
+}
+
+sub _get_thing_type_termsource_name {
+    my ( $self, $thing ) = @_;
+    my $type = $thing->get_type();
+    return $self->_get_type_termsource_name($type);
+}
+
+sub _get_type_termsource_name {
+    my ( $self, $type ) = @_;
+    my $ts = $type ? $type->get_termSource() : undef;
+    return $ts ? $ts->get_name() : q{};
+}
+
 sub write {
 
     my ( $self ) = @_;
@@ -46,30 +123,44 @@ sub write {
     # FIXME check these field names against the spec!
     my @other_comments;
     my %multi = (
-        'contacts' => [ sub { return ( [ 'Person Last Name',     map { $_->get_lastName()     } @_ ] ) },
-                        sub { return ( [ 'Person First Name',    map { $_->get_firstName()    } @_ ] ) },
-                        sub { return ( [ 'Person Mid Initials',  map { $_->get_midInitials()  } @_ ] ) },                        
-                        sub { return ( [ 'Person Email',         map { $_->get_email()        } @_ ] ) },                        
-                        sub { return ( [ 'Person Affiliation',   map { $_->get_affiliation()  } @_ ] ) },                        
-                        sub { return ( [ 'Person Phone',         map { $_->get_phone()        } @_ ] ) },                        
-                        sub { return ( [ 'Person Fax',           map { $_->get_fax()          } @_ ] ) },                        
-                        sub { return ( [ 'Person Address',       map { $_->get_address()      } @_ ] ) },
-                        sub { my @contacts = @_;
-                              my @lists;
-                              for ( my $i = 0; $i < scalar @contacts; $i++ ) {
-                                  
-                              push @lists (
-                        'roles'               => 'Person Roles',  ],  # FIXME needs to return several arrayrefs: value, term source, term accession
-                        sub { push @other_comments, map { $_->get_comments() } @_ },                        
-        'factors' => [],
-        'sdrfs' => [],
-        'protocols' => [],
-        'publications' => [],
-        'termSources' => [],
-        'designTypes' => [],
-        'normalizationTypes' => [],
-        'replicateTypes' => [],
-        'qualityControlTypes' => [],
+        'contacts' => [
+            sub { return ( [ 'Person Last Name',     map { $_->get_lastName()     } @_ ] ) },
+            sub { return ( [ 'Person First Name',    map { $_->get_firstName()    } @_ ] ) },
+            sub { return ( [ 'Person Mid Initials',  map { $_->get_midInitials()  } @_ ] ) },
+            sub { return ( [ 'Person Email',         map { $_->get_email()        } @_ ] ) },
+            sub { return ( [ 'Person Affiliation',   map { $_->get_affiliation()  } @_ ] ) },
+            sub { return ( [ 'Person Phone',         map { $_->get_phone()        } @_ ] ) },
+            sub { return ( [ 'Person Fax',           map { $_->get_fax()          } @_ ] ) },
+            sub { return ( [ 'Person Address',       map { $_->get_address()      } @_ ] ) },
+            sub { $self->_collapse_contacts( @_ ); },
+            sub { push @other_comments, map { $_->get_comments() } @_ },
+        ],
+        'factors' => [
+            sub { return ( [ 'Experimental Factor Name', map { $_->get_name() } @_ ] ) },
+            sub { return ( [ 'Experimental Factor Type',
+                             map { $self->_get_thing_type_value($_) } @_ ] ) },
+            sub { return ( [ 'Experimental Factor Term Source REF',
+                             map { $self->_get_thing_type_termsource_name($_) } @_ ] ) },
+            sub { return ( [ 'Experimental Factor Term Accession Number',
+                             map { $self->_get_thing_type_accession($_) } @_ ] ) },
+        ],
+        'sdrfs' => [
+            sub { return ( [ 'SDRF Files',         map { $_->get_uri()        } @_ ] ) },
+        ],
+        'protocols' => [
+        ],
+        'publications' => [
+        ],
+        'termSources' => [
+        ],
+        'designTypes' => [
+        ],
+        'normalizationTypes' => [
+        ],
+        'replicateTypes' => [
+        ],
+        'qualityControlTypes' => [
+        ],
     );
 
     # We want a regular table, so figure out how many columns we will
@@ -86,7 +177,8 @@ sub write {
         $self->_write_line( $field, $inv->$getter );
     }
 
-    # FIXME all the complicated stuff.
+    # All the complicated stuff gets handled by the dispatch methods
+    # in %multi.
     while ( my ( $field, $subs ) = each %multi ) {
         my $getter = "get_$field";
         my @attrs = $inv->$getter;
@@ -96,7 +188,10 @@ sub write {
             }
         }
     }
-    
+
+    # All comments on IDF-related classes are dumped into the IDF at
+    # the end. FIXME consider maybe inserting them at the appropriate
+    # places? Subsequent parsing won't preserve these locations though.
     foreach my $comment ( $inv->get_comments(), @other_comments ) {
         my $field = sprintf("Comment[%s]", $comment->name());
         $self->_write_line( $field, $comment->value() );

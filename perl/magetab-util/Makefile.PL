@@ -34,6 +34,8 @@ requires 'Moose::Policy'               => '0.03';
 requires 'Parse::RecDescent'           => '1.94';
 requires 'Text::CSV_XS'                => '0.32';
 
+build_requires 'Test::Exception'       => '0.26';
+
 install_script glob('script/*.pl');
 auto_install;
 WriteAll;

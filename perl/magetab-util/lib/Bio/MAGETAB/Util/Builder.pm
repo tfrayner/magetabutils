@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Reader::Builder;
+package Bio::MAGETAB::Util::Builder;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;

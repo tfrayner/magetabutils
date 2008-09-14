@@ -72,7 +72,7 @@ lives_ok( sub{ $dm_reader = Bio::MAGETAB::Util::Reader::DataMatrix->new( uri => 
 # Get the underlying Builder object.
 my $builder;
 lives_ok( sub { $builder = $dm_reader->get_builder(); }, 'DataMatrix parser returns a Builder object' );
-is( ref $builder, 'Bio::MAGETAB::Util::Reader::Builder', 'of the correct class' );
+is( ref $builder, 'Bio::MAGETAB::Util::Builder', 'of the correct class' );
 
 # Add some dummy objects.
 add_dummy_objects( $builder );

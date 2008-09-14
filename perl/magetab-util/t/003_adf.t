@@ -73,7 +73,7 @@ TODO: {
 # FIXME (IMPORTANT!) check the output against what we expect!
 my $builder;
 lives_ok( sub { $builder = $adf->get_builder(); }, 'ADF parser returns a Builder object' );
-is( ref $builder, 'Bio::MAGETAB::Util::Reader::Builder', 'of the correct class' );
+is( ref $builder, 'Bio::MAGETAB::Util::Builder', 'of the correct class' );
 
 # Check that the term source was created.
 my $ts;

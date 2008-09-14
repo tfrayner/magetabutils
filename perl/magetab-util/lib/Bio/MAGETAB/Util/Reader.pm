@@ -32,7 +32,7 @@ use Bio::MAGETAB::Util::Reader::ADF;
 use Bio::MAGETAB::Util::Reader::IDF;
 use Bio::MAGETAB::Util::Reader::SDRF;
 use Bio::MAGETAB::Util::Reader::DataMatrix;
-use Bio::MAGETAB::Util::Reader::Builder;
+use Bio::MAGETAB::Util::Builder;
 
 has 'idf'                 => ( is         => 'rw',
                                isa        => 'Uri',
@@ -55,8 +55,8 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                required   => 1 );
 
 has 'builder'             => ( is         => 'ro',
-                               isa        => 'Bio::MAGETAB::Util::Reader::Builder',
-                               default    => sub { Bio::MAGETAB::Util::Reader::Builder->new() },
+                               isa        => 'Bio::MAGETAB::Util::Builder',
+                               default    => sub { Bio::MAGETAB::Util::Builder->new() },
                                required   => 1 );
 
 # Make this visible to users of the module.
@@ -176,7 +176,7 @@ An optional authority string to be used in object creation.
 An optional Builder object. These Builder objects are used to track
 the creation of Bio::MAGETAB objects by caching the objects in an
 internal store, keyed by a set of identifying information (see
-L<Bio::MAGETAB::Util::Reader::Builder>). This object can be used in
+L<Bio::MAGETAB::Util::Builder>). This object can be used in
 multiple Reader objects to help link common objects from multiple
 MAGE-TAB documents together. In its simplest form this internal store
 is a simple hash; however in principle this could be extended by

@@ -27,8 +27,6 @@ use List::Util qw(first);
 use English qw( -no_match_vars );
 use Parse::RecDescent;
 
-use Bio::MAGETAB::Util::Reader::Builder;
-
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
 has 'magetab_object'     => ( is         => 'rw',

@@ -78,7 +78,7 @@ lives_ok( sub{ $sdrf_reader = Bio::MAGETAB::Util::Reader::SDRF->new( uri => $fil
           'instantiation with uri attribute' );
 my $builder;
 lives_ok( sub { $builder = $sdrf_reader->get_builder(); }, 'SDRF parser returns a Builder object' );
-is( ref $builder, 'Bio::MAGETAB::Util::Reader::Builder', 'of the correct class' );
+is( ref $builder, 'Bio::MAGETAB::Util::Builder', 'of the correct class' );
 
 add_dummy_objects( $builder );
 

@@ -27,13 +27,16 @@ use warnings;
 use Test::More tests => 8;
 
 BEGIN {
+    use_ok( 'Bio::MAGETAB::Util::Builder' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::Tabfile' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::TagValueFile' );
     use_ok( 'Bio::MAGETAB::Util::Reader::ADF' );
-    use_ok( 'Bio::MAGETAB::Util::Reader::Builder' );
     use_ok( 'Bio::MAGETAB::Util::Reader::DataMatrix' );
     use_ok( 'Bio::MAGETAB::Util::Reader::IDF' );
     use_ok( 'Bio::MAGETAB::Util::Reader::SDRF' );
-    use_ok( 'Bio::MAGETAB::Util::Reader::Tabfile' );
-    use_ok( 'Bio::MAGETAB::Util::Reader::TagValueFile' );
     use_ok( 'Bio::MAGETAB::Util::Reader' );
+    use_ok( 'Bio::MAGETAB::Util::Writer' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::BaseClass' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::Graphviz' );
 }
 

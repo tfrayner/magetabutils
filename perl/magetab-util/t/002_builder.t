@@ -28,7 +28,7 @@ use Test::Exception;
 use Bio::MAGETAB;
 
 BEGIN {
-    use_ok( 'Bio::MAGETAB::Util::Reader::Builder' );
+    use_ok( 'Bio::MAGETAB::Util::Builder' );
 }
 
 sub confirm_method {
@@ -332,12 +332,12 @@ my %test = (
 
 # FIXME we may want to test more instantiation options.
 my $builder;
-lives_ok( sub{ $builder = Bio::MAGETAB::Util::Reader::Builder->new({
+lives_ok( sub{ $builder = Bio::MAGETAB::Util::Builder->new({
     namespace => 'test_namespace',
     authority => 'test_authority',
 }) }, q{Object constructor succeeds} );
 ok( defined $builder, q{and returns an object} );
-ok( $builder->isa('Bio::MAGETAB::Util::Reader::Builder'), q{of the correct class} );
+ok( $builder->isa('Bio::MAGETAB::Util::Builder'), q{of the correct class} );
 
 while ( my ( $method, $data ) = each %test ) {
 
