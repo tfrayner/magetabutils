@@ -24,6 +24,7 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
+use Storable qw(dclone);
 
 use base qw(Exporter);
 our @EXPORT_OK = qw(test_class);
@@ -184,8 +185,10 @@ sub test_class {
         $bad,
     );
 
+    my $instance2 = dclone( $instance );
+
     test_update(
-        $instance,
+        $instance2,
         $required,
         $optional,
         $bad,
