@@ -72,7 +72,7 @@ my $ex2 = Bio::MAGETAB::Extract->new( name => 'test extract 2' );
 my $ex3 = Bio::MAGETAB::Extract->new( name => 'test extract 3' );
 
 # Test reciprocal relationship between nodes and sdrfRows.
-is_deeply( [ sort $obj->get_nodes() ], [ sort $norm, $norm2 ],
+is_deeply( [ sort $obj->get_nodes() ], [ $norm ],
            'initial state prior to reciprocity test' );
 lives_ok( sub{ $obj->set_nodes( [ $ex2 ] ) }, 'setting nodes via self' );
 is_deeply( $ex2->get_sdrfRows(), $obj, 'sets sdrfRows in target node' );
@@ -90,3 +90,13 @@ is_deeply( [ sort $ex2->get_sdrfRows() ], [ sort $obj, $obj2 ], 'and adds sdrfRo
 lives_ok( sub{ $ex3->clear_sdrfRows() }, 'node can clear sdrfRow' );
 is( $ex3->get_sdrfRows(), undef, 'sdrfRow cleared correctly' );
 is_deeply( [ $obj2->get_nodes() ], [ $ex2 ], 'and updates SDRFRow nodes correctly' );
+
+# Check that the implicit deletion when setting works okay
+is_deeply( [ sort $ex2->get_sdrfRows() ], [ sort $obj, $obj2 ], 'related nodes retain correct SDRFRow linkage' );
+lives_ok( sub{ $obj2->set_nodes( [ $ex3 ] ) }, 'resetting node linkage succeeds' );
+is_deeply( [ sort $ex2->get_sdrfRows() ], [ $obj ], 'and implicitly deletes SDRFRow from old node' );
+
+# And the reverse.
+is_deeply( [ sort $obj->get_nodes() ], [ $ex2 ], 'related SDRFRows retain correct node linkage' );
+lives_ok( sub{ $ex2->set_sdrfRows( [ $obj2 ] ) }, 'resetting SDRFRow linkage succeeds' );
+is_deeply( [ sort $obj->get_nodes() ], [ ], 'and implicitly deletes node from old SDRFRow' );

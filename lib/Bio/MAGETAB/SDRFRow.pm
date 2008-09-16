@@ -73,6 +73,15 @@ around 'set_nodes' => sub {
 
     my ( $attr, $self, $nodes ) = @_;
 
+    # Note that we have to handle the implicit delete here where a
+    # member of $self->get_sdrfRows is being dropped during an update.
+    foreach my $n ( $self->get_nodes() ) {
+        unless ( first { $n eq $_ } @$nodes ) {
+            my @new_rows = grep { $_ ne $self } $n->get_sdrfRows();
+            $n->{ 'sdrfRows' } = \@new_rows;
+        }
+    }
+
     # Set the appropriate $self attribute to point to $node.
     $attr->( $self, $nodes );
 
@@ -80,6 +89,7 @@ around 'set_nodes' => sub {
         $nodes,
         'sdrfRows',
     );
+
 };
 
 # This method is used as a wrapper to ensure that reciprocating
@@ -96,7 +106,7 @@ sub _reciprocate_nodes_to_sdrf_rows {
     # reference on object destruction.
     weaken $self;
 
-    # Make sure $node points to us.
+    # Make sure $rows points to us.
     foreach my $t ( $self->get_nodes() ) {
         my @current = $t->$node_getter();
         unless ( first { $_ eq $self } @current ) {

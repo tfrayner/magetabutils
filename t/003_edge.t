@@ -90,7 +90,7 @@ my $ex2 = Bio::MAGETAB::Extract->new( name => 'test extract 2' );
 my $ex3 = Bio::MAGETAB::Extract->new( name => 'test extract 3' );
 
 # Test reciprocal relationship between nodes and edges.
-is( $obj->get_outputNode(), $ex, 'initial state prior to reciprocity test' );
+is( $obj->get_outputNode(), $sa, 'initial state prior to reciprocity test' );
 lives_ok( sub{ $obj->set_outputNode($ex2) }, 'setting outputNode via self' );
 is_deeply( $ex2->get_inputEdges(), $obj, 'sets inputEdges in target node' );
 lives_ok( sub{ $ex3->set_inputEdges( [ $obj ] ) }, 'setting inputEdges via target node' );

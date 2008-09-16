@@ -121,6 +121,15 @@ around 'set_sdrfRows' => sub {
 
     my ( $attr, $self, $sdrf_rows ) = @_;
 
+    # Note that we have to handle the implicit delete here where a
+    # member of $self->get_sdrfRows is being dropped during an update.
+    foreach my $r ( $self->get_sdrfRows() ) {
+        unless ( first { $r eq $_ } @$sdrf_rows ) {
+            my @new_nodes = grep { $_ ne $self } $r->get_nodes();
+            $r->{ 'nodes' } = \@new_nodes;
+        }
+    }
+
     # Set the appropriate $self attribute to point to $rows.
     $attr->( $self, $sdrf_rows );
 
@@ -178,9 +187,7 @@ sub _reciprocate_sdrf_rows_to_nodes {
 
     my $row_getter  = "get_$row_slot";
 
-    # Make sure $rows points to us. Row->Node is 1..* so we can
-    # just add the node attribute in the rows without worrying
-    # about what else it might have pointed to.
+    # Make sure $rows points to us.
     foreach my $t ( @$rows ) {
        
         # Make sure $t points to us.
