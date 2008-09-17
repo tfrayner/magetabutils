@@ -72,6 +72,14 @@ around 'set_inputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
 
+    # Note that we have to handle the implicit delete here where a
+    # member of $self->get_inputNode is being dropped during an update.
+    my $old_node = $self->get_inputNode();
+    if ( $old_node && $node ne $old_node ) {
+        my @new_rows = grep { $_ ne $self } $old_node->get_outputEdges();
+        $old_node->{ 'outputEdges' } = \@new_rows;
+    }
+
     # Set the appropriate $self attribute to point to $node.
     $attr->( $self, $node );
 
@@ -88,6 +96,14 @@ around 'set_inputNode' => sub {
 around 'set_outputNode' => sub {
 
     my ( $attr, $self, $node ) = @_;
+
+    # Note that we have to handle the implicit delete here where a
+    # member of $self->get_outputNode is being dropped during an update.
+    my $old_node = $self->get_outputNode();
+    if ( $old_node && $node ne $old_node ) {
+        my @new_rows = grep { $_ ne $self } $old_node->get_inputEdges();
+        $old_node->{ 'inputEdges' } = \@new_rows;
+    }
 
     # Set the appropriate $self attribute to point to $node.
     $attr->( $self, $node );
