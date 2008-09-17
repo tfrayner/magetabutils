@@ -38,6 +38,12 @@ has 'csv_writer'         => ( is         => 'rw',
                               isa        => 'Text::CSV_XS',
                               required   => 0 );
 
+sub _get_type_termsource_name {
+    my ( $self, $type ) = @_;
+    my $ts = $type ? $type->get_termSource() : undef;
+    return $ts ? $ts->get_name() : q{};
+}
+
 sub _write_line {
 
     my ( $self, $field, @values ) = @_;

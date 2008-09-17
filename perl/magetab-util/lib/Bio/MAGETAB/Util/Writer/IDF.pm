@@ -118,23 +118,18 @@ sub _get_thing_type_termsource_name {
     return $self->_get_type_termsource_name($type);
 }
 
-sub _get_type_termsource_name {
-    my ( $self, $type ) = @_;
-    my $ts = $type ? $type->get_termSource() : undef;
-    return $ts ? $ts->get_name() : q{};
-}
-
 sub write {
 
     my ( $self ) = @_;
 
-    my $fh  = $self->get_filehandle();
     my $inv = $self->get_magetab_object();
 
-    my @single = qw( title
-                     description
-                     date
-                     publicReleaseDate );
+    my %single = (
+        'Investigation Title'    => 'title',
+        'Experiment Description' => 'description',
+        'Experiment Date'        => 'date',
+        'Public Release Date'    => 'publicReleaseDate',
+    );
 
     # FIXME check these field names against the spec!
     my @other_comments;
@@ -236,8 +231,8 @@ sub write {
     $self->set_num_columns( 1 + max @objcounts );
 
     # Single elements are straightforward.
-    foreach my $field ( @single ) {
-        my $getter = "get_$field";
+    while ( my ( $field, $value ) = each %single ) {
+        my $getter = "get_$value";
         $self->_write_line( $field, $inv->$getter );
     }
 
