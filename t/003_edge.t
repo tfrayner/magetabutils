@@ -105,6 +105,20 @@ is( $obj2->get_outputNode(), $ex2, 'and outputNode' );
 is_deeply( $ex->get_outputEdges(), $obj2, 'and outputEdges in target node' );
 is_deeply( [ sort $ex2->get_inputEdges() ], [ sort $obj, $obj2 ], 'and inputEdges in target node' );
 
+# Test implicit deletion upon setting. We've just tested $ex2->get_inputEdges and $ex->get_outputEdges...
+lives_ok( sub { $obj2->set_outputNode( $ex3 ) }, 'resetting outputNode succeeds' );
+is_deeply( [ sort $ex2->get_inputEdges() ], [ $obj ], 'and deletes the inputEdge on the old node' );
+lives_ok( sub { $obj2->set_inputNode( $ex3 ) }, 'resetting inputNode succeeds' );
+is_deeply( [ sort $ex->get_outputEdges() ], [ ], 'and deletes the outputEdge on the old node' );
+
+# N.B. we don't bother testing the reciprocal deletion-on-set, because
+# a node repointing to a new edge will break the old edge (since both
+# input and output are required on an edge). This is a fairly bad
+# state of affairs to get into, and it's assumed for now that any
+# developer doing this must know what they're doing. FIXME we need a
+# note in the docs to this effect (i.e. always update via Edge if
+# you're remodelling your graph).
+
 # This should live, and allow garbage collection to destroy both the
 # edge and any protocol apps attached to it. The edge still references
 # $ex2, but the ref is weakened. This is okay because edges don't have
