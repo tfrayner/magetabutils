@@ -24,7 +24,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 14;
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Builder' );
@@ -37,6 +37,9 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader' );
     use_ok( 'Bio::MAGETAB::Util::Writer' );
     use_ok( 'Bio::MAGETAB::Util::Writer::BaseClass' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::Graphviz' );
 }
 

@@ -13,7 +13,6 @@ inc/Module/Install/WriteAll.pm
 lib/Bio/MAGETAB/Util/Builder.pm
 lib/Bio/MAGETAB/Util/Reader.pm
 lib/Bio/MAGETAB/Util/Reader/ADF.pm
-lib/Bio/MAGETAB/Util/Reader/Builder.pm
 lib/Bio/MAGETAB/Util/Reader/DataMatrix.pm
 lib/Bio/MAGETAB/Util/Reader/IDF.pm
 lib/Bio/MAGETAB/Util/Reader/SDRF.pm
