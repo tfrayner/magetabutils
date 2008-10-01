@@ -1,0 +1,22 @@
+body {
+    background-color: #ffffff;
+    color:            #46494c;
+    font-family:      "Trebuchet MS", "Lucida Sans Unicode", arial, helvetica, sans-serif;
+}
+
+.main {
+    width: 50em;
+}
+
+h1 {
+    text-align: center;
+}
+
+.text {
+    text-align: justify;
+}
+
+.footer {
+    text-align: center;
+}
+
