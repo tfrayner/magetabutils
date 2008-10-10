@@ -38,6 +38,122 @@ has 'uri'                 => ( is         => 'rw',
                                coerce     => 1,
                                required   => 1 );
 
+sub add_nodes {
+
+    my ( $self, $nodes ) = @_;
+
+    unless ( blessed $nodes eq 'ARRAY' ) {
+        confess("Error: argument to add_nodes must be an array ref.");
+    }
+
+    require Bio::MAGETAB::SDRFRow;
+
+    my @rows = $self->get_sdrfRows();
+
+    # FIXME ideally we'd intelligently add new nodes to old rows where
+    # applicable, but for now we ignore that use case.
+
+    # First find all the starting nodes. These are the ones with no 
+    my @input_nodes = grep { ! scalar $_->get_inputEdges() } @$nodes;
+
+    # Generate the rows from the appropriate lists of nodes. 
+    foreach my $node ( @input_nodes ) {
+        my $nodelists = $self->_rows_from_node( $node );
+        foreach my $list ( @{ $nodelists } ) {
+
+            # Create the actual SDRFRow object.
+            my $row = Bio::MAGETAB::SDRFRow->new(
+                nodes => $list,
+            );
+
+            # We attempt to identify the channel used for this row here.
+            if ( my $channel = $self->_get_channel_from_row( $list ) ) {
+                $row->set_channel( $channel );
+            }
+
+            # FIXME consider also adding FactorValue (probably not
+            # practical) and rowNumber (probably not useful).
+
+            push @rows, $row;
+        }
+    }
+
+    # Check that all the nodes have been assigned; this will
+    # probably only be the case if there were no cycles in the graph.
+    my %used = map { $_ => 1 } map { $_->get_nodes() } @rows;
+    foreach my $node ( @{ $nodes } ) {
+        unless ( $used{ $node } ) {
+            croak("Error: Unable to assign all nodes to rows (probably"
+                . " due to a cycle present in the node-edge graph.");
+        }
+    }
+
+    $self->set_sdrfRows( \@rows );
+
+    return;
+}
+
+sub _rows_from_node {
+
+    my ( $self, $node, $seen ) = @_;
+
+    # Recurse through the node-edge graph to generate a list of rows.
+
+    # We need a mechanism to check for cycles in the graph (this is a
+    # hashref to track all the nodes in a given row).
+    $seen ||= {};
+    if ( $seen->{ $node } ) {
+        croak("Error: Cycle detected in the node-edge graph. Unable to continue.");
+    }
+    $seen->{ $node }++;
+
+    my @list_of_rows;
+    my @edges = $node->get_outputEdges();
+    if ( scalar @edges ) {
+
+        # Recurse into each edge and gather all the sub-rows.
+        foreach my $edge ( @edges ) {
+            my $subrow_list = $self->_rows_from_node( $edge->get_outputNode(), $seen );
+            foreach my $subrow ( @{ $subrow_list } ) {
+                unshift( @$subrow, $node );
+            }
+            push @list_of_rows, @{ $subrow_list };
+        }
+    }
+    else {
+
+        # Recursion endpoint.
+        push @list_of_rows, [ $node ];
+    }
+
+    return \@list_of_rows;
+}
+
+sub _get_channel_from_row {
+
+    my ( $self, $row ) = @_;
+    
+    my @labels = map { $_->get_label() }
+                 grep { UNIVERSAL::isa( $_, 'Bio::MAGETAB::LabeledExtract')  }
+                 @$row;
+    my $channel;
+    if ( my $num = scalar @labels ) {
+        if ( $num > 1 ) {
+            croak("Error: Row contains multiple Labeled Extracts. This is"
+                . " unsupported by the Bio::MAGETAB model, and should probably"
+                . " be split into multiple branches of the experiment design graph.");
+        }
+        my $val = $labels[0]->get_value();
+        require Bio::MAGETAB::ControlledTerm;
+        $channel = Bio::MAGETAB::ControlledTerm->new(
+            category => 'Channel',    # FIXME hard-coded.
+            value    => $val,
+        );
+    }
+
+    return $channel;
+}
+
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
