@@ -42,7 +42,7 @@ sub add_nodes {
 
     my ( $self, $nodes ) = @_;
 
-    unless ( blessed $nodes eq 'ARRAY' ) {
+    unless ( UNIVERSAL::isa( $nodes, 'ARRAY' ) ) {
         confess("Error: argument to add_nodes must be an array ref.");
     }
 
