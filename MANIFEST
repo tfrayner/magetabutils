@@ -1,8 +1,15 @@
 Changes
-LICENSE
-Makefile.PL
-MANIFEST
-README
+inc/Module/AutoInstall.pm
+inc/Module/Install.pm
+inc/Module/Install/AutoInstall.pm
+inc/Module/Install/Base.pm
+inc/Module/Install/Can.pm
+inc/Module/Install/Fetch.pm
+inc/Module/Install/Include.pm
+inc/Module/Install/Makefile.pm
+inc/Module/Install/Metadata.pm
+inc/Module/Install/Win32.pm
+inc/Module/Install/WriteAll.pm
 lib/Bio/MAGETAB.pm
 lib/Bio/MAGETAB/ArrayDesign.pm
 lib/Bio/MAGETAB/Assay.pm
@@ -43,6 +50,12 @@ lib/Bio/MAGETAB/SDRFRow.pm
 lib/Bio/MAGETAB/Source.pm
 lib/Bio/MAGETAB/TermSource.pm
 lib/Bio/MAGETAB/Types.pm
+LICENSE
+magetab-om.mdzip
+Makefile.PL
+MANIFEST
+META.yml
+README
 t/001_load.t
 t/002_base_class.t
 t/002_data.t
@@ -84,4 +97,3 @@ t/003_source.t
 t/003_term_source.t
 t/004_magetab.t
 t/testlib/CommonTests.pm
-magetab-om.mdzip

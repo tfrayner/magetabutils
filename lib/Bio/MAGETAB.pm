@@ -29,7 +29,7 @@ use Bio::MAGETAB::BaseClass;
 
 use List::Util qw(first);
 
-our $VERSION = 0.1;
+our $VERSION = 0.9;
 
 # This cache is used to store all the Bio::MAGETAB objects registered
 # with this instance (which, by default, is all of them).
