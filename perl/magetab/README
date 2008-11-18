@@ -1,4 +1,32 @@
 Bio::MAGETAB Documentation
 ==========================
 
+This package provides the perl implementation of the object model used
+by the MAGE-TAB Utilities (available from
+http://magetabutils.sourceforge.net). This is an early release of this
+code; full documentation will follow in subsequent releases. This API
+is mostly finalised, but some details may yet change where necessary
+to improve usability.
+
+Note that MAGE-TAB import, export and visualisation functions are not
+provided by this package, but rather by the main magetab-utils package
+available from the above link. At the time of writing the
+magetab-utils package is still under development, but pre-release
+versions may be downloaded via SVN:
+https://sourceforge.net/svn/?group_id=241102
+
+The Bio::MAGETAB module requires at least version 5.8.1 of perl, and
+depends on the following perl modules, all available from CPAN
+(http://www.cpan.org):
+
+    Moose
+    Moose::Policy
+    MooseX::Types
+    Params::Coerce
+    URI
+    Date::Manip
+    DateTime
+    DateTime::Format::DateManip
+    Email::Valid
+
 Please contact Tim Rayner (tfrayner@gmail.com) with any questions.
