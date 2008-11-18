@@ -38,10 +38,7 @@ sub write {
 
     my $magetab = $self->get_magetab();
     foreach my $investigation ( $self->get_investigations() ) {
-        my $filename = $investigation->get_title();
-
-        # Sanitize the file name.
-        $filename =~ s/[^A-Za-z0-9_-]+/_/g;
+        my $filename = $self->_sanitize_path( $investigation->get_title() );
 
         open( my $fh, '>', $filename )
             or croak("Error: Unable to open IDF output file: $!");
@@ -54,13 +51,49 @@ sub write {
         $writer->write();
     }
     foreach my $array ( $self->get_arrayDesigns() ) {
-        
+        my $filename;
+        if ( my $uri = $array->uri() ) {
+            my $path = $uri->path();
+            ( $filename ) = ( $path =~ m/([^\/]+) \z/xms );
+        }
+        unless ( $filename ) {
+            $filename = $self->_sanitize_path( $array->name() );
+        }
+
+        open( my $fh, '>', $filename )
+            or croak("Error: Unable to open ADF output file: $!");
+        my $writer = Bio::MAGETAB::Util::Writer::ADF->new(
+            magetab_object => $array,
+            filehandle     => $fh,
+        );
+
+        $writer->write();
     }
     foreach my $sdrf ( $self->get_sdrfs() ) {
+        my $path = $sdrf->uri()->path();
+        my ( $filename ) = ( $path =~ m/([^\/]+) \z/xms );
         
+        open( my $fh, '>', $filename )
+            or croak("Error: Unable to open SDRF output file: $!");
+        my $writer = Bio::MAGETAB::Util::Writer::SDRF->new(
+            magetab_object => $sdrf,
+            filehandle     => $fh,
+        );
+
+        $writer->write();
     }
 
     return;
+}
+
+sub _sanitize_path {
+
+    my ( $self, $path ) = @_;
+
+    # Sanitize the file name.
+    $path =~ s/[^A-Za-z0-9_-]+/_/g;
+
+    return $path;
 }
 
 # Make the classes immutable. In theory this speeds up object
