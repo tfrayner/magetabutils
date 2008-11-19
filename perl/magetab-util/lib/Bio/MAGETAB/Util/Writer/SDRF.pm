@@ -86,17 +86,208 @@ sub _column_heading_from_object {
     return $col_sub->( $object );
 }
 
+sub _reassign_typed_layers {
+
+    my ( $self, $layers, $is_assigned ) = @_;
+
+    # We now check the types of all the columns in the various layers,
+    # and reassign between layers where necessary/possible.
+    for ( my $layernum = 0; $layernum < scalar @{ $layers }; $layernum++ ) {
+
+        my $layer = $layers->[$layernum] ||= [];
+        my $layertype;
+
+        NODE:
+        for ( my $rownum = 0; $rownum < scalar @{ $layer }; $rownum++ ) {
+
+            my $node = $layer->[$rownum];
+
+            # Gaps are allowed in this matrix.
+            next NODE unless defined $node;
+
+            my $type = blessed $node;
+
+            # First node determines the layer type. Might be better to
+            # put it to a vote FIXME.
+            $layertype ||= $type;
+            unless ( $layertype eq $type ) {
+
+                # Cache the rest of the row.
+                my @subsequent = map { $_->[ $rownum ] } @{ $layers }[ $layernum .. $#{ $layers } ];
+
+                # Delete the node from the current layer.
+                undef($layer->[$rownum]);
+
+                # Reassign numbers, starting with the next
+                # layer. FIXME at the moment all this does is
+                # right-shift the rest of the current row, and
+                # subsequent layers are then checked and reshifted as
+                # necessary. It would be nice if we could be a bit
+                # more intelligent about this.
+                for ( my $outputnum = $layernum + 1; $outputnum <= scalar @{ $layers }; $outputnum++ ) {
+
+                    my $node = shift @subsequent;
+
+                    # A hole in the matrix gives us an opportunity to
+                    # skip to the next node in the original layer
+                    # (next row down). Hopefully this will help
+                    # prevent creating too many unnecessary layers.
+                    next NODE unless defined $node;
+
+                    my $outputlayer = $layers->[$outputnum] ||= [];
+
+                    # Move the node from the previous layer into this one.
+                    $outputlayer->[ $rownum ] = $node;
+
+                    # This may not be necessary, but if we ever want
+                    # to re-use %is_assigned we'll need this.
+                    $is_assigned->{ $node } = $outputnum;
+                }
+            }
+        }
+    }
+
+    return $layers;
+}
+
+sub _assign_layers {
+
+    my ( $self, $node_lists ) = @_;
+
+    # Quick Schwarzian transform to list the rows in order, longest first.
+    my @sorted_lists = map { $_->[1] }
+                       reverse sort { $a->[0] <=> $b->[0] }
+                       map { [ scalar @{ $_ }, $_ ] } @{ $node_lists };
+
+    # Track layer assignments.
+    my %is_assigned;
+
+    # Reassign layers.
+    my @layers;
+    my $rownum = 0;
+    foreach my $list ( @sorted_lists ) {
+        my $index = 0;
+        foreach my $node ( @{ $list } ) {
+
+            # We must in theory check ALL input node layer values for
+            # a given unassigned node, and select the
+            # maximum. However, I think this works, but only because
+            # we're dealing with the longest SDRFRow first.
+            my $oldlayer = $is_assigned{ $node };
+            if ( defined $oldlayer ) {
+                $index = $oldlayer;
+                $layers[ $index ][ $rownum ] = $node;
+            }
+            else {
+                $layers[ $index ][ $rownum ] = $node;
+                $is_assigned{ $node } = $index;
+            }
+            $index++;
+        }
+        $rownum++;
+    }
+
+    return $self->_reassign_typed_layers( \@layers, \%is_assigned );
+}
+
+sub _nodelists_from_rows {
+
+    my ( $self, $rows ) = @_;
+
+    # Return the node lists in the same order as the rows were passed.
+    my @lists;
+    foreach my $row ( @{ $rows }  ) {
+        my @nodes = $row->get_nodes();
+
+        # Quick and dirty way to get the starting node.
+        my @input_nodes = grep { ! $_->has_inputEdges() } @nodes;
+        my $num_inputs  = scalar @input_nodes;
+        unless ( $num_inputs == 1 ) {
+            croak("Error: Cannot identify a single starting node; "
+                      . "SDRFRow has $num_inputs starting nodes.");
+        }
+        my $current = $input_nodes[0];
+
+        # Add all the nodes in the SDRFRow, in order, by following the
+        # node-edge graph.
+        my @ordered_nodes;
+        my %in_this_row = map { $_ => 1 } @nodes;
+        while ( $current->has_outputEdges() ) {
+            EDGE:
+            foreach my $edge ( $current->get_outputEdges() ) {
+                my $next = $edge->get_outputNode()
+                    or croak("Error: Edge without an output node (this really shouldn't happen).");
+                if ( $in_this_row{ $next } ) {
+                    push @ordered_nodes, $current;
+                    $current = $next;
+
+                    # This assumes that no branching occurs within the
+                    # SDRFRow; but then it shouldn't.
+                    last EDGE;
+                }
+            }
+        }
+
+        # This is now the last node.
+        push @ordered_nodes, $current;
+
+        # Store the row nodes in the return array.
+        push @lists, \@ordered_nodes;
+    }
+
+    return \@lists;
+}
+
+sub _expand_layer {
+
+    my ( $self, $layer ) = @_;
+
+    # Given a layer arrayref, return an arrayref with n+1 arrayref
+    # members (the extra line is the header) containing data ready to
+    # print.
+
+    my @output;
+
+    # FIXME much to do here yet!
+
+    return \@output;
+}
+
 sub write {
 
     my ( $self ) = @_;
 
     my $fh   = $self->get_filehandle();
     my $sdrf = $self->get_magetab_object();
+    my @rows = $sdrf->get_sdrfRows();
+    my $node_lists  = $self->_nodelists_from_rows( \@rows );
+    my $layers      = $self->_assign_layers( $node_lists );
 
-    # Quick Schwarzian transform to list the rows in order, longest first.
-    my @sorted_rows = map { $_->[1] }
-                      reverse sort { $a->[0] <=> $b->[0] }
-                      map { [ scalar $_->get_nodes(), $_ ] } $sdrf->get_sdrfRows();
+    # We now have a defined matrix ($layers) indexed by columns and
+    # then rows.
+
+    # Generate the layer fragments to print out.
+    my @outputs = map { $self->_expand_layer( $_ ) } @{ $layers };
+
+    # Assume the first layer is representative (as it *should* be).
+    my $num_rows = scalar @{ $outputs[0] };
+
+    # Merge each layer into an array of line arrayrefs. 
+    my @lines;
+    for ( my $i = 0; $i < $num_rows; $i++ ) {
+
+        # FIXME need to handle undef values somewhere.
+        $lines[ $i ] = [ map { @{ $_->[$i] } } @outputs ];
+    }
+
+    # Finally, dump everything to the file.
+    my $max_column = max( map { scalar @{ $_ } } @lines );
+    $self->set_num_columns( $max_column );
+    foreach my $line ( @lines ) {
+        $self->_write_line( $line );
+    }
+
+    return;
 }
 
 # Make the classes immutable. In theory this speeds up object
