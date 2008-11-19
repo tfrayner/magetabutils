@@ -34,6 +34,7 @@ sub _column_heading_from_term {
 
     my ( $self, $object ) = @_;
 
+    # FIXME this list is incomplete.
     my %dispatch = (
         'MaterialType'    => sub { 'Material Type' },
         'LabelCompound'   => sub { 'Label' },
@@ -58,11 +59,14 @@ sub _column_heading_from_object {
     my $class = blessed $object;
     $class =~ s/\A Bio::MAGETAB //xms;
 
+    # FIXME this list is incomplete.
     my %dispatch = (
         'Source'              => sub { 'Source Name' },
         'Sample'              => sub { 'Sample Name' },
         'Extract'             => sub { 'Extract Name' },
         'LabeledExtract'      => sub { 'Labeled Extract Name' },
+
+        # FIXME types need one more layer of indirection, through ControlledTerm
         'Assay'               => sub { $_[0]->get_technologyType() eq 'hybridization'
                                            ? 'Hybridization Name'
                                            : 'Assay Name' },
@@ -222,7 +226,7 @@ sub _nodelists_from_rows {
                     $current = $next;
 
                     # This assumes that no branching occurs within the
-                    # SDRFRow; but then it shouldn't.
+                    # SDRFRow; but then it shouldn't anyway.
                     last EDGE;
                 }
             }
@@ -249,22 +253,87 @@ sub _expand_layer {
     my @output;
 
     # FIXME much to do here yet!
+    
 
     return \@output;
+}
+
+sub _output_from_objects {
+
+    my ( $self, $objects ) = @_;
+
+    # All the objects passed in must be of the same type.
+    my %check = map { blessed $_ => 1 } @{ $objects };
+    unless ( scalar grep { defined $_ } values %check ) {
+        croak("Error: Multiple object types in layer.");
+    }
+
+    my @values;
+    foreach my $object ( @{ $objects } ) {
+        push @values, $self->_attr_vals_from_object( $object );
+    }
+
+    # FIXME interrogate the results. Make ragged lists regular,
+    # flatten the N-level array of arrays, prune lists to remove
+    # columns with no contents for any of the objects, etc. etc.
+}
+
+sub _attr_vals_from_object {
+
+    my ( $self, $object ) = @_;
+
+    # For a given object return an arrayref of arrayrefs of the value(s)
+    # for each attribute.
+
+    # FIXME replace this sort function with a custom one that returns
+    # "name" and "file" first. Or possibly "namespace" and "authority".
+    my @attributes = map { $_->[1] }
+                     sort { $a->[0] cmp $b->[0] }
+                     map { [ $_->name(), $_ ] }
+                         $object->meta->get_all_attributes();
+
+    my @all_attr_values;
+
+    ATTR:
+    foreach my $attr ( @attributes ) {
+        if ( my $getter = $attr->reader() ) {
+
+            # FIXME recurse here to generate an N-level deep array of
+            # arrays in which every leaf is a text string and every
+            # node is an arrayref.
+            my @retrieved = $object->$getter;
+            my @this_attr_vals;
+            foreach my $subvalue ( @retrieved ) {
+                if ( UNIVERSAL::isa( $subvalue, 'Bio::MAGETAB::BaseClass' ) ) {
+
+                    # FIXME we also need to recognise the SDRF objects
+                    # which are actually defined in the IDF, and not
+                    # follow those attributes beyond the Name
+                    # attribute (creating a REF column).
+                    push @this_attr_vals, $self->_attr_vals_from_object( $subvalue );
+                }
+                else {
+                    push @this_attr_vals, $subvalue;
+                }
+            }
+
+            push @all_attr_values, [ \@this_attr_vals ];
+        }
+    }
+
+    return \@all_attr_values;
 }
 
 sub write {
 
     my ( $self ) = @_;
 
-    my $fh   = $self->get_filehandle();
-    my $sdrf = $self->get_magetab_object();
-    my @rows = $sdrf->get_sdrfRows();
-    my $node_lists  = $self->_nodelists_from_rows( \@rows );
-    my $layers      = $self->_assign_layers( $node_lists );
-
-    # We now have a defined matrix ($layers) indexed by columns and
-    # then rows.
+    # Create a defined matrix ($layers) indexed by columns and then
+    # rows.
+    my $sdrf       = $self->get_magetab_object();
+    my @rows       = $sdrf->get_sdrfRows();
+    my $node_lists = $self->_nodelists_from_rows( \@rows );
+    my $layers     = $self->_assign_layers( $node_lists );
 
     # Generate the layer fragments to print out.
     my @outputs = map { $self->_expand_layer( $_ ) } @{ $layers };
