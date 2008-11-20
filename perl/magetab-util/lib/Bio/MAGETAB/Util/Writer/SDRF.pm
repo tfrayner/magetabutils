@@ -30,66 +30,6 @@ has 'magetab_object'     => ( is         => 'ro',
                               isa        => 'Bio::MAGETAB::SDRF',
                               required   => 1 );
 
-sub _column_heading_from_term {
-
-    my ( $self, $object ) = @_;
-
-    # FIXME this list is incomplete.
-    my %dispatch = (
-        'MaterialType'    => sub { 'Material Type' },
-        'LabelCompound'   => sub { 'Label' },
-        'TechnologyType'  => sub { 'Technology Type' },
-    );
-
-    my $colname;
-    if ( my $sub = $dispatch{ $object->get_category() } ) {
-        $colname = $sub->( $object );
-    }
-    else {
-        $colname = sprintf("Characterististics [%s]", $object->get_category() );
-    }
-
-    return $colname;
-}
-
-sub _column_heading_from_object {
-
-    my ( $self, $object ) = @_;
-
-    my $class = blessed $object;
-    $class =~ s/\A Bio::MAGETAB //xms;
-
-    # FIXME this list is incomplete.
-    my %dispatch = (
-        'Source'              => sub { 'Source Name' },
-        'Sample'              => sub { 'Sample Name' },
-        'Extract'             => sub { 'Extract Name' },
-        'LabeledExtract'      => sub { 'Labeled Extract Name' },
-
-        # FIXME types need one more layer of indirection, through ControlledTerm
-        'Assay'               => sub { $_[0]->get_technologyType() eq 'hybridization'
-                                           ? 'Hybridization Name'
-                                           : 'Assay Name' },
-        'DataAcquisition'     => sub { 'Scan Name' },
-        'Normalization'       => sub { 'Normalization Name' },
-        'DataFile'            => sub { $_[0]->get_type() eq 'image' ? 'Image File'
-                                           : 'raw' ? 'Array Data File'
-                                           : 'Derived Array Data File' },
-        'DataMatrix'          => sub { $_[0]->get_type() eq 'raw'
-                                           ? 'Array Data Matrix File'
-                                           : 'Derived Array Data Matrix File' },
-        'ProtocolApplication' => sub { 'Protocol REF' },
-        'ControlledTerm'      => sub { $self->_column_heading_from_term( @_ ) },
-    );
-
-    my $col_sub;
-    unless ( $col_sub = $dispatch{ $class } ) {
-        confess(qq{Error: Class "$class" is not mapped to a column heading.});
-    }
-
-    return $col_sub->( $object );
-}
-
 sub _reassign_typed_layers {
 
     my ( $self, $layers, $is_assigned ) = @_;
@@ -241,7 +181,7 @@ sub _nodelists_from_rows {
 
     return \@lists;
 }
-
+##################################################################################################
 sub _expand_layer {
 
     my ( $self, $layer ) = @_;
@@ -263,67 +203,374 @@ sub _output_from_objects {
     my ( $self, $objects ) = @_;
 
     # All the objects passed in must be of the same type.
-    my %check = map { blessed $_ => 1 } @{ $objects };
-    unless ( scalar grep { defined $_ } values %check ) {
+    my %check = map { blessed($_) => 1 } @{ $objects };
+    unless ( ( scalar grep { defined $_ } values %check ) == 1 ) {
         croak("Error: Multiple object types in layer.");
     }
 
-    my @values;
+    my ( @values, @headings );
     foreach my $object ( @{ $objects } ) {
-        push @values, $self->_attr_vals_from_object( $object );
+        my ( $obj_vals, $obj_headings ) = $self->_columns_from_object( $object );
+        push @values, $obj_vals;
+        push @headings, $obj_headings;
     }
 
-    # FIXME interrogate the results. Make ragged lists regular,
-    # flatten the N-level array of arrays, prune lists to remove
-    # columns with no contents for any of the objects, etc. etc.
+    # FIXME interrogate the results. Make ragged lists regular, prune
+    # lists to remove columns with no contents for any of the objects,
+    # etc. etc.
 }
 
-sub _attr_vals_from_object {
+sub _process_object {
 
-    my ( $self, $object ) = @_;
+    my ( $self, $object, $parent ) = @_;
 
-    # For a given object return an arrayref of arrayrefs of the value(s)
-    # for each attribute.
+    # Comments are so often used in the model that we just duck-type
+    # to get at them.
+    my $comment_headings = [];
+    my $comment_values   = [];
+    if ( UNIVERSAL::can( $object, 'get_comments' ) ) {
 
-    # FIXME replace this sort function with a custom one that returns
-    # "name" and "file" first. Or possibly "namespace" and "authority".
-    my @attributes = map { $_->[1] }
-                     sort { $a->[0] cmp $b->[0] }
-                     map { [ $_->name(), $_ ] }
-                         $object->meta->get_all_attributes();
+        # FIXME consider excluding ArrayDesign from this, as its
+        # comments will typically be in the ADF anyway.
+        my ( $comment_headings, $comment_values )
+            = $self->_process_comments( $object->get_comments() );
+    }
 
-    my @all_attr_values;
+    # I imagine this will be controversial.
+    my $namespace = join( ':', $object->get_namespace(), $object->get_authority() );
 
-    ATTR:
-    foreach my $attr ( @attributes ) {
-        if ( my $getter = $attr->reader() ) {
+    return ( $comment_headings, $comment_values, $namespace );
+}
 
-            # FIXME recurse here to generate an N-level deep array of
-            # arrays in which every leaf is a text string and every
-            # node is an arrayref.
-            my @retrieved = $object->$getter;
-            my @this_attr_vals;
-            foreach my $subvalue ( @retrieved ) {
-                if ( UNIVERSAL::isa( $subvalue, 'Bio::MAGETAB::BaseClass' ) ) {
+sub _process_comments {
 
-                    # FIXME we also need to recognise the SDRF objects
-                    # which are actually defined in the IDF, and not
-                    # follow those attributes beyond the Name
-                    # attribute (creating a REF column).
-                    push @this_attr_vals, $self->_attr_vals_from_object( $subvalue );
-                }
-                else {
-                    push @this_attr_vals, $subvalue;
-                }
-            }
+    my ( $self, @comments ) = @_;
 
-            push @all_attr_values, [ \@this_attr_vals ];
+    my (@headings, @values);
+    foreach my $comm ( @comments ) {
+        push @headings, sprintf("Comment [%s]", $comm->name());
+        push @values,   $comm->value();
+    }
+    return( \@headings, \@values );
+}
+
+sub _process_controlled_term {
+
+    my ( $self, $term, $parent ) = @_;
+
+    unless ( UNIVERSAL::isa( $term, 'Bio::MAGETAB::ControlledTerm' ) ) {
+        croak("Error: method requires a ControlledTerm object.");
+    }
+
+    # FIXME this list is probably incomplete. Links the parent class
+    # and term category together to generate a column heading. Beware
+    # inheritance if any of the parent classes are descended from any
+    # of the others.
+    my %dispatch = (
+
+        # Parent class
+        'Bio::MAGETAB::Material' => {
+
+            # Term category;     Column heading.
+            'MaterialType'    => 'Material Type',
+            'LabelCompound'   => 'Label',
+        },
+
+        'Bio::MAGETAB::Assay' => {
+            'TechnologyType'  => 'Technology Type',
+        },
+    );
+
+    my ( @colnames, @colvalues );
+
+    my $column;
+    DISPATCH:
+    foreach my $testclass ( keys %dispatch ) {
+        if ( UNIVERSAL::isa( $parent, $testclass ) ) {
+            $column = $dispatch{ $testclass }{ $term->get_category() };
+            last DISPATCH if ( defined $column );
         }
     }
 
-    return \@all_attr_values;
+    # Store the main column heading.
+    if ( defined $column ) {
+
+        # Term category is in the dispatch table; we store a
+        # column.
+        push @colnames, $column;
+    }
+    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Material' ) ) {
+
+        # Not in dispatch table, but parent is a Material, implying
+        # the term is a Characteristic.
+        push @colnames, sprintf("Characterististics [%s]", $term->get_category() );
+    }
+    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::ParameterValue' ) ) {
+
+        # Placeholder; I anticipate that this will change at some
+        # point. Column heading would be "Parameter Value [<name of
+        # Parameter>]" which is easily derived in the current
+        # model. We could fix it now but then we'd be generating SDRFs
+        # we can't actually parse.
+        croak("Error: ParameterValue link to ControlledTerm not supported in MAGE-TAB v1.1");
+    }
+    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::DataFile' ) ) {
+
+        # Do nothing. DataFile has DataFormat but this isn't actually
+        # in the SDRF spec. We derive DataFormat from the actual data
+        # files on every parse. We also have DataType but that just
+        # determines raw vs derived and will be handled elsewhere.
+    }
+    else {
+        confess("Probably not implemented yet FIXME.");
+    }
+
+    # Store the main value.
+    push @colvalues, $term->get_value();
+
+    # Now get the Term Source, Term Accession info. We fill these in
+    # empty if they don't exist, and they get pruned out later on.
+    my ( $tscols, $tsvals ) = $self->_process_dbentry( $term );
+    push @colnames,  @$tscols;
+    push @colvalues, @$tsvals;
+
+    return \@colnames, \@colvalues;
 }
 
+sub _process_dbentry {
+
+    my ( $self, $dbentry ) = @_;
+
+    my @colnames = ('Term Source REF', 'Term Accession Number');
+
+    my @colvalues;
+    if ( my $ts = $dbentry->get_termSource() ) {
+        push @colvalues, $ts->get_name(), $dbentry->get_accession();
+    }
+    else {
+
+        # FIXME is it worth printing the accession if there's no term source?
+        push @colvalues, undef, $dbentry->get_accession();
+    }
+
+    return( \@colnames, \@colvalues );
+}
+
+sub _process_array_design {
+
+    my ( $self, $arraydesign ) = @_;
+
+    my ( @colnames, @colvalues );
+    if ( $arraydesign->has_uri() ) {
+        push @colnames,  'Array Design File';
+        push @colvalues, $arraydesign->get_uri();
+    }
+    else {
+        push @colnames,  'Array Design REF';
+        push @colvalues, $arraydesign->get_name();
+    }
+
+    # FIXME not sure about comments here (see also _process_object).
+    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $arraydesign );
+
+    # Deal with Term Source, Term Accession...
+    my ( $tsnames, $tsvals ) = $self->_process_dbentry( $arraydesign );
+    push @colnames,  @$commentcols, @$tsnames;
+    push @colvalues, @$commentvals, @$tsvals;
+    
+    return( \@colnames, \@colvalues );
+}
+
+sub _process_event {
+
+    my ( $self, $obj, $colname ) = @_;
+
+    my @colnames  = $colname;
+    my @colvalues = $obj->get_name();
+
+    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
+    push @colnames,  @{ $commentcols };
+    push @colvalues, @{ $commentvals };
+
+    return( \@colnames, \@colvalues );
+}
+
+sub _process_assay {
+
+    my ( $self, $obj ) = @_;
+
+    # Core stuff.
+    my $type    = $obj->get_technologyType();
+    my $namecol = ($type->get_value() =~ /\A hybridization \z/ixms
+                ? 'Hybridization Name'
+                : 'Assay Name');
+    my ( $colnames, $colvalues ) = $self->_process_event( $obj, $namecol );
+
+    # Other attributes.
+    my ( $typecols, $typevals )   = $self->_process_controlled_term( $type, $obj );
+    my ( $arraycols, $arrayvals ) = $self->_process_array_design( $obj->get_ArrayDesign(), $obj );
+
+    # Put it all together in a parsable order.
+    push @{ $colnames },  @{ $typecols }, @{ $arraycols };
+    push @{ $colvalues }, @{ $typevals }, @{ $arrayvals };
+
+    return( $colnames, $colvalues );
+}
+
+sub _process_scan {
+
+    my ( $self, $obj ) = @_;
+
+    return $self->_process_event( $obj, 'Scan Name' );
+}
+
+sub _process_normalization {
+
+    my ( $self, $obj ) = @_;
+
+    return $self->_process_event( $obj, 'Normalization Name' );
+}
+
+sub _process_data {
+
+    my ( $self, $obj, $namecol ) = @_;
+
+    my @colnames  = $namecol;
+    my @colvalues = $obj->get_uri();
+
+    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
+    push @colnames,  @{ $commentcols };
+    push @colvalues, @{ $commentvals };
+
+    return ( \@colnames, \@colvalues );
+}
+
+sub _process_datafile {
+
+    my ( $self, $obj ) = @_;
+
+    my $type    = $obj->get_type();
+    my $colname = $type->get_value() eq 'image' ? 'Image File'
+                                      : 'raw'   ? 'Array Data File'
+                                                : 'Derived Array Data File';
+
+    return $self->_process_data( $obj, $colname );
+}
+
+sub _process_datamatrix {
+
+    my ( $self, $obj ) = @_;
+
+    my $type    = $obj->get_type();
+    my $colname = $type->get_value() eq 'raw' ? 'Array Data Matrix File'
+                                              : 'Derived Array Data Matrix File';
+
+    return $self->_process_data( $obj, $colname );
+}
+
+sub _process_provider {
+
+    my ( $self, $prov, $parent ) = @_;
+
+    return( [ 'Provider' ], [ $prov ] );
+}
+
+sub _process_material {
+
+    my ( $self, $obj, $namecol ) = @_;
+
+    my @colnames  = $namecol;
+    my @colvalues = $obj->get_name();
+
+    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
+    push @colnames,  @{ $commentcols };
+    push @colvalues, @{ $commentvals };
+
+    # FIXME MaterialType, Characteristics, Description, Measurements
+
+    return ( \@colnames, \@colvalues );
+}
+
+sub _process_source {
+
+    my ( $self, $obj ) = @_;
+
+    my ( $colnames, $colvalues ) = $self->_process_material( $obj, 'Source Name' );
+
+    my ( $provcols, $provvals ) = $self->_process_provider( $obj->get_providers(), $obj );
+
+    push @{ $colnames },  @{ $provcols };
+    push @{ $colvalues }, @{ $provvals };
+
+    return( $colnames, $colvalues );
+}
+
+sub _columns_from_object {
+
+    my ( $self, $object, $parent ) = @_;
+
+    # This is the main entry point for the Node objects which have
+    # been ordered into layers. This method flattens the objects into
+    # two lists: column headings, and column values. No guarantee is
+    # made that the lists for two objects of the same class will be
+    # the same, however; Material Characteristics spring to mind as a
+    # source of variability.
+
+    unless ( UNIVERSAL::isa( $object, 'Bio::MAGETAB::Node' ) ) {
+        croak("Error: method requires a Node object.");
+    }
+
+    my $class = blessed $object;
+    $class =~ s/\A Bio::MAGETAB:: //xms;
+
+    # FIXME don't forget we have to decide how to process namespace,
+    # authority in here somewhere as well.
+
+    # I think we're just processing Node objects here now.
+    my %dispatch = (
+
+        # Materials
+        'Source'              => sub { $self->_process_source( @_ ) },
+
+        # FIXME obviously these need changing:
+        'Sample'              => sub { 'Sample Name' },
+        'Extract'             => sub { 'Extract Name' },
+        'LabeledExtract'      => sub { 'Labeled Extract Name' },
+
+        # Events
+        'Assay'               => sub { $self->_process_assay( @_ )         },
+        'DataAcquisition'     => sub { $self->_process_scan( @_ )          },
+        'Normalization'       => sub { $self->_process_normalization( @_ ) },
+
+        # Data
+        'DataFile'            => sub { $self->_process_datafile( @_ )      },
+        'DataMatrix'          => sub { $self->_process_datamatrix( @_ )    },
+
+#        'ProtocolApplication' => sub { 'Protocol REF' },
+#        'FactorValue' => whatever.
+    );
+
+    my $col_sub;
+    unless ( $col_sub = $dispatch{ $class } ) {
+        confess(qq{Error: Node class "$class" is not mapped to an action.});
+    }
+
+    # All "_process_*" methods expect to receive both the object, and
+    # its parent where applicable. Obviously for top-level Node
+    # objects the parent isn't really meaningful. FIXME revisit this?
+    my ( $headings, $values ) = $col_sub->( $object, $parent );
+
+    # FIXME look at either inputEdges or outputEdges (but not both;
+    # and check which corresponds to this SDRFRow!). This is going to
+    # be a bit tricky and will probably need upstream code fixes.
+
+    # Also we'll need to look at FactorValues; probably best to dump
+    # them into the layers prior to calling this routine? FIXME
+
+    return ( $headings, $values );
+}
+
+###################################################################################################
 sub write {
 
     my ( $self ) = @_;
@@ -336,7 +583,7 @@ sub write {
     my $layers     = $self->_assign_layers( $node_lists );
 
     # Generate the layer fragments to print out.
-    my @outputs = map { $self->_expand_layer( $_ ) } @{ $layers };
+    my @outputs = map { $self->_output_from_objects( $_ ) } @{ $layers };
 
     # Assume the first layer is representative (as it *should* be).
     my $num_rows = scalar @{ $outputs[0] };
