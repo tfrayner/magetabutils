@@ -254,6 +254,50 @@ sub _process_comments {
     return( \@headings, \@values );
 }
 
+sub _process_measurement {
+
+    my ( $self, $meas, $parent ) = @_;
+
+    my ( @colnames, @colvalues );
+    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $meas );
+    push @colnames,  @{ $commentcols };
+    push @colvalues, @{ $commentvals };
+
+    if ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Material' ) ) {
+        push @colnames, sprintf("Characteristic [%s]", $meas->get_type() );
+    }
+    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::ParameterValue' ) ) {
+        my $param = $parent->get_parameter();
+        push @colnames, sprintf("Parameter Value [%s]", $param->get_name() );
+    }
+    else {
+        croak("Error: Parent object class does not associate with Measurements.");
+    }
+
+    # We support both regular values and min-max ranges. Sort of.
+    my $value = $meas->get_value();
+    my $min   = $meas->get_minValue();
+    my $max   = $meas->get_maxValue();
+    if ( defined $value && ! ( defined $min || defined $max ) ) {
+        push @colvalues, $value;
+    }
+    elsif ( defined $min && defined $max && ! defined $value ) {
+        push @colvalues, sprintf("%s - %s", $min, $max);
+    }
+    else {
+        croak("Error: Ambiguous Measurement - must have either value alone, or both minValue and maxValue.");
+    }
+    
+    # Units
+    if ( my $unit = $meas->get_unit() ) {
+        my ( $unitcols, $unitvals ) = $self->_process_controlled_term( $unit, $meas );
+        push @colnames,  @{ $unitcols };
+        push @colvalues, @{ $unitvals };
+    }
+    
+    return ( \@colnames, \@colvalues );
+}
+
 sub _process_controlled_term {
 
     my ( $self, $term, $parent ) = @_;
@@ -304,6 +348,12 @@ sub _process_controlled_term {
         # Not in dispatch table, but parent is a Material, implying
         # the term is a Characteristic.
         push @colnames, sprintf("Characterististics [%s]", $term->get_category() );
+    }
+    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Measurement' ) ) {
+
+        # Not in dispatch table, but parent is a Measurement, implying
+        # the term is a Unit.
+        push @colnames, sprintf("Unit [%s]", $term->get_category() );
     }
     elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::ParameterValue' ) ) {
 
@@ -483,10 +533,24 @@ sub _process_material {
     my @colvalues = $obj->get_name();
 
     my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
-    push @colnames,  @{ $commentcols };
-    push @colvalues, @{ $commentvals };
+    push @colnames,  @{ $commentcols }, 'Description';
+    push @colvalues, @{ $commentvals }, $obj->get_description();
 
-    # FIXME MaterialType, Characteristics, Description, Measurements
+    my ( $typecols, $typevals ) = $self->_process_controlled_term( $obj->get_type(), $obj );
+    push @colnames,  @{ $typecols };
+    push @colvalues, @{ $typevals };
+
+    foreach my $char ( $obj->get_characteristics() ) {
+        my ( $charcols, $charvals ) = $self->_process_controlled_term( $char, $obj );
+        push @colnames,  @{ $charcols };
+        push @colvalues, @{ $charvals };
+    }
+
+    foreach my $meas ( $obj->get_measurements() ) {
+        my ( $meascols, $measvals ) = $self->_process_measurement( $meas, $obj );
+        push @colnames,  @{ $meascols };
+        push @colvalues, @{ $measvals };
+    }
 
     return ( \@colnames, \@colvalues );
 }
@@ -501,6 +565,34 @@ sub _process_source {
 
     push @{ $colnames },  @{ $provcols };
     push @{ $colvalues }, @{ $provvals };
+
+    return( $colnames, $colvalues );
+}
+
+sub _process_sample {
+
+    my ( $self, $obj ) = @_;
+
+    return $self->_process_material( $obj, 'Sample Name' );
+}
+
+sub _process_extract {
+
+    my ( $self, $obj ) = @_;
+
+    return $self->_process_material( $obj, 'Extract Name' );
+}
+
+sub _process_labeled_extract {
+
+    my ( $self, $obj ) = @_;
+
+    my ( $colnames, $colvalues ) = $self->_process_material( $obj, 'Labeled Extract Name' );
+
+    my ( $labcols, $labvals ) = $self->_process_controlled_term( $obj->get_label(), $obj );
+
+    push @{ $colnames },  @{ $labcols };
+    push @{ $colvalues }, @{ $labvals };
 
     return( $colnames, $colvalues );
 }
@@ -530,21 +622,19 @@ sub _columns_from_object {
     my %dispatch = (
 
         # Materials
-        'Source'              => sub { $self->_process_source( @_ ) },
-
-        # FIXME obviously these need changing:
-        'Sample'              => sub { 'Sample Name' },
-        'Extract'             => sub { 'Extract Name' },
-        'LabeledExtract'      => sub { 'Labeled Extract Name' },
+        'Source'              => sub { $self->_process_source( @_ )          },
+        'Sample'              => sub { $self->_process_sample( @_ )          },
+        'Extract'             => sub { $self->_process_extract( @_ )         },
+        'LabeledExtract'      => sub { $self->_process_labeled_extract( @_ ) },
 
         # Events
-        'Assay'               => sub { $self->_process_assay( @_ )         },
-        'DataAcquisition'     => sub { $self->_process_scan( @_ )          },
-        'Normalization'       => sub { $self->_process_normalization( @_ ) },
+        'Assay'               => sub { $self->_process_assay( @_ )           },
+        'DataAcquisition'     => sub { $self->_process_scan( @_ )            },
+        'Normalization'       => sub { $self->_process_normalization( @_ )   },
 
         # Data
-        'DataFile'            => sub { $self->_process_datafile( @_ )      },
-        'DataMatrix'          => sub { $self->_process_datamatrix( @_ )    },
+        'DataFile'            => sub { $self->_process_datafile( @_ )        },
+        'DataMatrix'          => sub { $self->_process_datamatrix( @_ )      },
 
 #        'ProtocolApplication' => sub { 'Protocol REF' },
 #        'FactorValue' => whatever.
