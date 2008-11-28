@@ -41,6 +41,7 @@ dies_ok( sub { Bio::MAGETAB::BaseClass->new() }, 'abstract class cannot be insta
 my @expected = qw(
     get_ClassContainer
     set_ClassContainer
+    has_ClassContainer
 );
 
 test_methods( 'Bio::MAGETAB::BaseClass', \@expected );

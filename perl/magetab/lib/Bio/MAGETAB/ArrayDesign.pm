@@ -97,4 +97,102 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::ArrayDesign - MAGE-TAB array design class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::ArrayDesign;
+
+=head1 DESCRIPTION
+
+This class is used to store information about array designs in
+MAGE-TAB. This class can represent information from an ADF, or a
+reference to an array design in a database. See
+L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the array design (data type: String).
+
+=item version (optional)
+
+The version of the array design (data type: String).
+
+=item uri (optional)
+
+A URI for the array design (data type: Uri).
+
+=item provider (optional)
+
+The provider (typically the manufacturer) of the array design (data
+type: String).
+
+=item technologyType (optional)
+
+The technology type of the array (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item surfaceType (optional)
+
+The surface type of the array (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item substrateType (optional)
+
+The substrate type of the array (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item printingProtocol (optional)
+
+The protocol used for printing the array (data type: String).
+
+=item sequencePolymerType (optional)
+
+The sequence polymer type of the array (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item designElements (optional)
+
+A list of array design elements (Features, Reporters and
+CompositeElements) describing the array (data type:
+Bio::MAGETAB::DesignElement).
+
+=item comments (optional)
+
+A list of user-defined comments for the array design (data type:
+Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DatabaseEntry>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

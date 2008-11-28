@@ -38,4 +38,63 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Assay - MAGE-TAB assay class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Assay;
+
+=head1 DESCRIPTION
+
+This class is used to store information about assays in MAGE-TAB. This
+is a generic class which can represent any assay type, specified via
+its technologyType attribute. Assays which specifically represent
+hybridization events should use a 'hybridization' ControlledTerm as
+their technologyType and should also link to an ArrayDesign. See
+L<Bio::MAGETAB::Event> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item technologyType (required)
+
+The type of assay that was performed (hybridization, rtPCR, etc.; data
+type: Bio::MAGETAB::ControlledTerm).
+
+=item arrayDesign (optional)
+
+The array design associated with the assay. Typically this will only
+be used for hybridization Assays (data type:
+Bio::MAGETAB::ArrayDesign)
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Event>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

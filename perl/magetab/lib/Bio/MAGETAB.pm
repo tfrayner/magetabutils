@@ -106,6 +106,7 @@ foreach my $module ( @{ $magetab_modules } ) {
     $slot =~ s/^${namespace}:://;
     $slot = $irregular_plural{$slot} || "${slot}s";
     $slot = lcfirst($slot);
+    $slot =~ s/^SDRF/sdrf/i;
 
     {
         no strict qw(refs);
@@ -221,27 +222,441 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
 =head1 NAME
 
 Bio::MAGETAB - A data model and supporting classes for the MAGE-TAB format.
 
 =head1 SYNOPSIS
 
+ # Use case 1: using Bio::MAGETAB simply to import all of the MAGE-TAB
+ # classes:
+ 
  use Bio::MAGETAB;
- my $sample = Bio::MAGETAB::Sample->new(name => 'Sample 1');
+ my $sample = Bio::MAGETAB::Sample->new( name => 'Sample 1' );
+
+ # Use case 2: a Bio::MAGETAB object as a container for MAGE-TAB objects:
+ 
+ use Bio::MAGETAB;
+ 
+ # Instantiation automatically installs the new object as the default
+ # container for objects subsequently instantiated from all classes
+ # derived from Bio::MAGETAB::BaseClass.
+ my $container = Bio::MAGETAB->new();
+ 
+ # Create some samples.
+ for ( 1 .. 4 ) {
+    Bio::MAGETAB::Sample->new( name => "Sample $_" );
+ }
+ 
+ # Retrieve all the Samples created so far.
+ $container->get_samples();
 
 =head1 DESCRIPTION
 
-This is the core set of classes used to support the Bio::MAGETAB
-API. On its own this module is not terribly exciting, because all it
-does is provide a set of data structures and type constraints which
-help to reliably handle data in MAGE-TAB format. See the
-L<Bio::MAGETAB::Util> module for classes which can be used to read,
-write and visualize MAGE-TAB data.
+The Bio::MAGETAB module provides the core set of classes used to
+support the perl MAGE-TAB API. This module provides a set of data
+structures and type constraints which help to reliably handle data in
+MAGE-TAB format. See the L<Bio::MAGETAB::Util> module for classes
+which can be used to read, write and visualize MAGE-TAB data.
+
+This top-level Bio::MAGETAB class provides convenience methods for
+managing MAGE-TAB objects. It can be used to import the class
+namespaces needed for all the MAGE-TAB classes, but more usefully it
+can also be used to create container objects which automatically track
+object creation.
+
+=head1 METHODS
+
+=head2 Generic methods
+
+=over 2
+
+=item new
+
+Instantiate a new container object. This method writes its result to a
+Bio::MAGETAB::BaseClass class variable such that the new container
+will automatically receive all subsequently instantiated MAGE-TAB
+objects.
+
+=item add_objects( @objects )
+
+Add the passed objects to the Bio::MAGETAB container object. The
+objects are sorted by class behind the scenes. Note that this method
+is typically invoked for you upon instantiation of MAGE-TAB objects;
+it is only needed in cases where you are using multiple Bio::MAGETAB
+container classes.
+
+=item delete_objects( @objects )
+
+Delete the passed MAGE-TAB object from the container.
+
+=item get_objects( $class )
+
+Return all the remaining MAGE-TAB objects of the specified
+class. Usually you will want one of the class-specific accessors
+listed below which wrap this method, but C<get_objects> can be used as
+a simple way of dynamically accessing the objects of multiple classes.
+
+=back
+
+=head2 Class-specific methods
+
+Each MAGE-TAB class has its own predicate (has_*) and accessor (get_*)
+method. Note that the C<has_baseClasses> and C<get_baseClasses>
+methods can be used to query all MAGE-TAB objects held by the
+container.
+
+=over 2
+
+=item has_arrayDesigns
+
+Returns true if the container holds any ArrayDesign objects, and false
+otherwise.
+
+=item get_arrayDesigns
+
+Returns all the ArrayDesign objects held by the container.
+
+=item has_assays
+
+Returns true if the container holds any Assay objects, and false
+otherwise.
+
+=item get_assays
+
+Returns all the Assay objects held by the container.
+
+=item has_baseClasses
+
+Returns true if the container holds any BaseClass objects, and false
+otherwise.
+
+=item get_baseClasses
+
+Returns all the BaseClass objects held by the container.
+
+=item has_comments
+
+Returns true if the container holds any Comment objects, and false
+otherwise.
+
+=item get_comments
+
+Returns all the Comment objects held by the container.
+
+=item has_compositeElements
+
+Returns true if the container holds any CompositeElement objects, and false
+otherwise.
+
+=item get_compositeElements
+
+Returns all the CompositeElement objects held by the container.
+
+=item has_contacts
+
+Returns true if the container holds any Contact objects, and false
+otherwise.
+
+=item get_contacts
+
+Returns all the Contact objects held by the container.
+
+=item has_controlledTerms
+
+Returns true if the container holds any ControlledTerm objects, and false
+otherwise.
+
+=item get_controlledTerms
+
+Returns all the ControlledTerm objects held by the container.
+
+=item has_data
+
+Returns true if the container holds any Data objects, and false
+otherwise.
+
+=item get_data
+
+Returns all the Data objects held by the container.
+
+=item has_dataAcquisitions
+
+Returns true if the container holds any DataAcquisition objects, and false
+otherwise.
+
+=item get_dataAcquisitions
+
+Returns all the DataAcquisition objects held by the container.
+
+=item has_dataFiles
+
+Returns true if the container holds any DataFile objects, and false
+otherwise.
+
+=item get_dataFiles
+
+Returns all the DataFile objects held by the container.
+
+=item has_dataMatrices
+
+Returns true if the container holds any DataMatrix objects, and false
+otherwise.
+
+=item get_dataMatrices
+
+Returns all the DataMatrix objects held by the container.
+
+=item has_databaseEntries
+
+Returns true if the container holds any DatabaseEntry objects, and false
+otherwise.
+
+=item get_databaseEntries
+
+Returns all the DatabaseEntry objects held by the container.
+
+=item has_designElements
+
+Returns true if the container holds any DesignElement objects, and false
+otherwise.
+
+=item get_designElements
+
+Returns all the DesignElement objects held by the container.
+
+=item has_edges
+
+Returns true if the container holds any Edge objects, and false
+otherwise.
+
+=item get_edges
+
+Returns all the Edge objects held by the container.
+
+=item has_events
+
+Returns true if the container holds any Event objects, and false
+otherwise.
+
+=item get_events
+
+Returns all the Event objects held by the container.
+
+=item has_extracts
+
+Returns true if the container holds any Extract objects, and false
+otherwise.
+
+=item get_extracts
+
+Returns all the Extract objects held by the container.
+
+=item has_factors
+
+Returns true if the container holds any Factor objects, and false
+otherwise.
+
+=item get_factors
+
+Returns all the Factor objects held by the container.
+
+=item has_factorValues
+
+Returns true if the container holds any FactorValue objects, and false
+otherwise.
+
+=item get_factorValues
+
+Returns all the FactorValue objects held by the container.
+
+=item has_features
+
+Returns true if the container holds any Feature objects, and false
+otherwise.
+
+=item get_features
+
+Returns all the Feature objects held by the container.
+
+=item has_investigations
+
+Returns true if the container holds any Investigation objects, and false
+otherwise.
+
+=item get_investigations
+
+Returns all the Investigation objects held by the container.
+
+=item has_labeledExtracts
+
+Returns true if the container holds any LabeledExtract objects, and false
+otherwise.
+
+=item get_labeledExtracts
+
+Returns all the LabeledExtract objects held by the container.
+
+=item has_materials
+
+Returns true if the container holds any Material objects, and false
+otherwise.
+
+=item get_materials
+
+Returns all the Material objects held by the container.
+
+=item has_matrixColumns
+
+Returns true if the container holds any MatrixColumn objects, and false
+otherwise.
+
+=item get_matrixColumns
+
+Returns all the MatrixColumn objects held by the container.
+
+=item has_matrixRows
+
+Returns true if the container holds any MatrixRow objects, and false
+otherwise.
+
+=item get_matrixRows
+
+Returns all the MatrixRow objects held by the container.
+
+=item has_measurements
+
+Returns true if the container holds any Measurement objects, and false
+otherwise.
+
+=item get_measurements
+
+Returns all the Measurement objects held by the container.
+
+=item has_nodes
+
+Returns true if the container holds any Node objects, and false
+otherwise.
+
+=item get_nodes
+
+Returns all the Node objects held by the container.
+
+=item has_normalizations
+
+Returns true if the container holds any Normalization objects, and false
+otherwise.
+
+=item get_normalizations
+
+Returns all the Normalization objects held by the container.
+
+=item has_parameterValues
+
+Returns true if the container holds any ParameterValue objects, and false
+otherwise.
+
+=item get_parameterValues
+
+Returns all the ParameterValue objects held by the container.
+
+=item has_protocols
+
+Returns true if the container holds any Protocol objects, and false
+otherwise.
+
+=item get_protocols
+
+Returns all the Protocol objects held by the container.
+
+=item has_protocolApplications
+
+Returns true if the container holds any ProtocolApplication objects, and false
+otherwise.
+
+=item get_protocolApplications
+
+Returns all the ProtocolApplication objects held by the container.
+
+=item has_protocolParameters
+
+Returns true if the container holds any ProtocolParameter objects, and false
+otherwise.
+
+=item get_protocolParameters
+
+Returns all the ProtocolParameter objects held by the container.
+
+=item has_publications
+
+Returns true if the container holds any Publication objects, and false
+otherwise.
+
+=item get_publications
+
+Returns all the Publication objects held by the container.
+
+=item has_reporters
+
+Returns true if the container holds any Reporter objects, and false
+otherwise.
+
+=item get_reporters
+
+Returns all the Reporter objects held by the container.
+
+=item has_sdrfs
+
+Returns true if the container holds any SDRF objects, and false
+otherwise.
+
+=item get_sdrfs
+
+Returns all the SDRF objects held by the container.
+
+=item has_sdrfRows
+
+Returns true if the container holds any SDRFRow objects, and false
+otherwise.
+
+=item get_sdrfRows
+
+Returns all the SDRFRow objects held by the container.
+
+=item has_samples
+
+Returns true if the container holds any Sample objects, and false
+otherwise.
+
+=item get_samples
+
+Returns all the Sample objects held by the container.
+
+=item has_sources
+
+Returns true if the container holds any Source objects, and false
+otherwise.
+
+=item get_sources
+
+Returns all the Source objects held by the container.
+
+=item has_termSources
+
+Returns true if the container holds any TermSource objects, and false
+otherwise.
+
+=item get_termSources
+
+Returns all the TermSource objects held by the container.
+
+=back
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util>, L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util>, L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::BaseClass>
 
 =head1 AUTHOR
 

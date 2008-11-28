@@ -78,6 +78,15 @@ sub BUILD {
 
         return $container;
     }
+
+    sub has_ClassContainer {
+
+        my ( $self ) = @_;
+
+        return 1 if defined( $container );
+
+        return;
+    }
 }
 
 # Make the classes immutable. In theory this speeds up object
@@ -85,5 +94,83 @@ sub BUILD {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::BaseClass - Abstract base class for all MAGE-TAB classes.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::BaseClass;
+
+=head1 DESCRIPTION
+
+This class is the abstract base class from which all of the MAGE-TAB
+classes are derived. It cannot be instantiated directly, but provides
+methods and attributes common to all MAGE-TAB objects.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item namespace (optional)
+
+The namespace associated with any object identifiers (data type:
+String).
+
+=item authority (optional)
+
+The authority responsible for assignment of object identifiers
+(data type: String).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+Methods not related to instantiated object attributes are listed below:
+
+=over 2
+
+=item set_ClassContainer
+
+Class method which stores a Bio::MAGETAB container object which will
+then be used to store all subsequent instances of any
+Bio::MAGETAB::BaseClass derived class (i.e., any MAGE-TAB object).
+
+=item get_ClassContainer
+
+Class method which retrieves the Bio::MAGETAB container object. This
+can be used to navigate from a MAGE-TAB object instance to a listing
+of all MAGE-TAB objects of a given type.
+
+=item has_ClassContainer
+
+Class method indicating whether or not a Bio::MAGETAB container object
+has been associated with this class.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

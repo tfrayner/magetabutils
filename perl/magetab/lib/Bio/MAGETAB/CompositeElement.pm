@@ -46,4 +46,64 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::CompositeElement - MAGE-TAB composite element class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::CompositeElement;
+
+=head1 DESCRIPTION
+
+This class is used to store information on composite elements in
+MAGE-TAB. These elements typically correspond to biologically relevant
+sequences or features (e.g., genes, exons, etc.). See
+L<Bio::MAGETAB::DesignElement> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the composite element (data type: String).
+
+=item databaseEntries (optional)
+
+A list of database entries for the composite element (data type:
+Bio::MAGETAB::DatabaseEntry).
+
+=item comments (optional)
+
+A list of user-defined comments for the element (data type:
+Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DesignElement>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
