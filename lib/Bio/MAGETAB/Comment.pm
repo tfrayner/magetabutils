@@ -36,4 +36,60 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Comment - MAGE-TAB user-defined comment class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Comment;
+
+=head1 DESCRIPTION
+
+This class is used to store user-defined comments in MAGE-TAB. The
+MAGE-TAB specification indicates that these comments may be legally
+ignored by downstream data processing operations, and so therefore
+should not be used for experimental annotation purposes. See
+L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the comment, used to indicate the context in which the
+value may be interpreted (data type: String).
+
+=item value (required)
+
+The actual value of the comment (data type: String)
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

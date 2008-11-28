@@ -87,4 +87,60 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Types - custom data types for Bio::MAGETAB
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Types qw( Date Email Uri );
+
+=head1 DESCRIPTION
+
+This class provides definitions and coercion methods for Bio::MAGETAB
+data types not included as part of Moose. It is not intended to be
+used directly, but is instead called by many of the individual
+MAGE-TAB classes.
+
+=head1 TYPES
+
+=over 2
+
+=item Date
+
+Dates are stored and retrieved as DateTime objects. Constructors and
+mutators can be passed either a DateTime object, a hashref suitable
+for passing to DateTime->new(), or a string date representation. In
+the latter case this class attempts to parse the string into a
+DateTime object using the Date::Manip module.
+
+=item Email
+
+Email addresses are stored as strings, but are validated using the
+Email::Valid module.
+
+=item Uri
+
+All URI strings are stored and retrieved as instances of the standard
+perl URI class.
+
+=back
+
+=head1 SEE ALSO
+
+L<DateTime>, L<Date::Manip>, L<Email::Valid>, L<URI>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
