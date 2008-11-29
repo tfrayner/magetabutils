@@ -32,4 +32,54 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::DataFile - MAGE-TAB data file class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::DataFile;
+
+=head1 DESCRIPTION
+
+This class describes data files having arbitrary formats. Most
+software-specific data files fall into this category. The sole
+exception are data matrices; see L<Bio::MAGETAB::DataMatrix>. See
+L<Bio::MAGETAB::Data> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item format (required)
+
+The format of the data file (data type: Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Data>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

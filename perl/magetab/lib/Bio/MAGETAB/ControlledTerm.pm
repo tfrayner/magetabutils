@@ -36,4 +36,59 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::ControlledTerm - MAGE-TAB controlled term class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::ControlledTerm;
+
+=head1 DESCRIPTION
+
+This class is used to store information on controlled terms in
+MAGE-TAB. These will often (but not always) be terms from an ontology,
+in which case the source of these terms should also be given via the
+parent class DatabaseEntry attributes. See
+L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item category (required)
+
+A category to provide context for the term (data type: String).
+
+=item value (required)
+
+The term value itself (data type: String).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DatabaseEntry>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
