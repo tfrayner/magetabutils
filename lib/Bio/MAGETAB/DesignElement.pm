@@ -36,6 +36,9 @@ sub BUILD {
     return;
 }
 
+# FIXME these probably don't belong in this superclass; consider
+# moving them to e.g. Reporter, or even their own 'Coordinate'
+# subclass.
 has 'chromosome'          => ( is         => 'rw',
                                isa        => 'Str',
                                clearer    => 'clear_chromosome',
@@ -57,5 +60,69 @@ has 'endPosition'         => ( is         => 'rw',
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::DesignElement - Abstract design element class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::DesignElement;
+
+=head1 DESCRIPTION
+
+This class is an abstract class from which all MAGE-TAB DesignElement
+classes (Feature, Reporter, CompositeElement) are derived. It cannot
+be instantiated directly. See L<Bio::MAGETAB::BaseClass> for
+superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item chromosome (optional)
+
+The chromosome from which the design element is derived. This is
+primarily used in either the Reporter or CompositeElement subclass to
+support coordinate-based design elements in data matrices. It is
+possible that these attributes will be moved to a more suitable
+subclass in subsequent model versions (data type: String).
+
+=item startPosition (optional)
+
+The start coordinate of the design element on the given chromosome (data
+type: Integer).
+
+=item endPosition (optional)
+
+The end coordinate of the design element on the given chromosome (data
+type: Integer).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

@@ -90,4 +90,92 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Contact - MAGE-TAB contact class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Contact;
+
+=head1 DESCRIPTION
+
+This class is used to store information on contacts (i.e., the people
+responsible for the experiment) in MAGE-TAB. See
+L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item lastName (required)
+
+The contact's family name (data type: String).
+
+=item firstName (optional)
+
+The contact's given name (data type: String).
+
+=item midInitials (optional)
+
+The contact's middle initials (data type: String).
+
+=item email (optional)
+
+The contact's email address (data type: Email).
+
+=item organization (optional)
+
+The organization to which the contact is affiliated (data type:
+String).
+
+=item phone (optional)
+
+The contact's telephone number (data type: String).
+
+=item fax (optional)
+
+The contact's FAX number (data type: String).
+
+=item address (optional)
+
+The street address for this contact (data type: String).
+
+=item roles (optional)
+
+A list of roles which this contact fulfills (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item comments (optional)
+
+A list of user-defined comments for the contact (data type:
+Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

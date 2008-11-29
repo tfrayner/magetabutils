@@ -28,4 +28,43 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::DataAquisition - MAGE-TAB data acquisition class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::DataAquisition;
+
+=head1 DESCRIPTION
+
+This class represents events which generate data files, such as the
+scanning of a hybridized microarray slide. See L<Bio::MAGETAB::Event>
+for superclass methods.
+
+=head1 ATTRIBUTES
+
+No class-specific attributes. See L<Bio::MAGETAB::Event>.
+
+=head1 METHODS
+
+No class-specific methods. See L<Bio::MAGETAB::Event>.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Event>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

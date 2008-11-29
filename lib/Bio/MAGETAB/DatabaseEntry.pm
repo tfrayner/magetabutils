@@ -40,4 +40,61 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::DatabaseEntry - MAGE-TAB database entry class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::DatabaseEntry;
+
+=head1 DESCRIPTION
+
+This class is used to store MAGE-TAB database entry information. These
+entries can be from sequence databases (e.g. as attached to
+Reporters), ontologies (when using the ControlledTerm subclass), or
+databases which hold higher-level metadata (e.g. ArrayDesigns,
+Protocols). See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item accession (optional)
+
+The accession number for the database entry (data type: String).
+
+=item termSource (optional)
+
+The TermSource (e.g., database or ontology) which defines the entry,
+and which recognises the given accession (data type:
+Bio::MAGETAB::TermSource).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
