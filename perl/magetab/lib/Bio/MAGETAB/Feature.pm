@@ -48,4 +48,72 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Feature - MAGE-TAB feature class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Feature;
+
+=head1 DESCRIPTION
+
+This class is used to store information on array features in
+MAGE-TAB. These elements will correspond to the individual spots on
+the array. See L<Bio::MAGETAB::DesignElement> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item blockColumn (required)
+
+The block column number of the feature (data type: Integer).
+
+=item blockRow (required)
+
+The block row number of the feature (data type: Integer).
+
+=item column (required)
+
+The number of the feature's column within the enclosing block (data
+type: Integer).
+
+=item row (required)
+
+The number of the feature's row within the enclosing block (data
+type: Integer).
+
+=item reporter (required)
+
+The reporter with which this feature is associated (data type:
+Bio::MAGETAB::Reporter).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DesignElement>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
