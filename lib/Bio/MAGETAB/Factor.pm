@@ -38,4 +38,59 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Factor - MAGE-TAB experimental factor class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Factor;
+
+=head1 DESCRIPTION
+
+This class is used to store information on the factors being probed by
+a given investigation in MAGE-TAB. See L<Bio::MAGETAB::BaseClass> for
+superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the factor (data type: String).
+
+=item type (optional)
+
+The type of the factor. This typically links to an ontology of
+experimental factor terms (e.g. "disease_state", "strain_or_line"
+etc.; data type: Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

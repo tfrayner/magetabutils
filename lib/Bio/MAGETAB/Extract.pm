@@ -28,4 +28,43 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Extract - MAGE-TAB extract class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Extract;
+
+=head1 DESCRIPTION
+
+This class is used to store information on biological extracts (e.g.,
+RNA, DNA) in MAGE-TAB. L<Bio::MAGETAB::Material> for superclass
+methods.
+
+=head1 ATTRIBUTES
+
+No class-specific attributes. See L<Bio::MAGETAB::Material>.
+
+=head1 METHODS
+
+No class-specific methods. See L<Bio::MAGETAB::Material>.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Material>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

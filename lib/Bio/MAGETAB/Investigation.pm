@@ -131,4 +131,122 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Investigation - MAGE-TAB investigation class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Investigation;
+
+=head1 DESCRIPTION
+
+This class is used to store top-level information on the investigation
+in MAGE-TAB. This class also acts as a container for the information
+in an IDF file. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item title (required)
+
+The title of the investigation (data type: String).
+
+=item description (optional)
+
+A free-text description of the investigation (data type: String).
+
+=item date (optional)
+
+The date on which the investigation was performed (data type: Date).
+
+=item publicReleaseDate (optional)
+
+The date on which the experimental data was, or will be, publicly
+released (data type: Date).
+
+=item contacts (optional)
+
+A list of contacts for the investigation (data type:
+Bio::MAGETAB::Contact).
+
+=item factors (optional)
+
+A list of experimental factors (variables) studied during the
+investigation (data type: Bio::MAGETAB::Factor).
+
+=item sdrfs (optional)
+
+A list of SDRFs associated with the investigation (data type:
+Bio::MAGETAB::SDRF).
+
+=item protocols (optional)
+
+A list of experimental protocols used in the investigation (data type:
+Bio::MAGETAB::Protocol)
+
+=item publications (optional)
+
+A list of publications related to the investigation (data type:
+Bio::MAGETAB::Publication).
+
+=item termSources (optional)
+
+A list of term sources (usually databases and/or ontologies) used to
+annotate the investigation (data type: Bio::MAGETAB::TermSource).
+
+=item designTypes (optional)
+
+A list of experiment design types, typically taken from a suitable
+ontology (data type: Bio::MAGETAB::ControlledTerm).
+
+=item normalizationTypes (optional)
+
+A list of experiment data normalization types (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item replicateTypes (optional)
+
+A list of replicate types for the experiment (typically specifying
+technical and/or biological replicates; date type:
+Bio::MAGETAB::ControlledTerm).
+
+=item qualityControlTypes (optional)
+
+A list of quality control terms describing the experiment (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item comments (optional)
+
+A list of user-defined comments attached to the investigation (data
+type: Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

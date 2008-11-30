@@ -44,4 +44,66 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::FactorValue - MAGE-TAB experimental factor class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::FactorValue;
+
+=head1 DESCRIPTION
+
+This class is used to store the values of the factors investigated by
+the experiment. This class links the Factor objects to Measurements or
+ControlledTerms describing the variables applying to each line of the
+SDRF. Either the measurement or term attribute should be used, but not
+both. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item measurement (optional)
+
+A measurement of the given Factor variable (data type:
+Bio::MAGETAB::Measurement).
+
+=item term (optional)
+
+A controlled term giving the value of the Factor (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item factor (required)
+
+The Factor to which this particular factor value applies (data type:
+Bio::MAGETAB::Factor).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
