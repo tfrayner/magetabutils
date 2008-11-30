@@ -65,4 +65,83 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Reporter - MAGE-TAB reporter class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Reporter;
+
+=head1 DESCRIPTION
+
+This class is used to store information on array reporter elements in
+MAGE-TAB. These elements typically correspond to probe sequences, or
+in simple cases they may map directly to biologically interesting
+sequences (e.g., genes). See L<Bio::MAGETAB::DesignElement> for
+superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the reporter (data type: String).
+
+=item sequence (optional)
+
+The actual reporter sequence (usually DNA; data type: String).
+
+=item compositeElements (optional)
+
+A list of CompositeElements composed wholly or in part of this
+reporter (data type: Bio::MAGETAB::CompositeElement).
+
+=item databaseEntries (optional)
+
+A list of database entries for the reporter sequence (data type:
+Bio::MAGETAB::DatabaseEntry).
+
+=item controlType (optional)
+
+Where the reporter describes a control probe, this attribute should be
+used to give its type (e.g., 'control_buffer'; data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item groups (optional)
+
+A list of arbitrary groups to which the reporter belongs. Typically
+these groups may describe which probes are experimental and which are
+controls; another use might be to indicate the source species of a
+probe on a multi-species array design (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DesignElement>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
