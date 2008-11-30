@@ -35,4 +35,55 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Source - MAGE-TAB source class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Source;
+
+=head1 DESCRIPTION
+
+This class is used to store information on the starting biological
+material for a given experiment ('source'). These nodes typically form
+the starting point for the experimental design
+graph. L<Bio::MAGETAB::Material> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item providers (optional)
+
+A list of names of providers of the source material (data type:
+String).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Material>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
