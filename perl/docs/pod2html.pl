@@ -32,6 +32,42 @@ use File::Find;
 use File::Path;
 use Cwd;
 
+sub transcode {
+
+    my ( $in ) = @_;
+
+    my $out = '';
+    my $i;
+    for ( $i = 0; $i < length( $in ); $i++ ) {
+        $out .= "&#" . ord(substr($in, $i, 1)) .";";
+    }
+
+    return $out;
+}
+
+sub mangle_email {
+
+    my ( $html ) = @_;
+
+    open( my $fh, '<', $html )
+        or die("Error opening HTML file: $!\n");
+
+    my @lines = <$fh>;
+    close( $fh ) or die($!);
+
+    open( my $out, '>', $html )
+        or die("Error opening HTML file: $!\n");
+    foreach my $line ( @lines ) {
+
+        # Very simplistic email detection.
+        if ( my ( $email ) = ( $line =~ m/ \b ( \w+ \@ [\w\.-]+ ) \b /xms ) ) {
+            my $mangled = transcode( $email );
+            $line =~ s/$email/$mangled/g;
+        }
+        print $out $line;
+    }
+}
+
 my ( $topdir );
 
 GetOptions(
@@ -77,11 +113,13 @@ sub wanted {
         "--outfile=$htmldoc",
         "--css=/style.css",
         "--noindex",
-        "--htmldir=model",
+        "--htmlroot=/model",
 #        "--podroot=model",
     );
 
     system("tidy -m $htmldoc > /dev/null 2>&1");
+
+    mangle_email( $htmldoc );
 
     my ( $modvol, $moddir, $modname ) = File::Spec->splitpath( $modfile );
     $moddir  =~ s/ [\/\\] \z//xms;
@@ -92,9 +130,9 @@ sub wanted {
 
 find( \&wanted, $libdir );
 
-my $idx_file = File::Spec->catfile( $cwd, 'model', 'index.html' );
+my $idx_file = File::Spec->catfile( $cwd, 'index.html' );
 printf ( "Creating %s\n", $idx_file );
-open( my $index, '>', $idx_file ) or die($!);
+open( my $index, '>', $idx_file ) or die("Problems opening index file: $!\n");
 
 print $index <<'HEADER';
 <?xml version="1.0"?>
