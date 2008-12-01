@@ -70,4 +70,78 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Material - Abstract material class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Material;
+
+=head1 DESCRIPTION
+
+This class is an abstract class from which all MAGE-TAB Material
+classes (Source, Sample, Extract, LabeledExtract) are derived. It
+cannot be instantiated directly. See L<Bio::MAGETAB::Node> for
+superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the material (data type: String).
+
+=item type (optional)
+
+The type of the material (e.g. 'whole_organism', 'organism_part',
+'RNA' etc.), usually from a suitable ontology (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item description (optional)
+
+A free-text description of the material. In general the use of this
+attribute is discouraged due to the difficulty of computationally
+parsing natural languages (data type: String).
+
+=item characteristics (optional)
+
+A list of characteristics of the material. These may describe any
+aspect of the material, and should ideally be taken from an
+appropriate ontology (data type: Bio::MAGETAB::ControlledTerm).
+
+=item measurements (optional)
+
+A list of measurements of the material. These may describe any
+measurable property of the material. Units are handled by the
+Measurement class (data type: Bio::MAGETAB::Measurement).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Node>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

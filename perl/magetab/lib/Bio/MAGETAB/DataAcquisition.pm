@@ -32,11 +32,11 @@ no Moose;
 
 =head1 NAME
 
-Bio::MAGETAB::DataAquisition - MAGE-TAB data acquisition class
+Bio::MAGETAB::DataAcquisition - MAGE-TAB data acquisition class
 
 =head1 SYNOPSIS
 
- use Bio::MAGETAB::DataAquisition;
+ use Bio::MAGETAB::DataAcquisition;
 
 =head1 DESCRIPTION
 
