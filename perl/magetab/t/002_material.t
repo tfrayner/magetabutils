@@ -49,6 +49,14 @@ my @expected = qw(
     set_description
     set_characteristics
     set_measurements
+    has_type
+    has_description
+    has_characteristics
+    has_measurements
+    clear_type
+    clear_description
+    clear_characteristics
+    clear_measurements
 );
 
 test_methods( 'Bio::MAGETAB::Material', \@expected );

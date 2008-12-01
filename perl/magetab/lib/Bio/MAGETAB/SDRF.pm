@@ -54,7 +54,7 @@ sub add_nodes {
     # applicable, but for now we ignore that use case.
 
     # First find all the starting nodes. These are the ones with no 
-    my @input_nodes = grep { ! scalar $_->get_inputEdges() } @$nodes;
+    my @input_nodes = grep { ! $_->has_inputEdges() } @$nodes;
 
     # Generate the rows from the appropriate lists of nodes. 
     foreach my $node ( @input_nodes ) {
