@@ -1,4 +1,6 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+0.91    Bio::MAGETAB-0.91.tar.gz        Added class documentation (POD).
+
 0.9	Bio::MAGETAB-0.9.tar.gz	        Initial public release; API almost finalised.
