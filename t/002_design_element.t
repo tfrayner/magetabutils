@@ -40,11 +40,17 @@ dies_ok( sub { Bio::MAGETAB::DesignElement->new() }, 'abstract class cannot be i
 # instantiation.
 my @expected = qw(
     get_chromosome
-    set_chromosome
     get_startPosition
-    set_startPosition
     get_endPosition
+    set_chromosome
+    set_startPosition
     set_endPosition
+    has_chromosome
+    has_startPosition
+    has_endPosition
+    clear_chromosome
+    clear_startPosition
+    clear_endPosition
 );
 
 test_methods( 'Bio::MAGETAB::DesignElement', \@expected );

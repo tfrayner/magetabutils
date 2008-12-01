@@ -40,8 +40,16 @@ dies_ok( sub { Bio::MAGETAB::BaseClass->new() }, 'abstract class cannot be insta
 # instantiation.
 my @expected = qw(
     get_ClassContainer
+    get_authority
+    get_namespace
     set_ClassContainer
+    set_authority
+    set_namespace
     has_ClassContainer
+    has_authority
+    has_namespace
+    clear_authority
+    clear_namespace
 );
 
 test_methods( 'Bio::MAGETAB::BaseClass', \@expected );

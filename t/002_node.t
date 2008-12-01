@@ -42,9 +42,19 @@ my @expected = qw(
     get_inputEdges
     get_outputEdges
     get_comments
+    get_sdrfRows
     set_inputEdges
     set_outputEdges
     set_comments
+    set_sdrfRows
+    has_inputEdges
+    has_outputEdges
+    has_comments
+    has_sdrfRows
+    clear_inputEdges
+    clear_outputEdges
+    clear_comments
+    clear_sdrfRows
 );
 
 test_methods( 'Bio::MAGETAB::Node', \@expected );

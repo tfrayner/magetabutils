@@ -25,14 +25,17 @@ use Moose;
 use Carp;
 use Scalar::Util qw(weaken);
 
-# FIXME we need tests for these two.
 has 'authority'           => ( is         => 'rw',
                                isa        => 'Str',
+                               clearer    => 'clear_authority',
+                               predicate  => 'has_authority',
                                default    => q{},
                                required   => 1 );
 
 has 'namespace'           => ( is         => 'rw',
                                isa        => 'Str',
+                               clearer    => 'clear_namespace',
+                               predicate  => 'has_namespace',
                                default    => q{},
                                required   => 1 );
 
