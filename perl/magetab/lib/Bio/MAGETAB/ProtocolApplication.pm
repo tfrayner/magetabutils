@@ -62,4 +62,73 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::ProtocolApplication - MAGE-TAB protocol application class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::ProtocolApplication;
+
+=head1 DESCRIPTION
+
+This class is used to describe the actual application of experimental
+protocols in the MAGE-TAB SDRF. See L<Bio::MAGETAB::BaseClass> for
+superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item protocol (required)
+
+The protocol being applied (data type: Bio::MAGETAB::Protocol).
+
+=item parameterValues (optional)
+
+A list of parameter values used in this protocol application (data
+type: Bio::MAGETAB::ParameterValue).
+
+=item performers (optional)
+
+A list of people who performed the protocol application (data type:
+String).
+
+=item date (optional)
+
+The date on which the protocol application was performed (data type:
+Date).
+
+=item comments (optional)
+
+A list of user-defined comments on the protocol application (data
+type: Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

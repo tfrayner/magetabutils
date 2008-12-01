@@ -205,4 +205,70 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Node - Abstract node class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Node;
+
+=head1 DESCRIPTION
+
+This class is an abstract class from which all MAGE-TAB SDRF Node
+classes are derived. It cannot be instantiated directly. See
+L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item inputEdges (optional)
+
+A list of Edges leading into this node (data type:
+Bio::MAGETAB::Edge).
+
+=item outputEdges (optional)
+
+A list of Edges leading out of this node (data type:
+Bio::MAGETAB::Edge).
+
+=item comments (optional)
+
+A list of user-defined comments for the node (data type:
+Bio::MAGETAB::Comment).
+
+=item sdrfRows (optional)
+
+A list of SDRF rows to which this node belongs. This is used to link
+channel and factor information to each node in the graph (data type:
+Bio::MAGETAB::SDRFRow).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

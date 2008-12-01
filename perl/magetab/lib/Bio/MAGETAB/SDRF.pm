@@ -158,4 +158,71 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::SDRF - MAGE-TAB SDRF class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::SDRF;
+
+=head1 DESCRIPTION
+
+This class is used to describe the SDRFs used in a given
+investigation. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item uri (required)
+
+The URI specifying the location of the SDRF (data type: Uri).
+
+=item sdrfRows (optional)
+
+A list of SDRFRow objects which describe the row structure of the
+SDRF. In so doing, these SDRFRows link the SDRF nodes to their
+respective investigation, factor value and channel (data type:
+Bio::MAGETAB::SDRFRow).
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item add_nodes
+
+Passed an arrayref of Node objects, this method automatically sorts
+them into SDRFRow objects, which it then stores. Currently this method
+is not intelligent enough to sort Nodes into pre-existing SDRFRows, so
+it is recommended to use this method only once you have created all
+your Nodes (this may be fixed in a subsequent release).
+
+=back
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

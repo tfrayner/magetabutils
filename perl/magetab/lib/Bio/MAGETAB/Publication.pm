@@ -56,4 +56,72 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Publication - MAGE-TAB publication class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Publication;
+
+=head1 DESCRIPTION
+
+This class is used to describe the publications listed in a MAGE-TAB
+IDF file. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item title (required)
+
+The title of the publication (data type: String).
+
+=item authorList (optional)
+
+A simple listing of all the authors of the publication (data type:
+String).
+
+=item pubMedID (optional)
+
+The PubMed ID (where available) of the publication (data type:
+String).
+
+=item DOI (optional)
+
+The DOI (where available) of the publication (data type: String).
+
+=item status (optional)
+
+The status of the publication (e.g. 'submitted', 'in_press',
+'published'), usually taken from a suitable ontology (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

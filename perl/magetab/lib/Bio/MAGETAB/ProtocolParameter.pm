@@ -36,4 +36,58 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::ProtocolParameter - MAGE-TAB protocol parameter class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::ProtocolParameter;
+
+=head1 DESCRIPTION
+
+This class is used to describe the parameters which may be used with a
+given MAGE-TAB protocol. See L<Bio::MAGETAB::BaseClass> for superclass
+methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the parameter (data type: String).
+
+=item protocol (required)
+
+The protocol to which the parameter applies (data type:
+Bio::MAGETAB::Protocol).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

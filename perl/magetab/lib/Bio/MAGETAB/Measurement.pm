@@ -56,4 +56,77 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Measurement - MAGE-TAB measurement class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Measurement;
+
+=head1 DESCRIPTION
+
+This class is used to describe measurements in MAGE-TAB. It can
+describe individual values, or ranges of values, associated with an
+optional unit. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item type (required)
+
+The type of measurement (i.e., the quantity being measured). This is
+equivalent to the ControlledTerm 'category' attribute (data type:
+String).
+
+=item value (optional)
+
+A single value for the measurement. If a range of values is being
+described this attribute should be left unset, and minValue and
+maxValue used instead (data type: String).
+
+=item minValue (optional)
+
+The lower end of a range of values for the measurement. If a single
+value is being specified, just use 'value' instead (data type:
+String).
+
+=item maxValue (optional)
+
+The upper end of a range of values for the measurement. If a single
+value is being specified, just use 'value' instead (data type:
+String).
+
+=item unit (optional)
+
+The unit of the measurement (data type: Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
