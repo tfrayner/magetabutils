@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
+<title>Bio::MAGETAB::SDRFRow - MAGE-TAB SDRF row class</title>
+<link rel="stylesheet" href="/style.css" type="text/css" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<link rev="made" href=
+"mailto:tfr23@cruiser.private.cimr.cam.ac.uk" />
+</head>
+<body>
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#attributes">ATTRIBUTES</a></li>
+        <li><a href="#methods">METHODS</a></li>
+        <li><a href="#see_also">SEE ALSO</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#license">LICENSE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+<hr />
+<h1><a name="name" id="name">NAME</a></h1>
+<p>Bio::MAGETAB::SDRFRow - MAGE-TAB SDRF row class</p>
+<hr />
+<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<pre>
+ use Bio::MAGETAB::SDRFRow;
+</pre>
+<hr />
+<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<p>This class is used to describe the rows in a given MAGE-TAB SDRF
+document. Links between Nodes, channel and FactorValue are handled
+by this class. See <a href="/model/Bio/MAGETAB/BaseClass.html">the
+Bio::MAGETAB::BaseClass manpage</a> for superclass methods, and
+<a href="/model/Bio/MAGETAB/SDRF.html">the Bio::MAGETAB::SDRF
+manpage</a> for its add_nodes method which can be used to
+automatically sort Nodes into SDRFRows.</p>
+<hr />
+<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<dl>
+<dt><strong><a name="item_nodes" id="item_nodes">nodes
+(required)</a></strong></dt>
+<dd>
+<p>A list of Node objects associated with this SDRF row (data type:
+Bio::MAGETAB::Node).</p>
+</dd>
+<dt><strong><a name="item_rownumber" id="item_rownumber">rowNumber
+(optional)</a></strong></dt>
+<dd>
+<p>The number of this row within the SDRF. Rows are assumed to be
+numbered from top to bottom, starting at one for the first data
+row; however this is not constrained by the model and you may use
+whatever local conventions you prefer (data type: Integer).</p>
+</dd>
+<dt><strong><a name="item_factorvalues" id=
+"item_factorvalues">factorValues (optional)</a></strong></dt>
+<dd>
+<p>A list of FactorValues associated with this row (data type:
+Bio::MAGETAB::FactorValue).</p>
+</dd>
+<dt><strong><a name="item_channel" id="item_channel">channel
+(optional)</a></strong></dt>
+<dd>
+<p>The channel used when labeling and scanning for this row (e.g.
+'Cy3', 'biotin', 'alexa_588'), usually taken from a suitable
+ontology (data type: Bio::MAGETAB::ControlledTerm).</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="methods" id="methods">METHODS</a></h1>
+<p>Each attribute has accessor (get_*) and mutator (set_*) methods,
+and also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor
+returns an array.</p>
+<hr />
+<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<p><a href="/model/Bio/MAGETAB/BaseClass.html">the
+Bio::MAGETAB::BaseClass manpage</a>, <a href=
+"/model/Bio/MAGETAB/SDRF.html">the Bio::MAGETAB::SDRF
+manpage</a></p>
+<hr />
+<h1><a name="author" id="author">AUTHOR</a></h1>
+<p>Tim F. Rayner &lt;<a href=
+"mailto:tfrayner@gmail.com">tfrayner@gmail.com</a>&gt;</p>
+<hr />
+<h1><a name="license" id="license">LICENSE</a></h1>
+<p>This library is released under version 2 of the GNU General
+Public License (GPL).</p>
+</body>
+</html>

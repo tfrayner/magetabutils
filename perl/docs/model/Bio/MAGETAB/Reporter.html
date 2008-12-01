@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
+<title>Bio::MAGETAB::Reporter - MAGE-TAB reporter class</title>
+<link rel="stylesheet" href="/style.css" type="text/css" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<link rev="made" href=
+"mailto:tfr23@cruiser.private.cimr.cam.ac.uk" />
+</head>
+<body>
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#attributes">ATTRIBUTES</a></li>
+        <li><a href="#methods">METHODS</a></li>
+        <li><a href="#see_also">SEE ALSO</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#license">LICENSE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+<hr />
+<h1><a name="name" id="name">NAME</a></h1>
+<p>Bio::MAGETAB::Reporter - MAGE-TAB reporter class</p>
+<hr />
+<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<pre>
+ use Bio::MAGETAB::Reporter;
+</pre>
+<hr />
+<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<p>This class is used to store information on array reporter
+elements in MAGE-TAB. These elements typically correspond to probe
+sequences, or in simple cases they may map directly to biologically
+interesting sequences (e.g., genes). See <a href=
+"/model/Bio/MAGETAB/DesignElement.html">the
+Bio::MAGETAB::DesignElement manpage</a> for superclass methods.</p>
+<hr />
+<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<dl>
+<dt><strong><a name="item_name" id="item_name">name
+(required)</a></strong></dt>
+<dd>
+<p>The name of the reporter (data type: String).</p>
+</dd>
+<dt><strong><a name="item_sequence" id="item_sequence">sequence
+(optional)</a></strong></dt>
+<dd>
+<p>The actual reporter sequence (usually DNA; data type:
+String).</p>
+</dd>
+<dt><strong><a name="item_compositeelements" id=
+"item_compositeelements">compositeElements
+(optional)</a></strong></dt>
+<dd>
+<p>A list of CompositeElements composed wholly or in part of this
+reporter (data type: Bio::MAGETAB::CompositeElement).</p>
+</dd>
+<dt><strong><a name="item_databaseentries" id=
+"item_databaseentries">databaseEntries (optional)</a></strong></dt>
+<dd>
+<p>A list of database entries for the reporter sequence (data type:
+Bio::MAGETAB::DatabaseEntry).</p>
+</dd>
+<dt><strong><a name="item_controltype" id=
+"item_controltype">controlType (optional)</a></strong></dt>
+<dd>
+<p>Where the reporter describes a control probe, this attribute
+should be used to give its type (e.g., 'control_buffer'; data type:
+Bio::MAGETAB::ControlledTerm).</p>
+</dd>
+<dt><strong><a name="item_groups" id="item_groups">groups
+(optional)</a></strong></dt>
+<dd>
+<p>A list of arbitrary groups to which the reporter belongs.
+Typically these groups may describe which probes are experimental
+and which are controls; another use might be to indicate the source
+species of a probe on a multi-species array design (data type:
+Bio::MAGETAB::ControlledTerm).</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="methods" id="methods">METHODS</a></h1>
+<p>Each attribute has accessor (get_*) and mutator (set_*) methods,
+and also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor
+returns an array.</p>
+<hr />
+<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<p><a href="/model/Bio/MAGETAB/DesignElement.html">the
+Bio::MAGETAB::DesignElement manpage</a></p>
+<hr />
+<h1><a name="author" id="author">AUTHOR</a></h1>
+<p>Tim F. Rayner &lt;<a href=
+"mailto:tfrayner@gmail.com">tfrayner@gmail.com</a>&gt;</p>
+<hr />
+<h1><a name="license" id="license">LICENSE</a></h1>
+<p>This library is released under version 2 of the GNU General
+Public License (GPL).</p>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
+<title>Bio::MAGETAB::Types - custom data types for
+Bio::MAGETAB</title>
+<link rel="stylesheet" href="/style.css" type="text/css" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<link rev="made" href=
+"mailto:tfr23@cruiser.private.cimr.cam.ac.uk" />
+</head>
+<body>
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#types">TYPES</a></li>
+        <li><a href="#see_also">SEE ALSO</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#license">LICENSE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+<hr />
+<h1><a name="name" id="name">NAME</a></h1>
+<p>Bio::MAGETAB::Types - custom data types for Bio::MAGETAB</p>
+<hr />
+<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<pre>
+ use Bio::MAGETAB::Types qw( Date Email Uri );
+</pre>
+<hr />
+<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<p>This class provides definitions and coercion methods for
+Bio::MAGETAB data types not included as part of Moose. It is not
+intended to be used directly, but is instead called by many of the
+individual MAGE-TAB classes.</p>
+<hr />
+<h1><a name="types" id="types">TYPES</a></h1>
+<dl>
+<dt><strong><a name="item_date" id=
+"item_date">Date</a></strong></dt>
+<dd>
+<p>Dates are stored and retrieved as DateTime objects. Constructors
+and mutators can be passed either a DateTime object, a hashref
+suitable for passing to DateTime-&gt;new(), or a string date
+representation. In the latter case this class attempts to parse the
+string into a DateTime object using the Date::Manip module.</p>
+</dd>
+<dt><strong><a name="item_email" id=
+"item_email">Email</a></strong></dt>
+<dd>
+<p>Email addresses are stored as strings, but are validated using
+the Email::Valid module.</p>
+</dd>
+<dt><strong><a name="item_uri" id="item_uri">Uri</a></strong></dt>
+<dd>
+<p>All URI strings are stored and retrieved as instances of the
+standard perl URI class.</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<p>DateTime, Date::Manip, Email::Valid, URI</p>
+<hr />
+<h1><a name="author" id="author">AUTHOR</a></h1>
+<p>Tim F. Rayner &lt;<a href=
+"mailto:tfrayner@gmail.com">tfrayner@gmail.com</a>&gt;</p>
+<hr />
+<h1><a name="license" id="license">LICENSE</a></h1>
+<p>This library is released under version 2 of the GNU General
+Public License (GPL).</p>
+</body>
+</html>

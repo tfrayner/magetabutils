@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
+<title>Bio::MAGETAB::MatrixColumn - MAGE-TAB matrix column
+class</title>
+<link rel="stylesheet" href="/style.css" type="text/css" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<link rev="made" href=
+"mailto:tfr23@cruiser.private.cimr.cam.ac.uk" />
+</head>
+<body>
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#attributes">ATTRIBUTES</a></li>
+        <li><a href="#methods">METHODS</a></li>
+        <li><a href="#see_also">SEE ALSO</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#license">LICENSE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+<hr />
+<h1><a name="name" id="name">NAME</a></h1>
+<p>Bio::MAGETAB::MatrixColumn - MAGE-TAB matrix column class</p>
+<hr />
+<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<pre>
+ use Bio::MAGETAB::MatrixColumn;
+</pre>
+<hr />
+<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<p>This class is used to describe the columns of a MAGE-TAB data
+matrix. It acts as a mapping between a numbered column in the
+matrix, the quantitation type of that column, and the SDRF node or
+nodes to which it applies. See <a href=
+"/model/Bio/MAGETAB/BaseClass.html">the Bio::MAGETAB::BaseClass
+manpage</a> for superclass methods.</p>
+<hr />
+<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<dl>
+<dt><strong><a name="item_columnnumber" id=
+"item_columnnumber">columnNumber (required)</a></strong></dt>
+<dd>
+<p>The number of the column in the data matrix. Columns are assumed
+to be numbered from left to right, starting at one for the first
+data column; however this is not constrained by the model and you
+may use whatever local conventions you prefer (data type:
+Integer).</p>
+</dd>
+<dt><strong><a name="item_quantitationtype" id=
+"item_quantitationtype">quantitationType
+(required)</a></strong></dt>
+<dd>
+<p>The quantitation type of the data contained in the column (data
+type: Bio::MAGETAB::ControlledTerm).</p>
+</dd>
+<dt><strong><a name="item_referencednodes" id=
+"item_referencednodes">referencedNodes (required)</a></strong></dt>
+<dd>
+<p>A list of Nodes from the SDRF to which the data in this column
+applies (data type: Bio::MAGETAB::Node).</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="methods" id="methods">METHODS</a></h1>
+<p>Each attribute has accessor (get_*) and mutator (set_*) methods,
+and also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor
+returns an array.</p>
+<hr />
+<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<p><a href="/model/Bio/MAGETAB/BaseClass.html">the
+Bio::MAGETAB::BaseClass manpage</a></p>
+<hr />
+<h1><a name="author" id="author">AUTHOR</a></h1>
+<p>Tim F. Rayner &lt;<a href=
+"mailto:tfrayner@gmail.com">tfrayner@gmail.com</a>&gt;</p>
+<hr />
+<h1><a name="license" id="license">LICENSE</a></h1>
+<p>This library is released under version 2 of the GNU General
+Public License (GPL).</p>
+</body>
+</html>

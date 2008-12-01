@@ -2,6 +2,7 @@ body {
     background-color: #ffffff;
     color:            #46494c;
     font-family:      "Trebuchet MS", "Lucida Sans Unicode", arial, helvetica, sans-serif;
+    padding-left:     1em;
 }
 
 .main {
