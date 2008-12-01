@@ -9,6 +9,12 @@ body {
     width: 50em;
 }
 
+.footer {
+    width: 50em;
+    padding-left: auto;
+    padding-right: auto;
+}
+
 h1 {
     text-align: center;
 }
