@@ -130,7 +130,7 @@ perl URI class.
 
 =head1 SEE ALSO
 
-L<DateTime>, L<Date::Manip>, L<Email::Valid>, L<URI>
+DateTime, Date::Manip, Email::Valid, URI
 
 =head1 AUTHOR
 
