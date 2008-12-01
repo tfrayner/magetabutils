@@ -122,4 +122,74 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::SDRFRow - MAGE-TAB SDRF row class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::SDRFRow;
+
+=head1 DESCRIPTION
+
+This class is used to describe the rows in a given MAGE-TAB SDRF
+document. Links between Nodes, channel and FactorValue are handled by
+this class. See L<Bio::MAGETAB::BaseClass> for superclass methods, and
+L<Bio::MAGETAB::SDRF> for its add_nodes method which can be used to
+automatically sort Nodes into SDRFRows.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item nodes (required)
+
+A list of Node objects associated with this SDRF row (data type:
+Bio::MAGETAB::Node).
+
+=item rowNumber (optional)
+
+The number of this row within the SDRF. Rows are assumed to be
+numbered from top to bottom, starting at one for the first data
+row; however this is not constrained by the model and you may use
+whatever local conventions you prefer (data type: Integer).
+
+=item factorValues (optional)
+
+A list of FactorValues associated with this row (data type:
+Bio::MAGETAB::FactorValue).
+
+=item channel (optional)
+
+The channel used when labeling and scanning for this row (e.g. 'Cy3',
+'biotin', 'alexa_588'), usually taken from a suitable ontology (data
+type: Bio::MAGETAB::ControlledTerm).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>, L<Bio::MAGETAB::SDRF>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

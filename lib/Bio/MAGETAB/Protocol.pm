@@ -62,4 +62,79 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::Protocol - MAGE-TAB protocol class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Protocol;
+
+=head1 DESCRIPTION
+
+This class is used to describe experimental protocols in MAGE-TAB. It
+can either contain all the information about a protocol itself, or it
+can link to a protocol entry in a suitable database via its
+superclass. See L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item name (required)
+
+The name of the protocol (data type: String).
+
+=item text (optional)
+
+A free-text description of the protocol, giving all the steps in the
+procedure (data type: String).
+
+=item software (optional)
+
+The software used in the protocol. Multiple softwares must be
+concatenated into a single value (data type: String).
+
+=item hardware (optional)
+
+The hardware used in the protocol. Multiple hardwares must be
+concatenated into a single value (data type: String).
+
+=item type (optional)
+
+The type of the protocol ('nucleic_acid_extraction','labeling' etc.;
+data type: Bio::MAGETAB::ControlledTerm).
+
+=item contact (optional)
+
+A contact for more information on the protocol. Multiple contacts must
+be concatenated into a single value (data type: String).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DatabaseEntry>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

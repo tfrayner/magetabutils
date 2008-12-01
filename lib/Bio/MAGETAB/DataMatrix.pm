@@ -82,7 +82,7 @@ primarily used to record whatever is claimed by the original data
 matrix file heading, which may be used to validate the matrixRow
 DesignElements subsequent to the parsing step. However, given that
 this is redundant information this attribute may be dropped in a later
-version of the model. (data type: String)
+version of the model (data type: String).
 
 =item matrixColumns (optional)
 
@@ -90,14 +90,14 @@ A list of MatrixColumn objects which map the columns of the data
 matrix to quantitation types and SDRF nodes. Note that this list may
 be unordered, and that the MatrixColumn objects themselves have a
 columnNumber attribute which defines column ordering (data type:
-Bio::MAGETAB::MatrixColumn)
+Bio::MAGETAB::MatrixColumn).
 
 =item matrixRows (optional)
 
 A list of MatrixRow objects which map the rows of the data matrix to
 design elements. Note that this list may be unordered, and that the
 MatrixRow objects themselves have a rowNumber attribute which defines
-row ordering (data type: Bio::MAGETAB::MatrixRow)
+row ordering (data type: Bio::MAGETAB::MatrixRow).
 
 =back
 

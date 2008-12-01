@@ -43,4 +43,66 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::ParameterValue - MAGE-TAB parameter value class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::ParameterValue;
+
+=head1 DESCRIPTION
+
+This class is used to describe the values of parameters within a
+MAGE-TAB SDRF document. Note that as of the v1.1 MAGE-TAB
+specification, parameter values can only be used with Measurements;
+subsequent releases may allow ControlledTerms to be used as an
+alternative. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item measurement (required)
+
+A measurement giving the actual value of the parameter (data type:
+Bio::MAGETAB::Measurement).
+
+=item parameter (required)
+
+The Parameter to which the value applies. This links the value back to
+the Protocol in question (data type: Bio::MAGETAB::ProtocolParameter).
+
+=item comments (optional)
+
+A list of user-defined comments for the parameter value (data type:
+Bio::MAGETAB::Comment).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

@@ -41,4 +41,68 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=pod
+
+=head1 NAME
+
+Bio::MAGETAB::MatrixColumn - MAGE-TAB matrix column class
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::MatrixColumn;
+
+=head1 DESCRIPTION
+
+This class is used to describe the columns of a MAGE-TAB data
+matrix. It acts as a mapping between a numbered column in the matrix,
+the quantitation type of that column, and the SDRF node or nodes to
+which it applies. See L<Bio::MAGETAB::BaseClass> for superclass
+methods.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item columnNumber (required)
+
+The number of the column in the data matrix. Columns are assumed to be
+numbered from left to right, starting at one for the first data
+column; however this is not constrained by the model and you may use
+whatever local conventions you prefer (data type: Integer).
+
+=item quantitationType (required)
+
+The quantitation type of the data contained in the column (data type:
+Bio::MAGETAB::ControlledTerm).
+
+=item referencedNodes (required)
+
+A list of Nodes from the SDRF to which the data in this column applies
+(data type: Bio::MAGETAB::Node).
+
+=back
+
+=head1 METHODS
+
+Each attribute has accessor (get_*) and mutator (set_*) methods, and
+also predicate (has_*) and clearer (clear_*) methods where the
+attribute is optional. Where an attribute represents a one-to-many
+relationship the mutator accepts an arrayref and the accessor returns
+an array.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::BaseClass>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
