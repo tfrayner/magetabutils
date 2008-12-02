@@ -1,29 +1,155 @@
 body {
-    background-color: #ffffff;
-    color:            #46494c;
-    font-family:      "Trebuchet MS", "Lucida Sans Unicode", arial, helvetica, sans-serif;
-    padding-left:     1em;
+  color: #666;
+  background-color: #fff;
+  font-family:  "Trebuchet MS", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif ;
+  font-size: 100%;
+  width: 47em;
+  margin: 10px 10px 10px 40px;
+  
 }
 
-.main {
-    width: 50em;
+body table { 
+  margin-top: 2em;
+  margin-bottom: 2em;
+  margin-left: -20px;
+
+  width: 100%;
 }
 
-.footer {
-    width: 50em;
-    padding-left: auto;
-    padding-right: auto;
+td.block {
+  border: 3px double;
+  background-color: #eee;
+  padding: 10px;
+}
+
+td.block font { 
+  font-size: x-large;
+  font-weight: bold;
+}
+
+p.block {
+  margin: 0;
+  text-align: left;
+}
+
+.signature { 
+  border-top: 1px solid;
+  text-align: right;
+}
+
+p { 
+  text-align: justify;
+}
+
+dt {
+  margin: 0.4em 0;
+  font-weight: bold;
+}
+
+dd {
+  margin-left: 1em;
+  text-align: justify;
+}
+
+
+ul, ol { 
+  margin: 0;
+  padding: 0;
+  margin-left: 0em;
+  padding-left: 1em;
+}
+
+li {
+  margin: 0;
+  margin-left: 1em;
+  text-align: justify;
+}
+
+tt {
+  color: #a00;
+  font-family: Courier, monospace;
+  /* font-size: 90%; */
+}
+
+code {
+  color: #a00;
+  font-family: Courier, monospace;
+  /* font-size: 90%; */
+}
+
+code a, a code {
+ color: #00a;
+ font-family: Courier, monospace;
+ text-decoration: underline;
+}
+
+pre {
+  margin: 3px 0;
+  border: 1px solid #aaa;
+  background-color: #eee;
+  padding: 3px;
+  color: #a00;
+  font-family: Courier, monospace;
+  font-size: 90%;
+}
+
+pre a, a pre {
+  color: #00a;
+  font-family: Courier, monospace;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family:  Verdana, Arial, Helvetica, sans-serif;
+  margin-left: -20px;
+  font-weight: medium;
+}
+
+hr { 
+  display: none;
 }
 
 h1 {
-    text-align: center;
+  margin-top: 1em;
+  padding: 3px 0;
+  border-top: 3px double;
+  border-bottom: 3px double;
+  font-size: x-large;
 }
 
-.text {
-    text-align: justify;
+h2 {
+  margin-top: 2em;
+  padding: 2px;
+  border-top: 1px solid;
+  border-bottom: 1px solid;
+  font-size: large;
 }
 
-.footer {
-    text-align: center;
+h3 {
+  font-size: large;
+  font-weight: normal;
+  font-style: italic;
 }
+
+h4 {
+  font-size: medium;
+  font-weight: bold;
+}
+
+
+a:link {
+ color: #00a;
+}
+
+a:visited {
+ color: #06f;
+}
+
+a:active {
+ color: #00f;
+}
+
+a[href]:hover {
+  background-color: #eef;
+}
+
 
