@@ -45,8 +45,56 @@ my $hashref = {
                                 substrateType
                                 sequencePolymerType )],
 
-                array  => { designElements => 'DesignElement',
-                            comments       => 'Comment', },
+                array  => { designElements => 'DesignElement', },
+                iarray => { comments       => 'Comment', },
+            },
+        },
+
+        Assay => {
+            bases  => [ qw( Event ) ],
+            fields => {
+                ref => [ qw( arrayDesign
+                             technologyType ) ],
+            },
+        },
+
+        BaseClass => {
+            abstract => 1,
+            fields   => {
+                string => [ qw( authority namespace ) ],
+            },
+        },
+
+        CompositeElement => {
+            bases  => [ qw( DesignElement ) ],
+            fields => {
+                string => [ qw( name ) ],
+                array  => { databaseEntries => 'DatabaseEntry', },
+                iarray => { comments        => 'Comment', },
+            },
+        },
+
+        Comment => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( name
+                                value ) ],
+            },
+        },
+
+        Contact => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( firstName
+                                lastName
+                                midInitials
+                                email
+                                organization
+                                phone
+                                fax
+                                address ) ],
+                array  => { roles    => 'ControlledTerm' },
+                iarray => { comments => 'Comment', },
             },
         },
 
@@ -58,32 +106,93 @@ my $hashref = {
             },
         },
 
+        Data => {
+            abstract => 1,
+            bases    => [ qw( Node ) ],
+            fields   => {
+                string => [ qw( uri ) ],
+                ref    => [ qw( type ) ],
+            },
+        },
+
+        DataAcquisition => {
+            bases => [ qw( Event ) ],
+        },
+
         DatabaseEntry => {
+            bases  => [ qw( BaseClass ) ],
             fields => {
                 string => [ qw( accession ) ],
                 ref    => [ qw( termSource ) ],
             },
         },
 
-        TermSource    => {
+        DataFile => {
+            bases  => [ qw( Data ) ],
             fields => {
-                string => [ qw( name
-                                uri
-                                version ) ],
+                ref => [ qw( format ) ],
+            },
+        },
+        
+        DataMatrix => {
+            bases  => [ qw( Data ) ],
+            fields => {
+                string => [ qw( rowIdentifierType ) ],
+                iarray => { matrixRows    => 'MatrixRow',
+                            matrixColumns => 'MatrixColumn', },
             },
         },
 
         DesignElement => {
             abstract => 1,
-            fields => {
+            bases    => [ qw( BaseClass ) ],
+            fields   => {
                 string => [ qw( chromosome
                                 startPosition
                                 endPosition ) ],
             },
         },
 
+        Edge => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                ref   => [ qw( inputNode
+                               outputNode ) ],
+                array => { protocolApplications => 'ProtocolApplication' },
+            },
+        },
+
+        Event => {
+            abstract => 1,
+            bases    => [ qw( Node ) ],
+            fields   => {
+                string => [ qw( name ) ],
+            },
+        },
+
+        Extract => {
+            bases => [ qw( Material ) ],
+        },
+
+        Factor => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( name ) ],
+                ref    => [ qw( type ) ],
+            },
+        },
+
+        FactorValue => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                ref => [ qw( measurement
+                             term
+                             factor ) ],
+            },
+        },
+
         Feature => {
-            bases => [ qw( DesignElement ) ],
+            bases  => [ qw( DesignElement ) ],
             fields => {
 
                 # N.B. column is a reserved word, we use col as an
@@ -94,11 +203,185 @@ my $hashref = {
                              row ) ],
             },
         },
+
+        Investigation => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( title
+                                description
+                                date
+                                publicReleaseDate) ],
+                array  => { contacts            => 'Contact',
+                            protocols           => 'Protocol',
+                            publications        => 'Publication',
+                            termSources         => 'TermSource',
+                            designTypes         => 'ControlledTerm',
+                            normalizationTypes  => 'ControlledTerm',
+                            replicateTypes      => 'ControlledTerm',
+                            qualityControlTypes => 'ControlledTerm', },
+                iarray => { factors      => 'Factor',
+                            sdrfs        => 'SDRF',
+                            comments     => 'Comment', },
+            },
+        },
         
-        Comment => {
+        LabeledExtract => {
+            bases   => [ qw( Material ) ],
+            fields  => {
+                ref => [ qw( label ) ],
+            },
+        },
+
+        Material => {
+            abstract => 1,
+            bases    => [ qw( Node ) ],
+            fields   => {
+                string => [ qw( name description ) ],
+                ref    => [ qw( type ) ],
+                array  => { characteristics => 'ControlledTerm' },
+                iarray => { measurements    => 'Measurement' },
+            },
+        },
+
+        MatrixColumn => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                int   => [ qw( columnNumber ) ],
+                ref   => [ qw( quantitationType ) ],
+                array => { referencedNodes => 'Node' },
+            },
+        },
+
+        MatrixRow => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                int => [ qw( rowNumber ) ],
+                ref => [ qw( designElement ) ],
+            },
+        },
+
+        Measurement => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( type
+                                value
+                                minValue
+                                maxValue ) ],
+                ref    => [ qw( unit ) ],
+            },
+        },
+
+        Node => {
+            abstract => 1,
+            bases    => [ qw( BaseClass ) ],
+            fields   => {
+                array => { inputEdges  => 'Edge',
+                           outputEdges => 'Edge',
+                           comments    => 'Comment',
+                           sdrfRows    => 'SDRFRow', },
+            },
+        },
+
+        Normalization => {
+            bases => [ qw( Event ) ],
+        },
+
+        ParameterValue => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                ref    => [ qw( measurement parameter ) ],
+                iarray => { comments => 'Comment' },
+            },
+        },
+
+        Protocol => {
+            bases  => [ qw( BaseClass ) ],
             fields => {
                 string => [ qw( name
-                                value ) ],
+                                text
+                                software
+                                hardware
+                                contact ) ],
+                ref    => [ qw( type ) ],
+            },
+        },
+
+        ProtocolApplication => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+
+                # Performers is a semicolon-delimited list.
+                string => [ qw( date performers ) ],
+                ref    => [ qw( protocol ) ],
+                iarray => { parameterValues => 'ParameterValue',
+                            comments        => 'Comment', },
+            },
+        },
+
+        ProtocolParameter => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( name ) ],
+                ref    => [ qw( protocol ) ],
+            },
+        },
+
+        Publication => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( title authorList pubMedID DOI ) ],
+                ref    => [ qw( status ) ],
+            },
+        },
+
+        Reporter => {
+            bases  => [ qw( DesignElement ) ],
+            fields => {
+                string => [ qw( name sequence ) ],
+                ref    => [ qw( controlType ) ],
+                array  => { compositeElements => 'CompositeElement',
+                            databaseEntries   => 'DatabaseEntry',
+                            groups            => 'ControlledTerm', },
+            },
+        },
+
+        SDRF => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( uri ) ],
+                iarray => { sdrfRows => 'SDRFRow' },
+            },
+        },
+
+        SDRFRow => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                int   => [ qw( rowNumber ) ],
+                array => { nodes        => 'Node',
+                           factorValues => 'FactorValue', },
+                ref   => [ qw( channel ) ],
+            },
+        },
+
+        Sample => {
+            bases => [ qw( Material ) ],
+        },
+
+        Source => {
+            bases  => [ qw( Material ) ],
+            fields => {
+
+                # Providers is a semicolon-delimited list.
+                string => [ qw( providers ) ],
+            },
+        },
+
+        TermSource => {
+            bases  => [ qw( BaseClass ) ],
+            fields => {
+                string => [ qw( name
+                                uri
+                                version ) ],
             },
         },
     ],
