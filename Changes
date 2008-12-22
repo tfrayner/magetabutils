@@ -5,6 +5,8 @@ Changelog for Bio::MAGETAB
                                         Renamed Feature blockColumn and column attributes
                                           to blockCol and col respectively; this avoids
                                           naming conflicts in some ORM implementations.
+                                        Renamed all "type" attributes, similarly to
+                                          avoid conflicts.
 
 0.91    Bio::MAGETAB-0.91.tar.gz        Added class documentation (POD).
 

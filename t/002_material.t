@@ -40,20 +40,20 @@ dies_ok( sub { Bio::MAGETAB::Material->new() }, 'abstract class cannot be instan
 # instantiation.
 my @expected = qw(
     get_name
-    get_type
+    get_materialType
     get_description
     get_characteristics
     get_measurements
     set_name
-    set_type
+    set_materialType
     set_description
     set_characteristics
     set_measurements
-    has_type
+    has_materialType
     has_description
     has_characteristics
     has_measurements
-    clear_type
+    clear_materialType
     clear_description
     clear_characteristics
     clear_measurements

@@ -57,7 +57,7 @@ my $mr = Bio::MAGETAB::MatrixRow->new(
 
 my %required_attr = (
     uri               => 'http://www.madeupdatafiles.org/mydata.txt',
-    type              => $ty,
+    dataType          => $ty,
 );
 
 my %optional_attr = (
@@ -71,7 +71,7 @@ my %bad_attr = (
     rowIdentifierType => [],
     matrixRows        => [ 'test' ],
     matrixColumns     => 'test',
-    type              => 'test',
+    dataType          => 'test',
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'qt', value => 'test2' );
@@ -95,7 +95,7 @@ my %secondary_attr = (
     rowIdentifierType => 'CompositeElement',
     matrixRows        => [ $mr, $mr2 ],
     matrixColumns     => [ $mc, $mc2 ],
-    type              => $ty2,
+    dataType          => $ty2,
 );
 
 my $obj = test_class(

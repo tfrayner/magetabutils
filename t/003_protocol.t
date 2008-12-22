@@ -45,7 +45,7 @@ my %optional_attr = (
     text     => 'test text',
     software => 'test software',
     hardware => 'test hardware',
-    type     => $ct,
+    protocolType => $ct,
     contact  => 'nearly forgot this',
 );
 
@@ -54,7 +54,7 @@ my %bad_attr = (
     text     => [],
     software => [],
     hardware => [],
-    type     => 'test',
+    protocolType => 'test',
     contact  => [],
 );
 
@@ -65,7 +65,7 @@ my %secondary_attr = (
     text     => 'test text 2',
     software => 'test software 2',
     hardware => 'test hardware 2',
-    type     => $ct2,
+    protocolType => $ct2,
     contact  => 'another one',
 );
 

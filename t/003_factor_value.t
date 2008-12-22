@@ -39,7 +39,7 @@ use Bio::MAGETAB::Measurement;
 
 my $fa = Bio::MAGETAB::Factor->new( name => 'test factor' );
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test controlled term' );
-my $me = Bio::MAGETAB::Measurement->new( type => 'test measurement', value => 'test' );
+my $me = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement', value => 'test' );
 
 my %required_attr = (
     factor      => $fa,
@@ -58,7 +58,7 @@ my %bad_attr = (
 
 my $fa2 = Bio::MAGETAB::Factor->new( name => 'test factor2' );
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test2', value => 'test controlled term' );
-my $me2 = Bio::MAGETAB::Measurement->new( type => 'test measurement2', value => 'test' );
+my $me2 = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement2', value => 'test' );
 
 my %secondary_attr = (
     factor      => $fa2,

@@ -28,10 +28,10 @@ has 'name'                => ( is         => 'rw',
                                isa        => 'Str',
                                required   => 1 );
 
-has 'type'                => ( is         => 'rw',
+has 'factorType'          => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
-                               clearer    => 'clear_type',
-                               predicate  => 'has_type',
+                               clearer    => 'clear_factorType',
+                               predicate  => 'has_factorType',
                                required   => 0 );
 
 __PACKAGE__->meta->make_immutable();
@@ -62,7 +62,7 @@ superclass methods.
 
 The name of the factor (data type: String).
 
-=item type (optional)
+=item factorType (optional)
 
 The type of the factor. This typically links to an ontology of
 experimental factor terms (e.g. "disease_state", "strain_or_line"

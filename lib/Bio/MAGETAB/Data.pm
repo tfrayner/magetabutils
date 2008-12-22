@@ -43,7 +43,7 @@ has 'uri'                 => ( is       => 'rw',
                                coerce   => 1,
                                required => 1 );
 
-has 'type'                => ( is       => 'rw',
+has 'dataType'            => ( is       => 'rw',
                                isa      => 'Bio::MAGETAB::ControlledTerm',
                                required => 1 );
 
@@ -75,7 +75,7 @@ directly. See L<Bio::MAGETAB::Node> for superclass methods.
 
 The URI where the data can be found (data type: Uri).
 
-=item type (required)
+=item dataType (required)
 
 The type of the data (typically raw or derived; data type:
 Bio::MAGETAB::ControlledTerm).

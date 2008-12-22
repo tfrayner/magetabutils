@@ -24,7 +24,7 @@ use Moose;
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
-has 'type'                => ( is         => 'rw',
+has 'measurementType'     => ( is         => 'rw',
                                isa        => 'Str',
                                required   => 1 );
 
@@ -76,7 +76,7 @@ optional unit. See L<Bio::MAGETAB::BaseClass> for superclass methods.
 
 =over 2
 
-=item type (required)
+=item measurementType (required)
 
 The type of measurement (i.e., the quantity being measured). This is
 equivalent to the ControlledTerm 'category' attribute (data type:

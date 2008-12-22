@@ -41,19 +41,19 @@ my %required_attr = (
 );
 
 my %optional_attr = (
-    type           => $ct,
+    factorType     => $ct,
 );
 
 my %bad_attr = (
     name           => [],
-    type           => 'test',
+    factorType     => 'test',
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
 
 my %secondary_attr = (
     name           => 'test2',
-    type           => $ct2,
+    factorType     => $ct2,
 );
 
 my $obj = test_class(
