@@ -38,9 +38,9 @@ use Bio::MAGETAB::Reporter;
 my $rp = Bio::MAGETAB::Reporter->new( name => 'test reporter' );
 
 my %required_attr = (
-    blockColumn => 1,
+    blockCol    => 1,
     blockRow    => 2,
-    column      => 3,
+    col         => 3,
     row         => 4,
     reporter    => $rp,
 );
@@ -49,9 +49,9 @@ my %optional_attr = (
 );
 
 my %bad_attr = (
-    blockColumn => {},
+    blockCol    => {},
     blockRow    => [],
-    column      => 'x',
+    col         => 'x',
     row         => [],
     reporter    => 'test',
 );
@@ -59,9 +59,9 @@ my %bad_attr = (
 my $rp2 = Bio::MAGETAB::Reporter->new( name => 'test reporter 2' );
 
 my %secondary_attr = (
-    blockColumn => 12,
+    blockCol    => 12,
     blockRow    => 22,
-    column      => 32,
+    col         => 32,
     row         => 42,
     reporter    => $rp2,
 );
