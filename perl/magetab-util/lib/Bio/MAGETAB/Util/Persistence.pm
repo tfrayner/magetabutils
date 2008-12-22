@@ -24,6 +24,7 @@ use Moose;
 
 use Carp;
 use Tangram;
+use DBI;
 
 # This is where the magic happens. This needs to be kept synchronised
 # with any changes made to the core MAGETAB model.
@@ -31,8 +32,8 @@ my $hashref = {
 
     classes => [
 
-        ArrayDesign => {
-            bases  => [ qw( DatabaseEntry ) ],
+        'Bio::MAGETAB::ArrayDesign' => {
+            bases  => [ 'Bio::MAGETAB::DatabaseEntry' ],
             fields => {
                 string => [ qw( name
                                 version
@@ -45,45 +46,45 @@ my $hashref = {
                                 substrateType
                                 sequencePolymerType )],
 
-                array  => { designElements => 'DesignElement', },
-                iarray => { comments       => 'Comment', },
+                array  => { designElements => 'Bio::MAGETAB::DesignElement', },
+                iarray => { comments       => 'Bio::MAGETAB::Comment', },
             },
         },
 
-        Assay => {
-            bases  => [ qw( Event ) ],
+        'Bio::MAGETAB::Assay' => {
+            bases  => [ 'Bio::MAGETAB::Event' ],
             fields => {
                 ref => [ qw( arrayDesign
                              technologyType ) ],
             },
         },
 
-        BaseClass => {
+        'Bio::MAGETAB::BaseClass' => {
             abstract => 1,
             fields   => {
                 string => [ qw( authority namespace ) ],
             },
         },
 
-        CompositeElement => {
-            bases  => [ qw( DesignElement ) ],
+        'Bio::MAGETAB::CompositeElement' => {
+            bases  => [ 'Bio::MAGETAB::DesignElement' ],
             fields => {
                 string => [ qw( name ) ],
-                array  => { databaseEntries => 'DatabaseEntry', },
-                iarray => { comments        => 'Comment', },
+                array  => { databaseEntries => 'Bio::MAGETAB::DatabaseEntry', },
+                iarray => { comments        => 'Bio::MAGETAB::Comment', },
             },
         },
 
-        Comment => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Comment' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name
                                 value ) ],
             },
         },
 
-        Contact => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Contact' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( firstName
                                 lastName
@@ -93,59 +94,59 @@ my $hashref = {
                                 phone
                                 fax
                                 address ) ],
-                array  => { roles    => 'ControlledTerm' },
-                iarray => { comments => 'Comment', },
+                array  => { roles    => 'Bio::MAGETAB::ControlledTerm' },
+                iarray => { comments => 'Bio::MAGETAB::Comment', },
             },
         },
 
-        ControlledTerm => {
-            bases  => [ qw( DatabaseEntry ) ],
+        'Bio::MAGETAB::ControlledTerm' => {
+            bases  => [ 'Bio::MAGETAB::DatabaseEntry' ],
             fields => {
                 string => [ qw( category
                                 value ) ],
             },
         },
 
-        Data => {
+        'Bio::MAGETAB::Data' => {
             abstract => 1,
-            bases    => [ qw( Node ) ],
+            bases    => [ 'Bio::MAGETAB::Node' ],
             fields   => {
                 string => [ qw( uri ) ],
                 ref    => [ qw( type ) ],
             },
         },
 
-        DataAcquisition => {
-            bases => [ qw( Event ) ],
+        'Bio::MAGETAB::DataAcquisition' => {
+            bases => [ 'Bio::MAGETAB::Event' ],
         },
 
-        DatabaseEntry => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::DatabaseEntry' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( accession ) ],
                 ref    => [ qw( termSource ) ],
             },
         },
 
-        DataFile => {
-            bases  => [ qw( Data ) ],
+        'Bio::MAGETAB::DataFile' => {
+            bases  => [ 'Bio::MAGETAB::Data' ],
             fields => {
                 ref => [ qw( format ) ],
             },
         },
         
-        DataMatrix => {
-            bases  => [ qw( Data ) ],
+        'Bio::MAGETAB::DataMatrix' => {
+            bases  => [ 'Bio::MAGETAB::Data' ],
             fields => {
                 string => [ qw( rowIdentifierType ) ],
-                iarray => { matrixRows    => 'MatrixRow',
-                            matrixColumns => 'MatrixColumn', },
+                iarray => { matrixRows    => 'Bio::MAGETAB::MatrixRow',
+                            matrixColumns => 'Bio::MAGETAB::MatrixColumn', },
             },
         },
 
-        DesignElement => {
+        'Bio::MAGETAB::DesignElement' => {
             abstract => 1,
-            bases    => [ qw( BaseClass ) ],
+            bases    => [ 'Bio::MAGETAB::BaseClass' ],
             fields   => {
                 string => [ qw( chromosome
                                 startPosition
@@ -153,37 +154,37 @@ my $hashref = {
             },
         },
 
-        Edge => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Edge' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 ref   => [ qw( inputNode
                                outputNode ) ],
-                array => { protocolApplications => 'ProtocolApplication' },
+                array => { protocolApplications => 'Bio::MAGETAB::ProtocolApplication' },
             },
         },
 
-        Event => {
+        'Bio::MAGETAB::Event' => {
             abstract => 1,
-            bases    => [ qw( Node ) ],
+            bases    => [ 'Bio::MAGETAB::Node' ],
             fields   => {
                 string => [ qw( name ) ],
             },
         },
 
-        Extract => {
-            bases => [ qw( Material ) ],
+        'Bio::MAGETAB::Extract' => {
+            bases => [ 'Bio::MAGETAB::Material' ],
         },
 
-        Factor => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Factor' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name ) ],
                 ref    => [ qw( type ) ],
             },
         },
 
-        FactorValue => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::FactorValue' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 ref => [ qw( measurement
                              term
@@ -191,8 +192,8 @@ my $hashref = {
             },
         },
 
-        Feature => {
-            bases  => [ qw( DesignElement ) ],
+        'Bio::MAGETAB::Feature' => {
+            bases  => [ 'Bio::MAGETAB::DesignElement' ],
             fields => {
 
                 # N.B. column is a reserved word, we use col as an
@@ -204,64 +205,64 @@ my $hashref = {
             },
         },
 
-        Investigation => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Investigation' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( title
                                 description
                                 date
                                 publicReleaseDate) ],
-                array  => { contacts            => 'Contact',
-                            protocols           => 'Protocol',
-                            publications        => 'Publication',
-                            termSources         => 'TermSource',
-                            designTypes         => 'ControlledTerm',
-                            normalizationTypes  => 'ControlledTerm',
-                            replicateTypes      => 'ControlledTerm',
-                            qualityControlTypes => 'ControlledTerm', },
-                iarray => { factors      => 'Factor',
-                            sdrfs        => 'SDRF',
-                            comments     => 'Comment', },
+                array  => { contacts            => 'Bio::MAGETAB::Contact',
+                            protocols           => 'Bio::MAGETAB::Protocol',
+                            publications        => 'Bio::MAGETAB::Publication',
+                            termSources         => 'Bio::MAGETAB::TermSource',
+                            designTypes         => 'Bio::MAGETAB::ControlledTerm',
+                            normalizationTypes  => 'Bio::MAGETAB::ControlledTerm',
+                            replicateTypes      => 'Bio::MAGETAB::ControlledTerm',
+                            qualityControlTypes => 'Bio::MAGETAB::ControlledTerm', },
+                iarray => { factors      => 'Bio::MAGETAB::Factor',
+                            sdrfs        => 'Bio::MAGETAB::SDRF',
+                            comments     => 'Bio::MAGETAB::Comment', },
             },
         },
         
         LabeledExtract => {
-            bases   => [ qw( Material ) ],
+            bases   => [ 'Bio::MAGETAB::Material' ],
             fields  => {
                 ref => [ qw( label ) ],
             },
         },
 
-        Material => {
+        'Bio::MAGETAB::Material' => {
             abstract => 1,
-            bases    => [ qw( Node ) ],
+            bases    => [ 'Bio::MAGETAB::Node' ],
             fields   => {
                 string => [ qw( name description ) ],
                 ref    => [ qw( type ) ],
-                array  => { characteristics => 'ControlledTerm' },
-                iarray => { measurements    => 'Measurement' },
+                array  => { characteristics => 'Bio::MAGETAB::ControlledTerm' },
+                iarray => { measurements    => 'Bio::MAGETAB::Measurement' },
             },
         },
 
-        MatrixColumn => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::MatrixColumn' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 int   => [ qw( columnNumber ) ],
                 ref   => [ qw( quantitationType ) ],
-                array => { referencedNodes => 'Node' },
+                array => { referencedNodes => 'Bio::MAGETAB::Node' },
             },
         },
 
-        MatrixRow => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::MatrixRow' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 int => [ qw( rowNumber ) ],
                 ref => [ qw( designElement ) ],
             },
         },
 
-        Measurement => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Measurement' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( type
                                 value
@@ -271,31 +272,31 @@ my $hashref = {
             },
         },
 
-        Node => {
+        'Bio::MAGETAB::Node' => {
             abstract => 1,
-            bases    => [ qw( BaseClass ) ],
+            bases    => [ 'Bio::MAGETAB::BaseClass' ],
             fields   => {
-                array => { inputEdges  => 'Edge',
-                           outputEdges => 'Edge',
-                           comments    => 'Comment',
-                           sdrfRows    => 'SDRFRow', },
+                array => { inputEdges  => 'Bio::MAGETAB::Edge',
+                           outputEdges => 'Bio::MAGETAB::Edge',
+                           comments    => 'Bio::MAGETAB::Comment',
+                           sdrfRows    => 'Bio::MAGETAB::SDRFRow', },
             },
         },
 
-        Normalization => {
-            bases => [ qw( Event ) ],
+        'Bio::MAGETAB::Normalization' => {
+            bases => [ 'Bio::MAGETAB::Event' ],
         },
 
-        ParameterValue => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::ParameterValue' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 ref    => [ qw( measurement parameter ) ],
-                iarray => { comments => 'Comment' },
+                iarray => { comments => 'Bio::MAGETAB::Comment' },
             },
         },
 
-        Protocol => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Protocol' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name
                                 text
@@ -306,69 +307,69 @@ my $hashref = {
             },
         },
 
-        ProtocolApplication => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::ProtocolApplication' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
 
                 # Performers is a semicolon-delimited list.
                 string => [ qw( date performers ) ],
                 ref    => [ qw( protocol ) ],
-                iarray => { parameterValues => 'ParameterValue',
-                            comments        => 'Comment', },
+                iarray => { parameterValues => 'Bio::MAGETAB::ParameterValue',
+                            comments        => 'Bio::MAGETAB::Comment', },
             },
         },
 
-        ProtocolParameter => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::ProtocolParameter' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name ) ],
                 ref    => [ qw( protocol ) ],
             },
         },
 
-        Publication => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::Publication' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( title authorList pubMedID DOI ) ],
                 ref    => [ qw( status ) ],
             },
         },
 
-        Reporter => {
-            bases  => [ qw( DesignElement ) ],
+        'Bio::MAGETAB::Reporter' => {
+            bases  => [ 'Bio::MAGETAB::DesignElement' ],
             fields => {
                 string => [ qw( name sequence ) ],
                 ref    => [ qw( controlType ) ],
-                array  => { compositeElements => 'CompositeElement',
-                            databaseEntries   => 'DatabaseEntry',
-                            groups            => 'ControlledTerm', },
+                array  => { compositeElements => 'Bio::MAGETAB::CompositeElement',
+                            databaseEntries   => 'Bio::MAGETAB::DatabaseEntry',
+                            groups            => 'Bio::MAGETAB::ControlledTerm', },
             },
         },
 
-        SDRF => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::SDRF' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( uri ) ],
-                iarray => { sdrfRows => 'SDRFRow' },
+                iarray => { sdrfRows => 'Bio::MAGETAB::SDRFRow' },
             },
         },
 
-        SDRFRow => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::SDRFRow' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 int   => [ qw( rowNumber ) ],
-                array => { nodes        => 'Node',
-                           factorValues => 'FactorValue', },
+                array => { nodes        => 'Bio::MAGETAB::Node',
+                           factorValues => 'Bio::MAGETAB::FactorValue', },
                 ref   => [ qw( channel ) ],
             },
         },
 
-        Sample => {
-            bases => [ qw( Material ) ],
+        'Bio::MAGETAB::Sample' => {
+            bases => [ 'Bio::MAGETAB::Material' ],
         },
 
-        Source => {
-            bases  => [ qw( Material ) ],
+        'Bio::MAGETAB::Source' => {
+            bases  => [ 'Bio::MAGETAB::Material' ],
             fields => {
 
                 # Providers is a semicolon-delimited list.
@@ -376,8 +377,8 @@ my $hashref = {
             },
         },
 
-        TermSource => {
-            bases  => [ qw( BaseClass ) ],
+        'Bio::MAGETAB::TermSource' => {
+            bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name
                                 uri
@@ -394,14 +395,36 @@ has 'config' => ( is       => 'ro',
 
 sub deploy {
 
-    my ( $self, $dbh ) = @_;
+    my ( $self, @params ) = @_;
 
-    my $schema = Tangram::Relational->schema( $self->get_config() );
+    my $dbh = DBI->connect( @params );
 
-    Tangram::Relational->deploy( $schema, $dbh );
+    Tangram::Relational->deploy( $self->get_schema(), $dbh );
+
+    $dbh->disconnect();
 
     return;
 }
+
+sub get_schema {
+
+    my ( $self ) = @_;
+
+    return Tangram::Relational->schema( $self->get_config() );
+}
+
+sub connect {
+
+    my ( $self, @params ) = @_;
+
+    my $store = Tangram::Relational->connect( $self->get_schema(), @params );
+
+    return $store;
+}
+
+# Make the classes immutable. In theory this speeds up object
+# instantiation for a small compilation time cost.
+__PACKAGE__->meta->make_immutable();
 
 no Moose;
 

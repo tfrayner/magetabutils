@@ -7,12 +7,19 @@ use warnings;
 
 use Bio::MAGETAB::Util::Persistence;
 
-use DBI;
+use Bio::MAGETAB;
 
-my $store = Bio::MAGETAB::Util::Persistence->new();
+my $db = Bio::MAGETAB::Util::Persistence->new();
 
-my $dbh = DBI->connect('dbi:SQLite:test_tangram.db');
+my $dsn = 'dbi:SQLite:test_tangram.db'; 
 
-$store->deploy( $dbh );
+$db->deploy( $dsn );
 
-$dbh->disconnect();
+my $store = $db->connect( $dsn );
+
+my $cv = Bio::MAGETAB::ControlledTerm->new({ category => 'testcat',
+                                             value    => 'testval', });
+$store->insert( $cv );
+$store->insert( Bio::MAGETAB::Sample->new({ name      => 'test_sample',
+                                            namespace => 'me',
+                                            type      => $cv, }) );
