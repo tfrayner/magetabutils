@@ -119,7 +119,7 @@ is_deeply( [ sort keys %de ], \@de_ex, 'all designElements are of known classes'
 
 # Check our features.
 foreach my $feat ( @{ $de{ 'Bio::MAGETAB::Feature' } } ) {
-    foreach my $attr ( qw( blockColumn blockRow column ) ) {
+    foreach my $attr ( qw( blockCol blockRow col ) ) {
         my $getter = "get_$attr";
         is( $feat->$getter, 1, "feature has correct $attr" );
     }

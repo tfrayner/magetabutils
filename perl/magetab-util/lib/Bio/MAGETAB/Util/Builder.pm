@@ -230,7 +230,7 @@ my %method_map = (
                            qw( rowNumber ) ],
 
     'feature'          => [ 'Bio::MAGETAB::Feature',
-                           qw( blockColumn blockRow column row ) ],
+                           qw( blockCol blockRow col row ) ],
 
     'reporter'          => [ 'Bio::MAGETAB::Reporter',
                            qw( name ) ],

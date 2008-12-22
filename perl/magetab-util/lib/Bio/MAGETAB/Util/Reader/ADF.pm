@@ -383,13 +383,13 @@ sub _parse_adfrow_for_feature {
     my %dispatch = (
         'block_column'
             => sub { my ( $hc, $lc ) = @_;
-                     $data{'blockColumn'} = $lc; },
+                     $data{'blockCol'} = $lc; },
         'block_row'
             => sub { my ( $hc, $lc ) = @_;
                      $data{'blockRow'} = $lc; },
         'column'
             => sub { my ( $hc, $lc ) = @_;
-                     $data{'column'} = $lc; },
+                     $data{'col'} = $lc; },
         'row'
             => sub { my ( $hc, $lc ) = @_;
                      $data{'row'} = $lc; },
@@ -574,7 +574,7 @@ sub _parse_adfrow {
 
     my $feature_data = $self->_parse_adfrow_for_feature( $larry, $header );
     my $feature;
-    my @required_feat_info = qw( blockColumn blockRow column row );
+    my @required_feat_info = qw( blockCol blockRow col row );
     if ( all { defined($feature_data->{$_}) } @required_feat_info ) {
         $feature = $self->get_builder()->find_or_create_feature( $feature_data );
     }

@@ -209,7 +209,7 @@ sub _get_feature_coords {
     my ( $self, $feature ) = @_;
 
     my @coords = map { $feature->$_ }
-        qw( get_blockColumn get_blockRow get_column get_row );
+        qw( get_blockCol get_blockRow get_col get_row );
 
     return @coords;
 }
