@@ -1,6 +1,11 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+0.95    Bio::MAGETAB-0.95.tar.gz        Added BaseClass to the MD UML model.
+                                        Renamed Feature blockColumn and column attributes
+                                          to blockCol and col respectively; this avoids
+                                          naming conflicts in some ORM implementations.
+
 0.91    Bio::MAGETAB-0.91.tar.gz        Added class documentation (POD).
 
 0.9	Bio::MAGETAB-0.9.tar.gz	        Initial public release; API almost finalised.

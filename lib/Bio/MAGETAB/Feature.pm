@@ -24,7 +24,7 @@ use Moose;
 
 BEGIN { extends 'Bio::MAGETAB::DesignElement' };
 
-has 'blockColumn'         => ( is       => 'rw',
+has 'blockCol'            => ( is       => 'rw',
                                isa      => 'Int',
                                required => 1 );
 
@@ -32,7 +32,7 @@ has 'blockRow'            => ( is       => 'rw',
                                isa      => 'Int',
                                required => 1 );
 
-has 'column'              => ( is       => 'rw',
+has 'col'                 => ( is       => 'rw',
                                isa      => 'Int',
                                required => 1 );
 
@@ -68,7 +68,7 @@ the array. See L<Bio::MAGETAB::DesignElement> for superclass methods.
 
 =over 2
 
-=item blockColumn (required)
+=item blockCol (required)
 
 The block column number of the feature (data type: Integer).
 
@@ -76,7 +76,7 @@ The block column number of the feature (data type: Integer).
 
 The block row number of the feature (data type: Integer).
 
-=item column (required)
+=item col (required)
 
 The number of the feature's column within the enclosing block (data
 type: Integer).
