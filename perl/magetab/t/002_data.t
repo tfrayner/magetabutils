@@ -40,7 +40,9 @@ dies_ok( sub { Bio::MAGETAB::Data->new() }, 'abstract class cannot be instantiat
 # instantiation.
 my @expected = qw(
     get_uri
+    get_dataType
     set_uri
+    set_dataType
 );
 
 test_methods( 'Bio::MAGETAB::Data', \@expected );

@@ -38,31 +38,31 @@ use Bio::MAGETAB::Measurement;
 use Bio::MAGETAB::SDRFRow;
 
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test' );
-my $me = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
+my $me = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
 
 my %required_attr = (
     name           => 'test',
 );
 
 my %optional_attr = (
-    type            => $ct,
+    materialType    => $ct,
     characteristics => [ $ct ],
     measurements    => [ $me ],
 );
 
 my %bad_attr = (
     name            => [],
-    type            => 'test',
+    materialType    => 'test',
     characteristics => [ 'test' ],
     measurements    => 'test',
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
-my $me2 = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
+my $me2 = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
 
 my %secondary_attr = (
     name            => 'test2',
-    type            => $ct2,
+    materialType    => $ct2,
     characteristics => [ $ct2 ],
     measurements    => [ $me2 ],
 );

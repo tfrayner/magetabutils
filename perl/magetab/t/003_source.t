@@ -37,14 +37,14 @@ use Bio::MAGETAB::ControlledTerm;
 use Bio::MAGETAB::Measurement;
 
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test' );
-my $me = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
+my $me = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
 
 my %required_attr = (
     name           => 'test',
 );
 
 my %optional_attr = (
-    type            => $ct,
+    materialType    => $ct,
     description     => 'test',
     characteristics => [ $ct ],
     measurements    => [ $me ],
@@ -53,7 +53,7 @@ my %optional_attr = (
 
 my %bad_attr = (
     name            => [],
-    type            => 'test',
+    materialType    => 'test',
     description     => [],
     characteristics => [ 'test' ],
     measurements    => 'test',
@@ -61,11 +61,11 @@ my %bad_attr = (
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
-my $me2 = Bio::MAGETAB::Measurement->new( type => 'test', value => 'test' );
+my $me2 = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
 
 my %secondary_attr = (
     name            => 'test2',
-    type            => $ct2,
+    materialType    => $ct2,
     description     => 'test2',
     characteristics => [ $ct2 ],
     measurements    => [ $me2 ],

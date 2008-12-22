@@ -38,7 +38,7 @@ use Bio::MAGETAB::ControlledTerm;
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'unit', value => 'name' );
 
 my %required_attr = (
-    type     => 'test',
+    measurementType => 'test',
 );
 
 my %optional_attr = (
@@ -49,7 +49,7 @@ my %optional_attr = (
 );
 
 my %bad_attr = (
-    type     => [],
+    measurementType => [],
     unit     => '',
     value    => [],
     minValue => [],
@@ -59,7 +59,7 @@ my %bad_attr = (
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'unit', value => 'name 2' );
 
 my %secondary_attr = (
-    type     => 'test2',
+    measurementType => 'test2',
     unit     => $ct2,
     value    => 'zero',
     minValue => 1_000_000_000,

@@ -46,10 +46,10 @@ has 'hardware'            => ( is         => 'rw',
                                predicate  => 'has_hardware',
                                required   => 0 );
 
-has 'type'                => ( is         => 'rw',
+has 'protocolType'        => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
-                               clearer    => 'clear_type',
-                               predicate  => 'has_type',
+                               clearer    => 'clear_protocolType',
+                               predicate  => 'has_protocolType',
                                required   => 0 );
 
 has 'contact'             => ( is         => 'rw',
@@ -102,7 +102,7 @@ concatenated into a single value (data type: String).
 The hardware used in the protocol. Multiple hardwares must be
 concatenated into a single value (data type: String).
 
-=item type (optional)
+=item protocolType (optional)
 
 The type of the protocol ('nucleic_acid_extraction','labeling' etc.;
 data type: Bio::MAGETAB::ControlledTerm).

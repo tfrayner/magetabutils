@@ -40,7 +40,7 @@ my $type   = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 'te
 my %required_attr = (
     uri           => 'file://localhost/home/user/data.txt',
     format        => $format,
-    type          => $type,
+    dataType      => $type,
 );
 
 my %optional_attr = (
@@ -49,7 +49,7 @@ my %optional_attr = (
 my %bad_attr = (
     uri            => [],
     format         => 'test',
-    type           => 'test',
+    dataType       => 'test',
 );
 
 my $format2 = Bio::MAGETAB::ControlledTerm->new( category => 'format', value => 'CEL2' );
@@ -58,7 +58,7 @@ my $type2   = Bio::MAGETAB::ControlledTerm->new( category => 'type', value => 't
 my %secondary_attr = (
     uri           => 'file://localhost2/home/user/data.txt',
     format        => $format2,
-    type          => $type2,
+    dataType      => $type2,
 );
 
 my $obj = test_class(

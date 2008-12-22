@@ -41,7 +41,7 @@ use Bio::MAGETAB::Comment;
 
 my $prot = Bio::MAGETAB::Protocol->new( name => 'test protocol' );
 my $parm = Bio::MAGETAB::ProtocolParameter->new( name => 'test param', protocol => $prot );
-my $meas = Bio::MAGETAB::Measurement->new( type => 'test measurement', value => 'value' );
+my $meas = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement', value => 'value' );
 my $pval = Bio::MAGETAB::ParameterValue->new( parameter => $parm, measurement => $meas );
 my $comm = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest' );
 
@@ -68,7 +68,7 @@ my %bad_attr = (
 
 my $prot2 = Bio::MAGETAB::Protocol->new( name => 'test protocol 2' );
 my $parm2 = Bio::MAGETAB::ProtocolParameter->new( name => 'test param', protocol => $prot2 );
-my $meas2 = Bio::MAGETAB::Measurement->new( type => 'test measurement', value => 'value 2' );
+my $meas2 = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement', value => 'value 2' );
 my $pval2 = Bio::MAGETAB::ParameterValue->new( parameter => $parm2, measurement => $meas2 );
 my $comm2 = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest 2' );
 

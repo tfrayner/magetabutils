@@ -40,10 +40,10 @@ has 'name'                => ( is         => 'rw',
                                isa        => 'Str',
                                required   => 1 );
 
-has 'type'                => ( is         => 'rw',
+has 'materialType'        => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
-                               clearer    => 'clear_type',
-                               predicate  => 'has_type',
+                               clearer    => 'clear_materialType',
+                               predicate  => 'has_materialType',
                                required   => 0 );
 
 has 'description'         => ( is         => 'rw',
@@ -95,7 +95,7 @@ superclass methods.
 
 The name of the material (data type: String).
 
-=item type (optional)
+=item materialType (optional)
 
 The type of the material (e.g. 'whole_organism', 'organism_part',
 'RNA' etc.), usually from a suitable ontology (data type:
