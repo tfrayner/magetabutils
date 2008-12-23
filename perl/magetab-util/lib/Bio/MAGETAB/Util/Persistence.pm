@@ -226,7 +226,7 @@ my $hashref = {
             },
         },
         
-        LabeledExtract => {
+        'Bio::MAGETAB::LabeledExtract' => {
             bases   => [ 'Bio::MAGETAB::Material' ],
             fields  => {
                 ref => [ qw( label ) ],
