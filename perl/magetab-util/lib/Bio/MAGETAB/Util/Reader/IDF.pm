@@ -54,7 +54,7 @@ sub BUILD {
         qr/Experimental *Factor *Names?/i
             => sub{ $self->_add_grouped_data('factor', 'name',       @_) },
         qr/Experimental *Factor *Types?/i
-            => sub{ $self->_add_grouped_data('factor', 'type',       @_) },
+            => sub{ $self->_add_grouped_data('factor', 'factorType', @_) },
         qr/Experimental *Factor *(?:Types?)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('factor', 'termSource', @_) },
         qr/Experimental *Factor *(?:Types?)? *Term *Accession *Numbers?/i
@@ -136,7 +136,7 @@ sub BUILD {
         qr/Protocol *Contacts?/i
             => sub{ $self->_add_grouped_data('protocol', 'contact',     @_) },
         qr/Protocol *Types?/i
-            => sub{ $self->_add_grouped_data('protocol', 'type',        @_) },
+            => sub{ $self->_add_grouped_data('protocol', 'protocolType', @_) },
         qr/Protocol *(?:Types?)? *Term *Source *REF/i
             => sub{ $self->_add_grouped_data('protocol', 'termSource',  @_) },
         qr/Protocol *(?:Types?)? *Term *Accession *Numbers?/i
@@ -225,7 +225,7 @@ sub _create_factors {
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ExperimentalFactorCategory',
-            'value'      => $f_data->{'type'},
+            'value'      => $f_data->{'factorType'},
             'termSource' => $termsource,
         });
 
@@ -233,8 +233,8 @@ sub _create_factors {
             if ( defined $f_data->{'accession'} && ! defined $type->get_accession() );
 
         my $args = {
-            'name' => $f_data->{'name'},
-            'type' => $type,
+            'name'       => $f_data->{'name'},
+            'factorType' => $type,
         };
 
         my $factor = $self->get_builder()->find_or_create_factor( $args );
@@ -298,16 +298,16 @@ sub _create_protocols {
 
         my $type = $self->get_builder()->find_or_create_controlled_term({
             'category'   => 'ProtocolType',
-            'value'      => $p_data->{'type'},
+            'value'      => $p_data->{'protocolType'},
             'termSource' => $termsource,
         });
 
         $type->set_accession( $p_data->{'accession'} )
             if ( defined $p_data->{'accession'} && ! defined $type->get_accession() );
 
-        my @wanted = grep { $_ !~ /^parameters|type|termSource|accession$/ } keys %{ $p_data };
+        my @wanted = grep { $_ !~ /^parameters|protocolType|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
-        $args{'type'} = $type;
+        $args{'protocolType'} = $type;
 
         my $protocol = $self->get_builder()->find_or_create_protocol( \%args );
 

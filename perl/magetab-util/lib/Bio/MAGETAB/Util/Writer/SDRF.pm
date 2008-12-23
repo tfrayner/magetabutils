@@ -499,7 +499,7 @@ sub _process_datafile {
 
     my ( $self, $obj ) = @_;
 
-    my $type    = $obj->get_type();
+    my $type    = $obj->get_dataType();
     my $colname = $type->get_value() eq 'image' ? 'Image File'
                                       : 'raw'   ? 'Array Data File'
                                                 : 'Derived Array Data File';
@@ -511,7 +511,7 @@ sub _process_datamatrix {
 
     my ( $self, $obj ) = @_;
 
-    my $type    = $obj->get_type();
+    my $type    = $obj->get_dataType();
     my $colname = $type->get_value() eq 'raw' ? 'Array Data Matrix File'
                                               : 'Derived Array Data Matrix File';
 

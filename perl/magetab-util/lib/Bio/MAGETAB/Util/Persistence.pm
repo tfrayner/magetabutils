@@ -112,7 +112,7 @@ my $hashref = {
             bases    => [ 'Bio::MAGETAB::Node' ],
             fields   => {
                 string => [ qw( uri ) ],
-                ref    => [ qw( type ) ],
+                ref    => [ qw( dataType ) ],
             },
         },
 
@@ -179,7 +179,7 @@ my $hashref = {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( name ) ],
-                ref    => [ qw( type ) ],
+                ref    => [ qw( factorType ) ],
             },
         },
 
@@ -238,7 +238,7 @@ my $hashref = {
             bases    => [ 'Bio::MAGETAB::Node' ],
             fields   => {
                 string => [ qw( name description ) ],
-                ref    => [ qw( type ) ],
+                ref    => [ qw( materialType ) ],
                 array  => { characteristics => 'Bio::MAGETAB::ControlledTerm' },
                 iarray => { measurements    => 'Bio::MAGETAB::Measurement' },
             },
@@ -264,7 +264,7 @@ my $hashref = {
         'Bio::MAGETAB::Measurement' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                string => [ qw( type
+                string => [ qw( measurementType
                                 value
                                 minValue
                                 maxValue ) ],
@@ -303,7 +303,7 @@ my $hashref = {
                                 software
                                 hardware
                                 contact ) ],
-                ref    => [ qw( type ) ],
+                ref    => [ qw( protocolType ) ],
             },
         },
 

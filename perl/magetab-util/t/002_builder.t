@@ -93,10 +93,10 @@ my $dummy_factor = Bio::MAGETAB::Factor->new(
     'name'  => 'dummy factor',
 );
 my $dummy_meas = Bio::MAGETAB::Measurement->new(
-    'type'  => 'dummy measurement type',
+    'measurementType'  => 'dummy measurement type',
 );
 my $dummy_meas2 = Bio::MAGETAB::Measurement->new(
-    'type'  => 'dummy measurement type 2',
+    'measurementType'  => 'dummy measurement type 2',
 );
 my $dummy_rep = Bio::MAGETAB::Reporter->new(
     'name'  => 'dummy reporter',
@@ -119,7 +119,7 @@ my $dummy_sdrf = Bio::MAGETAB::SDRF->new(
 );
 my $dummy_matrix = Bio::MAGETAB::DataMatrix->new(
     'uri'   => 'file://not.my.uri/matrixname.txt',
-    'type'  => $dummy_cv,
+    'dataType'  => $dummy_cv,
 );
 
 
@@ -175,14 +175,14 @@ my %test = (
                          },
     'data_file'         => { 'class'  => 'Bio::MAGETAB::DataFile',
                              'id'     => { 'uri'    => 'http://my.test.uri' },
-                             'attrs'  => { 'type'   => $dummy_cv,
-                                           'format' => $dummy_cv },
+                             'attrs'  => { 'dataType' => $dummy_cv,
+                                           'format'   => $dummy_cv },
                              'unused' => { 'uri' => 'http://not.my.uri' },
                          },
     'data_matrix'       => { 'class'  => 'Bio::MAGETAB::DataMatrix',
                              'id'     => { 'uri'  => 'http://my.test.uri' },
-                             'attrs'  => { 'type' => $dummy_cv },
-                             'unused' => { 'uri' => 'http://not.my.uri' },
+                             'attrs'  => { 'dataType' => $dummy_cv },
+                             'unused' => { 'uri'      => 'http://not.my.uri' },
                          },
     'database_entry'    => { 'class'  => 'Bio::MAGETAB::DatabaseEntry',
                              'id'     => { 'accession'  => 'test accession',
@@ -252,13 +252,13 @@ my %test = (
                                            'data_matrix'   => $dummy_matrix },
                          },
     'measurement'       => { 'class'  => 'Bio::MAGETAB::Measurement',
-                             'id'     => { 'type'  => 'test',
-                                           'value' => '10',
-                                           'unit'  => $dummy_cv },
+                             'id'     => { 'measurementType'  => 'test',
+                                           'value'            => '10',
+                                           'unit'             => $dummy_cv },
                              'attrs'  => {},
-                             'unused' => { 'type'  => 'test two',
-                                           'value' => 11,
-                                           'unit'  => $dummy_cv },
+                             'unused' => { 'measurementType'  => 'test two',
+                                           'value'            => 11,
+                                           'unit'             => $dummy_cv },
                          },
     'normalization'     => { 'class'  => 'Bio::MAGETAB::Normalization',
                              'id'     => { 'name' => 'test name' },

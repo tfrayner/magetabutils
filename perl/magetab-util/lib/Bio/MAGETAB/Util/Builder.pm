@@ -163,7 +163,7 @@ my %method_map = (
                            qw( factor term measurement ) ],
 
     'measurement'     => [ 'Bio::MAGETAB::Measurement',
-                           qw( type value minValue maxValue unit ) ],
+                           qw( measurementType value minValue maxValue unit ) ],
 
     'sdrf'            => [ 'Bio::MAGETAB::SDRF',
                            qw( uri ) ],

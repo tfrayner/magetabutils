@@ -407,8 +407,8 @@ sub create_characteristic_measurement {
     return if ( $value =~ $BLANK );
 
     my $measurement = $self->get_builder()->create_measurement({
-        type  => $type,
-        value => $value,
+        measurementType  => $type,
+        value            => $value,
     });
     
     $self->_add_characteristic_to_material( $measurement, $material ) if $material;
@@ -436,7 +436,7 @@ sub create_material_type {
         termSource => $ts_obj,
     });
 
-    $material->set_type( $term ) if $material;
+    $material->set_materialType( $term ) if $material;
 
     return $term;
 }
@@ -539,8 +539,8 @@ sub create_parametervalue {
         protocol => $protocol,
     });
     my $measurement = $self->get_builder()->create_measurement({
-        type  => $paramname,
-        value => $value,
+        measurementType  => $paramname,
+        value            => $value,
     });
 
     # Just a hashref for now. See _link_to_previous for object
@@ -891,7 +891,7 @@ sub create_data_file {
     my $data_file = $self->get_builder()->find_or_create_data_file({
         uri        => $uri,
         format     => $format,
-        type       => $type,
+        dataType   => $type,
     });
 
     $self->_link_to_previous( $data_file, $previous, $protocolapps );
@@ -916,8 +916,8 @@ sub create_data_matrix {
     });
 
     my $data_matrix = $self->get_builder()->find_or_create_data_matrix({
-        uri  => $uri,
-        type => $type,
+        uri      => $uri,
+        dataType => $type,
     });
 
     $self->_link_to_previous( $data_matrix, $previous, $protocolapps );
@@ -930,7 +930,7 @@ sub _get_fv_category_from_factor {
     my ( $self, $factor ) = @_;
 
     my $category;
-    if ( my $ef_oe = $factor->get_type() ) {
+    if ( my $ef_oe = $factor->get_factorType() ) {
                  
 	# Otherwise, derive the category from the EF term:
 	my @ef_catparts = split /_/, $ef_oe->get_value();
@@ -1012,8 +1012,8 @@ sub create_factorvalue_measurement {
     }
 
     my $measurement = $self->get_builder()->create_measurement({
-        type  => $category,
-        value => $value,
+        measurementType  => $category,
+        value            => $value,
     });
     
     my $factorvalue = $self->get_builder()->find_or_create_factor_value({
@@ -1087,7 +1087,7 @@ sub _get_characteristic_type {
         $getter = "get_category";
     }
     elsif ( blessed($char) eq 'Bio::MAGETAB::Measurement' ) {
-        $getter = "get_type";
+        $getter = "get_measurementType";
     }
     else {
         croak("Cannot process argument: $char (" . blessed($char) .")");

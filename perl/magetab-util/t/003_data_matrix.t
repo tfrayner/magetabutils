@@ -38,7 +38,7 @@ sub add_dummy_objects {
     my ( $builder ) = @_;
 
     my $tt = $builder->find_or_create_controlled_term({ category => 'TechnologyType',
-                                                        value   => 'hybridization' });
+                                                        value    => 'hybridization' });
     foreach my $assay ( qw( Hyb1 Hyb2 ) ) {
         $builder->create_assay({ name           => $assay,
                                  technologyType => $tt });
@@ -85,8 +85,8 @@ use Bio::MAGETAB::DataMatrix;
 use Bio::MAGETAB::ControlledTerm;
 my $mtype = Bio::MAGETAB::ControlledTerm->new( category => 'DataType',
                                                value    => 'Dummy', );
-my $dm2 = Bio::MAGETAB::DataMatrix->new( uri  => $filename,
-                                         type => $mtype, );
+my $dm2 = Bio::MAGETAB::DataMatrix->new( uri      => $filename,
+                                         dataType => $mtype, );
 
 lives_ok( sub{ $dm_reader = Bio::MAGETAB::Util::Reader::DataMatrix->new(
     uri            => $filename,

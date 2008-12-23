@@ -46,7 +46,7 @@ sub parse {
         });
         $data_matrix = $self->get_builder()->find_or_create_data_matrix({
             uri               => $self->get_uri(),
-            type              => $type,
+            dataType          => $type,
         });
         $self->set_magetab_object( $data_matrix );
     }

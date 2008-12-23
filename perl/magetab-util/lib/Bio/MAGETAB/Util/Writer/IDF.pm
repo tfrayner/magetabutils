@@ -93,6 +93,12 @@ sub _get_thing_type {
     elsif ( UNIVERSAL::can( $thing, 'get_status' ) ) {
         $type = $thing->get_status();
     }
+    elsif ( UNIVERSAL::can( $thing, 'get_factorType' ) ) {
+        $type = $thing->get_factorType();
+    }
+    elsif ( UNIVERSAL::can( $thing, 'get_protocolType' ) ) {
+        $type = $thing->get_protocolType();
+    }
     else {
         confess("Error: Cannot find a ControlledVocab-linked attribute for "
                     . blessed $thing );
