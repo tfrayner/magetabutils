@@ -47,7 +47,8 @@ my $hashref = {
                                 sequencePolymerType )],
 
                 array  => { designElements => 'Bio::MAGETAB::DesignElement', },
-                iarray => { comments       => 'Bio::MAGETAB::Comment', },
+                iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
+                                          aggreg => 1 }, },
             },
         },
 
@@ -71,7 +72,8 @@ my $hashref = {
             fields => {
                 string => [ qw( name ) ],
                 array  => { databaseEntries => 'Bio::MAGETAB::DatabaseEntry', },
-                iarray => { comments        => 'Bio::MAGETAB::Comment', },
+                iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
+                                          aggreg => 1 }, },
             },
         },
 
@@ -95,7 +97,8 @@ my $hashref = {
                                 fax
                                 address ) ],
                 array  => { roles    => 'Bio::MAGETAB::ControlledTerm' },
-                iarray => { comments => 'Bio::MAGETAB::Comment', },
+                iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
+                                          aggreg => 1 }, },
             },
         },
 
@@ -139,8 +142,10 @@ my $hashref = {
             bases  => [ 'Bio::MAGETAB::Data' ],
             fields => {
                 string => [ qw( rowIdentifierType ) ],
-                iarray => { matrixRows    => 'Bio::MAGETAB::MatrixRow',
-                            matrixColumns => 'Bio::MAGETAB::MatrixColumn', },
+                iarray => { matrixColumns => { class  => 'Bio::MAGETAB::MatrixColumn',
+                                               aggreg => 1 },
+                            matrixRows    => { class  => 'Bio::MAGETAB::MatrixRow',
+                                               aggreg => 1 }, },
             },
         },
 
@@ -148,8 +153,8 @@ my $hashref = {
             abstract => 1,
             bases    => [ 'Bio::MAGETAB::BaseClass' ],
             fields   => {
-                string => [ qw( chromosome
-                                startPosition
+                string => [ qw( chromosome ) ],
+                int    => [ qw( startPosition
                                 endPosition ) ],
             },
         },
@@ -186,9 +191,11 @@ my $hashref = {
         'Bio::MAGETAB::FactorValue' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                ref => [ qw( measurement
-                             term
-                             factor ) ],
+
+                # N.B. measurement better as iref (which is not fully implemented yet).
+                ref  => [ qw( term
+                              measurement
+                              factor ) ],
             },
         },
 
@@ -202,6 +209,7 @@ my $hashref = {
                              blockRow
                              col
                              row ) ],
+                ref => [ qw( reporter ) ],
             },
         },
 
@@ -211,7 +219,7 @@ my $hashref = {
                 string => [ qw( title
                                 description
                                 date
-                                publicReleaseDate) ],
+                                publicReleaseDate ) ],
                 array  => { contacts            => 'Bio::MAGETAB::Contact',
                             protocols           => 'Bio::MAGETAB::Protocol',
                             publications        => 'Bio::MAGETAB::Publication',
@@ -220,9 +228,12 @@ my $hashref = {
                             normalizationTypes  => 'Bio::MAGETAB::ControlledTerm',
                             replicateTypes      => 'Bio::MAGETAB::ControlledTerm',
                             qualityControlTypes => 'Bio::MAGETAB::ControlledTerm', },
-                iarray => { factors      => 'Bio::MAGETAB::Factor',
-                            sdrfs        => 'Bio::MAGETAB::SDRF',
-                            comments     => 'Bio::MAGETAB::Comment', },
+                iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
+                                          aggreg => 1 },
+                            factors  => { class  => 'Bio::MAGETAB::Factor',
+                                          aggreg => 1 },
+                            sdrfs    => { class  => 'Bio::MAGETAB::SDRF',
+                                          aggreg => 1 }, },
             },
         },
         
@@ -240,7 +251,8 @@ my $hashref = {
                 string => [ qw( name description ) ],
                 ref    => [ qw( materialType ) ],
                 array  => { characteristics => 'Bio::MAGETAB::ControlledTerm' },
-                iarray => { measurements    => 'Bio::MAGETAB::Measurement' },
+                iarray => { measurements => { class  => 'Bio::MAGETAB::Measurement',
+                                              aggreg => 1 }, },
             },
         },
 
@@ -276,10 +288,13 @@ my $hashref = {
             abstract => 1,
             bases    => [ 'Bio::MAGETAB::BaseClass' ],
             fields   => {
-                array => { inputEdges  => 'Bio::MAGETAB::Edge',
-                           outputEdges => 'Bio::MAGETAB::Edge',
-                           comments    => 'Bio::MAGETAB::Comment',
-                           sdrfRows    => 'Bio::MAGETAB::SDRFRow', },
+                array  => { sdrfRows    => 'Bio::MAGETAB::SDRFRow', },
+                iarray => { inputEdges  => { class  => 'Bio::MAGETAB::Edge',
+                                             aggreg => 1 },
+                            outputEdges => { class  => 'Bio::MAGETAB::Edge',
+                                             aggreg => 1 },
+                            comments    => { class  => 'Bio::MAGETAB::Comment',
+                                             aggreg => 1 }, },
             },
         },
 
@@ -290,8 +305,11 @@ my $hashref = {
         'Bio::MAGETAB::ParameterValue' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                ref    => [ qw( measurement parameter ) ],
-                iarray => { comments => 'Bio::MAGETAB::Comment' },
+
+                # N.B. measurement better as iref (which is not fully implemented yet).
+                ref    => [ qw( parameter measurement ) ],
+                iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
+                                          aggreg => 1 }, },
             },
         },
 
@@ -311,11 +329,13 @@ my $hashref = {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
 
-                # Performers is a semicolon-delimited list.
+                # Performers is a semicolon-delimited list. FIXME should this be iref/ref?
                 string => [ qw( date performers ) ],
                 ref    => [ qw( protocol ) ],
-                iarray => { parameterValues => 'Bio::MAGETAB::ParameterValue',
-                            comments        => 'Bio::MAGETAB::Comment', },
+                iarray => { comments        => { class  => 'Bio::MAGETAB::Comment',
+                                                 aggreg => 1 },
+                            parameterValues => { class  => 'Bio::MAGETAB::ParameterValue',
+                                                 aggreg => 1 }, },
             },
         },
 
@@ -350,7 +370,8 @@ my $hashref = {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
                 string => [ qw( uri ) ],
-                iarray => { sdrfRows => 'Bio::MAGETAB::SDRFRow' },
+                iarray => { sdrfRows => { class  => 'Bio::MAGETAB::SDRFRow',
+                                          aggreg => 1 }, },
             },
         },
 
@@ -372,7 +393,7 @@ my $hashref = {
             bases  => [ 'Bio::MAGETAB::Material' ],
             fields => {
 
-                # Providers is a semicolon-delimited list.
+                # Providers is a semicolon-delimited list. FIXME should this be iref/ref?
                 string => [ qw( providers ) ],
             },
         },
