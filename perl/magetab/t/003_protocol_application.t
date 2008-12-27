@@ -38,12 +38,14 @@ use Bio::MAGETAB::ProtocolParameter;
 use Bio::MAGETAB::Measurement;
 use Bio::MAGETAB::ParameterValue;
 use Bio::MAGETAB::Comment;
+use Bio::MAGETAB::Contact;
 
 my $prot = Bio::MAGETAB::Protocol->new( name => 'test protocol' );
 my $parm = Bio::MAGETAB::ProtocolParameter->new( name => 'test param', protocol => $prot );
 my $meas = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement', value => 'value' );
 my $pval = Bio::MAGETAB::ParameterValue->new( parameter => $parm, measurement => $meas );
 my $comm = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest' );
+my $perf = Bio::MAGETAB::Contact->new( lastName => 'test_performer' );
 
 my %required_attr = (
     protocol        => $prot,
@@ -54,7 +56,7 @@ my %required_attr = (
 my %optional_attr = (
     date            => '2008-01-01T00:00:00',
     parameterValues => [ $pval ],
-    performers      => [ 'test performer' ],
+    performers      => [ $perf ],
     comments        => [ $comm ],
 );
 
@@ -62,7 +64,7 @@ my %bad_attr = (
     protocol        => 'test',
     date            => [],
     parameterValues => 'test',
-    performers      => 'test',
+    performers      => [ 'test' ],
     comments        => [ 'test' ],
 );
 
@@ -71,6 +73,7 @@ my $parm2 = Bio::MAGETAB::ProtocolParameter->new( name => 'test param', protocol
 my $meas2 = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement', value => 'value 2' );
 my $pval2 = Bio::MAGETAB::ParameterValue->new( parameter => $parm2, measurement => $meas2 );
 my $comm2 = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest 2' );
+my $perf2 = Bio::MAGETAB::Contact->new( lastName => 'test_performer 2' );
 
 # N.B. dates may also be expressed as a hashref to be passed to
 # DateTime->new(), but we don't test that here.
@@ -78,7 +81,7 @@ my %secondary_attr = (
     protocol        => $prot2,
     date            => DateTime->new( year => 2008, month=> 01, day=> 01 ),
     parameterValues => [ $pval2 ],
-    performers      => [ 'test performer2', 'test performer3' ],
+    performers      => [ $perf, $perf2 ],
     comments        => [ $comm2 ],
 );
 

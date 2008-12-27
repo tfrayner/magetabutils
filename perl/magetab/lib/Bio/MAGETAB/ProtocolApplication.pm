@@ -38,7 +38,7 @@ has 'parameterValues'     => ( is         => 'rw',
                                required   => 0 );
 
 has 'performers'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Str]',
+                               isa        => 'ArrayRef[Bio::MAGETAB::Contact]',
                                auto_deref => 1,
                                clearer    => 'clear_performers',
                                predicate  => 'has_performers',
@@ -94,7 +94,7 @@ type: Bio::MAGETAB::ParameterValue).
 =item performers (optional)
 
 A list of people who performed the protocol application (data type:
-String).
+Bio::MAGETAB::Contact).
 
 =item date (optional)
 
