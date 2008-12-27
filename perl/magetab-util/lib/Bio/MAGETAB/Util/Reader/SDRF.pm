@@ -229,7 +229,7 @@ sub create_providers {
 
             # Inelegant, but probably the best we can reliably attempt. FIXME?
             push @preexisting, $self->get_builder()->find_or_create_contact({
-                lastName => $name;
+                lastName => $name,
             });
         }
     }
@@ -511,7 +511,7 @@ sub create_performers {
 
             # Inelegant, but probably the best we can reliably attempt. FIXME?
             push @preexisting, $self->get_builder()->find_or_create_contact({
-                lastName => $name;
+                lastName => $name,
             });
         }
     }
