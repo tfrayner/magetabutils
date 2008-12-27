@@ -289,6 +289,8 @@ sub _link_to_previous {
                     } @{ $param_vals };
                     $app->set_parameterValues( \@val_objs );
                 }
+
+                push @app_objs, $app;
             }
                     
             $edge->set_protocolApplications( \@app_objs );

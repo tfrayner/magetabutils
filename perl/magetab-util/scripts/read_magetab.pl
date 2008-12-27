@@ -32,14 +32,14 @@ use Getopt::Long;
 use Bio::MAGETAB::Util::Reader;
 use Bio::MAGETAB::Util::Writer::Graphviz;
 
-our $VERSION;
 my ( $idf,
      $is_relaxed,
      $authority,
      $namespace,
      $want_help,
      $want_version,
-     $graph_file );
+     $graph_file,
+     $db_file );
 
 GetOptions(
     "i|idf=s"       => \$idf,
@@ -47,6 +47,9 @@ GetOptions(
     "n|namespace=s" => \$namespace,
     "r|relaxed"     => \$is_relaxed,
     "g|graph=s"     => \$graph_file,
+    "d|database=s"  => \$db_file,
+    "h|help"        => \$want_help,
+    "v|version"     => \$want_version,
 );
 
 if ( $want_help || ! ($idf && -r $idf) ) {
@@ -61,6 +64,8 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
     -g :   Filename to use for the ".dot" file if attempting to draw a graph of the SDRF using Graphviz.
+    -d :   SQLite database file to load the generated objects into.
+
     -v :   Print version information.
     -h :   Print this help.
 
@@ -70,7 +75,7 @@ USAGE
 }
 
 if ( $want_version ) {
-    print "This is Bio::MAGETAB::Util::Reader version $VERSION\n";
+    print "This is Bio::MAGETAB::Util::Reader version $Bio::MAGETAB::Util::Reader::VERSION\n";
     exit 255;
 }
 
@@ -104,4 +109,18 @@ if ( $graph_file ) {
         or print STDERR (
             "Error: Graph drawing requires that the Graphviz 'dot' program is installed and on your executable path.\n"
         );
+}
+
+if ( $db_file ) {
+    require Bio::MAGETAB::Util::Persistence;
+    my $db = Bio::MAGETAB::Util::Persistence->new({
+        dbparams => ["dbi:SQLite:$db_file"],
+    });
+
+    unless ( -e $db_file ) {
+        $db->deploy();
+    }
+
+    $db->connect();
+    $db->insert( $reader->get_builder()->get_magetab()->get_investigations() );
 }
