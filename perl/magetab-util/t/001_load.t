@@ -43,3 +43,15 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Writer::Graphviz' );
 }
 
+SKIP: {
+
+    eval {
+        require Tangram;
+        require DBI;
+    };
+
+    skip 'Persistence needs Tangram and DBI.',
+        1 if $@;
+
+    require_ok('Bio::MAGETAB::Util::Persistence');
+}

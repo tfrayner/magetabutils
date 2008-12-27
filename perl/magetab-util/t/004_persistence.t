@@ -75,11 +75,11 @@ SKIP: {
     }))}, 'and a Source');
 
     my $obj;
-    lives_ok( sub{ $obj = $db->get_store()->remote( 'Bio::MAGETAB::Source' ) },
+    lives_ok( sub{ $obj = $db->remote( 'Bio::MAGETAB::Source' ) },
               'we can retrieve a remote Source object');
 
     my @sources;
-    lives_ok( sub{ @sources = $db->get_store()->select( $obj, $obj->{name} eq 'test_source' )},
+    lives_ok( sub{ @sources = $db->select( $obj, $obj->{name} eq 'test_source' )},
               'and use it to query the database');
 
     is( ref $sources[0], 'Bio::MAGETAB::Source', 'to retrieve an object with the desired class');

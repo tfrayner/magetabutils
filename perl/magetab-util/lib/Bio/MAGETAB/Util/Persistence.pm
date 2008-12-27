@@ -424,7 +424,8 @@ has 'config'   => ( is       => 'ro',
                     default  => sub { $hashref }, );
 
 has 'store'    => ( is       => 'rw',
-                    isa      => 'Tangram::Storage', );
+                    isa      => 'Tangram::Storage',
+                    handles  => [qw(insert remote select)] );
 
 has 'dbparams' => ( is         => 'ro',
                     isa        => 'ArrayRef',
@@ -467,15 +468,6 @@ sub connect {
     my $store = Tangram::Relational->connect( $self->get_schema(), $self->get_dbparams() );
 
     $self->set_store( $store );
-
-    return;
-}
-
-sub insert {
-
-    my ( $self, $object ) = @_;
-
-    $self->get_store()->insert( $object );
 
     return;
 }
