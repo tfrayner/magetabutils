@@ -26,7 +26,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 13;
+use Test::More tests => 21;
 use Test::Exception;
 use File::Spec;
 
@@ -48,7 +48,7 @@ SKIP: {
     };
 
     skip 'Tests require Tangram, DBI and DBD::SQLite to be installed',
-	13 if $@;
+	21 if $@;
 
     require_ok( 'Bio::MAGETAB::Util::Persistence');
 
@@ -60,19 +60,37 @@ SKIP: {
 
     lives_ok( sub{ $db->connect() }, 'to which we can successfully connect');
 
-    my $cv = Bio::MAGETAB::ControlledTerm->new({ category => 'testcat',
-                                                 value    => 'testval', });
-    lives_ok( sub{ $db->insert( $cv ) }, 'and insert a ControlledTerm');
-    lives_ok( sub{ $db->insert(
-        Bio::MAGETAB::Sample->new({ name         => 'test_sample',
-                                    namespace    => 'me',
-                                    materialType => $cv, }) ) },
-              'and a Sample');
+    {
+        my $cv = Bio::MAGETAB::ControlledTerm->new({ category => 'testcat',
+                                                     value    => 'testval', });
+        lives_ok( sub{ $db->insert( $cv ) }, 'and insert a ControlledTerm');
+        $cv->set_accession( '12345' );
+        lives_ok( sub{ $db->update( $cv ) }, 'update the ControlledTerm' );
+
+        lives_ok( sub{ $db->insert(
+            Bio::MAGETAB::Sample->new({ name         => 'test_sample',
+                                        namespace    => 'me',
+                                        materialType => $cv, }) ) },
+                  'insert a Sample');
+    }
+
+    my $rem;
+    lives_ok( sub{ $rem = $db->remote('Bio::MAGETAB::ControlledTerm') },
+              'retrieve remote term');
+    my @ncv;
+    lives_ok( sub{ @ncv = $db->select( $rem, $rem->{category} eq 'testcat' & $rem->{value} eq 'testval') },
+              'and use it to query the database');
+    is( ref $ncv[0], 'Bio::MAGETAB::ControlledTerm', 'to retrieve an object with the desired class');
+    is( $ncv[0]->get_accession(), '12345', 'with the correctly updated accession');
+
+    lives_ok( sub{ $db->erase( $ncv[0] ) }, 'calls to erase live');
+    lives_ok( sub{ @ncv = $db->select( $rem ) }, 'retrieval of all terms');
+    is( scalar @ncv, 0, 'now gives an empty array' );
     
     lives_ok( sub{ $db->insert( Bio::MAGETAB::Source->new({
         name         => 'test_source',
         providers    => [ map { Bio::MAGETAB::Contact->new({ lastName => $_ }) } qw( me them others ) ]
-    }))}, 'and a Source');
+    }))}, 'insert a Source');
 
     my $obj;
     lives_ok( sub{ $obj = $db->remote( 'Bio::MAGETAB::Source' ) },

@@ -423,9 +423,16 @@ has 'config'   => ( is       => 'ro',
                     required => 1,
                     default  => sub { $hashref }, );
 
+# We delegate quite a lot to the associated Tangram::Storage
+# instance. We could delegate even more, although tests should then be
+# written to ensure the delegated calls are functioning correctly.
 has 'store'    => ( is       => 'rw',
                     isa      => 'Tangram::Storage',
-                    handles  => [qw(insert remote select)] );
+                    handles  => [qw( insert
+                                     select
+                                     update
+                                     erase
+                                     remote )] );
 
 has 'dbparams' => ( is         => 'ro',
                     isa        => 'ArrayRef',
