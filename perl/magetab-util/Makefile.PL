@@ -34,7 +34,11 @@ requires 'Moose::Policy'               => '0.03';
 requires 'Parse::RecDescent'           => '1.94';
 requires 'Text::CSV_XS'                => '0.32';
 
-build_requires 'Test::Exception'       => '0.26';
+test_requires 'Test::Exception'        => '0.26';
+
+recommends 'Tangram'                   => '2.10';
+recommends 'DBI'                       => '';
+recommends 'DBD::SQLite'               => '';
 
 install_script glob('script/*.pl');
 auto_install;

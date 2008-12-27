@@ -178,6 +178,7 @@ my $hashref = {
 
         'Bio::MAGETAB::Extract' => {
             bases => [ 'Bio::MAGETAB::Material' ],
+            table => 'Bio_MAGETAB_Material',
         },
 
         'Bio::MAGETAB::Factor' => {
@@ -287,6 +288,7 @@ my $hashref = {
         'Bio::MAGETAB::Node' => {
             abstract => 1,
             bases    => [ 'Bio::MAGETAB::BaseClass' ],
+            table    => 'Bio_MAGETAB_BaseClass',
             fields   => {
                 array  => { sdrfRows    => 'Bio::MAGETAB::SDRFRow', },
                 iarray => { inputEdges  => { class  => 'Bio::MAGETAB::Edge',
@@ -300,6 +302,7 @@ my $hashref = {
 
         'Bio::MAGETAB::Normalization' => {
             bases => [ 'Bio::MAGETAB::Event' ],
+            table => 'Bio_MAGETAB_Event',
         },
 
         'Bio::MAGETAB::ParameterValue' => {
@@ -328,10 +331,9 @@ my $hashref = {
         'Bio::MAGETAB::ProtocolApplication' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-
-                # Performers is a semicolon-delimited list. FIXME should this be iref/ref?
-                string => [ qw( date performers ) ],
+                string => [ qw( date ) ],
                 ref    => [ qw( protocol ) ],
+                array  => { performers => 'Bio::MAGETAB::Contact' },
                 iarray => { comments        => { class  => 'Bio::MAGETAB::Comment',
                                                  aggreg => 1 },
                             parameterValues => { class  => 'Bio::MAGETAB::ParameterValue',
@@ -387,14 +389,14 @@ my $hashref = {
 
         'Bio::MAGETAB::Sample' => {
             bases => [ 'Bio::MAGETAB::Material' ],
+            table => 'Bio_MAGETAB_Material',
         },
 
         'Bio::MAGETAB::Source' => {
             bases  => [ 'Bio::MAGETAB::Material' ],
+            table  => 'Bio_MAGETAB_Material',
             fields => {
-
-                # Providers is a semicolon-delimited list. FIXME should this be iref/ref?
-                string => [ qw( providers ) ],
+                array  => { providers => 'Bio::MAGETAB::Contact' },
             },
         },
 
@@ -407,18 +409,42 @@ my $hashref = {
             },
         },
     ],
+
+    # Instantiation of persistent objects in the database needs to
+    # circumvent the Moose type constraints during any
+    # Tangram::Storage->select( $remote, $filter ) calls. This just
+    # returns a blessed hashref; the final objects still obey the
+    # original constraints, however.
+    make_object => sub { my $class = shift; return bless {}, $class },
 };
 
-has 'config' => ( is       => 'ro',
-                  isa      => 'HashRef',
-                  required => 1,
-                  default  => sub { $hashref }, );
+has 'config'   => ( is       => 'ro',
+                    isa      => 'HashRef',
+                    required => 1,
+                    default  => sub { $hashref }, );
+
+has 'store'    => ( is       => 'rw',
+                    isa      => 'Tangram::Storage', );
+
+has 'dbparams' => ( is         => 'ro',
+                    isa        => 'ArrayRef',
+                    required   => 1,
+                    auto_deref => 1, );
+
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    unless ( defined $params->{ 'dbparams' }[0] ) {
+        croak("Error: Database DSN must be specified.");
+    }
+}
 
 sub deploy {
 
-    my ( $self, @params ) = @_;
+    my ( $self ) = @_;
 
-    my $dbh = DBI->connect( @params );
+    my $dbh = DBI->connect( $self->get_dbparams() );
 
     Tangram::Relational->deploy( $self->get_schema(), $dbh );
 
@@ -436,11 +462,22 @@ sub get_schema {
 
 sub connect {
 
-    my ( $self, @params ) = @_;
+    my ( $self ) = @_;
 
-    my $store = Tangram::Relational->connect( $self->get_schema(), @params );
+    my $store = Tangram::Relational->connect( $self->get_schema(), $self->get_dbparams() );
 
-    return $store;
+    $self->set_store( $store );
+
+    return;
+}
+
+sub insert {
+
+    my ( $self, $object ) = @_;
+
+    $self->get_store()->insert( $object );
+
+    return;
 }
 
 # Make the classes immutable. In theory this speeds up object

@@ -1,5 +1,22 @@
 #!/usr/bin/env perl
 #
+# Copyright 2008 Tim Rayner
+# 
+# This file is part of Bio::MAGETAB::Util.
+# 
+# Bio::MAGETAB::Util is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# Bio::MAGETAB::Util is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Bio::MAGETAB::Util.  If not, see <http://www.gnu.org/licenses/>.
+#
 # $Id$
 
 use strict;
@@ -35,17 +52,8 @@ if ( $dbtype eq 'SQLite' && -e $dbname ) {
     die("Error: database file $dbname already exists.\n");
 }
 
-my $db = Bio::MAGETAB::Util::Persistence->new();
-
 my $dsn = "dbi:$dbtype:$dbname";
 
-$db->deploy( $dsn );
+my $db = Bio::MAGETAB::Util::Persistence->new( dbparams => [ $dsn ] );
 
-my $store = $db->connect( $dsn );
-
-my $cv = Bio::MAGETAB::ControlledTerm->new({ category => 'testcat',
-                                             value    => 'testval', });
-$store->insert( $cv );
-$store->insert( Bio::MAGETAB::Sample->new({ name         => 'test_sample',
-                                            namespace    => 'me',
-                                            materialType => $cv, }) );
+$db->deploy();

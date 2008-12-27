@@ -223,10 +223,14 @@ sub create_providers {
     my @preexisting = $source->get_providers();
 
     foreach my $name ( @names ) {
-        my $found = first { $_ eq $name } @preexisting;
+        my $found = first { $_->get_lastName() eq $name } @preexisting;
 
         unless ( $found ) {
-            push @preexisting, $name;
+
+            # Inelegant, but probably the best we can reliably attempt. FIXME?
+            push @preexisting, $self->get_builder()->find_or_create_contact({
+                lastName => $name;
+            });
         }
     }
     
@@ -501,10 +505,14 @@ sub create_performers {
     my @preexisting = $proto_app->{performers} || ();
 
     foreach my $name ( @names ) {
-        my $found = first { $_ eq $name } @preexisting;
+        my $found = first { $_->get_lastName() eq $name } @preexisting;
 
         unless ( $found ) {
-            push @preexisting, $name;
+
+            # Inelegant, but probably the best we can reliably attempt. FIXME?
+            push @preexisting, $self->get_builder()->find_or_create_contact({
+                lastName => $name;
+            });
         }
     }
     
