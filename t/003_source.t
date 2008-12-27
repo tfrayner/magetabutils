@@ -35,9 +35,11 @@ INIT {
 
 use Bio::MAGETAB::ControlledTerm;
 use Bio::MAGETAB::Measurement;
+use Bio::MAGETAB::Contact;
 
 my $ct = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test' );
 my $me = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
+my $pr = Bio::MAGETAB::Contact->new( lastName => 'test_provider' );
 
 my %required_attr = (
     name           => 'test',
@@ -48,7 +50,7 @@ my %optional_attr = (
     description     => 'test',
     characteristics => [ $ct ],
     measurements    => [ $me ],
-    providers       => [ 'test' ],
+    providers       => [ $pr ],
 );
 
 my %bad_attr = (
@@ -57,11 +59,12 @@ my %bad_attr = (
     description     => [],
     characteristics => [ 'test' ],
     measurements    => 'test',
-    providers       => 'test',
+    providers       => [ 'test' ],
 );
 
 my $ct2 = Bio::MAGETAB::ControlledTerm->new( category => 'test', value => 'test 2' );
 my $me2 = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'test' );
+my $pr2 = Bio::MAGETAB::Contact->new( lastName => 'test_provider 2' );
 
 my %secondary_attr = (
     name            => 'test2',
@@ -69,7 +72,7 @@ my %secondary_attr = (
     description     => 'test2',
     characteristics => [ $ct2 ],
     measurements    => [ $me2 ],
-    providers       => [ 'test2' ],
+    providers       => [ $pr2 ],
 );
 
 my $obj = test_class(

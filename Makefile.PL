@@ -36,7 +36,7 @@ requires 'DateTime'                    => '0.4302';
 requires 'DateTime::Format::DateManip' => '0.04';
 requires 'Email::Valid'                => '0.179';
 
-build_requires 'Test::Exception'       => '0.26';
+test_requires 'Test::Exception'        => '0.26';
 
 #install_script glob('script/*.pl');
 auto_install;

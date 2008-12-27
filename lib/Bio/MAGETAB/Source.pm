@@ -25,7 +25,7 @@ use Moose;
 BEGIN { extends 'Bio::MAGETAB::Material' };
 
 has 'providers'           => ( is         => 'rw',
-                               isa        => 'ArrayRef[Str]',
+                               isa        => 'ArrayRef[Bio::MAGETAB::Contact]',
                                auto_deref => 1,
                                clearer    => 'clear_providers',
                                predicate  => 'has_providers',
@@ -59,7 +59,7 @@ graph. L<Bio::MAGETAB::Material> for superclass methods.
 =item providers (optional)
 
 A list of names of providers of the source material (data type:
-String).
+Bio::MAGETAB::Contact).
 
 =back
 
