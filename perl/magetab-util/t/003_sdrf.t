@@ -82,7 +82,8 @@ is( ref $builder, 'Bio::MAGETAB::Util::Builder', 'of the correct class' );
 
 add_dummy_objects( $builder );
 
-my $sdrf = test_parse( $sdrf_reader );
+my $sdrf;
+lives_ok( sub { $sdrf = test_parse( $sdrf_reader ) }, 'parsing completes without exceptions' );
 
 # Test parsing into a supplied magetab_object.
 use Bio::MAGETAB::SDRF;
@@ -90,12 +91,16 @@ my $sdrf2 = Bio::MAGETAB::SDRF->new( uri => $filename );
 
 lives_ok( sub{ $sdrf_reader = Bio::MAGETAB::Util::Reader::SDRF->new( uri            => $filename,
                                                                      magetab_object => $sdrf2, ) },
-          'instantiation uri and magetab_object attributes' );
-add_dummy_objects( $sdrf_reader->get_builder() );
-test_parse( $sdrf_reader );
+          'parser instantiates with uri and magetab_object attributes' );
 
-# These really ought to look identical.
-is_deeply( $sdrf, $sdrf2, 'SDRF objects agree' );
+#########
+# These tests take a long time to run and don't really contribute much.
+#add_dummy_objects( $sdrf_reader->get_builder() );
+#test_parse( $sdrf_reader );
+
+# These two sets of parse results really ought to look identical.
+#is_deeply( $sdrf, $sdrf2, 'SDRF objects agree' );
+#########
 
 # FIXME (IMPORTANT!) check the output against what we expect!
 

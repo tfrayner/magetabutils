@@ -283,10 +283,20 @@ sub _link_to_previous {
 
                 # Generate ParameterVals keyed to this ProtocolApp.
                 if ( $param_vals && scalar @{ $param_vals } ) {
-                    my @val_objs = map {
-                        $_->{protocol_application} = $app;
-                        $self->get_builder()->find_or_create_parameter_value( $_ );
-                    } @{ $param_vals };
+                    my @val_objs;
+                    foreach my $pv ( @{ $param_vals } ) {
+
+                        # Extract the measurement hashref, create the
+                        # parameter value and then the measurement,
+                        # and combine.
+                        my $meas_data = $pv->{measurement_data};
+                        delete $pv->{measurement_data};
+                        $pv->{protocol_application} = $app;
+                        my $pv_obj = $self->get_builder()->find_or_create_parameter_value( $pv );
+                        my $meas = $self->get_builder()->find_or_create_measurement( $meas_data );
+                        $pv_obj->set_measurement( $meas );
+                        push @val_objs, $pv_obj;
+                    }
                     $app->set_parameterValues( \@val_objs );
                 }
 
@@ -415,6 +425,7 @@ sub create_characteristic_measurement {
     my $measurement = $self->get_builder()->create_measurement({
         measurementType  => $type,
         value            => $value,
+        object           => $material,
     });
     
     $self->_add_characteristic_to_material( $measurement, $material ) if $material;
@@ -548,16 +559,29 @@ sub create_parametervalue {
         name     => $paramname,
         protocol => $protocol,
     });
-    my $measurement = $self->get_builder()->create_measurement({
+
+    # This needs to be a hashref also, until such time as the
+    # parameter value is created. This is because the Measurement
+    # object's identity is tied up with the object to which it is
+    # attached.
+    my $measurement_data = {
         measurementType  => $paramname,
         value            => $value,
+    };
+
+    # Create a dummy placeholder measurement until we have sufficient
+    # context to instantiate things. Pre-delete the dummy object.
+    my $measurement = Bio::MAGETAB::Measurement->new({
+        measurementType => '*DUMMY*',
     });
+    $self->get_builder()->get_magetab()->delete_objects( $measurement );
 
     # Just a hashref for now. See _link_to_previous for object
     # creation.
     my $parameterval = {
-        parameter   => $parameter,
-        measurement => $measurement,
+        parameter        => $parameter,
+        measurement_data => $measurement_data,
+        measurement      => $measurement,
     };
 
     $self->_add_parameterval_to_protocolapp(
@@ -1021,15 +1045,17 @@ sub create_factorvalue_measurement {
         $category = $self->_get_fv_category_from_factor( $exp_factor );
     }
 
+    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
+        factor => $exp_factor,
+    });
+
     my $measurement = $self->get_builder()->create_measurement({
         measurementType  => $category,
         value            => $value,
+        object           => $factorvalue,
     });
-    
-    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
-        factor       => $exp_factor,
-        measurement  => $measurement,
-    });
+
+    $factorvalue->set_measurement( $measurement );
 
     return $factorvalue;
 }

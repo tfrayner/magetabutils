@@ -22,7 +22,8 @@
 
 # This is a very simplistic example script to illustrate how one might
 # use the Reader modules to parse a MAGE-TAB document into
-# Bio::MAGETAB objects in memory, and generate an output Graphviz file.
+# Bio::MAGETAB objects in memory or in a database, and generate an
+# output Graphviz visualization.
 
 use strict;
 use warnings;
@@ -87,8 +88,11 @@ my $reader = Bio::MAGETAB::Util::Reader->new(
 $reader->set_authority( $authority ) if defined $authority;
 $reader->set_namespace( $namespace ) if defined $namespace;
 
+# Parse the IDF and any associated SDRFs/ADFs.
 $reader->parse();
 
+# If a graph file was specified, attempt to use Graphviz to draw the
+# experimental design graph.
 if ( $graph_file ) {
 
     open ( my $fh, '>', $graph_file )
@@ -111,16 +115,24 @@ if ( $graph_file ) {
         );
 }
 
+# If a database file was specified, dump the Investigation and all
+# associated objects into a SQLite schema.
 if ( $db_file ) {
+
+    # We default to SQLite here for the sake of simplicity. In
+    # principle, any database backend supported by Tangram should
+    # work.
     require Bio::MAGETAB::Util::Persistence;
     my $db = Bio::MAGETAB::Util::Persistence->new({
         dbparams => ["dbi:SQLite:$db_file"],
     });
 
+    # If this is a new file (recommended), deploy the schema.
     unless ( -e $db_file ) {
         $db->deploy();
     }
 
+    # Connect to the database and dump the objects.
     $db->connect();
     $db->insert( $reader->get_builder()->get_magetab()->get_investigations() );
 }

@@ -163,22 +163,22 @@ my %method_map = (
                            qw( factor term measurement ) ],
 
     'measurement'     => [ 'Bio::MAGETAB::Measurement',
-                           qw( measurementType value minValue maxValue unit ) ],
+                           qw( measurementType value minValue maxValue unit object ) ],
 
     'sdrf'            => [ 'Bio::MAGETAB::SDRF',
                            qw( uri ) ],
 
     'sdrf_row'        => [ 'Bio::MAGETAB::SDRFRow',
-                           qw( rowNumber ) ],
+                           qw( rowNumber sdrf ) ],
 
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
     'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
-                           qw( protocol date ) ],
+                           qw( protocol date edge ) ],
 
     'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
-                           qw( parameter measurement ) ],
+                           qw( parameter measurement protocol_application ) ],
 
     'protocol_parameter' => [ 'Bio::MAGETAB::ProtocolParameter',
                            qw( name protocol ) ],
@@ -222,12 +222,11 @@ my %method_map = (
     'data_matrix'      => [ 'Bio::MAGETAB::DataMatrix',
                            qw( uri ) ],
 
-    # FIXME consider using the data matrix object as part of the internal ID?
     'matrix_column'    => [ 'Bio::MAGETAB::MatrixColumn',
-                           qw( columnNumber ) ],
+                           qw( columnNumber data_matrix ) ],
 
     'matrix_row'       => [ 'Bio::MAGETAB::MatrixRow',
-                           qw( rowNumber ) ],
+                           qw( rowNumber data_matrix ) ],
 
     'feature'          => [ 'Bio::MAGETAB::Feature',
                            qw( blockCol blockRow col row ) ],
@@ -239,26 +238,27 @@ my %method_map = (
                            qw( name ) ],
 
     'comment'           => [ 'Bio::MAGETAB::Comment',
-                           qw( name value ) ],
+                           qw( name value object ) ],
 
 );
 
 # Arguments which aren't actual object attributes, but yet still
 # contribute to its identity.
 my %auxilliary_map = (
-    'sdrf_row'             => qw( sdrf ),
-    'comment'              => qw( object ),
-    'protocol_application' => qw( edge ),
-    'parameter_value'      => qw( protocol_application ),
-    'matrix_column'        => qw( data_matrix ),
-    'matrix_row'           => qw( data_matrix ),
+    'sdrf_row'             => [ qw( sdrf ) ],
+    'comment'              => [ qw( object ) ],
+    'protocol_application' => [ qw( edge ) ],
+    'parameter_value'      => [ qw( protocol_application ) ],
+    'matrix_column'        => [ qw( data_matrix ) ],
+    'matrix_row'           => [ qw( data_matrix ) ],
+    'measurement'          => [ qw( object ) ],
 );
 
 sub _strip_auxilliary_info {
 
     my ( $self, $item, $data ) = @_;
 
-    my %aux = map { $_ => 1 } ( $auxilliary_map{ $item } || [] );
+    my %aux = map { $_ => 1 } @{ $auxilliary_map{ $item } || [] };
 
     my %new_data;
     while ( my ( $key, $value ) = each %$data ) {
