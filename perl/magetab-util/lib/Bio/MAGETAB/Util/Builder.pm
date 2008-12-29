@@ -52,9 +52,65 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                default    => 0,
                                required   => 1 );
 
+sub _create_id {
+
+    my ( $self, $class, $data, $id_fields ) = @_;
+
+    unless ( first { defined $data->{ $_ } } @{ $id_fields } ) {
+        my $allowed = join(', ', @{ $id_fields });
+        confess(qq{Error: No identifying attributes for $class.}
+              . qq{ Must use at least one of the following: $allowed.\n});
+    }
+
+    my $id = join(q{; }.chr(0), map { $data->{$_} || q{} } sort @{ $id_fields });
+
+    # This really should never happen.
+    unless ( $id ) {
+        confess("Error: Null object ID in class $class.\n");
+    }
+
+    return $id;
+}
+
+sub _get_object {
+
+    my ( $self, $class, $data, $id_fields ) = @_;
+
+    my $id = $self->_create_id( $class, $data, $id_fields );
+
+    # Strip out aggregator identifier components.
+    $data = $self->_strip_aggregator_info( $class, $data );
+
+    if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
+        return $retval;
+    }
+    elsif ( $self->get_relaxed_parser() ) {
+
+        # If we're relaxing constraints, try and create an
+        # empty object (in most cases this will probably fail
+        # anyway).
+        my $retval;
+        eval {
+            $retval = $self->_find_or_create_object( $class, $data, $id_fields );
+        };
+        if ( $EVAL_ERROR ) {
+            croak(qq{Error: Unable to autogenerate $class with ID "$id": $EVAL_ERROR\n});
+        }
+        return $retval;
+    }
+    else {
+        croak(qq{Error: $class with ID "$id" is unknown.\n});
+    }
+}
+
 sub _create_object {
 
-    my ( $self, $class, $id, $data ) = @_;
+    my ( $self, $class, $data, $id_fields ) = @_;
+
+    my $id = $self->_create_id( $class, $data, $id_fields );
+
+    # Strip out aggregator identifier components
+    $data = $self->_strip_aggregator_info( $class, $data );
 
     # Strip out any undefined values, which will only create problems
     # during object instantiation.
@@ -71,10 +127,7 @@ sub _create_object {
         %cleaned_data,
     );
 
-    # FIXME are we sure we want to store these in the cache here?
-    # ProtocolApp/ParamValue not terribly useful... (but on the other
-    # hand, objects created should be found later by get_* and
-    # find_or_create_*)
+    # Store object in cache for later retrieval.
     $self->get_object_cache()->{ $class }{ $id } = $obj;
 
     return $obj;
@@ -82,11 +135,12 @@ sub _create_object {
 
 sub _find_or_create_object {
 
-    my ( $self, $class, $id, $data ) = @_;
+    my ( $self, $class, $data, $id_fields ) = @_;
 
-    unless ( defined $id ) {
-        confess("Error: undefined object ID.\n");
-    }
+    my $id = $self->_create_id( $class, $data, $id_fields );
+
+    # Strip out aggregator identifier components
+    $data = $self->_strip_aggregator_info( $class, $data );
 
     my $obj;
     if ( $obj = $self->get_object_cache()->{ $class }{ $id } ) {
@@ -131,7 +185,7 @@ sub _find_or_create_object {
     }
     else {
 
-        $obj = $self->_create_object( $class, $id, $data );
+        $obj = $self->_create_object( $class, $data, $id_fields );
     }
 
     return $obj;
@@ -229,7 +283,7 @@ my %method_map = (
                            qw( rowNumber data_matrix ) ],
 
     'feature'          => [ 'Bio::MAGETAB::Feature',
-                           qw( blockCol blockRow col row ) ],
+                           qw( blockCol blockRow col row array_design ) ],
 
     'reporter'          => [ 'Bio::MAGETAB::Reporter',
                            qw( name ) ],
@@ -243,22 +297,23 @@ my %method_map = (
 );
 
 # Arguments which aren't actual object attributes, but yet still
-# contribute to its identity.
-my %auxilliary_map = (
-    'sdrf_row'             => [ qw( sdrf ) ],
-    'comment'              => [ qw( object ) ],
-    'protocol_application' => [ qw( edge ) ],
-    'parameter_value'      => [ qw( protocol_application ) ],
-    'matrix_column'        => [ qw( data_matrix ) ],
-    'matrix_row'           => [ qw( data_matrix ) ],
-    'measurement'          => [ qw( object ) ],
+# contribute to its identity. Typically this is all about aggregation.
+my %aggregator_map = (
+    'Bio::MAGETAB::SDRFRow'              => [ qw( sdrf ) ],
+    'Bio::MAGETAB::Comment'              => [ qw( object ) ],
+    'Bio::MAGETAB::ProtocolApplication'  => [ qw( edge ) ],
+    'Bio::MAGETAB::ParameterValue'       => [ qw( protocol_application ) ],
+    'Bio::MAGETAB::MatrixColumn'         => [ qw( data_matrix ) ],
+    'Bio::MAGETAB::MatrixRow'            => [ qw( data_matrix ) ],
+    'Bio::MAGETAB::Measurement'          => [ qw( object ) ],
+    'Bio::MAGETAB::Feature'              => [ qw( array_design ) ],
 );
 
-sub _strip_auxilliary_info {
+sub _strip_aggregator_info {
 
-    my ( $self, $item, $data ) = @_;
+    my ( $self, $class, $data ) = @_;
 
-    my %aux = map { $_ => 1 } @{ $auxilliary_map{ $item } || [] };
+    my %aux = map { $_ => 1 } @{ $aggregator_map{ $class } || [] };
 
     my %new_data;
     while ( my ( $key, $value ) = each %$data ) {
@@ -266,13 +321,6 @@ sub _strip_auxilliary_info {
     }
 
     return \%new_data;
-}
-
-sub _create_id {
-
-    my ( $self, $data, $fields ) = @_;
-
-    return join(q{; }.chr(0), map { $data->{$_} || q{} } sort @$fields);
 }
 
 {
@@ -286,52 +334,21 @@ sub _create_id {
         *{"get_${item}"} = sub {
             my ( $self, $data ) = @_;
 
-            my $id = $self->_create_id( $data, \@id_fields );
-
-            # Strip out auxilliary identifier components.
-            $data = $self->_strip_auxilliary_info( $item, $data );
-
-            if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
-                return $retval;
-            }
-            elsif ( $self->get_relaxed_parser() ) {
-
-                # If we're relaxing constraints, try and create an
-                # empty object (in most cases this will probably fail
-                # anyway).
-                my $retval;
-                eval {
-                    $retval = $self->_find_or_create_object( $class, $id, $data );
-                };
-                if ( $EVAL_ERROR ) {
-                    croak(qq{Error: Unable to autogenerate $class with ID "$id": $EVAL_ERROR\n});
-                }
-                return $retval;
-            }
-            else {
-                croak(qq{Error: $class with ID "$id" is unknown.\n});
-            }
+            return $self->_get_object(
+                $class,
+                $data,
+                \@id_fields,
+            );
 	};
 
         # Flexible method to update a previous object or create a new one.
         *{"find_or_create_${item}"} = sub {
             my ( $self, $data ) = @_;
 
-            unless ( first { defined $data->{ $_ } } @id_fields ) {
-                my $allowed = join(', ', @id_fields);
-                confess(qq{Error: No identifying attributes for $class.}
-                      . qq{ Must use at least one of the following: $allowed.\n});
-            }
-
-            my $id = $self->_create_id( $data, \@id_fields );
-
-            # Strip out auxilliary identifier components
-            $data = $self->_strip_auxilliary_info( $item, $data );
-
             return $self->_find_or_create_object(
                 $class,
-                $id,
                 $data,
+                \@id_fields,
             );
         };
 
@@ -339,21 +356,10 @@ sub _create_id {
         *{"create_${item}"} = sub {
             my ( $self, $data ) = @_;
 
-            unless ( first { defined $data->{ $_ } } @id_fields ) {
-                my $allowed = join(', ', @id_fields);
-                confess(qq{Error: No identifying attributes for $class.}
-                      . qq{ Must use at least one of the following: $allowed.\n});
-            }
-
-            my $id = $self->_create_id( $data, \@id_fields );
-
-            # Strip out auxilliary identifier components
-            $data = $self->_strip_auxilliary_info( $item, $data );
-
             return $self->_create_object(
                 $class,
-                $id,
                 $data,
+                \@id_fields,
             );
         }
     }

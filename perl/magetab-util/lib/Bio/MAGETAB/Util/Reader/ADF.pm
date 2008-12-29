@@ -576,6 +576,9 @@ sub _parse_adfrow {
     my $feature;
     my @required_feat_info = qw( blockCol blockRow col row );
     if ( all { defined($feature_data->{$_}) } @required_feat_info ) {
+        my $ad = $self->get_magetab_object()
+            or confess("Error: ArrayDesign MAGETAB object not registered with parser object");
+        $feature_data->{'array_design'} = $ad;
         $feature = $self->get_builder()->find_or_create_feature( $feature_data );
     }
     elsif ( any { defined($feature_data->{$_}) } @required_feat_info ) {
