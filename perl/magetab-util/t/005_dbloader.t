@@ -91,9 +91,34 @@ SKIP: {
         ok( UNIVERSAL::isa( $ts, 'Bio::MAGETAB::TermSource' ), 'of the correct class' );
     }
 
-    # FIXME test for things where the ID depends on linked objects;
-    # test for things where ID depends on aggregators; test for update
-    # of ArrayRef attributes.
+    # Now we test with Edges, where the ID depends on linked objects
+    # (rather than strings).
+    my ($m1, $m2);
+    {
+        lives_ok( sub { $m1 = $loader->find_or_create_source({ name => 'test_source' }) },
+                  'new Source find_or_created' );
+        lives_ok( sub { $m2 = $loader->find_or_create_sample({ name => 'test_sample' }) },
+                  'new Sample find_or_created' );
+        my $e;
+        lives_ok( sub { $e = $loader->find_or_create_edge({ inputNode  => $m1,
+                                                            outputNode => $m2, }) },
+                  'new Edge find_or_created' );
+        ok( UNIVERSAL::isa( $e, 'Bio::MAGETAB::Edge' ), 'of the correct class' );
+        $oid = $loader->get_database()->id( $e );
+    }
+    {
+        my $e;
+        lives_ok( sub { $e = $loader->find_or_create_edge({ inputNode  => $m1,
+                                                            outputNode => $m2, }) },
+                  'old Edge find_or_created' );
+        is( $oid, $loader->get_database()->id( $e ), 'identical to the original' );
+    }
+
+    # FIXME test for things where ID depends on aggregators; test for
+    # update of ArrayRef attributes.
+
+    # FIXME also test for creation and retrieval of DatabaseEntry with
+    # TermSource and no namespace/authority.
 
     unlink $dbfile or die("Error unlinking test database file: $!");
 }

@@ -331,12 +331,17 @@ sub _strip_aggregator_info {
 
     my %aux = map { $_ => 1 } @{ $aggregator_map{ $class } || [] };
 
-    my %new_data;
+    my ( %new_data, @discarded );
     while ( my ( $key, $value ) = each %$data ) {
-        $new_data{ $key } = $value unless $aux{ $key };
+        if ( $aux{ $key } ) {
+            push @discarded, $key;
+        }
+        else {
+            $new_data{ $key } = $value;
+        }
     }
 
-    return \%new_data;
+    return wantarray ? ( \%new_data, \@discarded ) : \%new_data;
 }
 
 {

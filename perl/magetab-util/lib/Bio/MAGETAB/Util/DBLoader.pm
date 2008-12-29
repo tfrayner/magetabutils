@@ -38,15 +38,30 @@ sub _query_database {
 
     my ( $self, $class, $data, $id_fields ) = @_;
 
-    # FIXME;
     my $remote = $self->get_database()->remote( $class );
 
+    my ( $clean_data, $aggregators )
+        = $self->_strip_aggregator_info( $class, $data );
+
+    # Add authority, namespace to $id_fields unless $data has a
+    # termSource or $class is a Bio::MAGETAB::DatabaseEntry.
+    unless ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::DatabaseEntry' )
+        && ! defined $data->{'termSource'} ) {
+        push @{ $id_fields }, qw( namespace authority );
+        $data->{'namespace'} ||= q{};
+        $data->{'authority'} ||= q{};
+    }
+
     my $filter;
+    FIELD:
     foreach my $field ( @{ $id_fields } ) {
 
-        # FIXME deal with aggregators somewhere, probably in a second select?
+        # Don't add aggregator fields to the query (the schema doesn't
+        # know about them).
+        next FIELD if ( first { $field eq $_ } @{ $aggregators } );
 
-        # Much operator overloading mean that we have to be careful here.
+        # Much operator overloading means that we have to be careful
+        # here.
         if ( $filter ) {
             $filter &= ( $remote->{ $field } eq $data->{ $field } );
         }
@@ -55,8 +70,18 @@ sub _query_database {
         }
     }
 
+    # Find objects matching the ID fields.
     my @objects = $self->get_database()->select( $remote, $filter );
 
+    # FIXME deal with aggregators in a second select at this point.
+    foreach my $agg_class ( @{ $aggregators } ) {
+#        my $agg_remote = $self->get_database()->remote( $agg_class );
+#        @objects = grep {
+#            $self->get_database()->select( $agg_remote, $agg_remote->{FIXME} eq $_ ),
+#        } @objects;
+    }
+
+    # Brief sanity check; identity means identity!
     if ( scalar @objects > 1 ) {
         confess("Error: multiple $class objects found in database.");
     }
