@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB::Util.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: deploy_db.pl 146 2008-12-23 00:24:19Z tfrayner $
+# $Id$
 
 # Basic tests for the Persistence module. FIXME this needs to be
 # extended to test insertion, update, retrieval and deletion of all

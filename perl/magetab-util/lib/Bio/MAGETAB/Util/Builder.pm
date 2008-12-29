@@ -37,7 +37,7 @@ has 'namespace'           => ( is         => 'rw',
                                default    => q{},
                                required   => 1 );
 
-has 'object_cache'        => ( is         => 'rw',
+has 'database'            => ( is         => 'rw',
                                isa        => 'HashRef',
                                default    => sub { {} },
                                required   => 1 );
@@ -51,6 +51,16 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                isa        => 'Bool',
                                default    => 0,
                                required   => 1 );
+
+sub update {
+
+    # Empty stub method; updates are not required when the objects are
+    # all held in scope by the database hashref. This method is
+    # overridden in persistence subclasses dealing with
+    # e.g. relational databases.
+
+    1;
+}
 
 sub _create_id {
 
@@ -81,7 +91,7 @@ sub _get_object {
     # Strip out aggregator identifier components.
     $data = $self->_strip_aggregator_info( $class, $data );
 
-    if ( my $retval = $self->get_object_cache()->{ $class }{ $id } ) {
+    if ( my $retval = $self->get_database()->{ $class }{ $id } ) {
         return $retval;
     }
     elsif ( $self->get_relaxed_parser() ) {
@@ -120,7 +130,9 @@ sub _create_object {
     }
 
     # Initial object creation. Namespace, authority can both be
-    # overridden by $data, hence the order here.
+    # overridden by $data, hence the order here. Note that we make no
+    # special allowance for "global" objects such as DatabaseEntry
+    # here; see Builder subclasses for smarter handling.
     my $obj = $class->new(
         'namespace' => $self->get_namespace(),
         'authority' => $self->get_authority(),
@@ -128,7 +140,7 @@ sub _create_object {
     );
 
     # Store object in cache for later retrieval.
-    $self->get_object_cache()->{ $class }{ $id } = $obj;
+    $self->get_database()->{ $class }{ $id } = $obj;
 
     return $obj;
 }
@@ -143,7 +155,7 @@ sub _find_or_create_object {
     $data = $self->_strip_aggregator_info( $class, $data );
 
     my $obj;
-    if ( $obj = $self->get_object_cache()->{ $class }{ $id } ) {
+    if ( $obj = $self->get_database()->{ $class }{ $id } ) {
 
         # Update the old object as appropriate (FIXME this probably
         # isn't perfect).
@@ -155,6 +167,10 @@ sub _find_or_create_object {
             my $getter = "get_$attr";
             my $setter = "set_$attr";
             if( defined $obj->$getter ) {
+
+                # FIXME this doesn't work because of the Moose
+                # auto_deref behaviour. Inspect the metaclass info to
+                # determine constraints?
                 my $old = $obj->$getter;
                 if ( ref $old eq 'ARRAY' ) {
                     if ( ref $value eq 'ARRAY' ) {

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::MAGETAB::Util.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: 003_adf.t 1121 2008-09-05 21:17:49Z tfrayner $
+# $Id$
 
 use strict;
 use warnings;

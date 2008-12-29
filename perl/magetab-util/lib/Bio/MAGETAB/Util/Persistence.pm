@@ -432,6 +432,7 @@ has 'store'    => ( is       => 'rw',
                                      select
                                      update
                                      erase
+                                     id
                                      remote )] );
 
 has 'dbparams' => ( is         => 'ro',
