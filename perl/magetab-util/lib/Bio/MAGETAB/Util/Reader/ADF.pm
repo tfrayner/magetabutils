@@ -517,6 +517,9 @@ sub _parse_adfrow_for_composite {
                      # We allow comment[] tags here, even though it
                      # isn't actually in the v1.1 specification.
                      my $name = defined $hc->[1] ? $hc->[1] : 'CompositeElementComment';
+
+                     # FIXME this should ideally include the
+                     # composite element as 'object' for ID purposes.
                      push @{ $data{'comments'} },
                          $self->get_builder()->create_comment({
                              name  => $name,

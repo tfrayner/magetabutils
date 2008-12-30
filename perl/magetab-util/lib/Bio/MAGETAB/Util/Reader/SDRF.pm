@@ -96,7 +96,7 @@ sub parse {
 
         # We know we only see each row just once, and Builder uniques
         # these by SDRF.
-        push @sdrf_rows, $self->get_builder()->create_sdrf_row({
+        push @sdrf_rows, $self->get_builder()->find_or_create_sdrf_row({
             factorValues => \@factorvals,
             nodes        => \@nodes,
             channel      => $channel,
@@ -300,6 +300,7 @@ sub _link_to_previous {
                         delete $pv->{measurement_data};
                         $pv->{protocol_application} = $app;
                         my $pv_obj = $self->get_builder()->find_or_create_parameter_value( $pv );
+                        $meas_data->{object} = $pv_obj;
                         my $meas = $self->get_builder()->find_or_create_measurement( $meas_data );
                         $pv_obj->set_measurement( $meas );
                         $self->get_builder()->update( $pv_obj );
@@ -436,7 +437,7 @@ sub create_characteristic_measurement {
 
     return if ( $value =~ $BLANK );
 
-    my $measurement = $self->get_builder()->create_measurement({
+    my $measurement = $self->get_builder()->find_or_create_measurement({
         measurementType  => $type,
         value            => $value,
         object           => $material,
@@ -1067,7 +1068,7 @@ sub create_factorvalue_measurement {
         factor => $exp_factor,
     });
 
-    my $measurement = $self->get_builder()->create_measurement({
+    my $measurement = $self->get_builder()->find_or_create_measurement({
         measurementType  => $category,
         value            => $value,
         object           => $factorvalue,
@@ -1120,9 +1121,10 @@ sub create_comment {
 
     return if ( $value =~ $BLANK );
 
-    my $comment = $self->get_builder()->create_comment({
-	name  => $name,
-	value => $value,
+    my $comment = $self->get_builder()->find_or_create_comment({
+	name   => $name,
+	value  => $value,
+        object => $thing,
     });
 
     $self->_add_comment_to_thing( $comment, $thing )

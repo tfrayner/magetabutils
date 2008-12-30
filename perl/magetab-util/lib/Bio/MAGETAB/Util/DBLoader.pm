@@ -104,7 +104,7 @@ sub _query_database {
         }
     }
 
-    if ( $class eq 'Bio::MAGETAB::DataMatrix' ) {
+    if ( $class eq 'Bio::MAGETAB::SDRFRow' ) {
         use Data::Dumper; warn Dumper $filter;
     }
     # Find objects matching the ID fields.
