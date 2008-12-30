@@ -24,7 +24,7 @@
 use strict;
 use warnings;
 
-use Test::More qw( no_plan ); #tests => 21;
+use Test::More tests => 34;
 use Test::Exception;
 use File::Spec;
 
@@ -42,7 +42,7 @@ SKIP: {
     };
 
     skip 'Tests require Bio::MAGETAB::Util::Persistence to be loadable',
-	1 if $@;
+	34 if $@;
 
     my $db = Bio::MAGETAB::Util::Persistence->new({ dbparams => [ $dsn ] });
     $db->deploy();

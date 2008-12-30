@@ -104,6 +104,9 @@ sub parse {
             sdrf         => $sdrf,
         });
 
+        # Maintain the reciprocal relationship in storage.
+        $self->get_builder()->update( @nodes );
+
         $row_number++;
     }
 
@@ -266,6 +269,9 @@ sub _link_to_previous {
             inputNode  => $previous,
             outputNode => $obj,
         });
+
+        # Maintain the reciprocal relationship in storage.
+        $self->get_builder()->update( $previous, $obj );
 
         # FIXME this doesn't adequately address the possible options,
         # in which PAs may be different between SDRF rows on what is
