@@ -44,12 +44,12 @@ my $meas = Bio::MAGETAB::Measurement->new( measurementType => 'test measurement'
 my $comm = Bio::MAGETAB::Comment->new( name => 'test comment', value => 'of interest' );
 
 my %required_attr = (
-    measurement => $meas,
     parameter   => $parm,
 );
 
 my %optional_attr = (
     comments    => [ $comm ],
+    measurement => $meas,
 );
 
 my %bad_attr = (
