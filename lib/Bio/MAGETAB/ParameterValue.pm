@@ -24,9 +24,11 @@ use Moose;
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
+# Not required because (a) a controlled term may be added later, and
+# (b) it makes this class just that little bit easier to use.
 has 'measurement'         => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Measurement',
-                               required   => 1 );
+                               required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
                                isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
@@ -65,9 +67,11 @@ alternative. See L<Bio::MAGETAB::BaseClass> for superclass methods.
 
 =over 2
 
-=item measurement (required)
+=item measurement (optional)
 
-A measurement giving the actual value of the parameter (data type:
+A measurement giving the actual value of the parameter. This is not
+required because at some stage an optional controlled term attribute
+may be added as well; c.f. Material (data type:
 Bio::MAGETAB::Measurement).
 
 =item parameter (required)
