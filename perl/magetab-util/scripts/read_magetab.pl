@@ -80,13 +80,15 @@ if ( $want_version ) {
     exit 255;
 }
 
+$namespace ||= q{};
+$authority ||= q{};
+
 my $reader = Bio::MAGETAB::Util::Reader->new(
     idf            => $idf,
     relaxed_parser => $is_relaxed,
+    namespace      => $namespace,
+    authority      => $authority,
 );
-
-$reader->set_authority( $authority ) if defined $authority;
-$reader->set_namespace( $namespace ) if defined $namespace;
 
 # If a database file was specified, dump the Investigation and all
 # associated objects into a SQLite schema.
@@ -110,7 +112,9 @@ if ( $db_file ) {
     $db->connect();
 
     my $builder = Bio::MAGETAB::Util::DBLoader->new({
-        database => $db,
+        database  => $db,
+        namespace => $namespace,
+        authority => $authority,
     });
 
     $reader->set_builder( $builder );

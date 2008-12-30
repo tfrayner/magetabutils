@@ -87,7 +87,7 @@ sub parse {
                 $row_identifier_type,
                 $de_namespace,
             );
-            push @matrix_rows, $self->get_builder()->create_matrix_row({
+            push @matrix_rows, $self->get_builder()->find_or_create_matrix_row({
                 rowNumber     => $row_number,
                 designElement => $element,
                 data_matrix   => $data_matrix,
@@ -108,7 +108,7 @@ sub parse {
     # Create the MatrixColumn objects.
     my @matrix_columns;
     for ( my $col_number = 1; $col_number < scalar @{ $qts }; $col_number++ ) {
-        push @matrix_columns, $self->get_builder()->create_matrix_column({
+        push @matrix_columns, $self->get_builder()->find_or_create_matrix_column({
             columnNumber     => $col_number,
             quantitationType => $qts->[ $col_number ],
             referencedNodes  => $nodes->[ $col_number ],

@@ -588,17 +588,12 @@ sub create_parametervalue {
 
     # Create a dummy placeholder measurement until we have sufficient
     # context to instantiate things. Pre-delete the dummy object.
-    my $measurement = Bio::MAGETAB::Measurement->new({
-        measurementType => '*DUMMY*',
-    });
-    $self->get_builder()->get_magetab()->delete_objects( $measurement );
 
     # Just a hashref for now. See _link_to_previous for object
     # creation.
     my $parameterval = {
         parameter        => $parameter,
         measurement_data => $measurement_data,
-        measurement      => $measurement,
     };
 
     $self->_add_parameterval_to_protocolapp(

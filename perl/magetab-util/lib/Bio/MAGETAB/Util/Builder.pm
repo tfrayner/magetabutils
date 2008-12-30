@@ -370,7 +370,7 @@ sub _strip_aggregator_info {
             return $self->_get_object(
                 $class,
                 $data,
-                \@id_fields,
+                [ @id_fields ],
             );
 	};
 
@@ -381,7 +381,7 @@ sub _strip_aggregator_info {
             return $self->_find_or_create_object(
                 $class,
                 $data,
-                \@id_fields,
+                [ @id_fields ],
             );
         };
 
@@ -392,7 +392,7 @@ sub _strip_aggregator_info {
             return $self->_create_object(
                 $class,
                 $data,
-                \@id_fields,
+                [ @id_fields ],
             );
         }
     }

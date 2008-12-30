@@ -58,16 +58,17 @@ sub _query_database {
     # termSource or $class is a Bio::MAGETAB::DatabaseEntry.
     unless ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::DatabaseEntry' )
         && ! defined $data->{'termSource'} ) {
-        push @{ $id_fields }, qw( namespace authority );
-        $clean_data->{'namespace'} ||= q{};
-        $clean_data->{'authority'} ||= q{};
+        my %tmp_fields = map { $_ => 1 } @{ $id_fields }, qw( namespace authority );
+        $id_fields = [ keys %tmp_fields ];
+        $data->{'namespace'} ||= $self->get_namespace();
+        $data->{'authority'} ||= $self->get_authority();
     }
 
     my $filter;
     FIELD:
     foreach my $field ( @{ $id_fields } ) {
 
-        my $value = $clean_data->{ $field };
+        my $value = $data->{ $field };
 
         # Don't add aggregator fields to the query (the schema doesn't
         # know about them). Also skip empty fields.
@@ -79,6 +80,20 @@ sub _query_database {
         $value = undef if ( UNIVERSAL::isa( $value, 'Bio::MAGETAB::BaseClass' )
             && ! $self->id( $value ) );
 
+        # Another special case - URI can change in the model between
+        # input and output (specifically, a file: prefix may be
+        # added). This is copied from Bio::MAGETAB::Types. FIXME date
+        # will need the same treatment.
+        if ( $field eq 'uri' ) {
+            use URI;
+            $value = URI->new( $value );
+
+            # We assume here that thet default URI scheme is "file".
+            unless ( $value->scheme() ) {
+                $value->scheme('file');
+            }
+        }
+
         # Much operator overloading means that we have to be careful
         # here.
         if ( $filter ) {
@@ -89,6 +104,9 @@ sub _query_database {
         }
     }
 
+    if ( $class eq 'Bio::MAGETAB::DataMatrix' ) {
+        use Data::Dumper; warn Dumper $filter;
+    }
     # Find objects matching the ID fields.
     my @objects = $self->select( $remote, $filter );
 
