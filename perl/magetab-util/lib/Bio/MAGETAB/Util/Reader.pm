@@ -54,7 +54,7 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                default    => 0,
                                required   => 1 );
 
-has 'builder'             => ( is         => 'ro',
+has 'builder'             => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Util::Builder',
                                default    => sub { Bio::MAGETAB::Util::Builder->new() },
                                required   => 1 );

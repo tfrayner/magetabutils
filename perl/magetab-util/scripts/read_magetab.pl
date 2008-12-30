@@ -88,6 +88,34 @@ my $reader = Bio::MAGETAB::Util::Reader->new(
 $reader->set_authority( $authority ) if defined $authority;
 $reader->set_namespace( $namespace ) if defined $namespace;
 
+# If a database file was specified, dump the Investigation and all
+# associated objects into a SQLite schema.
+if ( $db_file ) {
+
+    # We default to SQLite here for the sake of simplicity. In
+    # principle, any database backend supported by Tangram should
+    # work.
+    require Bio::MAGETAB::Util::Persistence;
+    require Bio::MAGETAB::Util::DBLoader;
+    my $db = Bio::MAGETAB::Util::Persistence->new({
+        dbparams => ["dbi:SQLite:$db_file"],
+    });
+
+    # If this is a new file (recommended), deploy the schema.
+    unless ( -e $db_file ) {
+        $db->deploy();
+    }
+
+    # Connect to the database and dump the objects.
+    $db->connect();
+
+    my $builder = Bio::MAGETAB::Util::DBLoader->new({
+        database => $db,
+    });
+
+    $reader->set_builder( $builder );
+}
+
 # Parse the IDF and any associated SDRFs/ADFs.
 $reader->parse();
 
@@ -113,26 +141,4 @@ if ( $graph_file ) {
         or print STDERR (
             "Error: Graph drawing requires that the Graphviz 'dot' program is installed and on your executable path.\n"
         );
-}
-
-# If a database file was specified, dump the Investigation and all
-# associated objects into a SQLite schema.
-if ( $db_file ) {
-
-    # We default to SQLite here for the sake of simplicity. In
-    # principle, any database backend supported by Tangram should
-    # work.
-    require Bio::MAGETAB::Util::Persistence;
-    my $db = Bio::MAGETAB::Util::Persistence->new({
-        dbparams => ["dbi:SQLite:$db_file"],
-    });
-
-    # If this is a new file (recommended), deploy the schema.
-    unless ( -e $db_file ) {
-        $db->deploy();
-    }
-
-    # Connect to the database and dump the objects.
-    $db->connect();
-    $db->insert( $reader->get_builder()->get_magetab()->get_investigations() );
 }

@@ -185,10 +185,37 @@ SKIP: {
             'database contains the correct number of Features');
     }
 
-    # Test for update of ArrayRef attributes (not implemented yet FIXME).
+    # Test for update of ArrayRef attributes.
+    {
+        my $design = $loader->find_or_create_controlled_term({
+            category => 'DesignType',
+            value    => 'test1',
+        });
+        $loader->find_or_create_investigation({
+            title       => 'test_investigation',
+            designTypes => [ $design ],
+        });
+        my $design2 = $loader->find_or_create_controlled_term({
+            category => 'DesignType',
+            value    => 'test2',
+        });
+        $loader->find_or_create_investigation({
+            title       => 'test_investigation',
+            designTypes => [ $design, $design2 ],
+        });
+    }
+    {
+        my $inv = $loader->find_or_create_investigation({ title => 'test_investigation' });
+        my @types = $inv->get_designTypes();
+        is ( scalar @types, 2, '1..N attribute updates successfully' );
+        is_deeply( [ sort map { $_->get_value() } @types ],
+                   [ qw( test1 test2 ) ],
+                   'with the correct target values' );
+    }
+
 
     # FIXME also test for creation and retrieval of DatabaseEntry with
     # TermSource and no namespace/authority.
 
-#    unlink $dbfile or die("Error unlinking test database file: $!");
+    unlink $dbfile or die("Error unlinking test database file: $!");
 }

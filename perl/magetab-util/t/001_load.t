@@ -24,7 +24,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Builder' );
@@ -51,7 +51,8 @@ SKIP: {
     };
 
     skip 'Persistence needs Tangram and DBI.',
-        1 if $@;
+        2 if $@;
 
     require_ok('Bio::MAGETAB::Util::Persistence');
+    require_ok('Bio::MAGETAB::Util::DBLoader');
 }

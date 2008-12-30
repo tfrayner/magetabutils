@@ -43,6 +43,12 @@ sub _query_database {
 
     my ( $self, $class, $data, $id_fields ) = @_;
 
+    unless ( first { defined $data->{ $_ } } @{ $id_fields } ) {
+        my $allowed = join(', ', @{ $id_fields });
+        confess(qq{Error: No identifying attributes for $class.}
+              . qq{ Must use at least one of the following: $allowed.\n});
+    }
+
     my $remote = $self->remote( $class );
 
     my ( $clean_data, $aggregators )
@@ -61,17 +67,25 @@ sub _query_database {
     FIELD:
     foreach my $field ( @{ $id_fields } ) {
 
+        my $value = $clean_data->{ $field };
+
         # Don't add aggregator fields to the query (the schema doesn't
-        # know about them).
-        next FIELD if ( first { $field eq $_ } @{ $aggregators } );
+        # know about them). Also skip empty fields.
+        next FIELD if ( ! defined( $value )
+                            || first { $field eq $_ } @{ $aggregators } );
+
+        # Skip the field if it's looking for a dummy object not in the
+        # database yet.
+        $value = undef if ( UNIVERSAL::isa( $value, 'Bio::MAGETAB::BaseClass' )
+            && ! $self->id( $value ) );
 
         # Much operator overloading means that we have to be careful
         # here.
         if ( $filter ) {
-            $filter &= ( $remote->{ $field } eq $clean_data->{ $field } );
+            $filter &= ( $remote->{ $field } eq $value );
         }
         else {
-            $filter  = ( $remote->{ $field } eq $clean_data->{ $field } );
+            $filter  = ( $remote->{ $field } eq $value );
         }
     }
 
@@ -197,47 +211,8 @@ sub _find_or_create_object {
 
     if ( $obj ) {
 
-        # Update the old object as appropriate (FIXME this probably
-        # isn't perfect).
-        ATTR:
-        while ( my ( $attr, $value ) = each %{ $data } ) {
-
-            next ATTR unless ( defined $value );
-
-            my $getter = "get_$attr";
-            my $setter = "set_$attr";
-            if( defined $obj->$getter ) {
-
-                # FIXME this doesn't work because of the Moose
-                # auto_deref behaviour. Inspect the metaclass info to
-                # determine constraints?
-                my $old = $obj->$getter;
-                if ( ref $old eq 'ARRAY' ) {
-                    if ( ref $value eq 'ARRAY' ) {
-                        foreach my $item ( @$value ) {
-                         
-                            # If this is a list attribute, add the new value.
-                            unless ( first { $_ eq $item } @{ $old } ) {
-                                push @{ $old }, $item;
-                            }
-                        }
-                    }
-                    else {
-                        croak("Error: ArrayRef value expected for $class $attr");
-                    }
-                }
-                else {
-
-                    # Otherwise, we leave it alone (older values take
-                    # precedence).
-                }
-            }
-            else {
-
-                # If unset to start with, we set the new value.
-                $obj->$setter( $value );
-            }
-        }
+        # Update the old object as appropriate.
+        $self->_update_object_attributes( $obj, $data );
 
         # Write the changes to the database.
         $self->update( $obj );

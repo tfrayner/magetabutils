@@ -82,6 +82,57 @@ sub _create_id {
     return $id;
 }
 
+sub _update_object_attributes {
+
+    my ( $self, $obj, $data ) = @_;
+
+    my $class = $obj->meta()->name();
+
+    ATTR:
+    while ( my ( $attr, $value ) = each %{ $data } ) {
+
+        next ATTR unless ( defined $value );
+
+        my $getter = "get_$attr";
+        my $setter = "set_$attr";
+        my $has_a  = "has_$attr";
+
+        # Object either must have attr or has a predicate method.
+        if( ! UNIVERSAL::can( $obj, $has_a ) || $obj->$has_a ) {
+
+            my $attr_obj = $obj->meta->find_attribute_by_name( $attr );
+            my $type = $attr_obj->type_constraint()->name();
+
+            if ( $type =~ /\A ArrayRef/xms ) {
+                if ( ref $value eq 'ARRAY' ) {
+                    my @old = $obj->$getter;
+                    foreach my $item ( @$value ) {
+                         
+                        # If this is a list attribute, add the new value.
+                        unless ( first { $_ eq $item } @old ) {
+                            push @old, $item;
+                        }
+                    }
+                    $obj->$setter( \@old );
+                }
+                else {
+                    croak("Error: ArrayRef value expected for $class $attr");
+                }
+            }
+            else {
+                
+                # Otherwise, we leave it alone (older values take
+                # precedence).
+            }
+        }
+        else {
+
+            # If unset to start with, we set the new value.
+            $obj->$setter( $value );
+        }
+    }
+}
+
 sub _get_object {
 
     my ( $self, $class, $data, $id_fields ) = @_;
@@ -157,47 +208,8 @@ sub _find_or_create_object {
     my $obj;
     if ( $obj = $self->get_database()->{ $class }{ $id } ) {
 
-        # Update the old object as appropriate (FIXME this probably
-        # isn't perfect).
-        ATTR:
-        while ( my ( $attr, $value ) = each %{ $data } ) {
-
-            next ATTR unless ( defined $value );
-
-            my $getter = "get_$attr";
-            my $setter = "set_$attr";
-            if( defined $obj->$getter ) {
-
-                # FIXME this doesn't work because of the Moose
-                # auto_deref behaviour. Inspect the metaclass info to
-                # determine constraints?
-                my $old = $obj->$getter;
-                if ( ref $old eq 'ARRAY' ) {
-                    if ( ref $value eq 'ARRAY' ) {
-                        foreach my $item ( @$value ) {
-                         
-                            # If this is a list attribute, add the new value.
-                            unless ( first { $_ eq $item } @{ $old } ) {
-                                push @{ $old }, $item;
-                            }
-                        }
-                    }
-                    else {
-                        croak("Error: ArrayRef value expected for $class $attr");
-                    }
-                }
-                else {
-
-                    # Otherwise, we leave it alone (older values take
-                    # precedence).
-                }
-            }
-            else {
-
-                # If unset to start with, we set the new value.
-                $obj->$setter( $value );
-            }
-        }
+        # Update the old object as appropriate.
+        $self->_update_object_attributes( $obj, $data );
     }
     else {
 

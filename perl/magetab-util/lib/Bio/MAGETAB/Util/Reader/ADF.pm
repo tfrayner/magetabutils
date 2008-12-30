@@ -344,6 +344,7 @@ sub parse_body {
     my $array_design;
     if ( $array_design = $self->get_magetab_object() ) {
         $array_design->set_designElements( [ values %design_elements ] );
+        $self->get_builder()->update( $array_design );
     }
     else {
 
@@ -369,6 +370,7 @@ sub _add_composite_to_reporter {
     unless ( $found ) {
         push @previous, $composite;
         $reporter->set_compositeElements( \@previous );
+        $self->get_builder()->update( $reporter );
     }
 
     return;
@@ -476,11 +478,13 @@ sub _parse_adfrow_for_reporter {
     if ( $group_ts ) {
         foreach my $group ( @{ $data{'groups'} } ) {
             $group->set_termSource( $group_ts );
+            $self->get_builder()->update( $group );
         }
     }
     if ( $ctype_ts ) {
         if ( my $ctype = $data{'controlType'} ) {
             $ctype->set_termSource( $ctype_ts );
+            $self->get_builder()->update( $ctype );
         }
     }
 
@@ -695,6 +699,7 @@ sub _generate_array_design {
 
     my $comments = $self->_create_comments();
     $array_design->set_comments( $comments );
+    $self->get_builder()->update( $array_design );
 
     return $array_design;    
 }

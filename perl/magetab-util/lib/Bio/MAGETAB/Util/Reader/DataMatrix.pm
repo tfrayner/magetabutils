@@ -120,6 +120,7 @@ sub parse {
     $data_matrix->set_rowIdentifierType( $row_identifier_type );
     $data_matrix->set_matrixColumns( \@matrix_columns );
     $data_matrix->set_matrixRows( \@matrix_rows );
+    $self->get_builder()->update( $data_matrix );
 
     return $data_matrix;
 }

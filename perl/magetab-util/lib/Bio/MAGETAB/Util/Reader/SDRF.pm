@@ -111,7 +111,10 @@ sub parse {
     $self->_confirm_full_parse( $csv_parser );
 
     # Add the rows to the SDRF object.
-    $sdrf->set_sdrfRows( \@sdrf_rows ) if scalar @sdrf_rows;
+    if ( scalar @sdrf_rows ) {
+        $sdrf->set_sdrfRows( \@sdrf_rows );
+        $self->get_builder()->update( $sdrf );
+    }
 
     return $sdrf;
 }
@@ -235,6 +238,7 @@ sub create_providers {
     }
     
     $source->set_providers( \@preexisting );
+    $self->get_builder()->update( $source );
 
     return \@names;
 }
@@ -245,7 +249,10 @@ sub create_description {
 
     return if ( $description =~ $BLANK );
 
-    $describable->set_description( $description ) if $describable;
+    if ( $describable ) {
+        $describable->set_description( $description );
+        $self->get_builder()->update( $describable );
+    }
 
     return $description;
 }
@@ -295,15 +302,19 @@ sub _link_to_previous {
                         my $pv_obj = $self->get_builder()->find_or_create_parameter_value( $pv );
                         my $meas = $self->get_builder()->find_or_create_measurement( $meas_data );
                         $pv_obj->set_measurement( $meas );
+                        $self->get_builder()->update( $pv_obj );
+
                         push @val_objs, $pv_obj;
                     }
                     $app->set_parameterValues( \@val_objs );
+                    $self->get_builder()->update( $app );
                 }
 
                 push @app_objs, $app;
             }
                     
             $edge->set_protocolApplications( \@app_objs );
+            $self->get_builder()->update( $edge );
         }
     }
 
@@ -386,7 +397,10 @@ sub create_label {
         'termSource' => $ts_obj,
     });
 
-    $le->set_label( $label ) if $le;
+    if ( $le ) {
+        $le->set_label( $label );
+        $self->get_builder()->update( $le );
+    }
 
     return $label;
 }
@@ -453,7 +467,10 @@ sub create_material_type {
         termSource => $ts_obj,
     });
 
-    $material->set_materialType( $term ) if $material;
+    if ( $material ) {
+        $material->set_materialType( $term );
+        $self->get_builder()->update( $material );
+    }
 
     return $term;
 }
@@ -642,6 +659,7 @@ sub _add_value_to_parameter {
 
     # FIXME this call not yet implemented and will fail.
     $parameter->set_term( $term );
+    $self->get_builder()->update( $parameter );
 
     return;
 }
@@ -683,10 +701,12 @@ sub _add_unit_to_thing {
     # Either $thing has a unit, or a measurement.
     if ( UNIVERSAL::can( $thing, 'set_unit') ) {
         $thing->set_unit( $unit );
+        $self->get_builder()->update( $thing );
     }
     elsif ( $thing->has_measurement() ) {
         my $meas = $thing->get_measurement();
         $meas->set_unit( $unit );
+        $self->get_builder()->update( $meas );
     }
     else{
         croak("Error: Cannot process argument: $thing (" . blessed($thing) .")");
@@ -717,6 +737,7 @@ sub create_technology_type {
 
     if ( $assay ) {
         $assay->set_technologyType( $type );
+        $self->get_builder()->update( $assay );
     }
 
     return $type;
@@ -810,6 +831,7 @@ sub create_array {
 
     if ( $assay ) {
         $assay->set_arrayDesign( $array_design );
+        $self->get_builder()->update( $assay );
     }
 
     return $array_design;
@@ -837,6 +859,7 @@ sub create_array_from_file {
 
     if ( $assay ) {
         $assay->set_arrayDesign( $array_design );
+        $self->get_builder()->update( $assay );
     }
 
     return $array_design;
@@ -1056,6 +1079,7 @@ sub create_factorvalue_measurement {
     });
 
     $factorvalue->set_measurement( $measurement );
+    $self->get_builder()->update( $factorvalue );
 
     return $factorvalue;
 }
@@ -1085,6 +1109,7 @@ sub _add_comment_to_thing {
 
         if ( blessed($thing) ) {
             $thing->set_comments( \@preexisting );
+            $self->get_builder()->update( $thing );
         }
         else {
             $thing->{comments} = \@preexisting if scalar @preexisting;
@@ -1167,6 +1192,7 @@ sub _add_characteristic_to_material {
         else { # Must therefore be Bio::MAGETAB::Measurement
             $material->set_measurements( \@preexisting );
         }
+        $self->get_builder()->update( $material );
     }
 
     return;

@@ -229,8 +229,11 @@ sub _create_factors {
             'termSource' => $termsource,
         });
 
-        $type->set_accession( $f_data->{'accession'} )
-            if ( defined $f_data->{'accession'} && ! defined $type->get_accession() );
+        if ( defined $f_data->{'accession'} && ! defined $type->get_accession() ) {
+            $type->set_accession( $f_data->{'accession'} );
+            $self->get_builder()->update( $type );
+        }
+            
 
         my $args = {
             'name'       => $f_data->{'name'},
@@ -265,8 +268,10 @@ sub _create_people {
                 'value'      => $_,
                 'termSource' => $termsource,
             });
-            $role->set_accession( $p_data->{'accession'} )
-                if ( defined $p_data->{'accession'} && ! defined $role->get_accession() );
+            if ( defined $p_data->{'accession'} && ! defined $role->get_accession() ) {
+                $role->set_accession( $p_data->{'accession'} );
+                $self->get_builder()->update( $role );
+            }                
             $role;
         } split /\s*;\s*/, $p_data->{'roles'};
 
@@ -302,8 +307,10 @@ sub _create_protocols {
             'termSource' => $termsource,
         });
 
-        $type->set_accession( $p_data->{'accession'} )
-            if ( defined $p_data->{'accession'} && ! defined $type->get_accession() );
+        if ( defined $p_data->{'accession'} && ! defined $type->get_accession() ) {
+            $type->set_accession( $p_data->{'accession'} );
+            $self->get_builder()->update( $type );
+        }
 
         my @wanted = grep { $_ !~ /^parameters|protocolType|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
@@ -346,8 +353,10 @@ sub _create_publications {
             'termSource' => $termsource,
         });
 
-        $status->set_accession( $p_data->{'accession'} )
-            if ( defined $p_data->{'accession'} && ! defined $status->get_accession() );
+        if ( defined $p_data->{'accession'} && ! defined $status->get_accession() ) {
+            $status->set_accession( $p_data->{'accession'} );
+            $self->get_builder()->update( $status );
+        }
 
         my @wanted = grep { $_ !~ /^status|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
@@ -417,6 +426,7 @@ sub _create_investigation {
 
     my $comments = $self->_create_comments();
     $investigation->set_comments( $comments );
+    $self->get_builder()->update( $investigation );
 
     return $investigation;
 }
