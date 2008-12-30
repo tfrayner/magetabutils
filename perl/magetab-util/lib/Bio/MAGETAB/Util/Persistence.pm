@@ -433,6 +433,9 @@ has 'store'    => ( is       => 'rw',
                                      update
                                      erase
                                      id
+                                     count
+                                     sum
+                                     cursor
                                      remote )] );
 
 has 'dbparams' => ( is         => 'ro',

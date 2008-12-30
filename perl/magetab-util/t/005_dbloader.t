@@ -71,7 +71,7 @@ SKIP: {
         ok( UNIVERSAL::isa( $ts, 'Bio::MAGETAB::TermSource' ), 'of the correct class' );        
         dies_ok( sub { $ts = $loader->get_term_source({ name => 'not_the_correct_name' }) },
                  'non-existent TermSource is not retrieved' );
-        $oid = $loader->get_database()->id( $ts );
+        $oid = $loader->id( $ts );
     }
 
     {
@@ -80,7 +80,7 @@ SKIP: {
                                                                     version => 0.9 }) },
                   'old TermSource find_or_created' );
         ok( UNIVERSAL::isa( $ts, 'Bio::MAGETAB::TermSource' ), 'of the correct class' );
-        is( $oid, $loader->get_database()->id( $ts ), 'and identical to the original' );
+        is( $oid, $loader->id( $ts ), 'and identical to the original' );
         is( $ts->get_version(), 0.9, 'but with updated version attribute' );
     }
 
@@ -104,21 +104,91 @@ SKIP: {
                                                             outputNode => $m2, }) },
                   'new Edge find_or_created' );
         ok( UNIVERSAL::isa( $e, 'Bio::MAGETAB::Edge' ), 'of the correct class' );
-        $oid = $loader->get_database()->id( $e );
+        $oid = $loader->id( $e );
     }
     {
         my $e;
         lives_ok( sub { $e = $loader->find_or_create_edge({ inputNode  => $m1,
                                                             outputNode => $m2, }) },
                   'old Edge find_or_created' );
-        is( $oid, $loader->get_database()->id( $e ), 'identical to the original' );
+        is( $oid, $loader->id( $e ), 'identical to the original' );
     }
 
-    # FIXME test for things where ID depends on aggregators; test for
-    # update of ArrayRef attributes.
+    # Test for things where ID depends on aggregators.
+    my ( $ad, $ad2, $oid2 );
+    my $r = $loader->find_or_create_reporter({ name => 'test_reporter' });
+    {
+        lives_ok( sub { $ad = $loader->find_or_create_array_design({
+            name => 'test_array_design' }) },
+                  'ArrayDesign created' );
+        my $f;
+        lives_ok( sub { $f = $loader->find_or_create_feature({ blockCol => 1,
+                                                               blockRow => 2,
+                                                               col => 3,
+                                                               row => 4,
+                                                               reporter => $r,
+                                                               array_design => $ad }) },
+                  'new Feature (AD 1) find_or_created' );
+
+        # FIXME wouldn't it be nicer to have the DBLoader do this for us?
+        $ad->set_designElements( [ $f, $r ] );
+        lives_ok( sub { $loader->update( $ad ) }, 'array design AD 1 updated' );
+        
+        ok( UNIVERSAL::isa( $f, 'Bio::MAGETAB::Feature' ), 'of the correct class' );
+        $oid = $loader->id( $f );
+
+        # Second array design, new feature.
+        $ad2 = $loader->find_or_create_array_design({
+            name => 'test_array_design 2' });
+        lives_ok( sub { $f = $loader->find_or_create_feature({ blockCol => 1,
+                                                               blockRow => 2,
+                                                               col => 3,
+                                                               row => 4,
+                                                               reporter => $r,
+                                                               array_design => $ad2 }) },
+                  'new Feature (AD 2) find_or_created' );
+        $ad2->set_designElements( [ $f, $r ] );
+        lives_ok( sub { $loader->update( $ad2 ) }, 'array design AD 2 updated' );
+        $oid2 = $loader->id( $f );
+    }
+    {
+        my $f;
+        lives_ok( sub { $f = $loader->get_feature({ blockCol => 1,
+                                                    blockRow => 2,
+                                                    col => 3,
+                                                    row => 4,
+                                                    reporter => $r,
+                                                    array_design => $ad }) },
+                  'retrieved Feature' );
+        ok( UNIVERSAL::isa( $f, 'Bio::MAGETAB::Feature' ), 'of the correct class' );
+        is( $oid, $loader->id( $f ),
+            'identical to the original (AD 1)');
+    }
+    {
+        my $f;
+        lives_ok( sub { $f = $loader->get_feature({ blockCol => 1,
+                                                    blockRow => 2,
+                                                    col => 3,
+                                                    row => 4,
+                                                    reporter => $r,
+                                                    array_design => $ad2 }) },
+                  'retrieved Feature' );
+        ok( UNIVERSAL::isa( $f, 'Bio::MAGETAB::Feature' ), 'of the correct class' );
+        is( $oid2, $loader->id( $f ),
+            'identical to the original (AD 2)');
+    }
+
+    # Test that there are two Features in the DB at this point.
+    {
+        my $rem = $loader->remote('Bio::MAGETAB::Feature');
+        is( $loader->count( $rem->{ id } ), 2,
+            'database contains the correct number of Features');
+    }
+
+    # Test for update of ArrayRef attributes (not implemented yet FIXME).
 
     # FIXME also test for creation and retrieval of DatabaseEntry with
     # TermSource and no namespace/authority.
 
-    unlink $dbfile or die("Error unlinking test database file: $!");
+#    unlink $dbfile or die("Error unlinking test database file: $!");
 }

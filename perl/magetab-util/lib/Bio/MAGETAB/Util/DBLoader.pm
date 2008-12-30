@@ -32,13 +32,18 @@ extends 'Bio::MAGETAB::Util::Builder';
 has 'database'            => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Util::Persistence',
                                required   => 1,
-                               handles    => [ qw( update ) ], );
+                               handles    => [ qw( insert
+                                                   update
+                                                   select
+                                                   id
+                                                   count
+                                                   remote ) ], );
 
 sub _query_database {
 
     my ( $self, $class, $data, $id_fields ) = @_;
 
-    my $remote = $self->get_database()->remote( $class );
+    my $remote = $self->remote( $class );
 
     my ( $clean_data, $aggregators )
         = $self->_strip_aggregator_info( $class, $data );
@@ -48,8 +53,8 @@ sub _query_database {
     unless ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::DatabaseEntry' )
         && ! defined $data->{'termSource'} ) {
         push @{ $id_fields }, qw( namespace authority );
-        $data->{'namespace'} ||= q{};
-        $data->{'authority'} ||= q{};
+        $clean_data->{'namespace'} ||= q{};
+        $clean_data->{'authority'} ||= q{};
     }
 
     my $filter;
@@ -63,25 +68,60 @@ sub _query_database {
         # Much operator overloading means that we have to be careful
         # here.
         if ( $filter ) {
-            $filter &= ( $remote->{ $field } eq $data->{ $field } );
+            $filter &= ( $remote->{ $field } eq $clean_data->{ $field } );
         }
         else {
-            $filter  = ( $remote->{ $field } eq $data->{ $field } );
+            $filter  = ( $remote->{ $field } eq $clean_data->{ $field } );
         }
     }
 
     # Find objects matching the ID fields.
-    my @objects = $self->get_database()->select( $remote, $filter );
+    my @objects = $self->select( $remote, $filter );
 
-    # FIXME deal with aggregators in a second select at this point.
-    foreach my $agg_class ( @{ $aggregators } ) {
-#        my $agg_remote = $self->get_database()->remote( $agg_class );
-#        @objects = grep {
-#            $self->get_database()->select( $agg_remote, $agg_remote->{FIXME} eq $_ ),
-#        } @objects;
+    # We deal with aggregators in a second select at this point. Not
+    # terribly efficient, but the model limits us here.
+    foreach my $agg_field ( @{ $aggregators } ) {
+        my $agg = $data->{ $agg_field };
+        my @attr = $agg->meta()->get_all_attributes();
+        my %map = map { $_->type_constraint()->name() => $_->name() } @attr;
+
+        my ( $is_list, $target, $method );
+        ATTR:
+        while ( my ( $constraint, $attr ) = each %map ) {
+            ( $is_list, $target ) = ( $constraint =~ /\A (ArrayRef)? \[? ([^\[\]]+) \]? \z/xms );
+
+            unless ( $target ) {
+                confess("Error: Moose type constraint name not parseable");
+            }
+            if ( UNIVERSAL::isa( $class, $target ) ) {
+                $method = $attr;
+                last ATTR;
+            }
+        }
+        unless ( defined $method ) {
+            confess("Error: Unable to parse type constraint to identify the aggregate attribute.");
+        }
+
+        my $agg_remote = $self->remote( $agg->meta()->name() );
+        if ( $is_list ) {
+            my @new = grep {
+                my @c = $self->get_database()
+                             ->select( $agg_remote, $agg_remote->{$method}->includes( $_ ) );
+                first { $self->id( $agg ) == $self->id( $_ ) } @c;
+            } @objects;
+            @objects = @new;
+        }
+        else {
+            my @new = grep {
+                my @c = $self->get_database()
+                             ->select( $agg_remote, $agg_remote->{$method} eq $_ );
+                first { $self->id( $agg ) == $self->id( $_ ) } @c;
+            } @objects;
+            @objects = @new;
+        }
     }
 
-    # Brief sanity check; identity means identity!
+    # Brief sanity check; identity means identity, i.e. only one object returned.
     if ( scalar @objects > 1 ) {
         confess("Error: multiple $class objects found in database.");
     }
@@ -141,7 +181,7 @@ sub _create_object {
     }
 
     # Store object in cache for later retrieval.
-    $self->get_database()->insert( $obj );
+    $self->insert( $obj );
 
     return $obj;
 }
