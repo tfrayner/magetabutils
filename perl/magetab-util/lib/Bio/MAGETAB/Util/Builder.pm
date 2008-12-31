@@ -256,8 +256,15 @@ my %method_map = (
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name ) ],
 
+    # Date not included for protocol_application to simplify the
+    # implementation of the DBLoader class. We could include date, but
+    # then we'd have to be careful how it serialises to the database
+    # (c.f. uri). This is only useful in a rare use case (one edge,
+    # with the same protocol applied multiple times on different
+    # dates) and so we leave it out for now. Workaround: use more
+    # edges. (FIXME note this in the BUGS section of the POD).
     'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
-                           qw( protocol date edge ) ],
+                           qw( protocol edge ) ],
 
     'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
                            qw( parameter measurement protocol_application ) ],
