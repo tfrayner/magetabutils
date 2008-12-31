@@ -226,9 +226,6 @@ my %method_map = (
     'investigation'   => [ 'Bio::MAGETAB::Investigation',
                            qw( title ) ],
 
-    'termsource'      => [ 'Bio::MAGETAB::TermSource',
-                           qw( name ) ],
-
     'controlled_term' => [ 'Bio::MAGETAB::ControlledTerm',
                            qw( category value ) ],
 
@@ -410,5 +407,230 @@ sub _strip_aggregator_info {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=head1 NAME
+
+Bio::MAGETAB::Util::Builder - A storage class used to track
+Bio::MAGETAB object creation.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Builder;
+ my $builder = Bio::MAGETAB::Util::Builder->new({
+    relaxed_parser => $is_relaxed,
+ });
+
+=head1 DESCRIPTION
+
+Creation of complex Bio::MAGETAB object heirarchies and DAGs requires
+a mechanism to track the instantiated objects, and manage any
+updates. This class (and its subclasses) provides that
+mechanism. Builder objects are created and included in Reader object
+instantiation, such that the back-end storage engine populated by a
+given Reader object may be redefined as desired. This base Builder
+class simply tracks objects in a hash of hashes; this is sufficient
+for simple parsing of MAGE-TAB documents. See
+<Bio::MAGETAB::Util::DBLoader> for an example of a Builder subclass
+that can be used to populate a Tangram-based relational database
+schema.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item relaxed_parser
+
+A boolean value (default FALSE) indicating whether or not the parse
+should take place in "relaxed mode" or not. The regular parsing mode
+will throw an exception in cases where an object is referenced before
+it has been declared (e.g., Protocol REF pointing to a non-existent
+Protocol Name). Relaxed parsing mode will silently autogenerate the
+non-existent objects instead.
+
+=item magetab
+
+An optional Bio::MAGETAB container object. If none is passed upon
+Builder object instantiation, a new Bio::MAGETAB object is created for
+you. See L<Bio::MAGETAB> for details.
+
+=item authority
+
+An optional authority string to be used in object creation.
+
+=item namespace
+
+An optional namespace string to be used in object creation.
+
+=item database
+
+The internal store to use for object lookups. In the base Builder
+class this is a simple hash reference, and it is unlikely that you
+will ever want to change the default. This attribute is used in
+persistence subclasses (such as DBLoader) to point at the underlying
+storage engine.
+
+=back
+
+=head1 METHODS
+
+Each of the Bio::MAGETAB classes can be handled by get_*, create_* and
+find_or_create_* methods.
+
+=over 2
+
+=item get_*
+
+Retrieve the desired object from the database. Takes a hash reference
+of attribute values and returns the desired object. This method raises
+an exception if the passed-in attributes do not match any object in
+the database. See L<OBJECT IDENTITY>, below, for information on how
+objects are matched in the database.
+
+=item create_*
+
+Creates a new object using the passed attribute hash reference and
+stores it in the database.
+
+=item find_or_create_*
+
+Attempts to find the desired object in the same way as the get_*
+methods, and upon failure creates a new object and stores it.
+
+=back
+
+The following mapping should be used to determine the name of the
+desired method:
+
+ Bio::MAGETAB class                  Method base name
+ ------------------                  ----------------
+
+ Bio::MAGETAB::ArrayDesign           array_design
+ Bio::MAGETAB::Assay                 assay
+ Bio::MAGETAB::Comment               comment
+ Bio::MAGETAB::CompositeElement      composite_element
+ Bio::MAGETAB::Contact               contact
+ Bio::MAGETAB::ControlledTerm        controlled_term
+ Bio::MAGETAB::DataAcquisition       data_acquisition
+ Bio::MAGETAB::DatabaseEntry         database_entry
+ Bio::MAGETAB::DataFile              data_file
+ Bio::MAGETAB::DataMatrix            data_matrix
+ Bio::MAGETAB::Edge                  edge
+ Bio::MAGETAB::Extract               extract
+ Bio::MAGETAB::Factor                factor
+ Bio::MAGETAB::FactorValue           factor_value
+ Bio::MAGETAB::Feature               feature
+ Bio::MAGETAB::Investigation         investigation
+ Bio::MAGETAB::LabeledExtract        labeled_extract
+ Bio::MAGETAB::MatrixColumn          matrix_column
+ Bio::MAGETAB::MatrixRow             matrix_row
+ Bio::MAGETAB::Measurement           measurement
+ Bio::MAGETAB::Normalization         normalization
+ Bio::MAGETAB::ParameterValue        parameter_value
+ Bio::MAGETAB::Protocol              protocol
+ Bio::MAGETAB::ProtocolApplication   protocol_application
+ Bio::MAGETAB::ProtocolParameter     protocol_parameter
+ Bio::MAGETAB::Publication           publication
+ Bio::MAGETAB::Reporter              reporter
+ Bio::MAGETAB::SDRF                  sdrf
+ Bio::MAGETAB::SDRFRow               sdrf_row
+ Bio::MAGETAB::Sample                sample
+ Bio::MAGETAB::Source                source
+ Bio::MAGETAB::TermSource            term_source
+
+Example: a Bio::MAGETAB::DataFile object can be created using the
+C<create_data_file> method.
+
+=head1 OBJECT IDENTITY
+
+For most Bio::MAGETAB classes, identity between objects is fairly
+easily defined. For example, all Material objects have a name
+attribute which identifies it within a given namespace:authority
+grouping. However, many classes do not have this simple mechanism. For
+example, Edge objects have no attributes other than their input and
+output nodes, and a list of protocol applications. To address this,
+the Builder module includes a set of identity heuristics defined for
+each class; in this example, Edge will be identified by examining its
+input and output nodes. Namespace and authority terms are used to
+localize objects.
+
+In theory this should all just work. However, the system is complex
+and so undoubtedly there will be times when this module behaves other
+than you might expect. Therefore, the current set of heuristics is
+listed below for your debugging delight:
+
+ Bio::MAGETAB class                Identity depends on:
+ ------------------                -------------------
+ Bio::MAGETAB::ArrayDesign         name
+ Bio::MAGETAB::Assay               name
+ Bio::MAGETAB::Comment             name value object*
+ Bio::MAGETAB::CompositeElement    name
+ Bio::MAGETAB::Contact             firstName midInitials lastName
+ Bio::MAGETAB::ControlledTerm      category value
+ Bio::MAGETAB::DataAcquisition     name
+ Bio::MAGETAB::DatabaseEntry       accession termSource
+ Bio::MAGETAB::DataFile            uri
+ Bio::MAGETAB::DataMatrix          uri
+ Bio::MAGETAB::Edge                inputNode outputNode
+ Bio::MAGETAB::Extract             name
+ Bio::MAGETAB::Factor              name
+ Bio::MAGETAB::FactorValue         factor term measurement
+ Bio::MAGETAB::Feature             blockCol blockRow col row array_design*
+ Bio::MAGETAB::Investigation       title
+ Bio::MAGETAB::LabeledExtract      name
+ Bio::MAGETAB::MatrixColumn        columnNumber data_matrix*
+ Bio::MAGETAB::MatrixRow           rowNumber data_matrix*
+ Bio::MAGETAB::Measurement         measurementType value minValue maxValue unit object*
+ Bio::MAGETAB::Normalization       name
+ Bio::MAGETAB::ParameterValue      parameter measurement protocol_application*
+ Bio::MAGETAB::Protocol            name
+ Bio::MAGETAB::ProtocolApplication protocol edge*
+ Bio::MAGETAB::ProtocolParameter   name protocol
+ Bio::MAGETAB::Publication         title
+ Bio::MAGETAB::Reporter            name
+ Bio::MAGETAB::SDRF                uri
+ Bio::MAGETAB::SDRFRow             rowNumber sdrf*
+ Bio::MAGETAB::Sample              name
+ Bio::MAGETAB::Source              name
+ Bio::MAGETAB::TermSource          name
+
+Not all the slots are needed for an object to be identified; for
+example, a Contact object might only have a lastName. Asterisked (*)
+terms are those which do not correspond to any attribute of the
+Bio::MAGETAB class. These are typically "container" objects,
+i.e. those involved in aggregating the target objects. For example,
+the identity of a given Comment object is tied up with the "object" to
+which it has been applied. These objects are passed in as part of the
+object instantiation hash reference, and are discarded prior to object
+creation. NOTE: These aggregating objects are not processed in any way
+by Builder; you will need to ensure the objects are correctly linked
+together yourself.
+
+=head1 KNOWN BUGS
+
+The identity of Bio::MAGE::ProtocolApplication objects is based solely
+around the Protocol being applied, and the Edge to which it is
+attached. Ideally, the protocol application date would also be
+included, but this can create problems for persistence-based Builder
+subclasses where the exact serialization behavior of DateTime objects
+needs to be defined (see L<Bio::MAGETAB::Util::DBLoader>). This is a
+tractable problem, but a fix has been omitted from this release since
+the use case (the same Protocol applied to a single Edge multiple
+times on different dates) seems a minor one. The workaround is to
+split the protocol applications into as many Edges as are needed.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB>, L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::DBLoader>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

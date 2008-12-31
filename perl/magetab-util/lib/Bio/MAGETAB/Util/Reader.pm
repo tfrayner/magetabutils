@@ -134,10 +134,10 @@ Bio::MAGETAB::Util::Reader - A parser/validator for MAGE-TAB documents.
 =head1 SYNOPSIS
 
  use Bio::MAGETAB::Util::Reader;
- my $reader = Bio::MAGETAB::Util::Reader->new(
+ my $reader = Bio::MAGETAB::Util::Reader->new({
     idf            => $idf,
     relaxed_parser => $is_relaxed,
- );
+ });
 
  my $magetab = $reader->parse();
 
@@ -149,12 +149,14 @@ further manipulation.
 
 =head1 ATTRIBUTES
 
-=head2 idf
+=over 2
+
+=item idf
 
 A filesystem or URI path to the top-level IDF file describing the
 investigation. This attribute is *required*.
 
-=head2 relaxed_parser
+=item relaxed_parser
 
 A boolean value (default FALSE) indicating whether or not the parse
 should take place in "relaxed mode" or not. The regular parsing mode
@@ -163,15 +165,15 @@ it has been declared (e.g., Protocol REF pointing to a non-existent
 Protocol Name). Relaxed parsing mode will silently autogenerate the
 non-existent objects instead.
 
-=head2 namespace
+=item namespace
 
 An optional namespace string to be used in object creation.
 
-=head2 authority
+=item authority
 
 An optional authority string to be used in object creation.
 
-=head2 builder
+=item builder
 
 An optional Builder object. These Builder objects are used to track
 the creation of Bio::MAGETAB objects by caching the objects in an
@@ -183,14 +185,20 @@ is a simple hash; however in principle this could be extended by
 subclassing Builder to create e.g. persistent database storage
 mechanisms.
 
+=back
+
 =head1 METHODS
 
-=head2 parse
+=over 2
+
+=item parse
 
 Attempts to parse the full MAGE-TAB document, starting with the
 top-level IDF file, and returns the resulting Bio::MAGETAB container
 object in scalar context, or the top-level Bio::MAGETAB::Investigation
 object and container object in list context.
+
+=back
 
 =head1 SEE ALSO
 

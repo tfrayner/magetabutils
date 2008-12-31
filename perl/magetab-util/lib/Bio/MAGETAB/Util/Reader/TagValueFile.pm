@@ -49,7 +49,7 @@ sub _create_termsources {
 
     my @termsources;
     foreach my $ts_data ( @{ $self->get_text_store()->{'termsource'} } ) {
-        my $termsource = $self->get_builder()->find_or_create_termsource( $ts_data );
+        my $termsource = $self->get_builder()->find_or_create_term_source( $ts_data );
 	push @termsources, $termsource;
     }
 
