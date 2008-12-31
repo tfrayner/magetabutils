@@ -11,6 +11,8 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Bio/MAGETAB/Util/Builder.pm
+lib/Bio/MAGETAB/Util/DBLoader.pm
+lib/Bio/MAGETAB/Util/Persistence.pm
 lib/Bio/MAGETAB/Util/Reader.pm
 lib/Bio/MAGETAB/Util/Reader/ADF.pm
 lib/Bio/MAGETAB/Util/Reader/DataMatrix.pm
@@ -28,6 +30,7 @@ LICENSE
 Makefile.PL
 MANIFEST
 META.yml
+scripts/deploy_magetab_db.pl
 scripts/read_magetab.pl
 t/001_load.t
 t/002_builder.t
@@ -35,4 +38,6 @@ t/003_adf.t
 t/003_data_matrix.t
 t/003_idf.t
 t/003_sdrf.t
+t/004_persistence.t
+t/005_dbloader.t
 t/testlib/CommonTests.pm
