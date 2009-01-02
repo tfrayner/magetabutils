@@ -761,4 +761,65 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::Reader::ADF - ADF parser class.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Reader::ADF;
+ my $parser = Bio::MAGETAB::Util::Reader::ADF->new({
+     uri => $adf_filename,
+ });
+ my $array_design = $parser->parse();
+
+=head1 DESCRIPTION
+
+This class is used to parse ADF files. It can be used on its own, but
+more often you will want to use the main Bio::MAGETAB::Util::Reader
+class which handles extended parsing options more transparently.
+
+=head1 ATTRIBUTES
+
+See L<Bio::MAGETAB::Util::Reader::TagValueFile> for superclass attributes.
+
+=over 2
+
+=item magetab_object
+
+A Bio::MAGETAB::ArrayDesign object. This can either be set upon
+instantiation, or a new object will be created for you. It can be
+retrieved at any time using C<get_magetab_object>.
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item parse
+
+Parse the ADF pointed to by C<$self-E<gt>get_uri()>. Returns the
+Bio::MAGETAB::ArrayDesign object updated with the ADF contents.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util::Reader::TagValueFile>,
+L<Bio::MAGETAB::Util::Reader::Tabfile>,
+L<Bio::MAGETAB::Util::Reader>,
+L<Bio::MAGETAB::ArrayDesign>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
