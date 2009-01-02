@@ -96,4 +96,5 @@ t/003_sdrf_row.t
 t/003_source.t
 t/003_term_source.t
 t/004_magetab.t
+t/010_pod_coverage.t
 t/testlib/CommonTests.pm
