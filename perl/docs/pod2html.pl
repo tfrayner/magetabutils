@@ -68,35 +68,12 @@ sub mangle_email {
     }
 }
 
-my ( $topdir );
+sub base_wanted {
 
-GetOptions(
-    "d|topdir=s" => \$topdir,
-);
-
-unless ( $topdir && -d $topdir ) {
-    print <<"USAGE";
-Usage: $0 -d <top-level module directory>
-USAGE
-
-    exit 255;
-}
-
-$topdir = File::Spec->rel2abs( $topdir );
-
-my $libdir = File::Spec->catdir( $topdir, 'lib' );
-unless ( -d $libdir ) {
-    die("Error: Cannot find library directory $libdir.");
-}
-
-my $cwd = getcwd();
-
-my @modules;
-
-sub wanted {
+    my ( $libdir, $cwd, $modules ) = @_;
 
     return unless $_ =~ m/ \.pm \z/xms;
-
+    
     my $modfile = File::Spec->abs2rel( $File::Find::name, $libdir );
     my $htmldoc = File::Spec->rel2abs( $modfile, $cwd );
 
@@ -107,14 +84,14 @@ sub wanted {
     mkpath( $dir );
 
     print "Creating $htmldoc\n";
-
+        
     pod2html(
         "--infile=$File::Find::name",
         "--outfile=$htmldoc",
         "--css=/style.css",
         "--noindex",
         "--htmlroot=/model",
-#        "--podroot=model",
+        #        "--podroot=model",
     );
 
     system("tidy -m $htmldoc > /dev/null 2>&1");
@@ -125,10 +102,53 @@ sub wanted {
     $moddir  =~ s/ [\/\\] \z//xms;
     $modname =~ s/ \.pm \z//xms;
     $modname = join('::', File::Spec->splitdir( $moddir ), $modname);
-    push @modules, [ $modname, File::Spec->abs2rel( $htmldoc, $cwd ) ];
+    push @$modules, [ $modname, File::Spec->abs2rel( $htmldoc, $cwd ) ];
 }
 
-find( \&wanted, $libdir );
+sub make_wanted {
+
+    my ( $wanted, @args ) = @_;
+
+    return sub { $wanted->( @args ) };
+}
+
+sub generate_html {
+
+    my ( $libdir, $cwd ) = @_;
+
+    $libdir = File::Spec->rel2abs( $libdir );
+    $libdir = File::Spec->catdir( $libdir, 'lib' );
+    unless ( -d $libdir ) {
+        die("Error: Cannot find library directory $libdir.");
+    }
+
+    my $modules = [];
+
+    my $wanted = make_wanted( \&base_wanted, $libdir, $cwd, $modules );
+
+    find( $wanted, $libdir );
+
+    return $modules;
+}
+
+my ( $topdir, $utildir );
+
+GetOptions(
+    "d|topdir=s"  => \$topdir,
+    "u|utildir=s" => \$utildir,
+);
+
+unless ( $topdir && -d $topdir && $utildir && -d $utildir ) {
+    print <<"USAGE";
+Usage: $0 -d <top-level model directory> -u <top-level utils directory>
+USAGE
+
+    exit 255;
+}
+
+my $cwd = getcwd();
+
+my $modules = generate_html( $utildir, $cwd );
 
 my $idx_file = File::Spec->catfile( $cwd, 'index.html' );
 printf ( "Creating %s\n", $idx_file );
@@ -146,6 +166,28 @@ print $index <<'HEADER';
   </head>
   <body>
     <div class="main">
+
+      <h1>MAGE-TAB Utilities</h1>
+
+      <p class="text">The following modules are used to manipulate the
+      data model - the actual MAGE-TAB Utilities. They provide
+      parsing, visualization, database loading and export
+      functionality:</p>
+
+      <ul>
+HEADER
+
+foreach my $mod ( @$modules ) {
+    print $index <<"LINK";
+      <li><a href="$mod->[1]">$mod->[0]</a></li>
+LINK
+}
+
+$modules = generate_html( $topdir, $cwd );
+
+print $index <<"UTILHEAD";
+      </ul>
+
       <h1>MAGE-TAB Utilities - Data Model</h1>
 
       <h2>UML Diagrams</h2>
@@ -164,9 +206,9 @@ print $index <<'HEADER';
       data model used by MAGE-TAB Utilities:</p>
 
       <ul>
-HEADER
+UTILHEAD
 
-foreach my $mod ( @modules ) {
+foreach my $mod ( @$modules ) {
     print $index <<"LINK";
       <li><a href="$mod->[1]">$mod->[0]</a></li>
 LINK
