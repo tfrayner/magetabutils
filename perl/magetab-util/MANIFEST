@@ -26,6 +26,7 @@ lib/Bio/MAGETAB/Util/Writer/Tabfile.pm
 lib/Bio/MAGETAB/Util/Writer/Graphviz.pm
 lib/Bio/MAGETAB/Util/Writer/IDF.pm
 lib/Bio/MAGETAB/Util/Writer/SDRF.pm
+README
 LICENSE
 Makefile.PL
 MANIFEST
