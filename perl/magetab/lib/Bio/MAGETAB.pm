@@ -234,7 +234,7 @@ Bio::MAGETAB - A data model and supporting classes for the MAGE-TAB format.
  # classes:
  
  use Bio::MAGETAB;
- my $sample = Bio::MAGETAB::Sample->new( name => 'Sample 1' );
+ my $sample = Bio::MAGETAB::Sample->new({ name => "Sample 1" });
 
  # Use case 2: a Bio::MAGETAB object as a container for MAGE-TAB objects:
  
@@ -247,7 +247,7 @@ Bio::MAGETAB - A data model and supporting classes for the MAGE-TAB format.
  
  # Create some samples.
  for ( 1 .. 4 ) {
-    Bio::MAGETAB::Sample->new( name => "Sample $_" );
+    Bio::MAGETAB::Sample->new({ name => "Sample $_" });
  }
  
  # Retrieve all the Samples created so far.
