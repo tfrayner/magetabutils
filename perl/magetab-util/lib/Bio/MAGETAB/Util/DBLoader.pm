@@ -247,4 +247,83 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::DBLoader - A persistent storage class used to
+track Bio::MAGETAB object creation and insertion into a relational
+database.
+
+=head1 SYNOPSIS
+
+ require Bio::MAGETAB::Util::Reader;
+ require Bio::MAGETAB::Util::Persistence;
+ require Bio::MAGETAB::Util::DBLoader;
+ 
+ my $reader = Bio::MAGETAB::Util::Reader->new(
+     idf => $idf
+ );
+ 
+ my $db = Bio::MAGETAB::Util::Persistence->new({
+     dbparams => ["dbi:SQLite:$db_file"],
+ });
+ 
+ # If this is a new database, deploy the schema.
+ unless ( -e $db_file ) {
+     $db->deploy();
+ }
+ 
+ # Connect to the database.
+ $db->connect();
+ 
+ my $builder = Bio::MAGETAB::Util::DBLoader->new({
+     database => $db,
+ });
+ 
+ $reader->set_builder( $builder );
+ 
+ # Read objects into the database.
+ $reader->parse();
+
+=head1 DESCRIPTION
+
+DBLoader is a Builder subclass which uses a relational database
+backend to track object creation, rather than the simple hash
+reference mechanism used by Builder. See
+L<Bio::MAGETAB::Util::Persistence> and the Tangram module
+documentation for more information on supported database engines.
+
+=head1 ATTRIBUTES
+
+See L<Bio::MAGETAB::Util::Builder> for documentation on the superclass
+attributes.
+
+=over 2
+
+=item database
+
+The internal store to use for object lookups. This must be a
+Bio::MAGETAB::Util::Persistence object.
+
+=back
+
+=head1 METHODS
+
+See L<Bio::MAGETAB::Util::Builder> for documentation on the superclass
+methods.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::Builder>, L<Bio::MAGETAB::Util::Persistence>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

@@ -448,7 +448,7 @@ sub BUILD {
     my ( $self, $params ) = @_;
 
     unless ( defined $params->{ 'dbparams' }[0] ) {
-        croak("Error: Database DSN must be specified.");
+        croak("Error: Database DSN must be specified.\n");
     }
 }
 
@@ -488,5 +488,106 @@ sub connect {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=head1 NAME
+
+Bio::MAGETAB::Util::Persistence - A Tangram-based object persistence
+class for MAGE-TAB.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Persistence;
+ my $db = Bio::MAGETAB::Util::Persistence->new({
+    dbparams       => [ "dbi:mysql:$dbname", $user, $pass ],
+ });
+
+ $db->deploy();
+ $db->connect();
+ $db->insert( $magetab_object );
+
+=head1 DESCRIPTION
+
+This class provides an object persistence mechanism for storing
+MAGE-TAB objects in a relational database. The class is, in effect,
+just a thin wrapper around a Tangram::Storage instance which
+implements most of the database interaction methods. The class has
+been used successfully with both MySQL and SQLite database backends,
+and should in theory be usable with any database engine supported by
+the Tangram modules.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item dbparams
+
+A reference to an array containing database connection
+parameters. This array is passed directly to C<DBI-E<gt>connect()>.
+
+=item config
+
+The Tangram schema definition used to create the database. This
+attribute is read-only.
+
+=item store
+
+The underlying Tangram::Storage object used for most of the
+interaction with the database.
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item deploy
+
+Connect to the database and deploy the schema. This only needs to be
+done once to set up the database.
+
+=item connect
+
+Connect to the database. This must be done before using any of the
+following methods.
+
+=item insert
+
+=item select
+
+=item update
+
+=item erase
+
+=item id
+
+=item count
+
+=item sum
+
+=item cursor
+
+=item remote
+
+All these methods are delegated directly to the Tangram::Storage
+object created by the C<connect> method, and contained within the
+Persistence object. Please see the Tangram documentation for more
+information on these methods.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::DBLoader>, Tangram
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

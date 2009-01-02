@@ -341,4 +341,67 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::Reader::Tabfile - An abstract class providing methods for
+handling tab-delimited files.
+
+=head1 SYNOPSIS
+
+ use base qw(Bio::MAGETAB::Util::Reader::Tabfile);
+
+=head1 DESCRIPTION
+
+This abstract class acts as a wrapper for the Text::CSV_XS module and
+line ending detection code used by the rest of the
+Bio::MAGETAB::Util::Reader modules. It is not designed to be used
+directly.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item uri
+
+Required URI path to the file to be parsed.
+
+=item eol_char
+
+The end-of-line character to use while parsing. Typically this is set
+by the Reader subclasses.
+
+=item filehandle_cache
+
+The filehandle for the file being parsed.
+
+=item csv_parser
+
+A Text::CSV_XS parser object.
+
+=item builder
+
+A Bio::MAGETAB::Util::Builder object, used by subclasses to track
+MAGE-TAB object creation.
+
+=back
+
+=head1 METHODS
+
+No public methods.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::Reader::TagValueFile>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

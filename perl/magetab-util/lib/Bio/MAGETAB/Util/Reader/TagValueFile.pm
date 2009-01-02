@@ -329,4 +329,55 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::Reader::TagValueFile - An abstract class providing methods for
+handling tab-delimited files.
+
+=head1 SYNOPSIS
+
+ use base qw(Bio::MAGETAB::Util::Reader::TagValueFile);
+
+=head1 DESCRIPTION
+
+This is an abstract class providing methods for parsing tag-value
+files such as the MAGE-TAB IDF component, and the header of ADF
+files. It is not designed to be used directly.
+
+=head1 ATTRIBUTES
+
+See L<Bio::MAGETAB::Util::Reader::Tabfile> for superclass attributes.
+
+=over 2
+
+=item text_store
+
+=item dispatch_table
+
+These are internal caches not designed to be addressed directly.
+
+=back
+
+=head1 METHODS
+
+No public methods.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util::Reader::Tabfile>,
+L<Bio::MAGETAB::Util::Reader>,
+L<Bio::MAGETAB::Util::Reader::ADF>,
+L<Bio::MAGETAB::Util::Reader::IDF>,
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;
