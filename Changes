@@ -1,12 +1,16 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
-0.95    Bio::MAGETAB-0.95.tar.gz        Added BaseClass to the MD UML model.
+0.95    Bio::MAGETAB-0.95.tar.gz        Added BaseClass to the MagicDraw UML model document.
                                         Renamed Feature blockColumn and column attributes
                                           to blockCol and col respectively; this avoids
                                           naming conflicts in some ORM implementations.
                                         Renamed all "type" attributes, similarly to
                                           avoid conflicts.
+                                        Converted Source providers and ProtocolApplication
+                                          performers to fully-fledged Contact objects.
+                                        Relaxed requirement for measurement on ParameterValue.
+                                        Added POD coverage tests.
 
 0.91    Bio::MAGETAB-0.91.tar.gz        Added class documentation (POD).
 

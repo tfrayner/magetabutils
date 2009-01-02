@@ -28,6 +28,8 @@ BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 # (b) it makes this class just that little bit easier to use.
 has 'measurement'         => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Measurement',
+                               clearer    => 'clear_measurement',
+                               predicate  => 'has_measurement',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
