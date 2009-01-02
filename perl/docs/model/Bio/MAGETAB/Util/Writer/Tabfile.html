@@ -5,7 +5,8 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Writer::Tabfile - Abstract MAGE-TAB
+exporter class.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +30,52 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Writer::Tabfile - Abstract MAGE-TAB exporter
+class.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use base qw( Bio::MAGETAB::Util::Writer::Tabfile );
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>This abstract class provides some basic functions for export of
+MAGE-TAB objects in tab-delimited format. It is not designed to be
+used directly.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_filehandle" id=
+"item_filehandle">filehandle</a></strong></dt>
+<dd>
+<p>The filehandle to use for output (required).</p>
+</dd>
+<dt><strong><a name="item_num_columns" id=
+"item_num_columns">num_columns</a></strong></dt>
+<dd>
+<p>The number of columns to use for output. This must be set before
+anything is exported. Typically calculated and set from the
+subclass.</p>
+</dd>
+<dt><strong><a name="item_csv_writer" id=
+"item_csv_writer">csv_writer</a></strong></dt>
+<dd>
+<p>The Text::CSV_XS object to use for output. This attribute is
+typically set in the subclass.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<p>No public methods.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB/Util/Writer/ADF.html">the
+Bio::MAGETAB::Util::Writer::ADF manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Writer/IDF.html">the
+Bio::MAGETAB::Util::Writer::IDF manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Writer/SDRF.html">the
+Bio::MAGETAB::Util::Writer::SDRF manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=

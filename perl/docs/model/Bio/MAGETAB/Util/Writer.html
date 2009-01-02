@@ -5,7 +5,8 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Writer - Export of MAGE-TAB
+objects.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +30,60 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Writer - Export of MAGE-TAB objects.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use Bio::MAGETAB::Util::Writer;
+ my $writer = Bio::MAGETAB::Util::Writer-&gt;new({
+    magetab =&gt; $magetab_container,
+ });
+ 
+ $writer-&gt;write();
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>This class is designed to export all the MAGE-TAB objects from a
+given Bio::MAGETAB container, creating as many IDFs, ADFs and SDRFs
+as are necessary to do so. **NOTE** that this module is not yet
+fully implemented or tested, although the API should remain
+unchanged.</p>
+<p>Export of the individual MAGE-TAB components is delegated to
+separate writer classes. See <a href=
+"/model/Bio/MAGETAB/Util/Writer/ADF.html">the
+Bio::MAGETAB::Util::Writer::ADF manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Writer/IDF.html">the
+Bio::MAGETAB::Util::Writer::IDF manpage</a> and <a href=
+"/model/Bio/MAGETAB/Util/Writer/SDRF.html">the
+Bio::MAGETAB::Util::Writer::SDRF manpage</a> if you want more
+control over the export process.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_magetab" id=
+"item_magetab">magetab</a></strong></dt>
+<dd>
+<p>The Bio::MAGETAB container to export. This is a required
+attribute. See <a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
+manpage</a> for more information on this container class.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_write" id=
+"item_write">write</a></strong></dt>
+<dd>
+<p>Exports all objects into their respective MAGE-TAB components.
+Filenames are automatically generated from Investigation title,
+ArrayDesign uri (or name) and SDRF uri attributes.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
+manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=

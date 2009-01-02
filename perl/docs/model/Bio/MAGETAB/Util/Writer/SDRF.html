@@ -5,7 +5,8 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Writer::SDRF - Export of MAGE-TAB SDRF
+objects.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +30,54 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Writer::SDRF - Export of MAGE-TAB SDRF
+objects.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use Bio::MAGETAB::Util::Writer::SDRF;
+ my $writer = Bio::MAGETAB::Util::Writer::SDRF-&gt;new({
+    magetab_object =&gt; $sdrf_object,
+    filename       =&gt; $sdrf_fh,
+ });
+ 
+ $writer-&gt;write();
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>Export of SDRF objects to SDRF files. **NOTE** that this module
+is not yet fully implemented or tested; indeed, as of this release
+the code is incomplete and will not work. However, the API should
+remain unchanged in future releases.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<p>See <a href="/model/Bio/MAGETAB/Util/Writer/Tabfile.html">the
+Bio::MAGETAB::Util::Writer::Tabfile manpage</a> for superclass
+attributes.</p>
+<dl>
+<dt><strong><a name="item_magetab_object" id=
+"item_magetab_object">magetab_object</a></strong></dt>
+<dd>
+<p>The Bio::MAGETAB::SDRF object to export. This is a required
+attribute.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_write" id=
+"item_write">write</a></strong></dt>
+<dd>
+<p>Exports the SDRF object to an SDRF file.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB/Writer.html">the
+Bio::MAGETAB::Writer manpage</a>, <a href=
+"/model/Bio/MAGETAB/Writer/Tabfile.html">the
+Bio::MAGETAB::Writer::Tabfile manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=

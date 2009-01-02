@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="generator" content=
+"HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
+<title>Bio::MAGETAB::Util::Reader - A parser/validator for MAGE-TAB
+documents.</title>
+<link rel="stylesheet" href="/style.css" type="text/css" />
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii" />
+<link rev="made" href="mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#109;&#97;&#99;&#107;&#105;&#110;&#97;&#99;&#46;&#108;&#111;&#99;&#97;&#108;" />
+</head>
+<body>
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+<!--
+
+<ul>
+
+        <li><a href="#name">NAME</a></li>
+        <li><a href="#synopsis">SYNOPSIS</a></li>
+        <li><a href="#description">DESCRIPTION</a></li>
+        <li><a href="#attributes">ATTRIBUTES</a></li>
+        <li><a href="#methods">METHODS</a></li>
+        <li><a href="#see_also">SEE ALSO</a></li>
+        <li><a href="#author">AUTHOR</a></li>
+        <li><a href="#license">LICENSE</a></li>
+</ul>
+-->
+<!-- INDEX END -->
+<h1><a name="name" id="name">NAME</a></h1>
+<p>Bio::MAGETAB::Util::Reader - A parser/validator for MAGE-TAB
+documents.</p>
+<hr />
+<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<pre>
+ use Bio::MAGETAB::Util::Reader;
+ my $reader = Bio::MAGETAB::Util::Reader-&gt;new({
+    idf            =&gt; $idf,
+    relaxed_parser =&gt; $is_relaxed,
+ });
+</pre>
+<pre>
+ my $magetab = $reader-&gt;parse();
+</pre>
+<hr />
+<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<p>This is the main parsing and validation class which can be used
+to read a MAGE-TAB document into a set of Bio::MAGETAB classes for
+further manipulation.</p>
+<hr />
+<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<dl>
+<dt><strong><a name="item_idf" id="item_idf">idf</a></strong></dt>
+<dd>
+<p>A filesystem or URI path to the top-level IDF file describing
+the investigation. This attribute is *required*.</p>
+</dd>
+<dt><strong><a name="item_relaxed_parser" id=
+"item_relaxed_parser">relaxed_parser</a></strong></dt>
+<dd>
+<p>A boolean value (default FALSE) indicating whether or not the
+parse should take place in ``relaxed mode'' or not. The regular
+parsing mode will throw an exception in cases where an object is
+referenced before it has been declared (e.g., Protocol REF pointing
+to a non-existent Protocol Name). Relaxed parsing mode will
+silently autogenerate the non-existent objects instead.</p>
+</dd>
+<dt><strong><a name="item_namespace" id=
+"item_namespace">namespace</a></strong></dt>
+<dd>
+<p>An optional namespace string to be used in object creation.</p>
+</dd>
+<dt><strong><a name="item_authority" id=
+"item_authority">authority</a></strong></dt>
+<dd>
+<p>An optional authority string to be used in object creation.</p>
+</dd>
+<dt><strong><a name="item_builder" id=
+"item_builder">builder</a></strong></dt>
+<dd>
+<p>An optional Builder object. These Builder objects are used to
+track the creation of Bio::MAGETAB objects by caching the objects
+in an internal store, keyed by a set of identifying information
+(see <a href="/model/Bio/MAGETAB/Util/Builder.html">the
+Bio::MAGETAB::Util::Builder manpage</a>). This object can be used
+in multiple Reader objects to help link common objects from
+multiple MAGE-TAB documents together. In its simplest form this
+internal store is a simple hash; however in principle this could be
+extended by subclassing Builder to create e.g. persistent database
+storage mechanisms.</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="methods" id="methods">METHODS</a></h1>
+<dl>
+<dt><strong><a name="item_parse" id=
+"item_parse">parse</a></strong></dt>
+<dd>
+<p>Attempts to parse the full MAGE-TAB document, starting with the
+top-level IDF file, and returns the resulting Bio::MAGETAB
+container object in scalar context, or the top-level
+Bio::MAGETAB::Investigation object and container object in list
+context.</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
+manpage</a></p>
+<hr />
+<h1><a name="author" id="author">AUTHOR</a></h1>
+<p>Tim F. Rayner &lt;<a href=
+"mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
+<hr />
+<h1><a name="license" id="license">LICENSE</a></h1>
+<p>This library is released under version 2 of the GNU General
+Public License (GPL).</p>
+</body>
+</html>

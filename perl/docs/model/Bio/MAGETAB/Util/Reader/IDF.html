@@ -5,7 +5,7 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Reader::IDF - IDF parser class.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +29,59 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Reader::IDF - IDF parser class.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use Bio::MAGETAB::Util::Reader::IDF;
+ my $parser = Bio::MAGETAB::Util::Reader::IDF-&gt;new({
+     uri =&gt; $idf_filename,
+ });
+ my $investigation = $parser-&gt;parse();
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>This class is used to parse IDF files. It can be used on its
+own, but more often you will want to use the main
+Bio::MAGETAB::Util::Reader class which handles extended parsing
+options more transparently.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<p>See <a href=
+"/model/Bio/MAGETAB/Util/Reader/TagValueFile.html">the
+Bio::MAGETAB::Util::Reader::TagValueFile manpage</a> for superclass
+attributes.</p>
+<dl>
+<dt><strong><a name="item_magetab_object" id=
+"item_magetab_object">magetab_object</a></strong></dt>
+<dd>
+<p>A Bio::MAGETAB::Investigation object. This can either be set
+upon instantiation, or a new object will be created for you. It can
+be retrieved at any time using <code>get_magetab_object</code>.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_parse" id=
+"item_parse">parse</a></strong></dt>
+<dd>
+<p>Parse the IDF pointed to by <code>$self-&gt;get_uri()</code>.
+Returns the Bio::MAGETAB::Investigation object updated with the IDF
+contents.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB/Util/Reader/TagValueFile.html">the
+Bio::MAGETAB::Util::Reader::TagValueFile manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Reader/Tabfile.html">the
+Bio::MAGETAB::Util::Reader::Tabfile manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Reader.html">the
+Bio::MAGETAB::Util::Reader manpage</a>, <a href=
+"/model/Bio/MAGETAB/Investigation.html">the
+Bio::MAGETAB::Investigation manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=

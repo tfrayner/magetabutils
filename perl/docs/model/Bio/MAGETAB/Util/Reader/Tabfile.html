@@ -5,7 +5,8 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Reader::Tabfile - An abstract class
+providing methods for handling tab-delimited files.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +30,59 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Reader::Tabfile - An abstract class
+providing methods for handling tab-delimited files.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use base qw(Bio::MAGETAB::Util::Reader::Tabfile);
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>This abstract class acts as a wrapper for the Text::CSV_XS
+module and line ending detection code used by the rest of the
+Bio::MAGETAB::Util::Reader modules. It is not designed to be used
+directly.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_uri" id="item_uri">uri</a></strong></dt>
+<dd>
+<p>Required URI path to the file to be parsed.</p>
+</dd>
+<dt><strong><a name="item_eol_char" id=
+"item_eol_char">eol_char</a></strong></dt>
+<dd>
+<p>The end-of-line character to use while parsing. Typically this
+is set by the Reader subclasses.</p>
+</dd>
+<dt><strong><a name="item_filehandle_cache" id=
+"item_filehandle_cache">filehandle_cache</a></strong></dt>
+<dd>
+<p>The filehandle for the file being parsed.</p>
+</dd>
+<dt><strong><a name="item_csv_parser" id=
+"item_csv_parser">csv_parser</a></strong></dt>
+<dd>
+<p>A Text::CSV_XS parser object.</p>
+</dd>
+<dt><strong><a name="item_builder" id=
+"item_builder">builder</a></strong></dt>
+<dd>
+<p>A Bio::MAGETAB::Util::Builder object, used by subclasses to
+track MAGE-TAB object creation.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<p>No public methods.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB/Util/Reader.html">the
+Bio::MAGETAB::Util::Reader manpage</a>, <a href=
+"/model/Bio/MAGETAB/Util/Reader/TagValueFile.html">the
+Bio::MAGETAB::Util::Reader::TagValueFile manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=

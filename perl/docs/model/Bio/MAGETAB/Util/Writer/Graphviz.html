@@ -5,7 +5,8 @@
 <head>
 <meta name="generator" content=
 "HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Sample - MAGE-TAB sample class</title>
+<title>Bio::MAGETAB::Util::Writer::Graphviz - Visualization of
+MAGE-TAB objects.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
@@ -29,34 +30,65 @@
 </ul>
 -->
 <!-- INDEX END -->
-<hr />
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Sample - MAGE-TAB sample class</p>
+<p>Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB
+objects.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Sample;
+ use Bio::MAGETAB::Util::Writer::Graphviz;
+ my $drawer = Bio::MAGETAB::Util::Writer::Graphviz-&gt;new({
+    magetab    =&gt; $magetab_container,
+    filehandle =&gt; $output_fh,
+    font       =&gt; 'luxisr',
+ });
+ 
+ $drawer-&gt;draw();
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This class is used to store information on biological samples
-(as distinct from Sources) in MAGE-TAB. <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a> for superclass methods.</p>
+<p>This is a simple visualization class for MAGE-TAB objects. It
+may be developed further in future; at the moment, given a
+Bio::MAGETAB container and a filehandle, it will just generate a
+'.dot' file which can then be processed using the Graphviz ``dot''
+application.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>No class-specific attributes. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_magetab" id=
+"item_magetab">magetab</a></strong></dt>
+<dd>
+<p>The Bio::MAGETAB container containing the MAGE-TAB objects to
+visualize. This is a required attribute. See <a href=
+"/model/Bio/MAGETAB.html">the Bio::MAGETAB manpage</a> for more
+information on this container class.</p>
+</dd>
+<dt><strong><a name="item_filehandle" id=
+"item_filehandle">filehandle</a></strong></dt>
+<dd>
+<p>The filehandle to use to output (i.e. the ``dot'' input
+file).</p>
+</dd>
+<dt><strong><a name="item_font" id=
+"item_font">font</a></strong></dt>
+<dd>
+<p>The font used for object labels in the output.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No class-specific methods. See <a href=
-"/model/Bio/MAGETAB/Material.html">the Bio::MAGETAB::Material
-manpage</a>.</p>
+<dl>
+<dt><strong><a name="item_draw" id=
+"item_draw">draw</a></strong></dt>
+<dd>
+<p>Generates output suitable for use with the Graphviz ``dot''
+application.</p>
+</dd>
+</dl>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Material.html">the
-Bio::MAGETAB::Material manpage</a></p>
+<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
+manpage</a></p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
