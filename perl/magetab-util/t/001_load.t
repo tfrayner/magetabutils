@@ -36,7 +36,7 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::SDRF' );
     use_ok( 'Bio::MAGETAB::Util::Reader' );
     use_ok( 'Bio::MAGETAB::Util::Writer' );
-    use_ok( 'Bio::MAGETAB::Util::Writer::BaseClass' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::Tabfile' );
     use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );

@@ -311,6 +311,35 @@ Bio::MAGETAB::Util::Persistence object.
 See L<Bio::MAGETAB::Util::Builder> for documentation on the superclass
 methods.
 
+=head1 CAVEATS
+
+Objects when modified are not automatically updated in the
+database. You should use the C<update> method to do this (see
+L<Bio::MAGETAB::Util::Builder/METHODS>). In particular, it is
+important to bear in mind that there are places in the Bio::MAGETAB
+model where relationships between objects are being maintained behind
+the scenes (this allows certain relationships to be navigable in both
+directions). When modifying these objects, you must also call
+C<update> on their target objects to ensure the database is kept
+synchronized with the objects held in memory. For example:
+
+ # SDRFRow to Nodes is a reciprocal relationship:
+ my $row = $loader->create_sdrf_row({
+    nodes => \@nodes,
+ });
+ 
+ # @nodes now know about $row, but the database doesn't know this:
+ $loader->update( @nodes );
+
+ # Similarly, with Edges and Nodes:
+ my $edge = $loader->find_or_create_edge({
+    inputNode  => $in,
+    outputNode => $out,
+ });
+ 
+ # Again, $in and $out know about $edge, but the database does not:
+ $loader->update( $in, $out );
+
 =head1 SEE ALSO
 
 L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::Builder>, L<Bio::MAGETAB::Util::Persistence>

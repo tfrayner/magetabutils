@@ -24,7 +24,7 @@ use Moose;
 
 use Carp;
 
-BEGIN { extends 'Bio::MAGETAB::Util::Writer::BaseClass' };
+BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
 has 'magetab_object'      => ( is         => 'ro',
                                isa        => 'Bio::MAGETAB::ArrayDesign',
@@ -463,5 +463,69 @@ sub write {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=head1 NAME
+
+Bio::MAGETAB::Util::Writer::ADF - Export of MAGE-TAB ArrayDesign
+objects.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Writer::ADF;
+ my $writer = Bio::MAGETAB::Util::Writer::ADF->new({
+    magetab_object => $array_design,
+    filename       => $adf_fh,
+ });
+ 
+ $writer->write();
+
+=head1 DESCRIPTION
+
+Export of ArrayDesigns to ADF files. **NOTE** that this module is not
+yet fully implemented or tested, although the API should remain
+unchanged.
+
+=head1 ATTRIBUTES
+
+See L<Bio::MAGETAB::Util::Writer::Tabfile> for superclass attributes.
+
+=over 2
+
+=item magetab_object
+
+The Bio::MAGETAB::ArrayDesign to export. This is a required
+attribute.
+
+=item cached_mapping_flag
+
+A flag, for internal use only, that helps determine whether a
+"[mapping]" section needs to be generated in the output ADF.
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item write
+
+Exports the ArrayDesign to ADF.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Writer>, L<Bio::MAGETAB::Writer::Tabfile>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

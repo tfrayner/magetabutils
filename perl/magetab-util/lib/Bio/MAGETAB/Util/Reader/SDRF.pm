@@ -46,7 +46,7 @@ sub parse {
     # This has to be set for Text::CSV_XS.
     local $/ = $self->_calculate_eol_char();
 
-    my $row_parser = $self->parse_header();
+    my $row_parser = $self->_parse_header();
     my $sdrf_fh    = $self->_get_filehandle();
     my $csv_parser = $self->_construct_csv_parser();
 
@@ -122,7 +122,7 @@ sub parse {
     return $sdrf;
 }
 
-sub parse_header {
+sub _parse_header {
 
     # Generates a row-level parser function based on the first line in the SDRF.
 
@@ -205,7 +205,7 @@ sub parse_header {
     return $row_parser;
 }
 
-sub create_source {
+sub _create_source {
 
     my ( $self, $name ) = @_;
 
@@ -218,7 +218,7 @@ sub create_source {
     return $source;
 }
 
-sub create_providers {
+sub _create_providers {
 
     my ( $self, $providers, $source ) = @_;
 
@@ -246,7 +246,7 @@ sub create_providers {
     return \@names;
 }
 
-sub create_description {
+sub _create_description {
 
     my ( $self, $description, $describable ) = @_;
 
@@ -328,7 +328,7 @@ sub _link_to_previous {
     return;
 }
 
-sub create_sample {
+sub _create_sample {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
 
@@ -343,7 +343,7 @@ sub create_sample {
     return $sample;
 }
 
-sub create_extract {
+sub _create_extract {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
 
@@ -358,7 +358,7 @@ sub create_extract {
     return $extract;
 }
 
-sub create_labeled_extract {
+sub _create_labeled_extract {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
 
@@ -384,7 +384,7 @@ sub create_labeled_extract {
     return $labeled_extract;
 }
 
-sub create_label {
+sub _create_label {
 
     my ( $self, $dyename, $le, $termsource, $accession ) = @_;
 
@@ -412,7 +412,7 @@ sub create_label {
     return $label;
 }
 
-sub create_characteristic_value {
+sub _create_characteristic_value {
 
     my ( $self, $category, $value, $material, $termsource, $accession ) = @_;
 
@@ -437,7 +437,7 @@ sub create_characteristic_value {
     return $term;
 }
 
-sub create_characteristic_measurement {
+sub _create_characteristic_measurement {
 
     my ( $self, $type, $value, $material ) = @_;
 
@@ -454,7 +454,7 @@ sub create_characteristic_measurement {
     return $measurement;
 }
 
-sub create_material_type {
+sub _create_material_type {
 
     my ( $self, $value, $material, $termsource, $accession ) = @_;
 
@@ -486,7 +486,7 @@ sub create_material_type {
 # defer object creation until the Edge is defined (this allows for
 # better internal identification of these protocol apps and param
 # vals).
-sub create_protocolapplication {
+sub _create_protocolapplication {
 
     my ( $self, $name, $namespace, $termsource, $accession ) = @_;
 
@@ -530,7 +530,7 @@ sub create_protocolapplication {
     return $protocol_app;
 }
 
-sub create_performers {
+sub _create_performers {
 
     my ( $self, $performers, $proto_app ) = @_;
 
@@ -558,7 +558,7 @@ sub create_performers {
     return \@names;
 }
 
-sub create_date {
+sub _create_date {
 
     my ( $self, $date, $proto_app ) = @_;
 
@@ -570,7 +570,7 @@ sub create_date {
     return $date;
 }
 
-sub create_parametervalue {
+sub _create_parametervalue {
 
     my ( $self, $paramname, $value, $protocolapp ) = @_;
 
@@ -666,7 +666,7 @@ sub _add_value_to_parameter {
     return;
 }
 
-sub create_unit {
+sub _create_unit {
 
     my ( $self, $type, $name, $thing, $termsource, $accession ) = @_;
 
@@ -717,7 +717,7 @@ sub _add_unit_to_thing {
     return;
 }
 
-sub create_technology_type {
+sub _create_technology_type {
 
     my ( $self, $value, $assay, $termsource, $accession ) = @_;
 
@@ -745,7 +745,7 @@ sub create_technology_type {
     return $type;
 }
 
-sub create_hybridization {
+sub _create_hybridization {
 
     my ( $self, $name, $previous, $protocolapps, $channel ) = @_;
 
@@ -766,7 +766,7 @@ sub create_hybridization {
     return $hybridization;
 }
 
-sub create_assay {
+sub _create_assay {
 
     my ( $self, $name, $previous, $protocolapps, $channel ) = @_;
 
@@ -790,7 +790,7 @@ sub create_assay {
     return $assay;
 }
 
-sub create_array {
+sub _create_array {
 
     my ( $self, $name, $namespace, $termsource, $accession, $assay ) = @_;
 
@@ -839,7 +839,7 @@ sub create_array {
     return $array_design;
 }
 
-sub create_array_from_file {
+sub _create_array_from_file {
 
     my ( $self, $uri, $assay ) = @_;
 
@@ -867,7 +867,7 @@ sub create_array_from_file {
     return $array_design;
 }
 
-sub create_scan {
+sub _create_scan {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
 
@@ -882,7 +882,7 @@ sub create_scan {
     return $scan;
 }
 
-sub create_normalization {
+sub _create_normalization {
 
     my ( $self, $name, $previous, $protocolapps ) = @_;
 
@@ -897,7 +897,7 @@ sub create_normalization {
     return $normalization;
 }
 
-sub find_data_format {
+sub _find_data_format {
 
     my ( $self, $uri ) = @_;
 
@@ -934,13 +934,13 @@ sub find_data_format {
     return $format;
 }
 
-sub create_data_file {
+sub _create_data_file {
 
     my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
     return if ( $uri =~ $BLANK );
 
-    my $format = $self->find_data_format( $uri );
+    my $format = $self->_find_data_format( $uri );
 
     my $type = $self->get_builder()->find_or_create_controlled_term({
         category => 'DataType',    # FIXME hard-coded.
@@ -958,7 +958,7 @@ sub create_data_file {
     return $data_file;
 }
 
-sub create_data_matrix {
+sub _create_data_matrix {
 
     my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
@@ -1004,7 +1004,7 @@ sub _get_fv_category_from_factor {
     return $category;
 }
 
-sub create_factorvalue_value {
+sub _create_factorvalue_value {
 
     my ( $self, $factorname, $altcategory, $value, $termsource, $accession ) = @_;
 
@@ -1048,7 +1048,7 @@ sub create_factorvalue_value {
     return $factorvalue;
 }
 
-sub create_factorvalue_measurement {
+sub _create_factorvalue_measurement {
 
     my ( $self, $factorname, $altcategory, $value ) = @_;
 
@@ -1121,7 +1121,7 @@ sub _add_comment_to_thing {
     return;
 }
 
-sub create_comment {
+sub _create_comment {
 
     my ( $self, $name, $value, $thing ) = @_;
 
@@ -1354,7 +1354,7 @@ __DATA__
 
                                    { $return = sub{
                                           my $name = shift;
-                                          my $obj  = $::sdrf->create_source($name);
+                                          my $obj  = $::sdrf->_create_source($name);
                                           foreach my $sub (@{$item[2]}){
                                               unshift( @_, $obj ) and
                                                   &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
@@ -1370,7 +1370,7 @@ __DATA__
 
                                    { $return = sub{
                                           my $name = shift;
-                                          my $obj  = $::sdrf->create_sample(
+                                          my $obj  = $::sdrf->_create_sample(
                                               $name,
                                               $::previous_node,
                                               \@::protocolapp_list,
@@ -1391,7 +1391,7 @@ __DATA__
 
                                    { $return = sub{
                                           my $name = shift;
-                                          my $obj  = $::sdrf->create_extract(
+                                          my $obj  = $::sdrf->_create_extract(
                                               $name,
                                               $::previous_node,
                                               \@::protocolapp_list,
@@ -1412,7 +1412,7 @@ __DATA__
 
                                    { $return = sub{
                                           my $name = shift;
-                                          my $obj  = $::sdrf->create_labeled_extract(
+                                          my $obj  = $::sdrf->_create_labeled_extract(
                                               $name,
                                               $::previous_node,
                                               \@::protocolapp_list,
@@ -1451,7 +1451,7 @@ __DATA__
                                          my $material = shift;
 
                                          # Add a measurement with unit to the material.
-                                         my $char = $::sdrf->create_characteristic_measurement(
+                                         my $char = $::sdrf->_create_characteristic_measurement(
                                              $item[3], shift, $material,
                                          );
 
@@ -1489,7 +1489,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
 
-                                         my $char = $::sdrf->create_characteristic_value(
+                                         my $char = $::sdrf->_create_characteristic_value(
                                              $item[3], $value, $material, @args,
                                          );
 
@@ -1512,7 +1512,7 @@ __DATA__
                                          my $value = shift;
 
                                          # Attach the unit to the measurement.
-                                         my $fv = $::sdrf->create_factorvalue_measurement(
+                                         my $fv = $::sdrf->_create_factorvalue_measurement(
                                              $item[3],
                                              $item[4][0],
                                              $value,
@@ -1551,7 +1551,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
 
-                                         my $fv = $::sdrf->create_factorvalue_value(
+                                         my $fv = $::sdrf->_create_factorvalue_value(
                                              $item[3],
                                              $item[4][0],
                                              $value,
@@ -1593,7 +1593,7 @@ __DATA__
                                    { $return = sub {
                                          my $source = shift;
 
-                                         my $names = $::sdrf->create_providers( shift, $source );
+                                         my $names = $::sdrf->_create_providers( shift, $source );
 
                       # FIXME we attach comments to the source, rather
                       # than the provider (model problem FIXME? or at
@@ -1635,7 +1635,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
 
-                                         my $type = $::sdrf->create_material_type(
+                                         my $type = $::sdrf->_create_material_type(
                                              $value, $material, @args,
                                          );
 
@@ -1668,7 +1668,7 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $label = $::sdrf->create_label($::channel, $labeled_extract, @args);
+                                         my $label = $::sdrf->_create_label($::channel, $labeled_extract, @args);
                                          return $label;
                                      };
                                    }
@@ -1679,7 +1679,7 @@ __DATA__
                                          my $describable = shift;
                                          my $description = shift;
 
-                                         return $::sdrf->create_description( $description, $describable );
+                                         return $::sdrf->_create_description( $description, $describable );
                                      };
                                    }
 
@@ -1689,7 +1689,7 @@ __DATA__
 
                                    { $return = sub {
                                          my $thing = shift;
-                                         return $::sdrf->create_comment($item[3], shift, $thing);
+                                         return $::sdrf->_create_comment($item[3], shift, $thing);
                                      };
                                    }
 
@@ -1721,7 +1721,7 @@ __DATA__
                                               push @args, undef, undef;
                                           }
 
-                                          my $obj  = $::sdrf->create_protocolapplication(@args);
+                                          my $obj  = $::sdrf->_create_protocolapplication(@args);
 
                                           # Add to the global ProtApp list immediately.
                                           push(@::protocolapp_list, $obj) if $obj;
@@ -1748,7 +1748,7 @@ __DATA__
                                    { $return = sub {
                                          my $protocolapp = shift;
                                          my $value       = shift;
-                                         my $obj = $::sdrf->create_parametervalue($item[3], $value, $protocolapp);
+                                         my $obj = $::sdrf->_create_parametervalue($item[3], $value, $protocolapp);
                                          foreach my $sub (@{$item[5]}){
 
                                               # Unit, Comment
@@ -1793,7 +1793,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
 
-                                         my $unit = $::sdrf->create_unit(
+                                         my $unit = $::sdrf->_create_unit(
                                              $item[3],
                                              $name,
                                              $thing,
@@ -1811,7 +1811,7 @@ __DATA__
                                    { $return = sub {
                                          my $protocolapp = shift;
 
-                                         my $names = $::sdrf->create_performers( shift, $protocolapp );
+                                         my $names = $::sdrf->_create_performers( shift, $protocolapp );
 
                  # FIXME we attach comments to the protocolapp, rather
                  # than the performer (model problem FIXME?  or at
@@ -1832,7 +1832,7 @@ __DATA__
                                          my $protocolapp = shift;
                                          my $date        = shift;
 
-                                         return $::sdrf->create_date( $date, $protocolapp );
+                                         return $::sdrf->_create_date( $date, $protocolapp );
                                      };
                                    }
 
@@ -1847,7 +1847,7 @@ __DATA__
                                          my $hybridization = shift;
                                          my $uri           = shift;
                                   
-                                         my $obj = $::sdrf->create_array_from_file($uri, $hybridization);
+                                         my $obj = $::sdrf->_create_array_from_file($uri, $hybridization);
                                          foreach my $sub (@{$item[2]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
@@ -1885,7 +1885,7 @@ __DATA__
                                              push @args, undef, undef;
                                          }
 
-                                         my $obj = $::sdrf->create_array(@args, $hybridization);
+                                         my $obj = $::sdrf->_create_array(@args, $hybridization);
                                          foreach my $sub (@{$item[6]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
@@ -1903,7 +1903,7 @@ __DATA__
 
                                    { $return = sub {
                                          my $name = shift;
-                                         my $obj  = $::sdrf->create_hybridization(
+                                         my $obj  = $::sdrf->_create_hybridization(
                                              $name,
                                              $::previous_node,
                                              \@::protocolapp_list,
@@ -1929,7 +1929,7 @@ __DATA__
 
                                    { $return = sub {
                                          my $name = shift;
-                                         my $obj  = $::sdrf->create_assay(
+                                         my $obj  = $::sdrf->_create_assay(
                                              $name,
                                              $::previous_node,
                                              \@::protocolapp_list,
@@ -1972,7 +1972,7 @@ __DATA__
                                              # No term source given
                                              push @args, undef, undef;
                                          }
-                                         my $type = $::sdrf->create_technology_type(
+                                         my $type = $::sdrf->_create_technology_type(
                                              $value, $assay, @args,
                                          );
                                          return $type;
@@ -1985,7 +1985,7 @@ __DATA__
 
                                    { $return = sub {
                                          my $name = shift;
-                                         my $obj = $::sdrf->create_scan(
+                                         my $obj = $::sdrf->_create_scan(
                                              $name,
                                              $::previous_node,
                                              \@::protocolapp_list,
@@ -2009,7 +2009,7 @@ __DATA__
     normalization:             normalization_name norm_attribute(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_normalization(
+                                         my $obj = $::sdrf->_create_normalization(
                                              shift,
                                              $::previous_node,
                                              \@::protocolapp_list,
@@ -2038,7 +2038,7 @@ __DATA__
     array_data:                array_data_file comment(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_data_file(
+                                         my $obj = $::sdrf->_create_data_file(
                                              shift,
                                              'raw',
                                              $::previous_node,
@@ -2059,7 +2059,7 @@ __DATA__
     derived_array_data:        derived_array_data_file comment(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_data_file(
+                                         my $obj = $::sdrf->_create_data_file(
                                              shift,
                                              'derived',
                                              $::previous_node,
@@ -2080,7 +2080,7 @@ __DATA__
     array_data_matrix:         array_data_matrix_file comment(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_data_matrix(
+                                         my $obj = $::sdrf->_create_data_matrix(
                                              shift,
                                              'raw',
                                              $::previous_node,
@@ -2101,7 +2101,7 @@ __DATA__
     derived_array_data_matrix: derived_array_data_matrix_file comment(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_data_matrix(
+                                         my $obj = $::sdrf->_create_data_matrix(
                                              shift,
                                              'derived',
                                              $::previous_node,
@@ -2122,7 +2122,7 @@ __DATA__
     image:                     image_file comment(s?)
 
                                    { $return = sub {
-                                         my $obj = $::sdrf->create_data_file(
+                                         my $obj = $::sdrf->_create_data_file(
                                              shift,
                                              'image',
                                              $::previous_node,

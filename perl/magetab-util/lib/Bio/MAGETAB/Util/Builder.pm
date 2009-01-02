@@ -540,6 +540,21 @@ desired method:
 Example: a Bio::MAGETAB::DataFile object can be created using the
 C<create_data_file> method.
 
+In addition to the above, the following method is included to help
+manage objects stored relational database backends (see the DBLoader
+subclass):
+
+=over 2
+
+=item update
+
+Passed a list of Bio::MAGETAB objects, this method will attempt to
+update those objects in any persistent storage engine. This method
+doesn't have any effect in the base Builder class, but it is very
+important to the DBLoader subclass. See L<Bio::MAGETAB::Util::DBLoader/CAVEATS>.
+
+=back
+
 =head1 OBJECT IDENTITY
 
 For most Bio::MAGETAB classes, identity between objects is fairly

@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Writer::BaseClass;
+package Bio::MAGETAB::Util::Writer::Tabfile;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -100,5 +100,60 @@ sub _construct_csv_writer {
 __PACKAGE__->meta->make_immutable();
 
 no Moose;
+
+=head1 NAME
+
+Bio::MAGETAB::Util::Writer::Tabfile - Abstract MAGE-TAB exporter class.
+
+=head1 SYNOPSIS
+
+ use base qw( Bio::MAGETAB::Util::Writer::Tabfile );
+
+=head1 DESCRIPTION
+
+This abstract class provides some basic functions for export of
+MAGE-TAB objects in tab-delimited format. It is not designed to be
+used directly.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item filehandle
+
+The filehandle to use for output (required).
+
+=item num_columns
+
+The number of columns to use for output. This must be set before
+anything is exported. Typically calculated and set from the subclass.
+
+=item csv_writer
+
+The Text::CSV_XS object to use for output. This attribute is typically
+set in the subclass.
+
+=back
+
+=head1 METHODS
+
+No public methods.
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB::Util::Writer::ADF>,
+L<Bio::MAGETAB::Util::Writer::IDF>,
+L<Bio::MAGETAB::Util::Writer::SDRF>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
 
 1;

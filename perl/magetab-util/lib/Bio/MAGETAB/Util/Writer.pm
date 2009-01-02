@@ -102,4 +102,69 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::Writer - Export of MAGE-TAB objects.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Writer;
+ my $writer = Bio::MAGETAB::Util::Writer->new({
+    magetab => $magetab_container,
+ });
+ 
+ $writer->write();
+
+=head1 DESCRIPTION
+
+This class is designed to export all the MAGE-TAB objects from a given
+Bio::MAGETAB container, creating as many IDFs, ADFs and SDRFs as are
+necessary to do so. **NOTE** that this module is not yet fully
+implemented or tested, although the API should remain unchanged.
+
+Export of the individual MAGE-TAB components is delegated to separate
+writer classes. See L<Bio::MAGETAB::Util::Writer::ADF>,
+L<Bio::MAGETAB::Util::Writer::IDF> and
+L<Bio::MAGETAB::Util::Writer::SDRF> if you want more control over the
+export process.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item magetab
+
+The Bio::MAGETAB container to export. This is a required
+attribute. See L<Bio::MAGETAB> for more information on this container
+class.
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item write
+
+Exports all objects into their respective MAGE-TAB
+components. Filenames are automatically generated from Investigation
+title, ArrayDesign uri (or name) and SDRF uri attributes.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

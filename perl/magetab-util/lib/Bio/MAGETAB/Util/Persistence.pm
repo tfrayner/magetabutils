@@ -550,6 +550,10 @@ done once to set up the database.
 Connect to the database. This must be done before using any of the
 following methods.
 
+=item get_schema
+
+Returns the Tangram::Schema object created using the config attribute.
+
 =item insert
 
 =item select

@@ -93,8 +93,8 @@ sub parse {
 
     my ( $self ) = @_;
 
-    $self->parse_header();
-    $self->parse_body();
+    $self->_parse_header();
+    $self->_parse_body();
 
     return $self->get_magetab_object();
 }
@@ -294,7 +294,7 @@ sub _parse_mapping_section {
     return \@design_elements;
 }
 
-sub parse_body {
+sub _parse_body {
 
     my ( $self ) = @_;
 
@@ -350,7 +350,7 @@ sub parse_body {
 
         # Typically either instantiation or header parsing will have
         # populated magetab_object, so this is here just for
-        # completeness if parse_body ever gets called independently.
+        # completeness if _parse_body ever gets called independently.
         $array_design = $self->get_builder()->find_or_create_array_design({
             name           => $self->get_uri(),
             designElements => [ values %design_elements ],
@@ -557,7 +557,7 @@ sub _parse_adfrow_for_map2rep {
 
 # Copied directly from List::MoreUtils 0.21, rather than adding a
 # rather trivial dependency.
-sub any (&@) {
+sub _any (&@) {
     my $f = shift;
     return if ! @_;
     for (@_) {
@@ -566,7 +566,7 @@ sub any (&@) {
     return 0;
 }
     
-sub all (&@) {
+sub _all (&@) {
     my $f = shift;
     return if ! @_;
     for (@_) {
@@ -582,13 +582,13 @@ sub _parse_adfrow {
     my $feature_data = $self->_parse_adfrow_for_feature( $larry, $header );
     my $feature;
     my @required_feat_info = qw( blockCol blockRow col row );
-    if ( all { defined($feature_data->{$_}) } @required_feat_info ) {
+    if ( _all { defined($feature_data->{$_}) } @required_feat_info ) {
         my $ad = $self->get_magetab_object()
             or confess("Error: ArrayDesign MAGETAB object not registered with parser object");
         $feature_data->{'array_design'} = $ad;
         $feature = $self->get_builder()->find_or_create_feature( $feature_data );
     }
-    elsif ( any { defined($feature_data->{$_}) } @required_feat_info ) {
+    elsif ( _any { defined($feature_data->{$_}) } @required_feat_info ) {
         croak("Error: Incomplete feature-level information provided in ADF.");
     }
 
@@ -627,7 +627,7 @@ sub _parse_adfrow {
     return( grep { defined $_ } $feature, $reporter, $composite, @map2reporters );
 }
 
-sub parse_header {
+sub _parse_header {
 
     my ( $self ) = @_;
 

@@ -136,4 +136,71 @@ __PACKAGE__->meta->make_immutable();
 
 no Moose;
 
+=head1 NAME
+
+Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB objects.
+
+=head1 SYNOPSIS
+
+ use Bio::MAGETAB::Util::Writer::Graphviz;
+ my $drawer = Bio::MAGETAB::Util::Writer::Graphviz->new({
+    magetab    => $magetab_container,
+    filehandle => $output_fh,
+    font       => 'luxisr',
+ });
+ 
+ $drawer->draw();
+
+=head1 DESCRIPTION
+
+This is a simple visualization class for MAGE-TAB objects. It may be
+developed further in future; at the moment, given a Bio::MAGETAB
+container and a filehandle, it will just generate a '.dot' file which
+can then be processed using the Graphviz "dot" application.
+
+=head1 ATTRIBUTES
+
+=over 2
+
+=item magetab
+
+The Bio::MAGETAB container containing the MAGE-TAB objects to
+visualize. This is a required attribute. See L<Bio::MAGETAB> for more
+information on this container class.
+
+=item filehandle
+
+The filehandle to use to output (i.e. the "dot" input file).
+
+=item font
+
+The font used for object labels in the output.
+
+=back
+
+=head1 METHODS
+
+=over 2
+
+=item draw
+
+Generates output suitable for use with the Graphviz "dot" application.
+
+=back
+
+=head1 SEE ALSO
+
+L<Bio::MAGETAB>
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut
+
 1;

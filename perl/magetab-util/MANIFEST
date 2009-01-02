@@ -22,7 +22,7 @@ lib/Bio/MAGETAB/Util/Reader/Tabfile.pm
 lib/Bio/MAGETAB/Util/Reader/TagValueFile.pm
 lib/Bio/MAGETAB/Util/Writer.pm
 lib/Bio/MAGETAB/Util/Writer/ADF.pm
-lib/Bio/MAGETAB/Util/Writer/BaseClass.pm
+lib/Bio/MAGETAB/Util/Writer/Tabfile.pm
 lib/Bio/MAGETAB/Util/Writer/Graphviz.pm
 lib/Bio/MAGETAB/Util/Writer/IDF.pm
 lib/Bio/MAGETAB/Util/Writer/SDRF.pm
@@ -40,4 +40,5 @@ t/003_idf.t
 t/003_sdrf.t
 t/004_persistence.t
 t/005_dbloader.t
+t/010_pod_coverage.t
 t/testlib/CommonTests.pm
