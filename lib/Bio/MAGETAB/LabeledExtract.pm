@@ -26,7 +26,9 @@ BEGIN { extends 'Bio::MAGETAB::Material' };
 
 has 'label'               => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::ControlledTerm',
-                               required   => 1 );
+                               clearer    => 'clear_label',
+                               predicate  => 'has_label',
+                               required   => 0 );
 
 __PACKAGE__->meta->make_immutable();
 
@@ -51,10 +53,11 @@ in MAGE-TAB. L<Bio::MAGETAB::Material> for superclass methods.
 
 =over 2
 
-=item label (required)
+=item label (optional)
 
-The kind of label used (e.g. Cy3, biotin; data type:
-Bio::MAGETAB::ControlledTerm).
+The kind of label used (e.g. Cy3, biotin). This is marked as optional
+since it is not formally required by the MAGE-TAB specification (data
+type: Bio::MAGETAB::ControlledTerm).
 
 =back
 
