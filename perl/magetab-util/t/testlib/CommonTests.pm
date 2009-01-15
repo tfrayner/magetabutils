@@ -23,8 +23,9 @@ sub check_term {
 
     my $ct;
     lives_ok( sub { $ct = $builder->get_controlled_term({
-        category => $cat,
-        value    => $val,
+        category   => $cat,
+        value      => $val,
+        termSource => $ts,
     }) }, "Builder returns a $cat term" );
     is( $ct->get_termSource(), $ts, 'with the correct termSource' );
     is_deeply( $obj->$method(), $ct, '$attr set correctly' );
