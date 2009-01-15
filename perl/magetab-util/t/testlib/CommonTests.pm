@@ -28,7 +28,7 @@ sub check_term {
         termSource => $ts,
     }) }, "Builder returns a $cat term" );
     is( $ct->get_termSource(), $ts, 'with the correct termSource' );
-    is_deeply( $obj->$method(), $ct, '$attr set correctly' );
+    is_deeply( $obj->$method(), $ct, "$attr set correctly" );
 
     return;
 }
