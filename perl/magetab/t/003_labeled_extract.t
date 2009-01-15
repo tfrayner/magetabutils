@@ -41,13 +41,13 @@ my $me = Bio::MAGETAB::Measurement->new( measurementType => 'test', value => 'te
 
 my %required_attr = (
     name           => 'test',
-    label          => $ct,
 );
 
 my %optional_attr = (
     materialType    => $ct,
     characteristics => [ $ct ],
     measurements    => [ $me ],
+    label          => $ct,
 );
 
 my %bad_attr = (

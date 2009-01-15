@@ -1,6 +1,11 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+0.96    Bio::MAGETAB-0.96.tar.gz        Made LabeledExtract->label attribute optional. This
+                                          better agrees with the MAGE-TAB specification, even
+                                          if it doesn't make much sense in reality. This
+                                          change makes SDRF parsing slightly simpler.
+
 0.95    Bio::MAGETAB-0.95.tar.gz        Added BaseClass to the MagicDraw UML model document.
                                         Renamed Feature blockColumn and column attributes
                                           to blockCol and col respectively; this avoids
