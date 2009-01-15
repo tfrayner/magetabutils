@@ -54,13 +54,18 @@ has 'relaxed_parser'      => ( is         => 'rw',
                                default    => 0,
                                required   => 1 );
 
+has 'ignore_datafiles'    => ( is         => 'rw',
+                               isa        => 'Bool',
+                               default    => 0,
+                               required   => 1 );
+
 has 'builder'             => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Util::Builder',
                                default    => sub { Bio::MAGETAB::Util::Builder->new() },
                                required   => 1 );
 
 # Make this visible to users of the module.
-our $VERSION = 0.3;
+our $VERSION = 0.31;
 
 sub parse {
 
@@ -106,14 +111,16 @@ sub parse {
     }
 
     # Parse through all the DataMatrix objects.
-    foreach my $matrix ( $magetab_container->get_dataMatrices() ) {
-        my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
-            uri            => $matrix->get_uri(),
-            builder        => $builder,           
-            magetab_object => $matrix,
-        });
+    unless ( $self->get_ignore_datafiles() ) {
+        foreach my $matrix ( $magetab_container->get_dataMatrices() ) {
+            my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
+                uri            => $matrix->get_uri(),
+                builder        => $builder,           
+                magetab_object => $matrix,
+            });
 
-        $parser->parse();
+            $parser->parse();
+        }
     }
 
     return wantarray

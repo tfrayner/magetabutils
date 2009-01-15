@@ -28,7 +28,7 @@ name     'Bio-MAGETAB-Util';
 abstract 'Import, export and visualization functions for the MAGE-TAB format.';
 all_from 'lib/Bio/MAGETAB/Util/Reader.pm';
 
-requires 'Bio::MAGETAB'                => '0.95';
+requires 'Bio::MAGETAB'                => '0.96';
 requires 'Moose'                       => '0.43';
 requires 'Moose::Policy'               => '0.03';
 requires 'Parse::RecDescent'           => '1.94';

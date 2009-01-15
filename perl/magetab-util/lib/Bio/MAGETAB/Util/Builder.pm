@@ -227,7 +227,7 @@ my %method_map = (
                            qw( title ) ],
 
     'controlled_term' => [ 'Bio::MAGETAB::ControlledTerm',
-                           qw( category value ) ],
+                           qw( category value accession termSource ) ],
 
     'database_entry'  => [ 'Bio::MAGETAB::DatabaseEntry',
                            qw( accession termSource ) ],
@@ -580,7 +580,7 @@ listed below for your debugging delight:
  Bio::MAGETAB::Comment             name value object*
  Bio::MAGETAB::CompositeElement    name
  Bio::MAGETAB::Contact             firstName midInitials lastName
- Bio::MAGETAB::ControlledTerm      category value
+ Bio::MAGETAB::ControlledTerm      category value termSource accession
  Bio::MAGETAB::DataAcquisition     name
  Bio::MAGETAB::DatabaseEntry       accession termSource
  Bio::MAGETAB::DataFile            uri

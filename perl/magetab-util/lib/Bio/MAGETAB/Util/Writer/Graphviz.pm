@@ -99,8 +99,11 @@ HEADER
 
             # Default colour for things lacking a recognised label.
             $color = $color{'grey'};
-            
-            my $labname = $node->get_label()->get_value();
+
+            my $labname = 'unknown';
+            if ( my $cv = $node->get_label() ) {
+                $labname = $cv->get_value();
+            }
             $label .= qq{\\nLabel: $labname};
 
             while ( my ( $re, $col ) = each %label_color ) {

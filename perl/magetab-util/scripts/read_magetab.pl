@@ -35,6 +35,7 @@ use Bio::MAGETAB::Util::Writer::Graphviz;
 
 my ( $idf,
      $is_relaxed,
+     $ignore_datafiles,
      $authority,
      $namespace,
      $want_help,
@@ -47,6 +48,7 @@ GetOptions(
     "a|authority=s" => \$authority,
     "n|namespace=s" => \$namespace,
     "r|relaxed"     => \$is_relaxed,
+    "x|ignore-data" => \$ignore_datafiles,
     "g|graph=s"     => \$graph_file,
     "d|database=s"  => \$db_file,
     "h|help"        => \$want_help,
@@ -62,6 +64,7 @@ if ( $want_help || ! ($idf && -r $idf) ) {
  Options:
 
     -r :   Use "relaxed" parsing, where undeclared objects are created for you on the fly.
+    -x :   Do not attempt to parse any data files listed in the SDRF (specifically, data matrices).
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
     -g :   Filename to use for the ".dot" file if attempting to draw a graph of the SDRF using Graphviz.
@@ -84,10 +87,11 @@ $namespace ||= q{};
 $authority ||= q{};
 
 my $reader = Bio::MAGETAB::Util::Reader->new(
-    idf            => $idf,
-    relaxed_parser => $is_relaxed,
-    namespace      => $namespace,
-    authority      => $authority,
+    idf              => $idf,
+    relaxed_parser   => $is_relaxed,
+    ignore_datafiles => $ignore_datafiles,
+    namespace        => $namespace,
+    authority        => $authority,
 );
 
 # If a database file was specified, dump the Investigation and all
@@ -96,7 +100,8 @@ if ( $db_file ) {
 
     # We default to SQLite here for the sake of simplicity. In
     # principle, any database backend supported by Tangram should
-    # work.
+    # work. NOTE that during testing, SQLite performance didn't scale
+    # terribly well; MySQL worked better.
     require Bio::MAGETAB::Util::Persistence;
     require Bio::MAGETAB::Util::DBLoader;
     my $db = Bio::MAGETAB::Util::Persistence->new({

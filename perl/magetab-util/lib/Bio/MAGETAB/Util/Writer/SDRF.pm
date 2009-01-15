@@ -589,10 +589,12 @@ sub _process_labeled_extract {
 
     my ( $colnames, $colvalues ) = $self->_process_material( $obj, 'Labeled Extract Name' );
 
-    my ( $labcols, $labvals ) = $self->_process_controlled_term( $obj->get_label(), $obj );
+    if ( my $label = $obj->get_label() ) {
+        my ( $labcols, $labvals ) = $self->_process_controlled_term( $label, $obj );
 
-    push @{ $colnames },  @{ $labcols };
-    push @{ $colvalues }, @{ $labvals };
+        push @{ $colnames },  @{ $labcols };
+        push @{ $colvalues }, @{ $labvals };
+    }
 
     return( $colnames, $colvalues );
 }

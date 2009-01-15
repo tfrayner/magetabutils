@@ -84,7 +84,10 @@ sub parse {
 
         my $channel;
         if ( scalar @labeled_extracts == 1 ) {
-            my $val = $labeled_extracts[0]->get_label()->get_value();
+            my $val = 'unknown';
+            if ( my $label = $labeled_extracts[0]->get_label() ) {
+                $val = $label->get_value();
+            }
             $channel = $self->get_builder()->find_or_create_controlled_term({
                 category => 'Channel',    # FIXME hard-coded.
                 value    => $val,
@@ -222,7 +225,7 @@ sub _create_providers {
 
     my ( $self, $providers, $source ) = @_;
 
-    return if ( $providers =~ $BLANK );
+    return if ( ! $source || $providers =~ $BLANK );
 
     my @names = split /\s*;\s*/, $providers;
 
@@ -250,7 +253,7 @@ sub _create_description {
 
     my ( $self, $description, $describable ) = @_;
 
-    return if ( $description =~ $BLANK );
+    return if ( ! $describable || $description =~ $BLANK );
 
     if ( $describable ) {
         $describable->set_description( $description );
@@ -364,19 +367,8 @@ sub _create_labeled_extract {
 
     return if ( $name =~ $BLANK );
 
-    # Create a dummy label that isn't tracked by the Bio::MAGETAB
-    # container or the Builder object. This will be replaced later
-    # when the Label column is parsed; this dummy just acts as a
-    # fail-safe placeholder for a required attribute.
-    my $dummy_label = Bio::MAGETAB::ControlledTerm->new(
-        category => 'LabelCompound',
-        value    => 'unknown',
-    );
-    $self->get_builder()->get_magetab()->delete_objects( $dummy_label );
-
     my $labeled_extract = $self->get_builder()->find_or_create_labeled_extract({
         name  => $name,
-        label => $dummy_label,
     });
 
     $self->_link_to_previous( $labeled_extract, $previous, $protocolapps );
@@ -388,7 +380,7 @@ sub _create_label {
 
     my ( $self, $dyename, $le, $termsource, $accession ) = @_;
 
-    return if ( $dyename =~ $BLANK );
+    return if ( ! $le || $dyename =~ $BLANK );
 
     my $ts_obj;
     if ( $termsource ) {
@@ -416,7 +408,7 @@ sub _create_characteristic_value {
 
     my ( $self, $category, $value, $material, $termsource, $accession ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $material || $value =~ $BLANK );
 
     my $ts_obj;
     if ( $termsource ) {
@@ -441,7 +433,7 @@ sub _create_characteristic_measurement {
 
     my ( $self, $type, $value, $material ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $material || $value =~ $BLANK );
 
     my $measurement = $self->get_builder()->find_or_create_measurement({
         measurementType  => $type,
@@ -458,7 +450,7 @@ sub _create_material_type {
 
     my ( $self, $value, $material, $termsource, $accession ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $material || $value =~ $BLANK );
 
     my $ts_obj;
     if ( $termsource ) {
@@ -534,7 +526,7 @@ sub _create_performers {
 
     my ( $self, $performers, $proto_app ) = @_;
 
-    return if ( $performers =~ $BLANK );
+    return if ( ! $proto_app || $performers =~ $BLANK );
 
     my @names = split /\s*;\s*/, $performers;
 
@@ -562,7 +554,7 @@ sub _create_date {
 
     my ( $self, $date, $proto_app ) = @_;
 
-    return if ( $date =~ $BLANK );
+    return if ( ! $proto_app || $date =~ $BLANK );
 
     # Protocol app is still a hashref at this stage.
     $proto_app->{date} = $date if $proto_app;
@@ -574,7 +566,7 @@ sub _create_parametervalue {
 
     my ( $self, $paramname, $value, $protocolapp ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $protocolapp || $value =~ $BLANK );
 
     # Protocol app is still a hashref at this stage.
     my $protocol = $protocolapp->{protocol};
@@ -670,7 +662,7 @@ sub _create_unit {
 
     my ( $self, $type, $name, $thing, $termsource, $accession ) = @_;
 
-    return if ( $name =~ $BLANK );
+    return if ( ! $thing || $name =~ $BLANK );
 
     my $ts_obj;
     if ( $termsource ) {
@@ -705,13 +697,26 @@ sub _add_unit_to_thing {
         $thing->set_unit( $unit );
         $self->get_builder()->update( $thing );
     }
-    elsif ( $thing->has_measurement() ) {
+    elsif ( UNIVERSAL::can( $thing, 'has_measurement' ) && $thing->has_measurement() ) {
         my $meas = $thing->get_measurement();
         $meas->set_unit( $unit );
         $self->get_builder()->update( $meas );
     }
+    elsif ( UNIVERSAL::isa( $thing, 'HASH' ) ) {
+        if ( exists $thing->{measurement_data} ) {
+
+            # Typically $thing is a hashref of ParameterValue
+            # attributes with an accessory measurement_data key.
+            $thing->{measurement_data}{unit} = $unit;
+        }
+        else {
+
+            # Not sure if this is ever used.
+            $thing->{unit} = $unit;
+        }
+    }
     else{
-        croak("Error: Cannot process argument: $thing (" . blessed($thing) .")");
+        confess("Error: Cannot process argument: $thing (" . blessed($thing) .")");
     }
 
     return;
@@ -721,7 +726,7 @@ sub _create_technology_type {
 
     my ( $self, $value, $assay, $termsource, $accession ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $assay || $value =~ $BLANK );
 
     my $ts_obj;
     if ( $termsource ) {
@@ -798,7 +803,7 @@ sub _create_array {
     # $accession is the optional contents of the Term Accession
     # Number column.
 
-    return if ( $name =~ $BLANK );
+    return if ( ! $assay || $name =~ $BLANK );
 
     my $array_design;
 
@@ -843,7 +848,7 @@ sub _create_array_from_file {
 
     my ( $self, $uri, $assay ) = @_;
 
-    return if ( $uri =~ $BLANK );
+    return if ( ! $assay || $uri =~ $BLANK );
 
     # We just create a stub object here for now; the main Reader
     # object will come back and fill in the details using the ADF
@@ -1125,7 +1130,7 @@ sub _create_comment {
 
     my ( $self, $name, $value, $thing ) = @_;
 
-    return if ( $value =~ $BLANK );
+    return if ( ! $thing || $value =~ $BLANK );
 
     my $comment = $self->get_builder()->find_or_create_comment({
 	name   => $name,

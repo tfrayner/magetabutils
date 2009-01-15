@@ -35,11 +35,11 @@ my $hashref = {
         'Bio::MAGETAB::ArrayDesign' => {
             bases  => [ 'Bio::MAGETAB::DatabaseEntry' ],
             fields => {
-                string => [ qw( name
-                                version
-                                provider
-                                printingProtocol
-                                uri ) ],
+                string => { name             => {},
+                            version          => {},
+                            provider         => {},
+                            printingProtocol => { sql => 'text default NULL' },
+                            uri              => {}, },
 
                 ref    => [ qw( technologyType
                                 surfaceType
@@ -217,10 +217,10 @@ my $hashref = {
         'Bio::MAGETAB::Investigation' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                string => [ qw( title
-                                description
-                                date
-                                publicReleaseDate ) ],
+                string => { title             => {},
+                            description       => { sql => 'text default NULL'},
+                            date              => {},
+                            publicReleaseDate => {}, },
                 array  => { contacts            => 'Bio::MAGETAB::Contact',
                             protocols           => 'Bio::MAGETAB::Protocol',
                             publications        => 'Bio::MAGETAB::Publication',
@@ -319,11 +319,11 @@ my $hashref = {
         'Bio::MAGETAB::Protocol' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                string => [ qw( name
-                                text
-                                software
-                                hardware
-                                contact ) ],
+                string => { name     => {},
+                            text     => { sql => 'text default NULL' },
+                            software => {},
+                            hardware => {},
+                            contact  => {}, },
                 ref    => [ qw( protocolType ) ],
             },
         },
@@ -352,7 +352,10 @@ my $hashref = {
         'Bio::MAGETAB::Publication' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                string => [ qw( title authorList pubMedID DOI ) ],
+                string => { title      => { sql => 'varchar(511) default NULL' },
+                            authorList => { sql => 'varchar(511) default NULL' },
+                            pubMedID   => {},
+                            DOI        => {}, },
                 ref    => [ qw( status ) ],
             },
         },

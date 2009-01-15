@@ -55,9 +55,8 @@ sub _query_database {
         = $self->_strip_aggregator_info( $class, $data );
 
     # Add authority, namespace to $id_fields unless $data has a
-    # termSource or $class is a Bio::MAGETAB::DatabaseEntry.
-    unless ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::DatabaseEntry' )
-        && ! defined $data->{'termSource'} ) {
+    # termSource.
+    unless ( defined $data->{'termSource'} ) {
         my %tmp_fields = map { $_ => 1 } @{ $id_fields }, qw( namespace authority );
         $id_fields = [ keys %tmp_fields ];
         $data->{'namespace'} ||= $self->get_namespace();
@@ -71,20 +70,20 @@ sub _query_database {
         my $value = $data->{ $field };
 
         # Don't add aggregator fields to the query (the schema doesn't
-        # know about them). Also skip empty fields.
-        next FIELD if ( ! defined( $value )
-                            || first { $field eq $_ } @{ $aggregators } );
+        # know about them).
+        next FIELD if ( first { $field eq $_ } @{ $aggregators } );
 
         # Skip the field if it's looking for a dummy object not in the
         # database yet.
-        $value = undef if ( UNIVERSAL::isa( $value, 'Bio::MAGETAB::BaseClass' )
+        next FIELD if ( UNIVERSAL::isa( $value, 'Bio::MAGETAB::BaseClass' )
             && ! $self->id( $value ) );
 
-        # Another special case - URI can change in the model between
-        # input and output (specifically, a file: prefix may be
-        # added). This is copied from Bio::MAGETAB::Types. FIXME date
-        # will need the same treatment.
-        if ( $field eq 'uri' ) {
+        # Another special case - URI can change in the model
+        # between input and output (specifically, a file: prefix
+        # may be added). This is copied from
+        # Bio::MAGETAB::Types. FIXME date will need the same
+        # treatment.
+        if ( defined $value && $field eq 'uri' ) {
             use URI;
             $value = URI->new( $value );
 
@@ -94,13 +93,20 @@ sub _query_database {
             }
         }
 
-        # Much operator overloading means that we have to be careful
-        # here.
-        if ( $filter ) {
-            $filter &= ( $remote->{ $field } eq $value );
-        }
-        else {
-            $filter  = ( $remote->{ $field } eq $value );
+        {
+            # Tangram::Expr treats undef as IS NULL.
+            no warnings qw( uninitialized );
+
+            # Much operator overloading means that we have to be
+            # careful here.
+            if ( $filter ) {
+                $filter &= ( $remote->{ $field } eq $value );
+            }
+            else {
+                $filter  = ( $remote->{ $field } eq $value );
+            }
+
+            # End of 'no warnings' pragma.
         }
     }
 
@@ -111,6 +117,9 @@ sub _query_database {
     # terribly efficient, but the model limits us here.
     foreach my $agg_field ( @{ $aggregators } ) {
         my $agg = $data->{ $agg_field };
+        unless ( defined $agg ) {
+            confess("Error: Undefined aggregator field for class $class.");
+        }
         my @attr = $agg->meta()->get_all_attributes();
         my %map = map { $_->type_constraint()->name() => $_->name() } @attr;
 

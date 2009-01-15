@@ -216,31 +216,32 @@ sub _create_factors {
     my @factors;
     foreach my $f_data ( @{ $self->get_text_store()->{ 'factor' } } ) {
 
-        my $termsource;
-        if ( my $ts = $f_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source({
-                'name' => $ts,
-            });
-        }
+        my %args = ('name' => $f_data->{'name'} );
 
-        my $type = $self->get_builder()->find_or_create_controlled_term({
-            'category'   => 'ExperimentalFactorCategory',
-            'value'      => $f_data->{'factorType'},
-            'termSource' => $termsource,
-        });
+        if ( $f_data->{'factorType'} ) {
 
-        if ( defined $f_data->{'accession'} && ! defined $type->get_accession() ) {
-            $type->set_accession( $f_data->{'accession'} );
-            $self->get_builder()->update( $type );
-        }
+            my $termsource;
+            if ( my $ts = $f_data->{'termSource'} ) {
+                $termsource = $self->get_builder()->get_term_source({
+                    'name' => $ts,
+                });
+            }
             
+            my $type = $self->get_builder()->find_or_create_controlled_term({
+                'category'   => 'ExperimentalFactorCategory',
+                'value'      => $f_data->{'factorType'},
+                'termSource' => $termsource,
+            });
 
-        my $args = {
-            'name'       => $f_data->{'name'},
-            'factorType' => $type,
-        };
+            if ( defined $f_data->{'accession'} && ! defined $type->get_accession() ) {
+                $type->set_accession( $f_data->{'accession'} );
+                $self->get_builder()->update( $type );
+            }
 
-        my $factor = $self->get_builder()->find_or_create_factor( $args );
+            $args{'factorType'} = $type,
+        }
+
+        my $factor = $self->get_builder()->find_or_create_factor( \%args );
 
 	push @factors, $factor;
     }
@@ -294,27 +295,31 @@ sub _create_protocols {
     my @protocols;
     foreach my $p_data ( @{ $self->get_text_store()->{ 'protocol' } } ) {
 
-        my $termsource;
-        if ( my $ts = $p_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source({
-                'name' => $ts,
-            });
-        }
-
-        my $type = $self->get_builder()->find_or_create_controlled_term({
-            'category'   => 'ProtocolType',
-            'value'      => $p_data->{'protocolType'},
-            'termSource' => $termsource,
-        });
-
-        if ( defined $p_data->{'accession'} && ! defined $type->get_accession() ) {
-            $type->set_accession( $p_data->{'accession'} );
-            $self->get_builder()->update( $type );
-        }
-
         my @wanted = grep { $_ !~ /^parameters|protocolType|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
-        $args{'protocolType'} = $type;
+
+        if ( defined $p_data->{'protocolType'} ) {
+
+            my $termsource;
+            if ( my $ts = $p_data->{'termSource'} ) {
+                $termsource = $self->get_builder()->get_term_source({
+                    'name' => $ts,
+                });
+            }
+
+            my $type = $self->get_builder()->find_or_create_controlled_term({
+                'category'   => 'ProtocolType',
+                'value'      => $p_data->{'protocolType'},
+                'termSource' => $termsource,
+            });
+
+            if ( defined $p_data->{'accession'} && ! defined $type->get_accession() ) {
+                $type->set_accession( $p_data->{'accession'} );
+                $self->get_builder()->update( $type );
+            }
+
+            $args{'protocolType'} = $type;
+        }
 
         my $protocol = $self->get_builder()->find_or_create_protocol( \%args );
 
@@ -340,27 +345,31 @@ sub _create_publications {
     my @publications;
     foreach my $p_data ( @{ $self->get_text_store()->{ 'publication' } } ) {
 
-        my $termsource;
-        if ( my $ts = $p_data->{'termSource'} ) {
-            $termsource = $self->get_builder()->get_term_source({
-                'name' => $ts,
-            });
-        }
-
-        my $status = $self->get_builder()->find_or_create_controlled_term({
-            'category'   => 'PublicationStatus',
-            'value'      => $p_data->{'status'},
-            'termSource' => $termsource,
-        });
-
-        if ( defined $p_data->{'accession'} && ! defined $status->get_accession() ) {
-            $status->set_accession( $p_data->{'accession'} );
-            $self->get_builder()->update( $status );
-        }
-
         my @wanted = grep { $_ !~ /^status|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
-        $args{'status'} = $status;
+
+        if ( defined $p_data->{'status'} ) {
+
+            my $termsource;
+            if ( my $ts = $p_data->{'termSource'} ) {
+                $termsource = $self->get_builder()->get_term_source({
+                    'name' => $ts,
+                });
+            }
+
+            my $status = $self->get_builder()->find_or_create_controlled_term({
+                'category'   => 'PublicationStatus',
+                'value'      => $p_data->{'status'},
+                'termSource' => $termsource,
+            });
+
+            if ( defined $p_data->{'accession'} && ! defined $status->get_accession() ) {
+                $status->set_accession( $p_data->{'accession'} );
+                $self->get_builder()->update( $status );
+            }
+
+            $args{'status'} = $status;
+        }
 
         my $publication = $self->get_builder()->find_or_create_publication( \%args );
 

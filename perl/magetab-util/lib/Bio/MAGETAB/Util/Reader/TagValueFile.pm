@@ -37,6 +37,8 @@ has 'dispatch_table'      => ( is         => 'rw',
                                default    => sub { {} },
                                required   => 1 );
 
+# Define some standard regexps:
+my $BLANK = qr/\A [ ]* \z/xms;
 my $COMMENT_TAG = qr/\A \s* Comment \s* \[ ([^\]]+) \] \s* \z/ixms;
 
 ###################
@@ -274,6 +276,8 @@ sub _add_comment {
     # Comments are currently processed at the level of the top-level
     # enclosing object (Investigation or ArrayDesign) only.
     my ( $self, $name, $value ) = @_;
+
+    return if ( ! defined $value || $value =~ $BLANK );
 
     $self->get_text_store()->{ 'comment' }{ $name } = $value;
 
