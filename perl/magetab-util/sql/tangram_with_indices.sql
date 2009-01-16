@@ -37,8 +37,13 @@ CREATE TABLE `Bio_MAGETAB_ArrayDesign` (
   `uri` varchar(255) default NULL,
   `surfaceType_type` int(11) default NULL,
   `technologyType_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`),
+  FOREIGN KEY (`substrateType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`surfaceType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`technologyType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`sequencePolymerType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -63,8 +68,11 @@ CREATE TABLE `Bio_MAGETAB_Assay` (
   `arrayDesign` int(11) default NULL,
   `technologyType_type` int(11) default NULL,
   `technologyType` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Event` (`id`),
+  FOREIGN KEY (`technologyType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`arrayDesign`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -88,8 +96,9 @@ CREATE TABLE `Bio_MAGETAB_BaseClass` (
   `type` int(11) NOT NULL,
   `namespace` varchar(255) default NULL,
   `authority` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  KEY (`type`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -126,8 +135,16 @@ CREATE TABLE `Bio_MAGETAB_Comment` (
   `Bio_MAGETAB_ProtocolApplication_comments_slot` int(11) default NULL,
   `Bio_MAGETAB_Investigation_comments` int(11) default NULL,
   `Bio_MAGETAB_CompositeElement_comments_slot` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Node_comments`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_CompositeElement_comments`) REFERENCES `Bio_MAGETAB_CompositeElement` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_ParameterValue_comments`) REFERENCES `Bio_MAGETAB_ParameterValue` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Contact_comments`) REFERENCES `Bio_MAGETAB_Contact` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_ArrayDesign_comments`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_ProtocolApplication_comments`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Investigation_comments`) REFERENCES `Bio_MAGETAB_Investigation` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -149,8 +166,9 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_CompositeElement` (
   `id` int(11) NOT NULL,
   `name` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -172,8 +190,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_CompositeElement_compositeElements` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_CompositeElement` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -202,8 +222,9 @@ CREATE TABLE `Bio_MAGETAB_Contact` (
   `lastName` varchar(255) default NULL,
   `address` varchar(511) default NULL,
   `organization` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -225,8 +246,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Contact_contacts` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -248,8 +271,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Contact_performers` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -271,8 +296,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Contact_providers` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -295,8 +322,9 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm` (
   `id` int(11) NOT NULL,
   `value` varchar(255) default NULL,
   `category` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -318,8 +346,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_characteristics` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -341,8 +371,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_designTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -364,8 +396,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_groups` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -387,8 +421,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_normalizationTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -410,8 +446,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_qualityControlTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -433,8 +471,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_replicateTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -456,8 +496,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ControlledTerm_roles` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Contact` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -481,8 +523,10 @@ CREATE TABLE `Bio_MAGETAB_Data` (
   `dataType` int(11) default NULL,
   `dataType_type` int(11) default NULL,
   `uri` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`dataType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -505,8 +549,10 @@ CREATE TABLE `Bio_MAGETAB_DataFile` (
   `id` int(11) NOT NULL,
   `format` int(11) default NULL,
   `format_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`),
+  FOREIGN KEY (`format`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -528,8 +574,9 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_DataMatrix` (
   `id` int(11) NOT NULL,
   `rowIdentifierType` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -553,8 +600,10 @@ CREATE TABLE `Bio_MAGETAB_DatabaseEntry` (
   `termSource_type` int(11) default NULL,
   `termSource` int(11) default NULL,
   `accession` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`termSource`) REFERENCES `Bio_MAGETAB_TermSource` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -576,8 +625,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_DatabaseEntry_databaseEntries` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -601,8 +652,9 @@ CREATE TABLE `Bio_MAGETAB_DesignElement` (
   `startPosition` int(11) default NULL,
   `chromosome` varchar(255) default NULL,
   `endPosition` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -624,8 +676,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_DesignElement_designElements` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -654,8 +708,13 @@ CREATE TABLE `Bio_MAGETAB_Edge` (
   `inputNode_type` int(11) default NULL,
   `outputNode` int(11) default NULL,
   `outputNode_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Node_outputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Node_inputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`outputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`inputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -677,8 +736,9 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Event` (
   `id` int(11) NOT NULL,
   `name` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -704,8 +764,11 @@ CREATE TABLE `Bio_MAGETAB_Factor` (
   `Bio_MAGETAB_Investigation_factors` int(11) default NULL,
   `name` varchar(255) default NULL,
   `Bio_MAGETAB_Investigation_factors_slot` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`factorType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Investigation_factors`) REFERENCES `Bio_MAGETAB_Investigation` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -732,8 +795,12 @@ CREATE TABLE `Bio_MAGETAB_FactorValue` (
   `measurement_type` int(11) default NULL,
   `term` int(11) default NULL,
   `factor` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`term`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`measurement`) REFERENCES `Bio_MAGETAB_Measurement` (`id`),
+  FOREIGN KEY (`factor`) REFERENCES `Bio_MAGETAB_Factor` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -755,8 +822,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_FactorValue_factorValues` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_FactorValue` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -783,8 +852,10 @@ CREATE TABLE `Bio_MAGETAB_Feature` (
   `col` int(11) default NULL,
   `row` int(11) default NULL,
   `reporter` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`reporter`) REFERENCES `Bio_MAGETAB_Reporter` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -808,8 +879,10 @@ CREATE TABLE `Bio_MAGETAB_Investigation` (
   `publicReleaseDate` varchar(255) default NULL,
   `date` varchar(255) default NULL,
   `title` varchar(255) default NULL,
-  `description` text
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `description` text,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -832,8 +905,10 @@ CREATE TABLE `Bio_MAGETAB_LabeledExtract` (
   `id` int(11) NOT NULL,
   `label_type` int(11) default NULL,
   `label` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Material` (`id`),
+  FOREIGN KEY (`label`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -858,8 +933,10 @@ CREATE TABLE `Bio_MAGETAB_Material` (
   `name` varchar(255) default NULL,
   `description` varchar(255) default NULL,
   `materialType` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`materialType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -885,8 +962,11 @@ CREATE TABLE `Bio_MAGETAB_MatrixColumn` (
   `Bio_MAGETAB_DataMatrix_matrixColumns_slot` int(11) default NULL,
   `Bio_MAGETAB_DataMatrix_matrixColumns` int(11) default NULL,
   `columnNumber` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`quantitationType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_DataMatrix_matrixColumns`) REFERENCES `Bio_MAGETAB_DataMatrix` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -912,8 +992,11 @@ CREATE TABLE `Bio_MAGETAB_MatrixRow` (
   `designElement_type` int(11) default NULL,
   `Bio_MAGETAB_DataMatrix_matrixRows_slot` int(11) default NULL,
   `designElement` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`designElement`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_DataMatrix_matrixRows`) REFERENCES `Bio_MAGETAB_DataMatrix` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -942,8 +1025,11 @@ CREATE TABLE `Bio_MAGETAB_Measurement` (
   `minValue` varchar(255) default NULL,
   `measurementType` varchar(255) default NULL,
   `Bio_MAGETAB_Material_measurements` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`unit`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Material_measurements`) REFERENCES `Bio_MAGETAB_Material` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -965,8 +1051,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Node_nodes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -988,8 +1076,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Node_referencedNodes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_MatrixColumn` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1016,8 +1106,12 @@ CREATE TABLE `Bio_MAGETAB_ParameterValue` (
   `measurement_type` int(11) default NULL,
   `Bio_MAGETAB_ProtocolApplication_parameterValues_slot` int(11) default NULL,
   `Bio_MAGETAB_ProtocolApplication_parameterValues` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`parameter`) REFERENCES `Bio_MAGETAB_ProtocolParameter` (`id`),
+  FOREIGN KEY (`measurement`) REFERENCES `Bio_MAGETAB_Measurement` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_ProtocolApplication_parameterValues`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1045,8 +1139,10 @@ CREATE TABLE `Bio_MAGETAB_Protocol` (
   `text` text,
   `protocolType` int(11) default NULL,
   `protocolType_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`),
+  FOREIGN KEY (`protocolType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1070,8 +1166,10 @@ CREATE TABLE `Bio_MAGETAB_ProtocolApplication` (
   `protocol` int(11) default NULL,
   `date` varchar(255) default NULL,
   `protocol_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`protocol`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1093,8 +1191,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_ProtocolApplication_protocolApplications` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Edge` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1118,8 +1218,10 @@ CREATE TABLE `Bio_MAGETAB_ProtocolParameter` (
   `protocol` int(11) default NULL,
   `name` varchar(255) default NULL,
   `protocol_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`protocol`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1141,8 +1243,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Protocol_protocols` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1169,8 +1273,10 @@ CREATE TABLE `Bio_MAGETAB_Publication` (
   `status` int(11) default NULL,
   `status_type` int(11) default NULL,
   `title` varchar(511) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`status`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1192,8 +1298,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_Publication_publications` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Publication` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1218,8 +1326,10 @@ CREATE TABLE `Bio_MAGETAB_Reporter` (
   `sequence` varchar(255) default NULL,
   `name` varchar(255) default NULL,
   `controlType_type` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`controlType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1243,8 +1353,10 @@ CREATE TABLE `Bio_MAGETAB_SDRF` (
   `Bio_MAGETAB_Investigation_sdrfs_slot` int(11) default NULL,
   `Bio_MAGETAB_Investigation_sdrfs` int(11) default NULL,
   `uri` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_Investigation_sdrfs`) REFERENCES `Bio_MAGETAB_Investigation` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1270,8 +1382,11 @@ CREATE TABLE `Bio_MAGETAB_SDRFRow` (
   `Bio_MAGETAB_SDRF_sdrfRows` int(11) default NULL,
   `channel_type` int(11) default NULL,
   `channel` int(11) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`channel`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
+  FOREIGN KEY (`Bio_MAGETAB_SDRF_sdrfRows`) REFERENCES `Bio_MAGETAB_SDRF` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1293,8 +1408,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_SDRFRow_sdrfRows` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1318,8 +1435,9 @@ CREATE TABLE `Bio_MAGETAB_TermSource` (
   `version` varchar(255) default NULL,
   `name` varchar(255) default NULL,
   `uri` varchar(255) default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  PRIMARY KEY  (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1341,8 +1459,10 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_TermSource_termSources` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
-  `slot` int(11) default NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `slot` int(11) default NULL,
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_TermSource` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -1367,7 +1487,7 @@ CREATE TABLE `tangram` (
   `engine_layout` int(11) default NULL,
   `mark` int(11) NOT NULL,
   UNIQUE KEY `Tangram_Guard` (`layout`,`engine`,`engine_layout`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
 --
