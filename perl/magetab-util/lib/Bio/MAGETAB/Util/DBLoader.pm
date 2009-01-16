@@ -293,9 +293,9 @@ database.
  require Bio::MAGETAB::Util::Persistence;
  require Bio::MAGETAB::Util::DBLoader;
  
- my $reader = Bio::MAGETAB::Util::Reader->new(
+ my $reader = Bio::MAGETAB::Util::Reader->new({
      idf => $idf
- );
+ });
  
  my $db = Bio::MAGETAB::Util::Persistence->new({
      dbparams => ["dbi:SQLite:$db_file"],
