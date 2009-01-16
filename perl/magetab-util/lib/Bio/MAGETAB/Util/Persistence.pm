@@ -88,14 +88,14 @@ my $hashref = {
         'Bio::MAGETAB::Contact' => {
             bases  => [ 'Bio::MAGETAB::BaseClass' ],
             fields => {
-                string => [ qw( firstName
-                                lastName
-                                midInitials
-                                email
-                                organization
-                                phone
-                                fax
-                                address ) ],
+                string => { firstName    => {},
+                            lastName     => {},
+                            midInitials  => {},
+                            email        => {},
+                            organization => {},
+                            phone        => {},
+                            fax          => {},
+                            address      => { sql => 'varchar(511) default NULL' }, },
                 array  => { roles    => 'Bio::MAGETAB::ControlledTerm' },
                 iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
                                           aggreg => 1 }, },
@@ -317,7 +317,7 @@ my $hashref = {
         },
 
         'Bio::MAGETAB::Protocol' => {
-            bases  => [ 'Bio::MAGETAB::BaseClass' ],
+            bases  => [ 'Bio::MAGETAB::DatabaseEntry' ],
             fields => {
                 string => { name     => {},
                             text     => { sql => 'text default NULL' },

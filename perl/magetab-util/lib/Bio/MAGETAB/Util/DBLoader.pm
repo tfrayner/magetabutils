@@ -39,6 +39,23 @@ has 'database'            => ( is         => 'rw',
                                                    count
                                                    remote ) ], );
 
+sub _manage_namespace_authority {
+
+    my ( $self, $data, $class ) = @_;
+
+    # Add authority, namespace to everything _except_ DBEntries with
+    # defined term source, or TermSource itself.
+    if ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::TermSource' ) ||
+         defined $data->{'termSource'} ) {
+        $data->{'namespace'} ||= q{};
+        $data->{'authority'} ||= q{};
+    }
+    else {
+        $data->{'namespace'} ||= $self->get_namespace();
+        $data->{'authority'} ||= $self->get_authority();
+    }
+}
+
 sub _query_database {
 
     my ( $self, $class, $data, $id_fields ) = @_;
@@ -55,13 +72,11 @@ sub _query_database {
         = $self->_strip_aggregator_info( $class, $data );
 
     # Add authority, namespace to $id_fields unless $data has a
-    # termSource.
-    unless ( defined $data->{'termSource'} ) {
-        my %tmp_fields = map { $_ => 1 } @{ $id_fields }, qw( namespace authority );
-        $id_fields = [ keys %tmp_fields ];
-        $data->{'namespace'} ||= $self->get_namespace();
-        $data->{'authority'} ||= $self->get_authority();
-    }
+    # termSource.  Also, TermSources themselves are *always* treated
+    # as global in this way.
+    my %tmp_fields = map { $_ => 1 } @{ $id_fields }, qw( namespace authority );
+    $id_fields = [ keys %tmp_fields ];
+    $self->_manage_namespace_authority( $data, $class );
 
     my $filter;
     FIELD:
@@ -99,11 +114,24 @@ sub _query_database {
 
             # Much operator overloading means that we have to be
             # careful here.
-            if ( $filter ) {
-                $filter &= ( $remote->{ $field } eq $value );
-            }
-            else {
-                $filter  = ( $remote->{ $field } eq $value );
+            eval {
+                my $expr;
+                if ( blessed $value ) {
+                    $expr = ( $remote->{ $field } == $value );
+                }
+                else {
+                    $expr = ( $remote->{ $field } eq $value );
+                }
+
+                if ( $filter ) {
+                    $filter &= ( $expr );
+                }
+                else {
+                    $filter  = ( $expr );
+                }
+            };
+            if ( $@ ) {
+                croak("Error constructing filter for $field == $value: $@")
             }
 
             # End of 'no warnings' pragma.
@@ -161,7 +189,8 @@ sub _query_database {
 
     # Brief sanity check; identity means identity, i.e. only one object returned.
     if ( scalar @objects > 1 ) {
-        confess("Error: multiple $class objects found in database.");
+        my $id = $self->_create_id( $class, $data, $id_fields );
+        confess(qq{Error: multiple $class objects found in database. Internal ID was "$id".});
     }
 
     return $objects[0];
@@ -200,6 +229,10 @@ sub _create_object {
     # Strip out aggregator identifier components
     $data = $self->_strip_aggregator_info( $class, $data );
 
+    # Make sure our authority and namespace attributes are
+    # appropriately managed.
+    $self->_manage_namespace_authority( $data, $class );
+
     # Strip out any undefined values, which will only create problems
     # during object instantiation.
     my %cleaned_data;
@@ -209,14 +242,6 @@ sub _create_object {
 
     # Initial object creation.
     my $obj = $class->new( %cleaned_data );
-
-    # Add authority, namespace to everything _except_ DBEntries with
-    # defined term source.
-    unless ( UNIVERSAL::isa( $obj, 'Bio::MAGETAB::DatabaseEntry' )
-        && defined $obj->get_termSource() ) {
-        $obj->set_namespace( $self->get_namespace() );
-        $obj->set_authority( $self->get_authority() );
-    }
 
     # Store object in cache for later retrieval.
     $self->insert( $obj );

@@ -251,7 +251,7 @@ my %method_map = (
                            qw( rowNumber sdrf ) ],
 
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
-                           qw( name ) ],
+                           qw( name accession termSource ) ],
 
     # Date not included for protocol_application to simplify the
     # implementation of the DBLoader class. We could include date, but
@@ -291,7 +291,7 @@ my %method_map = (
                            qw( inputNode outputNode ) ],
 
     'array_design'    => [ 'Bio::MAGETAB::ArrayDesign',
-                           qw( name ) ],
+                           qw( name accession termSource ) ],
 
     'assay'           => [ 'Bio::MAGETAB::Assay',
                            qw( name ) ],
@@ -575,7 +575,7 @@ listed below for your debugging delight:
 
  Bio::MAGETAB class                Identity depends on:
  ------------------                -------------------
- Bio::MAGETAB::ArrayDesign         name
+ Bio::MAGETAB::ArrayDesign         name accession termSource
  Bio::MAGETAB::Assay               name
  Bio::MAGETAB::Comment             name value object*
  Bio::MAGETAB::CompositeElement    name
@@ -597,7 +597,7 @@ listed below for your debugging delight:
  Bio::MAGETAB::Measurement         measurementType value minValue maxValue unit object*
  Bio::MAGETAB::Normalization       name
  Bio::MAGETAB::ParameterValue      parameter measurement protocol_application*
- Bio::MAGETAB::Protocol            name
+ Bio::MAGETAB::Protocol            name accession termSource
  Bio::MAGETAB::ProtocolApplication protocol edge*
  Bio::MAGETAB::ProtocolParameter   name protocol
  Bio::MAGETAB::Publication         title
