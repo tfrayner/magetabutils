@@ -130,8 +130,8 @@ sub _query_database {
                     $filter  = ( $expr );
                 }
             };
-            if ( $@ ) {
-                croak("Error constructing filter for $field == $value: $@")
+            if ( $EVAL_ERROR ) {
+                croak("Error constructing filter for $field == $value: $EVAL_ERROR")
             }
 
             # End of 'no warnings' pragma.
