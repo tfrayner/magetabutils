@@ -41,7 +41,7 @@ my ( $idf,
      $want_help,
      $want_version,
      $graph_file,
-     $db_file );
+     $dsn );
 
 GetOptions(
     "i|idf=s"       => \$idf,
@@ -50,7 +50,7 @@ GetOptions(
     "r|relaxed"     => \$is_relaxed,
     "x|ignore-data" => \$ignore_datafiles,
     "g|graph=s"     => \$graph_file,
-    "d|database=s"  => \$db_file,
+    "d|dsn=s"       => \$dsn,
     "h|help"        => \$want_help,
     "v|version"     => \$want_version,
 );
@@ -68,7 +68,7 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
     -g :   Filename to use for the ".dot" file if attempting to draw a graph of the SDRF using Graphviz.
-    -d :   SQLite database file to load the generated objects into.
+    -d :   DSN, or SQLite database file to load the generated objects into.
 
     -v :   Print version information.
     -h :   Print this help.
@@ -96,7 +96,7 @@ my $reader = Bio::MAGETAB::Util::Reader->new(
 
 # If a database file was specified, dump the Investigation and all
 # associated objects into a SQLite schema.
-if ( $db_file ) {
+if ( $dsn ) {
 
     # We default to SQLite here for the sake of simplicity. In
     # principle, any database backend supported by Tangram should
@@ -104,14 +104,13 @@ if ( $db_file ) {
     # terribly well; MySQL worked better.
     require Bio::MAGETAB::Util::Persistence;
     require Bio::MAGETAB::Util::DBLoader;
-    my $db = Bio::MAGETAB::Util::Persistence->new({
-        dbparams => ["dbi:SQLite:$db_file"],
-    });
 
-    # If this is a new file (recommended), deploy the schema.
-    unless ( -e $db_file ) {
-        $db->deploy();
+    unless ( $dsn =~ /\A dbi:\w+:\w+ /ixms ) {
+        $dsn = "dbi:SQLite:$dsn";
     }
+    my $db = Bio::MAGETAB::Util::Persistence->new({
+        dbparams => [ $dsn ],
+    });
 
     # Connect to the database and dump the objects.
     $db->connect();
