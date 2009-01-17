@@ -38,7 +38,7 @@ CREATE TABLE `Bio_MAGETAB_ArrayDesign` (
   `surfaceType_type` int(11) default NULL,
   `technologyType_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`substrateType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`surfaceType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`technologyType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
@@ -69,7 +69,7 @@ CREATE TABLE `Bio_MAGETAB_Assay` (
   `technologyType_type` int(11) default NULL,
   `technologyType` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Event` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Event` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`technologyType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`arrayDesign`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -136,7 +136,7 @@ CREATE TABLE `Bio_MAGETAB_Comment` (
   `Bio_MAGETAB_Investigation_comments` int(11) default NULL,
   `Bio_MAGETAB_CompositeElement_comments_slot` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`Bio_MAGETAB_Node_comments`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_CompositeElement_comments`) REFERENCES `Bio_MAGETAB_CompositeElement` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_ParameterValue_comments`) REFERENCES `Bio_MAGETAB_ParameterValue` (`id`),
@@ -167,7 +167,7 @@ CREATE TABLE `Bio_MAGETAB_CompositeElement` (
   `id` int(11) NOT NULL,
   `name` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -191,8 +191,8 @@ CREATE TABLE `Bio_MAGETAB_CompositeElement_compositeElements` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_CompositeElement` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_CompositeElement` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -223,7 +223,7 @@ CREATE TABLE `Bio_MAGETAB_Contact` (
   `address` varchar(511) default NULL,
   `organization` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -247,8 +247,8 @@ CREATE TABLE `Bio_MAGETAB_Contact_contacts` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -272,8 +272,8 @@ CREATE TABLE `Bio_MAGETAB_Contact_performers` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -297,8 +297,8 @@ CREATE TABLE `Bio_MAGETAB_Contact_providers` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Contact` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -323,7 +323,7 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm` (
   `value` varchar(255) default NULL,
   `category` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -347,8 +347,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_characteristics` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Material` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -372,8 +372,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_designTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -397,8 +397,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_groups` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Reporter` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -422,8 +422,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_normalizationTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -447,8 +447,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_qualityControlTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -472,8 +472,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_replicateTypes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -497,8 +497,8 @@ CREATE TABLE `Bio_MAGETAB_ControlledTerm_roles` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Contact` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Contact` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -524,7 +524,7 @@ CREATE TABLE `Bio_MAGETAB_Data` (
   `dataType_type` int(11) default NULL,
   `uri` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`dataType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -550,7 +550,7 @@ CREATE TABLE `Bio_MAGETAB_DataFile` (
   `format` int(11) default NULL,
   `format_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`format`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -575,7 +575,7 @@ CREATE TABLE `Bio_MAGETAB_DataMatrix` (
   `id` int(11) NOT NULL,
   `rowIdentifierType` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Data` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -601,7 +601,7 @@ CREATE TABLE `Bio_MAGETAB_DatabaseEntry` (
   `termSource` int(11) default NULL,
   `accession` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`termSource`) REFERENCES `Bio_MAGETAB_TermSource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -626,8 +626,8 @@ CREATE TABLE `Bio_MAGETAB_DatabaseEntry_databaseEntries` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -653,7 +653,7 @@ CREATE TABLE `Bio_MAGETAB_DesignElement` (
   `chromosome` varchar(255) default NULL,
   `endPosition` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -677,8 +677,8 @@ CREATE TABLE `Bio_MAGETAB_DesignElement_designElements` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_ArrayDesign` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -709,11 +709,11 @@ CREATE TABLE `Bio_MAGETAB_Edge` (
   `outputNode` int(11) default NULL,
   `outputNode_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
-  FOREIGN KEY (`Bio_MAGETAB_Node_outputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
-  FOREIGN KEY (`Bio_MAGETAB_Node_inputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
-  FOREIGN KEY (`outputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
-  FOREIGN KEY (`inputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`Bio_MAGETAB_Node_outputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`Bio_MAGETAB_Node_inputEdges`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`outputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`inputNode`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -737,7 +737,7 @@ CREATE TABLE `Bio_MAGETAB_Event` (
   `id` int(11) NOT NULL,
   `name` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -765,7 +765,7 @@ CREATE TABLE `Bio_MAGETAB_Factor` (
   `name` varchar(255) default NULL,
   `Bio_MAGETAB_Investigation_factors_slot` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`factorType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_Investigation_factors`) REFERENCES `Bio_MAGETAB_Investigation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -796,7 +796,7 @@ CREATE TABLE `Bio_MAGETAB_FactorValue` (
   `term` int(11) default NULL,
   `factor` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`term`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`measurement`) REFERENCES `Bio_MAGETAB_Measurement` (`id`),
   FOREIGN KEY (`factor`) REFERENCES `Bio_MAGETAB_Factor` (`id`)
@@ -823,8 +823,8 @@ CREATE TABLE `Bio_MAGETAB_FactorValue_factorValues` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_FactorValue` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_FactorValue` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -853,7 +853,7 @@ CREATE TABLE `Bio_MAGETAB_Feature` (
   `row` int(11) default NULL,
   `reporter` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`reporter`) REFERENCES `Bio_MAGETAB_Reporter` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -881,7 +881,7 @@ CREATE TABLE `Bio_MAGETAB_Investigation` (
   `title` varchar(255) default NULL,
   `description` text,
   PRIMARY KEY (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -906,7 +906,7 @@ CREATE TABLE `Bio_MAGETAB_LabeledExtract` (
   `label_type` int(11) default NULL,
   `label` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Material` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_Material` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`label`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -934,7 +934,7 @@ CREATE TABLE `Bio_MAGETAB_Material` (
   `description` varchar(255) default NULL,
   `materialType` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`materialType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -963,7 +963,7 @@ CREATE TABLE `Bio_MAGETAB_MatrixColumn` (
   `Bio_MAGETAB_DataMatrix_matrixColumns` int(11) default NULL,
   `columnNumber` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`quantitationType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_DataMatrix_matrixColumns`) REFERENCES `Bio_MAGETAB_DataMatrix` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -993,7 +993,7 @@ CREATE TABLE `Bio_MAGETAB_MatrixRow` (
   `Bio_MAGETAB_DataMatrix_matrixRows_slot` int(11) default NULL,
   `designElement` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`designElement`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_DataMatrix_matrixRows`) REFERENCES `Bio_MAGETAB_DataMatrix` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1026,7 +1026,7 @@ CREATE TABLE `Bio_MAGETAB_Measurement` (
   `measurementType` varchar(255) default NULL,
   `Bio_MAGETAB_Material_measurements` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`unit`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_Material_measurements`) REFERENCES `Bio_MAGETAB_Material` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1052,8 +1052,8 @@ CREATE TABLE `Bio_MAGETAB_Node_nodes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1077,8 +1077,8 @@ CREATE TABLE `Bio_MAGETAB_Node_referencedNodes` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_MatrixColumn` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_MatrixColumn` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1107,7 +1107,7 @@ CREATE TABLE `Bio_MAGETAB_ParameterValue` (
   `Bio_MAGETAB_ProtocolApplication_parameterValues_slot` int(11) default NULL,
   `Bio_MAGETAB_ProtocolApplication_parameterValues` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`parameter`) REFERENCES `Bio_MAGETAB_ProtocolParameter` (`id`),
   FOREIGN KEY (`measurement`) REFERENCES `Bio_MAGETAB_Measurement` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_ProtocolApplication_parameterValues`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`)
@@ -1140,7 +1140,7 @@ CREATE TABLE `Bio_MAGETAB_Protocol` (
   `protocolType` int(11) default NULL,
   `protocolType_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DatabaseEntry` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`protocolType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1167,7 +1167,7 @@ CREATE TABLE `Bio_MAGETAB_ProtocolApplication` (
   `date` varchar(255) default NULL,
   `protocol_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`protocol`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1192,8 +1192,8 @@ CREATE TABLE `Bio_MAGETAB_ProtocolApplication_protocolApplications` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Edge` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Edge` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_ProtocolApplication` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1219,7 +1219,7 @@ CREATE TABLE `Bio_MAGETAB_ProtocolParameter` (
   `name` varchar(255) default NULL,
   `protocol_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`protocol`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1244,8 +1244,8 @@ CREATE TABLE `Bio_MAGETAB_Protocol_protocols` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Protocol` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Protocol` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1274,7 +1274,7 @@ CREATE TABLE `Bio_MAGETAB_Publication` (
   `status_type` int(11) default NULL,
   `title` varchar(511) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`status`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1299,8 +1299,8 @@ CREATE TABLE `Bio_MAGETAB_Publication_publications` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Publication` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_Publication` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1327,7 +1327,7 @@ CREATE TABLE `Bio_MAGETAB_Reporter` (
   `name` varchar(255) default NULL,
   `controlType_type` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_DesignElement` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`controlType`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1354,7 +1354,7 @@ CREATE TABLE `Bio_MAGETAB_SDRF` (
   `Bio_MAGETAB_Investigation_sdrfs` int(11) default NULL,
   `uri` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`Bio_MAGETAB_Investigation_sdrfs`) REFERENCES `Bio_MAGETAB_Investigation` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
@@ -1383,7 +1383,7 @@ CREATE TABLE `Bio_MAGETAB_SDRFRow` (
   `channel_type` int(11) default NULL,
   `channel` int(11) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
   FOREIGN KEY (`channel`) REFERENCES `Bio_MAGETAB_ControlledTerm` (`id`),
   FOREIGN KEY (`Bio_MAGETAB_SDRF_sdrfRows`) REFERENCES `Bio_MAGETAB_SDRF` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -1409,8 +1409,8 @@ CREATE TABLE `Bio_MAGETAB_SDRFRow_sdrfRows` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_SDRFRow` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1436,7 +1436,7 @@ CREATE TABLE `Bio_MAGETAB_TermSource` (
   `name` varchar(255) default NULL,
   `uri` varchar(255) default NULL,
   PRIMARY KEY  (`id`),
-  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`)
+  FOREIGN KEY (`id`) REFERENCES `Bio_MAGETAB_BaseClass` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
@@ -1460,8 +1460,8 @@ CREATE TABLE `Bio_MAGETAB_TermSource_termSources` (
   `item` int(11) default NULL,
   `coll` int(11) default NULL,
   `slot` int(11) default NULL,
-  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`),
-  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_TermSource` (`id`)
+  FOREIGN KEY (`coll`) REFERENCES `Bio_MAGETAB_Investigation` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`item`) REFERENCES `Bio_MAGETAB_TermSource` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
 
