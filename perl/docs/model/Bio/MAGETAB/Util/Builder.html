@@ -202,12 +202,12 @@ heuristics is listed below for your debugging delight:</p>
 <pre>
  Bio::MAGETAB class                Identity depends on:
  ------------------                -------------------
- Bio::MAGETAB::ArrayDesign         name
+ Bio::MAGETAB::ArrayDesign         name accession termSource
  Bio::MAGETAB::Assay               name
  Bio::MAGETAB::Comment             name value object*
  Bio::MAGETAB::CompositeElement    name
  Bio::MAGETAB::Contact             firstName midInitials lastName
- Bio::MAGETAB::ControlledTerm      category value
+ Bio::MAGETAB::ControlledTerm      category value termSource accession
  Bio::MAGETAB::DataAcquisition     name
  Bio::MAGETAB::DatabaseEntry       accession termSource
  Bio::MAGETAB::DataFile            uri
@@ -223,8 +223,8 @@ heuristics is listed below for your debugging delight:</p>
  Bio::MAGETAB::MatrixRow           rowNumber data_matrix*
  Bio::MAGETAB::Measurement         measurementType value minValue maxValue unit object*
  Bio::MAGETAB::Normalization       name
- Bio::MAGETAB::ParameterValue      parameter measurement protocol_application*
- Bio::MAGETAB::Protocol            name
+ Bio::MAGETAB::ParameterValue      parameter protocol_application*
+ Bio::MAGETAB::Protocol            name accession termSource
  Bio::MAGETAB::ProtocolApplication protocol edge*
  Bio::MAGETAB::ProtocolParameter   name protocol
  Bio::MAGETAB::Publication         title

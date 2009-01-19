@@ -26,6 +26,7 @@ relational database.</title>
         <li><a href="#attributes">ATTRIBUTES</a></li>
         <li><a href="#methods">METHODS</a></li>
         <li><a href="#caveats">CAVEATS</a></li>
+        <li><a href="#known_bugs">KNOWN BUGS</a></li>
         <li><a href="#see_also">SEE ALSO</a></li>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
@@ -43,9 +44,9 @@ relational database.</p>
  require Bio::MAGETAB::Util::Persistence;
  require Bio::MAGETAB::Util::DBLoader;
  
- my $reader = Bio::MAGETAB::Util::Reader-&gt;new(
+ my $reader = Bio::MAGETAB::Util::Reader-&gt;new({
      idf =&gt; $idf
- );
+ });
  
  my $db = Bio::MAGETAB::Util::Persistence-&gt;new({
      dbparams =&gt; ["dbi:SQLite:$db_file"],
@@ -127,6 +128,20 @@ memory. For example:</p>
  # Again, $in and $out know about $edge, but the database does not:
  $loader-&gt;update( $in, $out );
 </pre>
+<hr />
+<h1><a name="known_bugs" id="known_bugs">KNOWN BUGS</a></h1>
+<p>When used with SQLite or MySQL (and possibly others), the
+Tangram modules incorrectly modify any <code>select</code>
+statements containing the '%' character, so that this character is
+replaced with '%%'. This means that while values are correctly
+inserted into the database they are not retrieved correctly, and
+this may result in errors or duplicate entries when working with
+objects whose identifying fields contains a '%' character. See
+<a href="/model/Bio/MAGETAB/Util/Builder.html">the
+Bio::MAGETAB::Util::Builder manpage</a> for a discussion on object
+identity, and <a href=
+"http://rt.cpan.org/Public/Bug/Display.html?id=29133">http://rt.cpan.org/Public/Bug/Display.html</a>
+for a possible quick fix for this Tangram bug.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/Util/Reader.html">the
