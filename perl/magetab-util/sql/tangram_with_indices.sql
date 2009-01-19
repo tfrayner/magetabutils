@@ -94,8 +94,8 @@ SET character_set_client = utf8;
 CREATE TABLE `Bio_MAGETAB_BaseClass` (
   `id` int(11) NOT NULL,
   `type` int(11) NOT NULL,
-  `namespace` varchar(255) default NULL,
-  `authority` varchar(255) default NULL,
+  `namespace` varchar(255) NOT NULL,
+  `authority` varchar(255) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

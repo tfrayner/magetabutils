@@ -37,7 +37,7 @@ GetOptions(
     "a|authority=s" => \$authority,
 );
 
-unless ( $namespace && $authority && $dsn ) {
+unless ( defined $namespace && defined $authority && $dsn ) {
     die <<"USAGE";
 Usage: $0 -d <DSN or SQLite file name> -n namespace -a authority
 USAGE

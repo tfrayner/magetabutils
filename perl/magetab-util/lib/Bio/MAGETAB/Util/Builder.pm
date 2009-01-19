@@ -264,7 +264,7 @@ my %method_map = (
                            qw( protocol edge ) ],
 
     'parameter_value' => [ 'Bio::MAGETAB::ParameterValue',
-                           qw( parameter measurement protocol_application ) ],
+                           qw( parameter protocol_application ) ],
 
     'protocol_parameter' => [ 'Bio::MAGETAB::ProtocolParameter',
                            qw( name protocol ) ],
@@ -596,7 +596,7 @@ listed below for your debugging delight:
  Bio::MAGETAB::MatrixRow           rowNumber data_matrix*
  Bio::MAGETAB::Measurement         measurementType value minValue maxValue unit object*
  Bio::MAGETAB::Normalization       name
- Bio::MAGETAB::ParameterValue      parameter measurement protocol_application*
+ Bio::MAGETAB::ParameterValue      parameter protocol_application*
  Bio::MAGETAB::Protocol            name accession termSource
  Bio::MAGETAB::ProtocolApplication protocol edge*
  Bio::MAGETAB::ProtocolParameter   name protocol

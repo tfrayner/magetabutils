@@ -24,6 +24,7 @@ use Moose;
 
 use Bio::MAGETAB;
 use Carp;
+use DBI;
 use List::Util qw( first );
 use English qw( -no_match_vars );
 
@@ -39,21 +40,53 @@ has 'database'            => ( is         => 'rw',
                                                    count
                                                    remote ) ], );
 
+# Used for value escaping.
+#has '_dbh'                => ( is       => 'rw',
+#                               isa      => 'DBI::db',
+#                               required => 0, );
+
+#sub BUILD {
+#
+#    my ( $self, $params ) = @_;
+#
+#    my $dbh = DBI->connect( $self->get_database()->get_dbparams() );
+#
+#    $self->set__dbh( $dbh );
+#}
+
 sub _manage_namespace_authority {
 
     my ( $self, $data, $class ) = @_;
 
     # Add authority, namespace to everything _except_ DBEntries with
     # defined term source, or TermSource itself.
-    if ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::TermSource' ) ||
-         defined $data->{'termSource'} ) {
+    if ( UNIVERSAL::isa( $class, 'Bio::MAGETAB::TermSource' ) ) {
         $data->{'namespace'} ||= q{};
         $data->{'authority'} ||= q{};
+    }
+    elsif ( defined $data->{'termSource'} ) {
+        $data->{'namespace'} ||= q{};
+        $data->{'authority'} ||= $data->{'termSource'}->get_name();
     }
     else {
         $data->{'namespace'} ||= $self->get_namespace();
         $data->{'authority'} ||= $self->get_authority();
     }
+}
+
+sub _dbh_quote {
+
+    my ( $self, $value, $dbh ) = @_;
+
+    unless ( ref $value ) {
+#        my $esc = $dbh->get_info( 14 );  # SQL_SEARCH_PATTERN_ESCAPE
+#        $value =~ s/([%])/$esc$1/g;
+
+        $value = $dbh->quote( $value );
+        $value =~ s/\A ([\'\"])? (.*) \1 \z/$2/xms;
+    }
+
+    return $value;
 }
 
 sub _query_database {
@@ -77,6 +110,8 @@ sub _query_database {
     my %tmp_fields = map { $_ => 1 } @{ $id_fields }, qw( namespace authority );
     $id_fields = [ keys %tmp_fields ];
     $self->_manage_namespace_authority( $data, $class );
+
+#    my $dbh = $self->get__dbh();
 
     my $filter;
     FIELD:
@@ -107,6 +142,8 @@ sub _query_database {
                 $value->scheme('file');
             }
         }
+
+#        $value = $self->_dbh_quote( $value, $dbh ) if $value;
 
         {
             # Tangram::Expr treats undef as IS NULL.
@@ -236,8 +273,12 @@ sub _create_object {
     # Strip out any undefined values, which will only create problems
     # during object instantiation.
     my %cleaned_data;
+#    my $dbh = $self->get__dbh();
     while ( my ( $key, $value ) = each %{ $data } ) {
-        $cleaned_data{ $key } = $value if defined $value;
+        if ( defined $value ) {
+#            $value = $self->_dbh_quote( $value, $dbh );
+            $cleaned_data{ $key } = $value;
+        }
     }
 
     # Initial object creation.
@@ -373,6 +414,14 @@ synchronized with the objects held in memory. For example:
  
  # Again, $in and $out know about $edge, but the database does not:
  $loader->update( $in, $out );
+
+=head1 KNOWN BUGS
+
+While values are apparently correctly escaped by the Tangram modules
+when inserting into the database, retrieving values seems a bit flakier:
+if one of the objects identifying fields contains a '%' character (See
+L<Bio::MAGETAB::Util::Builder>), it will not be found in the
+database. This may also be the case for other special characters.
 
 =head1 SEE ALSO
 

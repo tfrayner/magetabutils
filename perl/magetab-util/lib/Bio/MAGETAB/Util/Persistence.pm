@@ -26,6 +26,10 @@ use Carp;
 use Tangram;
 use DBI;
 
+# Uncomment these to print the SQL statements used to STDOUT.
+#$Tangram::TRACE = \*STDOUT;
+#$Tangram::DEBUG_LEVEL = 1;
+
 # This is where the magic happens. This needs to be kept synchronised
 # with any changes made to the core MAGETAB model.
 my $hashref = {

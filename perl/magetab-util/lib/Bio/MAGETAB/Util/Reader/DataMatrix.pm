@@ -30,6 +30,11 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::DataMatrix',
                               required   => 0 );
 
+# This is used purely as a cache.
+has '_array_design'      => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB::ArrayDesign',
+                              required   => 0 );
+
 sub parse {
 
     my ( $self ) = @_;
@@ -51,6 +56,9 @@ sub parse {
         $self->set_magetab_object( $data_matrix );
     }
 
+    my $ad = $self->_determine_array_design( $data_matrix );
+    $self->set__array_design( $ad ) if $ad;
+
     # This has to be set for Text::CSV_XS.
     local $/ = $self->_calculate_eol_char();
 
@@ -60,7 +68,8 @@ sub parse {
     my $qts;
     my $nodes;
     my $row_identifier_type;
-    my $de_namespace;
+    my $de_authority = q{};
+    my $de_namespace = q{};
     my @matrix_rows;
 
     my $row_number = 1;
@@ -80,12 +89,23 @@ sub parse {
         elsif ( $row_number == 2 ) {
             ( $qts, $row_identifier_type, $de_namespace )
                 = $self->_parse_qt_heading( $larry );
+
+            # If namespace isn't explicitly given in the matrix
+            # header, set it to the name of the enclosing array
+            # design.
+            if ( my $ad = $self->get__array_design() ) {
+                $de_authority = $ad->get_authority();
+                unless ( defined $de_namespace ) {
+                    $de_namespace = $ad->get_name();
+                }
+            }
         }
         else {
             my $element = $self->_parse_row_index(
                 $larry->[0],
                 $row_identifier_type,
                 $de_namespace,
+                $de_authority,
             );
             push @matrix_rows, $self->get_builder()->find_or_create_matrix_row({
                 rowNumber     => $row_number,
@@ -123,6 +143,22 @@ sub parse {
     $self->get_builder()->update( $data_matrix );
 
     return $data_matrix;
+}
+
+sub _determine_array_design {
+
+    my ( $self, $object ) = @_;
+
+    # Back out of the recursion quickly if we've already found an
+    # array. FIXME consider throwing an exception if we just continue
+    # looking and find more than one.
+    foreach my $inputEdge ( $object->get_inputEdges() ) {
+        my $previous = $inputEdge->get_inputNode();
+        if ( UNIVERSAL::isa( $previous, 'Bio::MAGETAB::Assay' ) ) {
+            return $previous->get_arrayDesign();
+        }
+        return $self->_determine_array_design( $previous );
+    }
 }
 
 sub _parse_node_heading {
@@ -208,7 +244,7 @@ sub _parse_qt_heading {
 
 sub _parse_row_index {
 
-    my ( $self, $index, $row_identifier_type, $de_namespace ) = @_;
+    my ( $self, $index, $row_identifier_type, $de_namespace, $de_authority ) = @_;
 
     my %type_map = (
         'Reporter'          => 'reporter',
@@ -218,10 +254,12 @@ sub _parse_row_index {
     );
 
     # We constrain how objects are created depending on
-    # $row_identifier_type and $de_namespace, e.g. relaxing
-    # the parser strictness when there is a namespace.
-    my $method_prefix = $de_namespace ? 'find_or_create_'
-        : $row_identifier_type eq 'Coordinates' ? 'find_or_create_'
+    # $row_identifier_type; for Term Source or Coordinates we don't
+    # require that the parser already know about the objects. Note
+    # that the Builder object may still override strict parsing for
+    # Reporter/CompositeElement.
+    my $method_prefix =
+          $row_identifier_type eq 'Coordinates' ? 'find_or_create_'
         : $row_identifier_type eq 'Term Source' ? 'find_or_create_'
         : 'get_';
 
@@ -232,6 +270,7 @@ sub _parse_row_index {
     my $args = {
         name      => $index,
         namespace => $de_namespace,
+        authority => $de_authority,
     };
 
     if ( $row_identifier_type eq 'Coordinates' ) {
