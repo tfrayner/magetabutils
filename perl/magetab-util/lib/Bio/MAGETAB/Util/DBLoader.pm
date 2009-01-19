@@ -112,6 +112,13 @@ sub _query_database {
             }
         }
 
+        # Warn the user about a known Tangram bug.
+        if ( $value && $value =~ /\%/ ) {
+            warn("Warning: ID fields containing the percent character (%) may"
+                ." lead to problems with object retrieval. See the documentation for "
+                .__PACKAGE__." for a discussion of this bug.\n");
+        }
+
         {
             # Tangram::Expr treats undef as IS NULL.
             no warnings qw( uninitialized );
