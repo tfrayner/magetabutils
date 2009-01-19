@@ -382,15 +382,16 @@ synchronized with the objects held in memory. For example:
 
 =head1 KNOWN BUGS
 
-When used with MySQL, the Tangram modules incorrectly modify select
-statements containing the '%' character, so that the character is
-replaced with '%%'. This means that while values are correctly
-inserted into the database, they are not retrieved correctly and this
-may result in errors or duplicate entries when working with objects
-whose identifying fields contains a '%' character. See
-L<Bio::MAGETAB::Util::Builder> for a discussion on object identity,
-and L<http://rt.cpan.org/Public/Bug/Display.html?id=29133> for a
-possible fix for this Tangram bug.
+When used with SQLite or MySQL (and possibly others), the Tangram
+modules incorrectly modify any C<select> statements containing the '%'
+character, so that this character is replaced with '%%'. This means
+that while values are correctly inserted into the database they are
+not retrieved correctly, and this may result in errors or duplicate
+entries when working with objects whose identifying fields contains a
+'%' character. See L<Bio::MAGETAB::Util::Builder> for a discussion on
+object identity, and
+L<http://rt.cpan.org/Public/Bug/Display.html?id=29133> for a possible
+quick fix for this Tangram bug.
 
 =head1 SEE ALSO
 

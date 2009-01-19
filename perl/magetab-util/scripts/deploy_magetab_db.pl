@@ -27,33 +27,35 @@ use Bio::MAGETAB;
 
 use Getopt::Long;
 
-my ( $dbtype, $dbname, $user, $pass );
-
+# Process command-line options.
+my $dsn;
 GetOptions(
-    "t|dbtype=s"   => \$dbtype,
-    "d|dbname=s"   => \$dbname,
-    "u|username=s" => \$user,
-    "p|password=s" => \$pass,
+    "d|dsn=s" => \$dsn,
 );
-
-# FIXME the following line could be expanded to other
-# Tangram-supported database engines.
-unless ( $dbname && grep { $dbtype eq $_ } qw( mysql SQLite ) ) {
+unless ( $dsn ) {
     print <<"USAGE";
 
-Usage: $0 -t <database engine e.g. mysql> -d <database name>
+Usage: $0 -d <DSN or SQLite database filename>
 
 USAGE
 
     exit 255;
 }
 
+# Allow SQLite users to just give the database name.
+unless ( $dsn =~ /\A dbi: /ixms ) {
+    $dsn = "dbi:SQLite:$dsn";
+}       
+
+# Some basic sanity tests.
+my ( $dbtype, $dbname ) = ( $dsn =~ /\A dbi : ([^:]+) : ([^:]+) /ixms );
+unless ( $dbtype && $dbname ) {
+    die(qq{Error: Unable to parse DSN "$dsn".\n});
+}
 if ( $dbtype eq 'SQLite' && -e $dbname ) {
-    die("Error: database file $dbname already exists.\n");
+    die(qq{Error: SQLite database file "$dbname" already exists.\n});
 }
 
-my $dsn = "dbi:$dbtype:$dbname";
-
+# Deploy the database schema.
 my $db = Bio::MAGETAB::Util::Persistence->new( dbparams => [ $dsn ] );
-
 $db->deploy();
