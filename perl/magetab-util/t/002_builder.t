@@ -110,6 +110,9 @@ my $dummy_proto2 = Bio::MAGETAB::Protocol->new(
 my $dummy_prapp = Bio::MAGETAB::ProtocolApplication->new(
     'protocol' => $dummy_proto,
 );
+my $dummy_prapp2 = Bio::MAGETAB::ProtocolApplication->new(
+    'protocol' => $dummy_proto2,
+);
 my $dummy_param = Bio::MAGETAB::ProtocolParameter->new(
     'name'     => 'dummy parameter',
     'protocol' => $dummy_proto,
@@ -131,7 +134,9 @@ my $dummy_matrix = Bio::MAGETAB::DataMatrix->new(
 #  unused: An identifier which hasn't been used in object creation, to test getter failure.
 my %test = (
     'array_design'      => { 'class'  => 'Bio::MAGETAB::ArrayDesign',
-                             'id'     => { 'name' => 'test name' },
+                             'id'     => { 'name'       => 'test name',
+                                           'termSource' => $dummy_ts,
+                                           'accession'  => '12345', },
                              'attrs'  => {},
                              'unused' => { 'name' => 'not a name' },
                          },
@@ -162,8 +167,10 @@ my %test = (
                                            'midInitials' => 'c' },
                          },
     'controlled_term'   => { 'class'  => 'Bio::MAGETAB::ControlledTerm',
-                             'id'     => { 'category' => 'test cat',
-                                           'value'    => 'test value' },
+                             'id'     => { 'category'   => 'test cat',
+                                           'value'      => 'test value',
+                                           'termSource' => $dummy_ts,
+                                           'accession'  => '12345', },
                              'attrs'  => {},
                              'unused' => { 'category' => 'x',
                                            'value'    => 'y' },
@@ -267,15 +274,15 @@ my %test = (
                          },
     'parameter_value'   => { 'class'  => 'Bio::MAGETAB::ParameterValue',
                              'id'     => { 'parameter'   => $dummy_param,
-                                           'measurement' => $dummy_meas,
                                            'protocol_application' => $dummy_prapp },
                              'attrs'  => {},
                              'unused' => { 'parameter'   => $dummy_param,
-                                           'measurement' => $dummy_meas2,
-                                           'protocol_application' => $dummy_prapp  },
+                                           'protocol_application' => $dummy_prapp2, },
                          },
     'protocol'          => { 'class'  => 'Bio::MAGETAB::Protocol',
-                             'id'     => { 'name' => 'test name' },
+                             'id'     => { 'name'       => 'test name',
+                                           'termSource' => $dummy_ts,
+                                           'accession'  => '12345', },
                              'attrs'  => {},
                              'unused' => { 'name' => 'not a name' },
                          },

@@ -33,6 +33,8 @@ MANIFEST
 META.yml
 scripts/deploy_magetab_db.pl
 scripts/read_magetab.pl
+scripts/unload_namespace.pl
+sql/tangram_with_indices.sql
 t/001_load.t
 t/002_builder.t
 t/003_adf.t

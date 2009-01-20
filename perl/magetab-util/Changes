@@ -1,4 +1,10 @@
 Changelog for Bio::MAGETAB::Util
 --------------------------------
 
+0.31    Bio::MAGETAB::Util-0.31.tar.gz          Various bug fixes based on tests
+                                                  with real-world IDFs and SDRFs.
+                                                Improved object identity heuristics.
+                                                Full MySQL database schema and
+                                                  unloader script.
+
 0.3	Bio::MAGETAB::Util-0.3.tar.gz	        Initial public release
