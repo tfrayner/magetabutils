@@ -5,42 +5,97 @@
 <fieldset>
 <table id="investigationView" class="objectView">
   <tbody>
+
      <tr><th>Description:</th>
          <td>[% object.get_description | html %] &nbsp;</td></tr>
+
      <tr><th>Date:</th>
          <td>[% IF object.get_date %]
                [% match = object.get_date.match('(\d{2,4}-\d{2}-\d{2})') %]
                [% match.0 | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
      <tr><th>Public Release Date:</th>
          <td>[% IF object.get_publicReleaseDate %]
                [% match = object.get_publicReleaseDate.match('(\d{2,4}-\d{2}-\d{2})') %]
                [% match.0 | html %]
              [% END %]&nbsp;</td></tr>
+
      <tr><th>Factors:</th>
          <td>[% IF object.get_factors > 0 %]
-               [% types = [] %]
                [% FOREACH factor = object.get_factors %]
-                 [% types.push( factor.get_factorType.get_value ) %]
+                 <a href="[% c.uri_for("/factor/view", factor) | html %]">
+                 [% factor.get_factorType.get_value | replace('_', ' ') | html %]</a><br/>
                [% END %]
-               [% types.join('; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
      <tr><th>Design Types:</th>
          <td>[% IF object.get_designTypes > 0 %]
                [% map_method_join(object.get_designTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
      <tr><th>Quality Control Types:</th>
          <td>[% IF object.get_qualityControlTypes > 0 %]
                [% map_method_join(object.get_qualityControlTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
      <tr><th>Replicate Types:</th>
          <td>[% IF object.get_replicateTypes.count > 0 %]
                [% map_method_join(object.get_replicateTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
      <tr><th>Normalization Types:</th>
          <td>[% IF object.get_normalizationTypes.count > 0 %]
                [% map_method_join(object.get_normalizationTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
+
+     <tr><th>Protocols:</th>
+         <td>[% IF object.get_protocols > 0 %]
+               [% FOREACH protocol = object.get_protocols %]
+                 <a href="[% c.uri_for("/protocol/view", protocol) | html %]">
+                 [% protocol.get_name | html %]</a>
+                 ([% protocol.get_protocolType.get_value | replace('_', ' ') | html %])<br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+
+     <tr><th>Contacts:</th>
+         <td>[% IF object.get_contacts > 0 %]
+               [% FOREACH contact = object.get_contacts %]
+                 <a href="[% c.uri_for("/contact/view", contact) | html %]">
+                 [% contact.get_firstName | html %] [% contact.get_lastName | html %]</a><br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+
+     <tr><th>Publications:</th>
+         <td>[% IF object.get_publications > 0 %]
+               [% FOREACH publication = object.get_publications %]
+                 <a href="[% c.uri_for("/publication/view", publication) | html %]">
+                 [% publication.get_title | html %]</a><br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+
+     <tr><th>Term Sources:</th>
+         <td>[% IF object.get_termSources > 0 %]
+               [% FOREACH termSource = object.get_termSources %]
+                 <a href="[% c.uri_for("/termsource/view", termSource) | html %]">
+                 [% termSource.get_name | html %]</a><br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+
+     <tr><th>Comments:</th>
+         <td>[% IF object.get_comments > 0 %]
+               [% FOREACH comment = object.get_comments %]
+                 <b>[% comment.get_name | html %]: </b> [% comment.get_value | html %] <br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+             
+     <tr><th>SDRFs:</th>
+         <td>[% IF object.get_sdrfs > 0 %]
+               [% FOREACH sdrf = object.get_sdrfs %]
+                 <a href="[% c.uri_for("/sdrf/view", sdrf) | html %]">
+                 [% sdrf.get_uri | html %]</a><br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
   </tbody>
 </table>
 </fieldset>
