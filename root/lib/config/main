@@ -10,6 +10,13 @@
      MACRO debug(message) CALL c.log.debug(message);
    END;
 
+   MACRO map_method_join(data, method, joinchar) BLOCK;
+     DEFAULT joinchar = " ";
+     mylist = [];
+     mylist.push(thing.$method) FOREACH thing IN data;
+     mylist.join(joinchar);
+   END;
+
    # define a data structure to hold sitewide data
    site = {
      title     => 'MAGETAB Utilities',
