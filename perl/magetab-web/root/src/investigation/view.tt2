@@ -1,9 +1,8 @@
 [% META title = 'Investigation View' %]
 
-<h3 class="title">[% object.get_title | html %]</h3>
+<h3 class="objname">[% object.get_title | html %]</h3>
 
 <fieldset>
-<legend>Investigation</legend>
 <table id="investigationView" class="objectView">
   <tbody>
      <tr><th>Description:</th>
@@ -12,12 +11,36 @@
          <td>[% IF object.get_date %]
                [% match = object.get_date.match('(\d{2,4}-\d{2}-\d{2})') %]
                [% match.0 | html %]
-             [% END %]&nbsp;</td></tr>
+             [% ELSE %] unknown [% END %]</td></tr>
      <tr><th>Public Release Date:</th>
          <td>[% IF object.get_publicReleaseDate %]
                [% match = object.get_publicReleaseDate.match('(\d{2,4}-\d{2}-\d{2})') %]
                [% match.0 | html %]
              [% END %]&nbsp;</td></tr>
+     <tr><th>Factors:</th>
+         <td>[% IF object.get_factors > 0 %]
+               [% types = [] %]
+               [% FOREACH factor = object.get_factors %]
+                 [% types.push( factor.get_factorType.get_value ) %]
+               [% END %]
+               [% types.join('; ') | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+     <tr><th>Design Types:</th>
+         <td>[% IF object.get_designTypes > 0 %]
+               [% map_method_join(object.get_designTypes, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+     <tr><th>Quality Control Types:</th>
+         <td>[% IF object.get_qualityControlTypes > 0 %]
+               [% map_method_join(object.get_qualityControlTypes, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+     <tr><th>Replicate Types:</th>
+         <td>[% IF object.get_replicateTypes.count > 0 %]
+               [% map_method_join(object.get_replicateTypes, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+     <tr><th>Normalization Types:</th>
+         <td>[% IF object.get_normalizationTypes.count > 0 %]
+               [% map_method_join(object.get_normalizationTypes, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
   </tbody>
 </table>
 </fieldset>
