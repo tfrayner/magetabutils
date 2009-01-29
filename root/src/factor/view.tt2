@@ -1,0 +1,45 @@
+[% META title = 'Factor View' %]
+
+<h3 class="objname">[% object.get_name | html %]</h3>
+
+<fieldset>
+<table id="factorView" class="objectView">
+  <tbody>
+
+     <tr><th>Type:</th>
+         <td>[% IF object.get_factorType %]
+               [% object.get_factorType.get_value | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+
+     <tr><th>Values:</th>
+         <td>[% IF factorValues %]
+               [% FOREACH value = factorValues %]
+                 [% IF value.term.defined %]
+                   [% value.term.value | replace('_', ' ') | html %]<br/>
+                 [% ELSE %]
+                   [% value.measurement.value | html %]
+                   [% IF value.measurement.unit.defined %]
+                     [% value.measurement.unit.value | replace('_', ' ') | html %]
+                   [% END %]<br/>
+                 [% END %]
+               [% END %]
+             [% END %] &nbsp;</td></tr>
+
+  </tbody>
+</table>
+</fieldset>
+
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations using this factor:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/factor/list") | html %]">Back to list of factors...</a></p> 
+</div>
