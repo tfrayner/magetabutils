@@ -1,0 +1,32 @@
+[% META title = 'TermSource View' %]
+
+<h3 class="objname">[% object.get_name | html %]</h3>
+
+<fieldset>
+<table id="termsourceView" class="objectView">
+  <tbody>
+
+     <tr><th>URI:</th>
+         <td>[% object.get_uri | html %] &nbsp;</td></tr>
+
+     <tr><th>Version:</th>
+         <td>[% object.get_version | html %] &nbsp;</td></tr>
+
+  </tbody>
+</table>
+</fieldset>
+
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations referencing this term source:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/termsource/list") | html %]">Back to list of term sources...</a></p> 
+</div>

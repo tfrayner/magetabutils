@@ -1,0 +1,40 @@
+[% META title = 'Publication View' %]
+
+<h3 class="objname">[% object.get_title | html %]</h3>
+
+<fieldset>
+<table id="publicationView" class="objectView">
+  <tbody>
+
+     <tr><th>Author List:</th>
+         <td>[% object.get_authorList | html %] &nbsp;</td></tr>
+
+     <tr><th>Status:</th>
+         <td>[% IF object.get_status %]
+               [% object.get_status.get_value | replace('_', ' ') | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+
+     <tr><th>PubMed ID:</th>
+         <td>[% object.get_pubMedID | html %] &nbsp;</td></tr>
+
+     <tr><th>DOI:</th>
+         <td>[% object.get_DOI | html %] &nbsp;</td></tr>
+
+  </tbody>
+</table>
+</fieldset>
+
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations referencing this publication:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/publication/list") | html %]">Back to list of publications...</a></p> 
+</div>
