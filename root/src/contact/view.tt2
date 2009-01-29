@@ -16,7 +16,7 @@
              [% ELSE %] none [% END %]</td></tr>
 
      <tr><th>Email:</th>
-         <td>[% object.get_email | html %] &nbsp;</td></tr>
+         <td>[% object.get_email | replace('\@', ' [at] ') | html %] &nbsp;</td></tr>
 
      <tr><th>Organization:</th>
          <td>[% object.get_organization | html %] &nbsp;</td></tr>
