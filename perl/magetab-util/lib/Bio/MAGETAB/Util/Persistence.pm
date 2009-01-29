@@ -30,7 +30,7 @@ use DBI;
 #$Tangram::TRACE = \*STDOUT;
 #$Tangram::DEBUG_LEVEL = 1;
 
-sub class_schema {
+sub class_config {
 
     my ( $class ) = @_;
 
@@ -434,7 +434,7 @@ sub class_schema {
 has 'config'   => ( is       => 'ro',
                     isa      => 'HashRef',
                     required => 1,
-                    default  => \&class_schema, );
+                    default  => \&class_config, );
 
 # We delegate quite a lot to the associated Tangram::Storage
 # instance. We could delegate even more, although tests should then be
