@@ -15,13 +15,14 @@
          <td>[% IF factorValues %]
                [% FOREACH value = factorValues %]
                  [% IF value.term.defined %]
-                   [% value.term.value | replace('_', ' ') | html %]<br/>
+                   [% value.term.value | replace('_', ' ') | html %]
                  [% ELSE %]
                    [% value.measurement.value | html %]
                    [% IF value.measurement.unit.defined %]
                      [% value.measurement.unit.value | replace('_', ' ') | html %]
-                   [% END %]<br/>
+                   [% END %]
                  [% END %]
+                 [% IF ! loop.last %]<br/>[% END %]
                [% END %]
              [% END %] &nbsp;</td></tr>
 
