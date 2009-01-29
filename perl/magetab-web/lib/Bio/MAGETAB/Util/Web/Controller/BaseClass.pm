@@ -40,6 +40,31 @@ sub list : Local {
     $c->stash->{objects} = \@objects;
 }
 
+=head2 view
+
+=cut
+
+sub view : Local {
+
+    my ($self, $c, $id) = @_;
+    my $object = $c->model()->storage()->load( $id );
+    unless ( $object ) {
+        $c->flash->{error} = 'No such ' . $self->my_model_class() . '!';
+        $c->res->redirect( $c->uri_for( $self->my_error_redirect() ) );
+        $c->detach();
+    }
+    $c->stash->{object} = $object;
+}
+
+sub my_error_redirect : Private {
+
+    my ( $self, $c ) = @_;
+
+    my $namespace = $self->action_namespace($c);
+    return "/$namespace/list";
+}
+
+
 =head2 begin
 
 Flush the model object cache at the start of every request.

@@ -1,0 +1,25 @@
+[% META title = 'Investigation View' %]
+
+<h3 class="title">[% object.get_title | html %]</h3>
+
+<fieldset>
+<legend>Investigation</legend>
+<table id="investigationView" class="objectView">
+  <tbody>
+     <tr><th>Description:</th>
+         <td>[% object.get_description | html %] &nbsp;</td></tr>
+     <tr><th>Date:</th>
+         <td>[% IF object.get_date %]
+               [% match = object.get_date.match('(\d{2,4}-\d{2}-\d{2})') %]
+               [% match.0 | html %]
+             [% END %]&nbsp;</td></tr>
+     <tr><th>Public Release Date:</th>
+         <td>[% IF object.get_publicReleaseDate %]
+               [% match = object.get_publicReleaseDate.match('(\d{2,4}-\d{2}-\d{2})') %]
+               [% match.0 | html %]
+             [% END %]&nbsp;</td></tr>
+  </tbody>
+</table>
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/investigation/list") | html %]">Back to list of investigations...</a></p> 
