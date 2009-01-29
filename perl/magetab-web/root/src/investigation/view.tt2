@@ -22,7 +22,7 @@
              [% END %]&nbsp;</td></tr>
 
      <tr><th>Factors:</th>
-         <td>[% IF object.get_factors > 0 %]
+         <td>[% IF object.get_factors %]
                [% FOREACH factor = object.get_factors %]
                  <a href="[% c.uri_for("/factor/view", factor) | html %]">
                  [% factor.get_factorType.get_value | replace('_', ' ') | html %]</a><br/>
@@ -30,27 +30,27 @@
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Design Types:</th>
-         <td>[% IF object.get_designTypes > 0 %]
+         <td>[% IF object.get_designTypes %]
                [% map_method_join(object.get_designTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Quality Control Types:</th>
-         <td>[% IF object.get_qualityControlTypes > 0 %]
+         <td>[% IF object.get_qualityControlTypes %]
                [% map_method_join(object.get_qualityControlTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Replicate Types:</th>
-         <td>[% IF object.get_replicateTypes.count > 0 %]
+         <td>[% IF object.get_replicateTypes.count %]
                [% map_method_join(object.get_replicateTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Normalization Types:</th>
-         <td>[% IF object.get_normalizationTypes.count > 0 %]
+         <td>[% IF object.get_normalizationTypes.count %]
                [% map_method_join(object.get_normalizationTypes, 'value', '; ') | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Protocols:</th>
-         <td>[% IF object.get_protocols > 0 %]
+         <td>[% IF object.get_protocols %]
                [% FOREACH protocol = object.get_protocols %]
                  <a href="[% c.uri_for("/protocol/view", protocol) | html %]">
                  [% protocol.get_name | html %]</a>
@@ -59,7 +59,7 @@
              [% ELSE %] none [% END %]</td></tr>
 
      <tr><th>Contacts:</th>
-         <td>[% IF object.get_contacts > 0 %]
+         <td>[% IF object.get_contacts %]
                [% FOREACH contact = object.get_contacts %]
                  <a href="[% c.uri_for("/contact/view", contact) | html %]">
                  [% contact.get_firstName | html %] [% contact.get_lastName | html %]</a><br/>
@@ -67,7 +67,7 @@
              [% ELSE %] none [% END %]</td></tr>
 
      <tr><th>Publications:</th>
-         <td>[% IF object.get_publications > 0 %]
+         <td>[% IF object.get_publications %]
                [% FOREACH publication = object.get_publications %]
                  <a href="[% c.uri_for("/publication/view", publication) | html %]">
                  [% publication.get_title | html %]</a><br/>
@@ -75,7 +75,7 @@
              [% ELSE %] none [% END %]</td></tr>
 
      <tr><th>Term Sources:</th>
-         <td>[% IF object.get_termSources > 0 %]
+         <td>[% IF object.get_termSources %]
                [% FOREACH termSource = object.get_termSources %]
                  <a href="[% c.uri_for("/termsource/view", termSource) | html %]">
                  [% termSource.get_name | html %]</a><br/>
@@ -83,14 +83,14 @@
              [% ELSE %] none [% END %]</td></tr>
 
      <tr><th>Comments:</th>
-         <td>[% IF object.get_comments > 0 %]
+         <td>[% IF object.get_comments %]
                [% FOREACH comment = object.get_comments %]
                  <b>[% comment.get_name | html %]: </b> [% comment.get_value | html %] <br/>
                [% END %]
              [% ELSE %] none [% END %]</td></tr>
              
      <tr><th>SDRFs:</th>
-         <td>[% IF object.get_sdrfs > 0 %]
+         <td>[% IF object.get_sdrfs %]
                [% FOREACH sdrf = object.get_sdrfs %]
                  <a href="[% c.uri_for("/sdrf/view", sdrf) | html %]">
                  [% sdrf.get_uri | html %]</a><br/>
