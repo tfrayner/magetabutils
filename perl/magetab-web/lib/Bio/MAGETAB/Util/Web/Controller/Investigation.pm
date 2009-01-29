@@ -2,7 +2,7 @@ package Bio::MAGETAB::Util::Web::Controller::Investigation;
 
 use strict;
 use warnings;
-use parent 'Catalyst::Controller';
+use parent 'Bio::MAGETAB::Util::Web::Controller::BaseClass';
 
 =head1 NAME
 
@@ -16,25 +16,14 @@ Catalyst Controller.
 
 =cut
 
+sub new {
 
-=head2 index 
+    my $class = shift;
+    my $self  = $class->SUPER::new( @_ );
 
-=cut
+    $self->my_model_class( 'Investigation' );
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->response->body('Matched Bio::MAGETAB::Util::Web::Controller::Investigation in Investigation.');
-}
-
-=head2 list
-
-=cut
-
-sub list : Local { 
-    my ($self, $c) = @_;
-    my @investigations = $c->model()->storage()->select('Bio::MAGETAB::Investigation');
-    $c->stash->{objects} = \@investigations;
+    return $self;
 }
 
 =head1 AUTHOR

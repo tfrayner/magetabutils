@@ -32,7 +32,7 @@ sub default : Private {
     my ( $self, $c ) = @_; 
     $c->response->status('404'); 
     $c->stash->{template} = 'not_found.tt2'; 
-} 
+}
 
 =head2 end
 

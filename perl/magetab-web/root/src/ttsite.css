@@ -9,6 +9,7 @@ body {
     margin: 0px;
     padding: 0px;
     height: 100%;
+    font-family: "Gill Sans", "Trebuchet MS", "Lucida Sans Unicode", arial, helvetica, sans-serif;
 }
 
 #header {
@@ -42,4 +43,17 @@ h1.title {
 
 .error {
     color: [% site.col.error %];
+}
+
+td {
+    background-color: [% site.col.head %];
+    border: 1px solid [% site.col.line %];
+}
+
+th {
+    background-color: [% site.col.page %];
+}
+
+td, th {
+    padding: 2px;
 }

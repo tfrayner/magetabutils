@@ -9,6 +9,9 @@ requires 'Catalyst::Runtime' => '5.7015';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
+requires 'Tangram';
+requires 'Class::Tangram';
+requires 'Bio::MAGETAB::Util::Persistence';
 requires 'parent';
 requires 'Config::General'; # This should reflect the config file format you've chosen
                  # See Catalyst::Plugin::ConfigLoader for supported formats

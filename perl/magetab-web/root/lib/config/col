@@ -11,10 +11,10 @@
    };
 
    site.col = {
-      page    = site.rgb.white
+      page    = site.rgb.grey3
       text    = site.rgb.grey1
-      head    = site.rgb.grey3
-      line    = site.rgb.orange
+      head    = site.rgb.white
+      line    = site.rgb.blue
       message = site.rgb.green
       error   = site.rgb.red
    };
