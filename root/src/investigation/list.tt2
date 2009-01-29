@@ -1,4 +1,6 @@
 [% META title = 'Investigation List' %]
+
+<fieldset>
 [% IF objects && objects.size > 0 %]
   <div>
     <table id='investigationList'>
@@ -16,7 +18,7 @@
         <td> [% FOREACH pub = inv.get_publications %]
                 [% pub.get_pubMedID | html %]
              [% END %] &nbsp; </td>
-        <td><a href="[% c.uri_for("/investigation/view/$inv.id") | html %]">View</a></td>
+        <td><a href="[% c.uri_for("/investigation/view", inv) | html %]">View</a></td>
       </tr>
     [% END %]
     </tbody>
@@ -25,5 +27,6 @@
 [% ELSE %] 
   <p>No investigations yet!</p> 
 [% END %] 
+</fieldset>
 
-<p><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 

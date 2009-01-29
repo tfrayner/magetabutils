@@ -33,6 +33,16 @@ __PACKAGE__->config( name => 'Bio::MAGETAB::Util::Web' );
 # Start the application
 __PACKAGE__->setup();
 
+# We embed the standard Tangram ID method into uri_for to make life easier.
+sub uri_for {
+    my $self = shift;
+    for ( my $i = 0; $i < scalar @_; $i++ ) {
+        if ( UNIVERSAL::isa( $_[$i], 'Bio::MAGETAB::BaseClass' ) ) {
+            $_[$i] = $self->model->storage->id( $_[$i] )
+        }
+    }
+    return $self->NEXT::uri_for( @_ );
+}
 
 =head1 NAME
 
