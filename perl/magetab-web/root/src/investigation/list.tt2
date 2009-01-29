@@ -1,0 +1,28 @@
+[% META title = 'Investigation List' %]
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='investigationList'>
+    <thead>
+      <tr>
+        <td>Title</td>
+        <td>&nbsp;</td>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH inv = objects.sort('title') %] 
+      <tr> 
+        <td> [% inv.title        | html %] </td>
+        <td><a href="[% c.uri_for("/investigation/view/$inv.id") | html %]">View</a>
+            <a href="[% c.uri_for("/investigation/delete/$inv.id") | html %]"
+               onclick="return confirm('Really delete investigation [% inv.title | html %] ?');">Delete</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No investigations yet!</p> 
+[% END %] 
+
+<p><a href="[% c.uri_for("/investigation/add") | html %]">Add a new investigation...</a></p> 
+<p><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
