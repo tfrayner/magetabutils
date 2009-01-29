@@ -55,13 +55,27 @@ sub view : Local {
     }
     $c->stash->{object} = $object;
 
+    $c->stash->{containers} = $self->select_container_objects($c, $object);
+}
+
+sub select_container_objects : Private {
+
+    my ( $self, $c, $object ) = @_;
+
+    my @containers;
+
     if ( my $cont = $self->my_container_class() ) {
         my $remote = $c->model()->storage()->remote( "Bio::MAGETAB::$cont" );
-        my @containers = $c->model()
-                           ->storage()
-                           ->select( $remote, $remote->{protocols}->includes( $object ) );
-        $c->stash->{containers} = \@containers;
+
+        # FIXME pluralisation rules may need to be applied for some
+        # irregular plurals.
+        my $key = lcfirst( $self->my_model_class() ) . 's';
+        @containers = $c->model()
+                        ->storage()
+                        ->select( $remote, $remote->{$key}->includes( $object ) );
     }
+
+    return \@containers if scalar @containers;
 }
 
 sub my_error_redirect : Private {
