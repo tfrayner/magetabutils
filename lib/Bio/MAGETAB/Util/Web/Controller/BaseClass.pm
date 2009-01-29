@@ -16,7 +16,7 @@ Catalyst Controller.
 
 =cut
 
-__PACKAGE__->mk_accessors( qw( my_model_class ) );
+__PACKAGE__->mk_accessors( qw( my_model_class my_container_class ) );
 
 =head2 index 
 
@@ -54,6 +54,14 @@ sub view : Local {
         $c->detach();
     }
     $c->stash->{object} = $object;
+
+    if ( my $cont = $self->my_container_class() ) {
+        my $remote = $c->model()->storage()->remote( "Bio::MAGETAB::$cont" );
+        my @containers = $c->model()
+                           ->storage()
+                           ->select( $remote, $remote->{protocols}->includes( $object ) );
+        $c->stash->{containers} = \@containers;
+    }
 }
 
 sub my_error_redirect : Private {

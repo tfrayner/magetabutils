@@ -8,7 +8,7 @@
 
      <tr><th>Type:</th>
          <td>[% IF object.get_protocolType %]
-               [% object.get_protocolType.get_value | html %]
+               [% object.get_protocolType.get_value | replace('_', ' ') | html %]
              [% ELSE %] unknown [% END %]</td></tr>
 
      <tr><th>Text:</th>
@@ -27,4 +27,17 @@
 </table>
 </fieldset>
 
-<p class="nav"><a href="[% c.uri_for("/investigation/list") | html %]">Back to list of investigations...</a></p> 
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations using this protocol:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/protocol/list") | html %]">Back to list of protocols...</a></p> 
+</div>

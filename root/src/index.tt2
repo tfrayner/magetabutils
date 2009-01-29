@@ -4,5 +4,6 @@
 <ul> 
 <li><a href="[% c.uri_for('/investigation/list') %]">List all investigations</a></li> 
 <li><a href="[% c.uri_for('/investigation/add') %]">Add a new investigation</a></li> 
+<li><a href="[% c.uri_for('/protocol/list') %]">List all protocols</a></li> 
 </ul> 
 </p>
