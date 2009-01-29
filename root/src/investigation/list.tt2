@@ -4,17 +4,19 @@
     <table id='investigationList'>
     <thead>
       <tr>
-        <td>Title</td>
-        <td>&nbsp;</td>
+        <th>Title</th>
+        <th>Publications</th>
+        <th>&nbsp;</th>
       </tr>
     </thead>
     <tbody>
-    [% FOREACH inv = objects.sort('title') %] 
+    [% FOREACH inv = objects.sort('get_title') %] 
       <tr> 
-        <td> [% inv.title        | html %] </td>
-        <td><a href="[% c.uri_for("/investigation/view/$inv.id") | html %]">View</a>
-            <a href="[% c.uri_for("/investigation/delete/$inv.id") | html %]"
-               onclick="return confirm('Really delete investigation [% inv.title | html %] ?');">Delete</a></td>
+        <td> [% inv.get_title | truncate(100) | html %] </td>
+        <td> [% FOREACH pub = inv.get_publications %]
+                [% pub.get_pubMedID | html %]
+             [% END %] &nbsp; </td>
+        <td><a href="[% c.uri_for("/investigation/view/$inv.id") | html %]">View</a></td>
       </tr>
     [% END %]
     </tbody>
@@ -24,5 +26,4 @@
   <p>No investigations yet!</p> 
 [% END %] 
 
-<p><a href="[% c.uri_for("/investigation/add") | html %]">Add a new investigation...</a></p> 
 <p><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
