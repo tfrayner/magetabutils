@@ -1,0 +1,57 @@
+[% META title = 'Contact View' %]
+
+<h3 class="objname">[% object.get_firstName | html %]
+[% IF object.get_midInitials -%]
+  [%- object.get_midInitials.remove('\.').split('').join('.') | html -%].
+[%- END %]
+[% object.get_lastName | html %]</h3>
+
+<fieldset>
+<table id="contactView" class="objectView">
+  <tbody>
+
+     <tr><th>Roles:</th>
+         <td>[% IF object.get_roles %]
+               [% map_method_join(object.get_roles, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] none [% END %]</td></tr>
+
+     <tr><th>Email:</th>
+         <td>[% object.get_email | html %] &nbsp;</td></tr>
+
+     <tr><th>Organization:</th>
+         <td>[% object.get_organization | html %] &nbsp;</td></tr>
+
+     <tr><th>Phone:</th>
+         <td>[% object.get_phone | html %] &nbsp;</td></tr>
+
+     <tr><th>Fax:</th>
+         <td>[% object.get_fax | html %] &nbsp;</td></tr>
+
+     <tr><th>Address:</th>
+         <td>[% object.get_address | html %] &nbsp;</td></tr>
+
+     <tr><th>Comments:</th>
+         <td>[% IF object.get_comments %]
+               [% FOREACH comment = object.get_comments %]
+                 <b>[% comment.get_name | html %]: </b> [% comment.get_value | html %] <br/>
+               [% END %]
+             [% ELSE %] none [% END %]</td></tr>
+             
+  </tbody>
+</table>
+</fieldset>
+
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations using this contact:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/contact/list") | html %]">Back to list of contacts...</a></p> 
+</div>

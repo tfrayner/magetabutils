@@ -1,0 +1,32 @@
+[% META title = 'Contact List' %]
+
+<fieldset>
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='contactList' class='objectList'>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Roles</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH contact = objects.sort('get_lastName') %] 
+      <tr> 
+        <td> [% contact.get_firstName | html %] [% contact.get_lastName | html %] </td>
+         <td>[% IF object.get_roles %]
+               [% map_method_join(object.get_roles, 'value', '; ') | replace('_', ' ') | html %]
+             [% ELSE %] &nbsp; [% END %]</td>
+        <td><a href="[% c.uri_for("/contact/view", contact) | html %]">View</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No contacts yet!</p> 
+[% END %] 
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
