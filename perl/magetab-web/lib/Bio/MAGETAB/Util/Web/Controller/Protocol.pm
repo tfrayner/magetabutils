@@ -22,6 +22,7 @@ sub new {
     my $self  = $class->SUPER::new( @_ );
 
     $self->my_model_class( 'Protocol' );
+    $self->my_container_class( 'Investigation' );
 
     return $self;
 }

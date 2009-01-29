@@ -3,7 +3,7 @@
 <fieldset>
 [% IF objects && objects.size > 0 %]
   <div>
-    <table id='investigationList'>
+    <table id='investigationList' class='objectList'>
     <thead>
       <tr>
         <th>Title</th>
