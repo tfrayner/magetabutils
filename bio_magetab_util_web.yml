@@ -1,0 +1,11 @@
+---
+
+name: Bio::MAGETAB::Util::Web
+
+# Main database configuration.
+Model::DB:
+
+  # Database connection parameters (FIXME these don't currently work).
+  dsn:       dbi:mysql:test
+  user:
+  password:
