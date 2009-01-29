@@ -1,0 +1,32 @@
+[% META title = 'TermSource List' %]
+
+<fieldset>
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='termsourceList' class='objectList'>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>URI</th>
+        <th>Version</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH ts = objects.sort('get_title') %] 
+      <tr> 
+        <td> [% ts.get_name | html %] </td>
+        <td> [% ts.get_URI | html %] &nbsp; </td>
+        <td> [% ts.get_version | html %] &nbsp; </td>
+        <td><a href="[% c.uri_for("/termsource/view", ts) | html %]">View</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No termsources yet!</p> 
+[% END %] 
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 

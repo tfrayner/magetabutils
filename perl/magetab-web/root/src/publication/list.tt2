@@ -1,0 +1,30 @@
+[% META title = 'Publication List' %]
+
+<fieldset>
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='publicationList' class='objectList'>
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>PubMed ID</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH pub = objects.sort('get_title') %] 
+      <tr> 
+        <td> [% pub.get_title | truncate(100) | html %] </td>
+        <td> [% pub.get_pubMedID | html %] &nbsp; </td>
+        <td><a href="[% c.uri_for("/publication/view", pub) | html %]">View</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No publications yet!</p> 
+[% END %] 
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
