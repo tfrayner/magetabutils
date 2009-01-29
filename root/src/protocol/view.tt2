@@ -1,0 +1,30 @@
+[% META title = 'Protocol View' %]
+
+<h3 class="objname">[% object.get_name | html %]</h3>
+
+<fieldset>
+<table id="protocolView" class="objectView">
+  <tbody>
+
+     <tr><th>Type:</th>
+         <td>[% IF object.get_protocolType %]
+               [% object.get_protocolType.get_value | html %]
+             [% ELSE %] unknown [% END %]</td></tr>
+
+     <tr><th>Text:</th>
+         <td>[% object.get_text | html %] &nbsp;</td></tr>
+
+     <tr><th>Software:</th>
+         <td>[% object.get_software | html %] &nbsp;</td></tr>
+
+     <tr><th>Hardware:</th>
+         <td>[% object.get_hardware | html %] &nbsp;</td></tr>
+
+     <tr><th>Contact:</th>
+         <td>[% object.get_contact | html %] &nbsp;</td></tr>
+
+  </tbody>
+</table>
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/investigation/list") | html %]">Back to list of investigations...</a></p> 
