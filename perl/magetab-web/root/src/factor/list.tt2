@@ -1,0 +1,32 @@
+[% META title = 'Factor List' %]
+
+<fieldset>
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='factorList' class='objectList'>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH factor = objects.sort('get_name') %] 
+      <tr> 
+        <td> [% factor.get_name | html %] </td>
+        <td> [% IF factor.get_factorType %]
+                [% factor.get_factorType.get_value | replace('_', ' ') | html %]
+             [% END %] &nbsp; </td>
+        <td><a href="[% c.uri_for("/factor/view", factor) | html %]">View</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No factors yet!</p> 
+[% END %] 
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 
