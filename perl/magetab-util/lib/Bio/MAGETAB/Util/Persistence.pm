@@ -30,9 +30,13 @@ use DBI;
 #$Tangram::TRACE = \*STDOUT;
 #$Tangram::DEBUG_LEVEL = 1;
 
-# This is where the magic happens. This needs to be kept synchronised
-# with any changes made to the core MAGETAB model.
-my $hashref = {
+sub class_schema {
+
+    my ( $class ) = @_;
+
+    # This is where the magic happens. This needs to be kept synchronised
+    # with any changes made to the core MAGETAB model.
+    my $hashref = {
 
     classes => [
 
@@ -423,12 +427,14 @@ my $hashref = {
     # returns a blessed hashref; the final objects still obey the
     # original constraints, however.
     make_object => sub { my $class = shift; return bless {}, $class },
-};
+
+    };
+}
 
 has 'config'   => ( is       => 'ro',
                     isa      => 'HashRef',
                     required => 1,
-                    default  => sub { $hashref }, );
+                    default  => \&class_schema, );
 
 # We delegate quite a lot to the associated Tangram::Storage
 # instance. We could delegate even more, although tests should then be
