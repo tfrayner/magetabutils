@@ -567,6 +567,11 @@ following methods.
 
 Returns the Tangram::Schema object created using the config attribute.
 
+=item class_config
+
+A class method which returns the config hash reference used to create
+the Tangram::Schema object.
+
 =item insert
 
 =item select

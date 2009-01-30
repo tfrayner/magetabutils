@@ -67,7 +67,7 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -x :   Do not attempt to parse any data files listed in the SDRF (specifically, data matrices).
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
-    -g :   Filename to use for the ".dot" file if attempting to draw a graph of the SDRF using Graphviz.
+    -g :   Filename to use for SDRF graph output using Graphviz.
     -d :   DSN, or SQLite database file to load the generated objects into.
 
     -v :   Print version information.
@@ -137,16 +137,8 @@ if ( $graph_file ) {
     my $writer = Bio::MAGETAB::Util::Writer::Graphviz->new({
         magetab    => $reader->get_builder()->get_magetab(),
         filehandle => $fh,
+        format     => 'png',
     });
 
     $writer->draw();
-
-    my $pngfile = "$graph_file.png";
-
-    print STDOUT ("Creating PNG graph file...\n");
-
-    system(qq{dot -Tpng -o "$pngfile" "$graph_file"}) == 0
-        or print STDERR (
-            "Error: Graph drawing requires that the Graphviz 'dot' program is installed and on your executable path.\n"
-        );
 }

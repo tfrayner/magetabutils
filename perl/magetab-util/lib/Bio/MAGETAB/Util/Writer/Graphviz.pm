@@ -22,6 +22,7 @@ package Bio::MAGETAB::Util::Writer::Graphviz;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use GraphViz;
 use Carp;
 
 has 'magetab'            => ( is         => 'rw',
@@ -38,11 +39,19 @@ has 'font'               => ( is         => 'rw',
                               default    => sub { 'courier' },
                               required   => 1 );
 
+has 'format'             => ( is         => 'rw',
+                              isa        => 'Str',
+                              required   => 1,
+                              default    => 'png' );
+
+has 'graphviz'           => ( is         => 'rw',
+                              isa        => 'GraphViz',
+                              required   => 1,
+                              default    => sub { GraphViz->new(rankdir => 1); }, );
+
 sub draw {
 
     my ( $self ) = @_;
-
-    my $fh = $self->get_filehandle();
 
     # This is our master colour table. Edit as necessary.
     my %color = (
@@ -63,11 +72,7 @@ sub draw {
         qr/\A biotin \z/ixms => $color{'mauve'},
     );
 
-    print $fh (<<'HEADER');
-digraph "Experiment"{
-rankdir=LR; 
-rankspace=200
-HEADER
+    my $g = $self->get_graphviz();
 
     my @nodes = $self->get_magetab->get_nodes();
     my @edges = $self->get_magetab->get_edges();
@@ -115,10 +120,13 @@ HEADER
             }
         }
 
-        # Print out the node info.
-        print $fh ( qq{"$node" [label="$label",}
-                  . qq{ color=black, shape=box, style=filled,}
-                  . qq{ fillcolor="$color", fontname=$font];\n} );
+        $g->add_node($node,
+                     label     => $label,
+                     color     => 'black',
+                     shape     => 'box',
+                     style     => 'filled',
+                     fillcolor => $color,
+                     fontname  => $font,);
     }
 
     # Draw all the edges we know about. FIXME this wants fancying up
@@ -126,11 +134,15 @@ HEADER
     foreach my $edge ( @edges ) {
         my $input  = $edge->get_inputNode();
         my $output = $edge->get_outputNode();
-        print $fh ( qq{"$input"->"$output"[color=black];\n});
+        $g->add_edge( $input => $output, color => 'black' );
     }
 
-    # Close out the dot file.
-    print $fh "}\n";
+    # Print the output.
+    my $method = 'as_' . $self->get_format();
+    eval { print { $self->get_filehandle() } $g->$method };
+    if ( $@ ) {
+        croak("Error: Attempting to output graph using $method failed: $@");
+    }
 }
 
 # Make the classes immutable. In theory this speeds up object
@@ -150,6 +162,7 @@ Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB objects.
     magetab    => $magetab_container,
     filehandle => $output_fh,
     font       => 'luxisr',
+    format     => 'pdf',
  });
  
  $drawer->draw();
@@ -158,8 +171,8 @@ Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB objects.
 
 This is a simple visualization class for MAGE-TAB objects. It may be
 developed further in future; at the moment, given a Bio::MAGETAB
-container and a filehandle, it will just generate a '.dot' file which
-can then be processed using the Graphviz "dot" application.
+container and a filehandle, it will just draw an experimental design
+graph to the filehandle in one of a number of formats.
 
 =head1 ATTRIBUTES
 
@@ -179,6 +192,17 @@ The filehandle to use to output (i.e. the "dot" input file).
 
 The font used for object labels in the output.
 
+=item format
+
+The output format (required; default: png). This can in principle be
+any of the formats supported by the GraphViz perl module $g->as_* methods.
+
+=item graphviz
+
+A GraphViz object. If this is not supplied, a default object will be
+created; this attribute is provided so that you have a means of
+accessing the underlying graph generation object.
+
 =back
 
 =head1 METHODS
@@ -187,13 +211,13 @@ The font used for object labels in the output.
 
 =item draw
 
-Generates output suitable for use with the Graphviz "dot" application.
+Draws a graph in the specified format to the output filehandle.
 
 =back
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB>
+L<Bio::MAGETAB>, GraphViz
 
 =head1 AUTHOR
 

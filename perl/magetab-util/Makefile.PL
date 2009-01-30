@@ -36,6 +36,7 @@ requires 'Text::CSV_XS'                => '0.32';
 
 test_requires 'Test::Exception'        => '0.26';
 
+recommends 'GraphViz'                  => '2.03';
 recommends 'Tangram'                   => '2.10';
 recommends 'DBI'                       => '';
 recommends 'DBD::SQLite'               => '';
