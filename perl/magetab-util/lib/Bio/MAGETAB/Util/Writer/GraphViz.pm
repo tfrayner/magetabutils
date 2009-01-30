@@ -25,24 +25,15 @@ use Moose;
 use GraphViz;
 use Carp;
 
-has 'investigation'      => ( is         => 'rw',
-                              isa        => 'Bio::MAGETAB::Investigation',
-                              required   => 1 );
-
-has 'filehandle'         => ( is         => 'rw',
-                              isa        => 'FileHandle',
-                              coerce     => 1,
+has 'sdrfs'              => ( is         => 'rw',
+                              isa        => 'ArrayRef[Bio::MAGETAB::SDRF]',
+                              auto_deref => 1,
                               required   => 1 );
 
 has 'font'               => ( is         => 'rw',
                               isa        => 'Str',
                               default    => sub { 'courier' },
                               required   => 1 );
-
-has 'format'             => ( is         => 'rw',
-                              isa        => 'Str',
-                              required   => 1,
-                              default    => 'png' );
 
 has 'graphviz'           => ( is         => 'rw',
                               isa        => 'GraphViz',
@@ -76,7 +67,7 @@ sub draw {
 
     # Extract all the nodes and edges into two uniqued lists.
     my ( %node, %edge );
-    foreach my $sdrf ( $self->get_investigation->get_sdrfs() ) {
+    foreach my $sdrf ( $self->get_sdrfs() ) {
         my @rownodes = map { $_->get_nodes() } $sdrf->get_sdrfRows();
         foreach my $node ( @rownodes ) {
             $node{ $node } = $node;
@@ -148,12 +139,7 @@ sub draw {
         $g->add_edge( $input => $output, color => 'black' );
     }
 
-    # Print the output.
-    my $method = 'as_' . $self->get_format();
-    eval { print { $self->get_filehandle() } $g->$method };
-    if ( $@ ) {
-        croak("Error: Attempting to output graph using $method failed: $@");
-    }
+    return $g;
 }
 
 # Make the classes immutable. In theory this speeds up object
@@ -171,43 +157,33 @@ Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB objects.
  use Bio::MAGETAB::Util::Writer::GraphViz;
  my $drawer = Bio::MAGETAB::Util::Writer::GraphViz->new({
     investigation => $investigation,
-    filehandle    => $output_fh,
     font          => 'luxisr',
-    format        => 'pdf',
  });
  
- $drawer->draw();
+ my $g = $drawer->draw();
+ 
+ print $fh $g->as_png();
 
 =head1 DESCRIPTION
 
-This is a simple visualization class for MAGE-TAB objects. It may be
-developed further in future; at the moment, given a
-Bio::MAGETAB::Investigation object and a filehandle, it will just draw
-an experimental design graph to the filehandle in one of a number of
+This is a simple visualization class for MAGE-TAB objects. Given a
+list of Bio::MAGETAB::SDRF objects and a filehandle, it will return a
+GraphViz object which can then be written to file in a number of
 formats.
 
 =head1 ATTRIBUTES
 
 =over 2
 
-=item investigation
+=item sdrfs
 
-The Bio::MAGETAB::Investigation object to visualize. This is a
-required attribute. See L<Bio::MAGETAB::Investigation> for more
-information on this class.
-
-=item filehandle
-
-The filehandle to use to output (i.e. the "dot" input file).
+A list of Bio::MAGETAB::SDRFs object to visualize. This is a required
+attribute. See L<Bio::MAGETAB::SDRF> for more information on this
+class.
 
 =item font
 
 The font used for object labels in the output.
-
-=item format
-
-The output format (required; default: png). This can in principle be
-any of the formats supported by the GraphViz perl module $g->as_* methods.
 
 =item graphviz
 
@@ -223,13 +199,13 @@ accessing the underlying graph generation object.
 
 =item draw
 
-Draws a graph in the specified format to the output filehandle.
+Creates a GraphViz graph in memory ready for output.
 
 =back
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Investigation>, GraphViz
+L<Bio::MAGETAB::SDRF>, GraphViz
 
 =head1 AUTHOR
 

@@ -135,10 +135,10 @@ if ( $graph_file ) {
         or die("Error: Unable to open output file: $!");
 
     my $writer = Bio::MAGETAB::Util::Writer::GraphViz->new({
-        investigation => $inv,
-        filehandle    => $fh,
-        format        => 'png',
+        sdrfs => [ $inv->get_sdrfs() ],
     });
 
-    $writer->draw();
+    my $g = $writer->draw();
+
+    print $fh $g->as_png();
 }
