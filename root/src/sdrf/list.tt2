@@ -1,0 +1,28 @@
+[% META title = 'SDRF List' %]
+
+<fieldset>
+[% IF objects && objects.size > 0 %]
+  <div>
+    <table id='sdrfList' class='objectList'>
+    <thead>
+      <tr>
+        <th>URI</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+    <tbody>
+    [% FOREACH sdrf = objects.sort('get_uri') %] 
+      <tr> 
+        <td> [% sdrf.get_uri | html %] </td>
+        <td><a href="[% c.uri_for("/sdrf/view", sdrf) | html %]">View</a></td>
+      </tr>
+    [% END %]
+    </tbody>
+    </table>
+  </div>
+[% ELSE %] 
+  <p>No SDRFs yet!</p> 
+[% END %] 
+</fieldset>
+
+<p class="nav"><a href="[% c.uri_for("/") | html %]">Return to start page...</a></p> 

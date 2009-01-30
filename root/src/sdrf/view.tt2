@@ -1,0 +1,22 @@
+[% META title = 'SDRF View' %]
+
+<h3 class="objname">[% object.get_uri | html %]</h3>
+
+<fieldset>
+  <img src="[% c.uri_for("/sdrf/image", object) %]" width="800" />
+</fieldset>
+
+<div class="nav">
+[% IF containers.defined %]
+  <p>Investigations using this SDRF:
+  <ul>
+  [% FOREACH container = containers %]
+    <li><a href="[% c.uri_for("/investigation/view", container) | html %]">
+                 [% container.get_title | truncate(30) | html %]</a></li> 
+  [% END %]
+  </ul>
+  </p>
+[% END %]
+
+  <p><a href="[% c.uri_for("/sdrf/list") | html %]">Back to list of SDRFs...</a></p> 
+</div>
