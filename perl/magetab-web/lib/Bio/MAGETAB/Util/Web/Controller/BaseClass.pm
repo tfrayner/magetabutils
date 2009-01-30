@@ -69,7 +69,14 @@ sub select_container_objects : Private {
 
         # FIXME pluralisation rules may need to be applied for some
         # irregular plurals.
-        my $key = lcfirst( $self->my_model_class() ) . 's';
+        my $class = $self->my_model_class();
+        my $key;
+        if ( $class eq 'SDRF' ) {
+            $key = 'sdrfs';
+        }
+        else{
+            $key = lcfirst( $self->my_model_class() ) . 's';
+        }
         @containers = $c->model()
                         ->storage()
                         ->select( $remote, $remote->{$key}->includes( $object ) );
