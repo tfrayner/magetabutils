@@ -41,20 +41,15 @@ sub image : Local {
          $c->detach();
      }
 
-     my $invs = $self->select_container_objects( $c, $object );
-
      require Bio::MAGETAB::Util::Writer::GraphViz;
      my $g = Bio::MAGETAB::Util::Writer::GraphViz->new(
-         investigation => $invs->[0],
+         sdrfs => [ $object ],
      );
 
      my $image = $g->draw();
      $c->res->body( $image->as_png() );
      $c->res->content_type( 'image/png' );
 }
-
-#<img src="[% c.uri_for("/sdrf/image", object) %]" />
-
 
 =head1 AUTHOR
 
