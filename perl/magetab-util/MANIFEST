@@ -23,7 +23,7 @@ lib/Bio/MAGETAB/Util/Reader/TagValueFile.pm
 lib/Bio/MAGETAB/Util/Writer.pm
 lib/Bio/MAGETAB/Util/Writer/ADF.pm
 lib/Bio/MAGETAB/Util/Writer/Tabfile.pm
-lib/Bio/MAGETAB/Util/Writer/Graphviz.pm
+lib/Bio/MAGETAB/Util/Writer/GraphViz.pm
 lib/Bio/MAGETAB/Util/Writer/IDF.pm
 lib/Bio/MAGETAB/Util/Writer/SDRF.pm
 README

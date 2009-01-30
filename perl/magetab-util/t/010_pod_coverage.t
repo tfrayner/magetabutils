@@ -40,7 +40,7 @@ my @fully_covered =
           Bio::MAGETAB::Util::Reader::TagValueFile
           Bio::MAGETAB::Util::Writer
           Bio::MAGETAB::Util::Writer::Tabfile
-          Bio::MAGETAB::Util::Writer::Graphviz
+          Bio::MAGETAB::Util::Writer::GraphViz
           Bio::MAGETAB::Util::Writer::ADF
           Bio::MAGETAB::Util::Writer::IDF
           Bio::MAGETAB::Util::Writer::SDRF

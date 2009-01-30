@@ -40,7 +40,7 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
-    use_ok( 'Bio::MAGETAB::Util::Writer::Graphviz' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::GraphViz' );
 }
 
 SKIP: {

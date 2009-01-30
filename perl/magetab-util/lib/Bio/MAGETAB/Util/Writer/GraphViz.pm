@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Writer::Graphviz;
+package Bio::MAGETAB::Util::Writer::GraphViz;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
@@ -153,12 +153,12 @@ no Moose;
 
 =head1 NAME
 
-Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB objects.
+Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB objects.
 
 =head1 SYNOPSIS
 
- use Bio::MAGETAB::Util::Writer::Graphviz;
- my $drawer = Bio::MAGETAB::Util::Writer::Graphviz->new({
+ use Bio::MAGETAB::Util::Writer::GraphViz;
+ my $drawer = Bio::MAGETAB::Util::Writer::GraphViz->new({
     magetab    => $magetab_container,
     filehandle => $output_fh,
     font       => 'luxisr',

@@ -23,7 +23,7 @@
 # This is a very simplistic example script to illustrate how one might
 # use the Reader modules to parse a MAGE-TAB document into
 # Bio::MAGETAB objects in memory or in a database, and generate an
-# output Graphviz visualization.
+# output GraphViz visualization.
 
 use strict;
 use warnings;
@@ -31,7 +31,7 @@ use warnings;
 use Getopt::Long;
 
 use Bio::MAGETAB::Util::Reader;
-use Bio::MAGETAB::Util::Writer::Graphviz;
+use Bio::MAGETAB::Util::Writer::GraphViz;
 
 my ( $idf,
      $is_relaxed,
@@ -67,7 +67,7 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -x :   Do not attempt to parse any data files listed in the SDRF (specifically, data matrices).
     -n :   Use the specified namespace string.
     -a :   Use the specified authority string.
-    -g :   Filename to use for SDRF graph output using Graphviz.
+    -g :   Filename to use for SDRF graph output using GraphViz.
     -d :   DSN, or SQLite database file to load the generated objects into.
 
     -v :   Print version information.
@@ -127,14 +127,14 @@ if ( $dsn ) {
 # Parse the IDF and any associated SDRFs/ADFs.
 $reader->parse();
 
-# If a graph file was specified, attempt to use Graphviz to draw the
+# If a graph file was specified, attempt to use GraphViz to draw the
 # experimental design graph.
 if ( $graph_file ) {
 
     open ( my $fh, '>', $graph_file )
         or die("Error: Unable to open output file: $!");
 
-    my $writer = Bio::MAGETAB::Util::Writer::Graphviz->new({
+    my $writer = Bio::MAGETAB::Util::Writer::GraphViz->new({
         magetab    => $reader->get_builder()->get_magetab(),
         filehandle => $fh,
         format     => 'png',
