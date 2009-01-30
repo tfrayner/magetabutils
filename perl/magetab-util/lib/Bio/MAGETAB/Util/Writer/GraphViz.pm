@@ -38,7 +38,7 @@ has 'font'               => ( is         => 'rw',
 has 'graphviz'           => ( is         => 'rw',
                               isa        => 'GraphViz',
                               required   => 1,
-                              default    => sub { GraphViz->new(rankdir => 1); }, );
+                              default    => sub { GraphViz->new( rankdir => 1 ); }, );
 
 sub draw {
 
@@ -155,14 +155,14 @@ Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB objects.
 =head1 SYNOPSIS
 
  use Bio::MAGETAB::Util::Writer::GraphViz;
- my $drawer = Bio::MAGETAB::Util::Writer::GraphViz->new({
-    investigation => $investigation,
-    font          => 'luxisr',
+ my $graphviz = Bio::MAGETAB::Util::Writer::GraphViz->new({
+    sdrfs => \@sdrfs,
+    font  => 'luxisr',
  });
  
- my $g = $drawer->draw();
+ my $image = $graphviz->draw();
  
- print $fh $g->as_png();
+ print $fh $image->as_png();
 
 =head1 DESCRIPTION
 
