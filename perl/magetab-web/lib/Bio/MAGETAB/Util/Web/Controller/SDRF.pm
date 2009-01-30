@@ -33,7 +33,7 @@ sub new {
 
 sub image : Local {
      my ( $self, $c, $id ) = @_;
-     
+
      my $object = $c->model()->storage()->load( $id );
      unless ( $object ) {
          $c->flash->{error} = 'No such ' . $self->my_model_class() . '!';
@@ -41,13 +41,34 @@ sub image : Local {
          $c->detach();
      }
 
-     require Bio::MAGETAB::Util::Writer::GraphViz;
-     my $g = Bio::MAGETAB::Util::Writer::GraphViz->new(
-         sdrfs => [ $object ],
-     );
+     # We check our static image cache first, and generate a new PNG
+     # if the file isn't found.
+     my $static_paths = $c->config->{static}{include_path};
+     my $cachefile    = $static_paths->[0]->file('static', 'graph_cache', "$id.png");
+     my $imagedata;
+     if ( ! -e $cachefile ) {
+     
+         require Bio::MAGETAB::Util::Writer::GraphViz;
+         my $g = Bio::MAGETAB::Util::Writer::GraphViz->new(
+             sdrfs => [ $object ],
+         );
 
-     my $image = $g->draw();
-     $c->res->body( $image->as_png() );
+         my $image = $g->draw();
+         $imagedata = $image->as_png();
+
+         open ( my $fh, '>', $cachefile )
+             or die("Error opening image cache $cachefile for writing: $!");
+
+         print $fh $imagedata;
+     }
+     else {
+         open ( my $fh, '<', $cachefile )
+             or die("Error opening image cache $cachefile for reading: $!");
+
+         $imagedata = join('', <$fh>);
+     }
+
+     $c->res->body( $imagedata );
      $c->res->content_type( 'image/png' );
 }
 
