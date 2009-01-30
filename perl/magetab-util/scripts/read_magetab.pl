@@ -125,7 +125,7 @@ if ( $dsn ) {
 }
 
 # Parse the IDF and any associated SDRFs/ADFs.
-$reader->parse();
+my ( $inv, $magetab ) = $reader->parse();
 
 # If a graph file was specified, attempt to use GraphViz to draw the
 # experimental design graph.
@@ -135,9 +135,9 @@ if ( $graph_file ) {
         or die("Error: Unable to open output file: $!");
 
     my $writer = Bio::MAGETAB::Util::Writer::GraphViz->new({
-        magetab    => $reader->get_builder()->get_magetab(),
-        filehandle => $fh,
-        format     => 'png',
+        investigation => $inv,
+        filehandle    => $fh,
+        format        => 'png',
     });
 
     $writer->draw();

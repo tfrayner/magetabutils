@@ -25,8 +25,8 @@ use Moose;
 use GraphViz;
 use Carp;
 
-has 'magetab'            => ( is         => 'rw',
-                              isa        => 'Bio::MAGETAB',
+has 'investigation'      => ( is         => 'rw',
+                              isa        => 'Bio::MAGETAB::Investigation',
                               required   => 1 );
 
 has 'filehandle'         => ( is         => 'rw',
@@ -74,8 +74,19 @@ sub draw {
 
     my $g = $self->get_graphviz();
 
-    my @nodes = $self->get_magetab->get_nodes();
-    my @edges = $self->get_magetab->get_edges();
+    # Extract all the nodes and edges into two uniqued lists.
+    my ( %node, %edge );
+    foreach my $sdrf ( $self->get_investigation->get_sdrfs() ) {
+        my @rownodes = map { $_->get_nodes() } $sdrf->get_sdrfRows();
+        foreach my $node ( @rownodes ) {
+            $node{ $node } = $node;
+            foreach my $edge ( $node->get_inputEdges, $node->get_outputEdges ) {
+                $edge{ $edge } = $edge;
+            }
+        }
+    }
+    my @nodes = values %node;
+    my @edges = values %edge;
 
     # Create all the nodes. FIXME prettify by class, Label colour and
     # the like.
@@ -159,10 +170,10 @@ Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB objects.
 
  use Bio::MAGETAB::Util::Writer::GraphViz;
  my $drawer = Bio::MAGETAB::Util::Writer::GraphViz->new({
-    magetab    => $magetab_container,
-    filehandle => $output_fh,
-    font       => 'luxisr',
-    format     => 'pdf',
+    investigation => $investigation,
+    filehandle    => $output_fh,
+    font          => 'luxisr',
+    format        => 'pdf',
  });
  
  $drawer->draw();
@@ -170,19 +181,20 @@ Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB objects.
 =head1 DESCRIPTION
 
 This is a simple visualization class for MAGE-TAB objects. It may be
-developed further in future; at the moment, given a Bio::MAGETAB
-container and a filehandle, it will just draw an experimental design
-graph to the filehandle in one of a number of formats.
+developed further in future; at the moment, given a
+Bio::MAGETAB::Investigation object and a filehandle, it will just draw
+an experimental design graph to the filehandle in one of a number of
+formats.
 
 =head1 ATTRIBUTES
 
 =over 2
 
-=item magetab
+=item investigation
 
-The Bio::MAGETAB container containing the MAGE-TAB objects to
-visualize. This is a required attribute. See L<Bio::MAGETAB> for more
-information on this container class.
+The Bio::MAGETAB::Investigation object to visualize. This is a
+required attribute. See L<Bio::MAGETAB::Investigation> for more
+information on this class.
 
 =item filehandle
 
@@ -217,7 +229,7 @@ Draws a graph in the specified format to the output filehandle.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB>, GraphViz
+L<Bio::MAGETAB::Investigation>, GraphViz
 
 =head1 AUTHOR
 
