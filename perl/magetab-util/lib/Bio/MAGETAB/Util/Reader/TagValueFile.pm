@@ -50,7 +50,13 @@ sub _create_termsources {
     my ( $self ) = @_;
 
     my @termsources;
+    TS:
     foreach my $ts_data ( @{ $self->get_text_store()->{'termsource'} } ) {
+
+        # Term Sources without Names are never going to work, so we skip them.
+        next TS unless ( defined $ts_data->{'name'}
+                              && $ts_data->{'name'} !~ $BLANK );
+
         my $termsource = $self->get_builder()->find_or_create_term_source( $ts_data );
 	push @termsources, $termsource;
     }
@@ -67,7 +73,8 @@ sub _create_controlled_terms {
     foreach my $term_data ( @{ $self->get_text_store()->{ $type } } ) {
 
         # Value is required for all ControlledTerm objects.
-        next TERM unless defined $term_data->{'value'};
+        next TERM unless ( defined $term_data->{'value'}
+                                && $term_data->{'value'} !~ $BLANK );
 
         my $termsource;
         if ( my $ts = $term_data->{'termSource'} ) {
@@ -97,7 +104,12 @@ sub _create_comments {
     my ( $self ) = @_;
 
     my @comments;
+    COMM:
     while ( my ( $name, $value ) = each %{ $self->get_text_store()->{'comment'} } ) {
+
+        # Value is required for all Comment objects.
+        next COMM unless ( defined $value
+                                && $value !~ $BLANK );
 
         my $comment = $self->get_builder()->find_or_create_comment({
             'name'    => $name,

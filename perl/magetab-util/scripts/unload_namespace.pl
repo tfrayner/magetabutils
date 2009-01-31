@@ -52,6 +52,7 @@ my $dbh = DBI->connect( $dsn ) or die("Error: Unable to connect to database.");
 
 # A list of classes, in the order in which we will delete them:
 my @classes = qw(
+                    Comment
                     FactorValue
                     Factor
                     SDRFRow
@@ -61,7 +62,7 @@ my @classes = qw(
                     ProtocolApplication
                     ProtocolParameter
                     Protocol
-                    LabeledExtract
+                    Material
                     Event
                     MatrixRow
                     MatrixColumn
@@ -69,7 +70,6 @@ my @classes = qw(
                     DesignElement
                     ArrayDesign
                     DatabaseEntry
-                    Comment
             );
 
 foreach my $class ( @classes ) {

@@ -31,6 +31,9 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::Investigation',
                               required   => 0 );
 
+# Define some standard regexps:
+my $BLANK = qr/\A [ ]* \z/xms;
+
 sub BUILD {
 
     my ( $self, $params ) = @_;
@@ -199,7 +202,14 @@ sub _create_sdrfs {
     my ( $self ) = @_;
 
     my @sdrfs;
+
+    SDRF:
     foreach my $uri ( @{ $self->get_text_store()->{ 'sdrf' }{ 'uris' } } ) {
+
+        # URI is required for all SDRF objects.
+        next SDRF unless ( defined $uri
+                                && $uri !~ $BLANK );
+
         my $sdrf = $self->get_builder()->find_or_create_sdrf({
             uri => $uri,
         });
@@ -214,7 +224,12 @@ sub _create_factors {
     my ( $self ) = @_;
 
     my @factors;
+    FACTOR:
     foreach my $f_data ( @{ $self->get_text_store()->{ 'factor' } } ) {
+
+        # Name is required for all Factor objects.
+        next FACTOR unless ( defined $f_data->{'name'}
+                                  && $f_data->{'name'} !~ $BLANK );
 
         my %args = ('name' => $f_data->{'name'} );
 
@@ -254,7 +269,17 @@ sub _create_people {
     my ( $self ) = @_;
 
     my @people;
+    PERSON:
     foreach my $p_data ( @{ $self->get_text_store()->{ 'person' } } ) {
+
+        # Something is required for all Contact objects. MidInitials
+        # just doesn't cut it.
+        my $id_found;
+        foreach my $key ( qw( lastName firstName ) ) {
+            $id_found++ if ( defined $p_data->{$key}
+                                  && $p_data->{$key} !~ $BLANK );
+        }
+        next PERSON unless $id_found;
 
         my $termsource;
         if ( my $ts = $p_data->{'termSource'} ) {
@@ -293,7 +318,12 @@ sub _create_protocols {
     my ( $self ) = @_;
 
     my @protocols;
+    PROTOCOL:
     foreach my $p_data ( @{ $self->get_text_store()->{ 'protocol' } } ) {
+
+        # Name is required for all Protocol objects.
+        next PROTOCOL unless ( defined $p_data->{'name'}
+                                    && $p_data->{'name'} !~ $BLANK );
 
         my @wanted = grep { $_ !~ /^parameters|protocolType|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
@@ -343,7 +373,12 @@ sub _create_publications {
     my ( $self ) = @_;
 
     my @publications;
+    PUBL:
     foreach my $p_data ( @{ $self->get_text_store()->{ 'publication' } } ) {
+
+        # Title is required for all Publication objects.
+        next PUBL unless ( defined $p_data->{'title'}
+                                && $p_data->{'title'} !~ $BLANK );
 
         my @wanted = grep { $_ !~ /^status|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
