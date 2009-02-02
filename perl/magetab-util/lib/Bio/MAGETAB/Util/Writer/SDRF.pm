@@ -143,7 +143,7 @@ sub _next_slice {
     # processed.
 
     my ( $self, $nodelists, $coderef ) = @_;
-
+confess unless  $nodelists;
     my @firstnodes = map { $_->[0] } @{ $nodelists };
 
     my $wanted = $self->_best_object_type( \@firstnodes, $coderef );
@@ -283,8 +283,12 @@ sub _process_obj_contacts {
 
     # FIXME check if multiple Providers/Performers columns are allowed in the
     # format, and if not concatenate with semicolons.
-    my @contacts = map { [ sort { $a->get_lastName() cmp $b->get_lastName() }
-                                   $_->$getter ] if defined $_ } @{ $objs };
+    my @contacts = map {
+        defined $_
+            ? [ sort { $a->get_lastName() cmp $b->get_lastName() }
+                       $_->$getter ]
+            : []
+        } @{ $objs };
 
     while ( $self->_remaining_elements( \@contacts ) ) {
         my $slice = $self->_next_slice( \@contacts,
@@ -453,8 +457,12 @@ sub _process_materials {
     }
 
     # Characteristics
-    my @chars = map { [ sort { $a->get_category() cmp $b->get_category() }
-                               $_->get_characteristics() ] if defined $_ } @{ $objs };
+    my @chars = map {
+        defined $_
+            ? [ sort { $a->get_category() cmp $b->get_category() }
+                       $_->get_characteristics() ]
+            : []
+        } @{ $objs };
 
     while ( $self->_remaining_elements( \@chars ) ) {
         my ( $slice, $category ) =
@@ -463,12 +471,16 @@ sub _process_materials {
     }
 
     # Measurements
-    my @measurements = map { [ sort { $a->get_measurementType() cmp $b->get_measurementType() }
-                                      $_->get_measurements() ] if defined $_ } @{ $objs };
+    my @measurements = map {
+        defined $_
+            ? [ sort { $a->get_measurementType() cmp $b->get_measurementType() }
+                       $_->get_measurements() ]
+            : []
+        } @{ $objs };
 
     while ( $self->_remaining_elements( \@measurements ) ) {
         my ( $slice, $type ) =
-            $self->_next_slice( \@chars, sub { $_[0]->get_measurementType() } );
+            $self->_next_slice( \@measurements, sub { $_[0]->get_measurementType() } );
         $self->_process_measurements( $slice, "Characteristic [$type]" );
     }
 }
@@ -477,8 +489,12 @@ sub _process_objects {
 
     my ( $self, $objs ) = @_;
 
-    my @comments = map { [ sort { $a->get_name() cmp $b->get_name() }
-                                  $_->get_comments() ] if defined $_ } @{ $objs };
+    my @comments = map {
+        defined $_
+            ? [ sort { $a->get_name() cmp $b->get_name() }
+                       $_->get_comments() ]
+            : []
+        } @{ $objs };
 
     while ( $self->_remaining_elements( \@comments ) ) {
         my ( $slice, $name ) = $self->_next_slice( \@comments, sub { $_[0]->get_name() } );
@@ -555,8 +571,8 @@ sub _process_array_designs {
 
         # REFs can have Term Source, accession, and comments. Array
         # Design File comments would normally be handled in the ADF.
-        $self->_process_objects( $objs );
         $self->_process_dbentries( $objs );
+        $self->_process_objects( $objs );
     }
 }
 
@@ -629,7 +645,7 @@ sub _process_edges {
 
     # Protocol Applications; we don't sort these because the order is
     # supposedly already set to indicate chronological order.
-    my @papps = map { [ $_->get_protocolApplications() ] } @{ $objs };
+    my @papps = map { [ $_ ? $_->get_protocolApplications() : undef ] } @{ $objs };
 
     while ( $self->_remaining_elements( \@papps ) ) {
         my ( $slice, $pname ) =
@@ -661,8 +677,12 @@ sub _process_protocolapps {
     $self->_process_obj_contacts( $objs, 'Performer', 'get_performers' );
 
     # ParameterValues
-    my @pvals = map { [ sort { $a->get_parameter() cmp $b->get_parameter() }
-                               $_->get_parameterValues() ] if defined $_ } @{ $objs };
+    my @pvals = map {
+        defined $_
+            ? [ sort { $a->get_parameter() cmp $b->get_parameter() }
+                       $_->get_parameterValues() ]
+            : []
+        } @{ $objs };
 
     while ( $self->_remaining_elements( \@pvals ) ) {
         my ( $slice, $param ) =

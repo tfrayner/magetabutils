@@ -119,8 +119,8 @@ sub _write_header {
 
     # Attach all comments to the ArrayDesign.
     foreach my $comment ( $array->get_comments() ) {
-        my $field = sprintf("Comment[%s]", $comment->name());
-        $self->_write_line( $field, $comment->value() );
+        my $field = sprintf("Comment[%s]", $comment->get_name());
+        $self->_write_line( $field, $comment->get_value() );
     }
 
     return;
