@@ -246,7 +246,7 @@ sub _create_providers {
     $source->set_providers( \@preexisting );
     $self->get_builder()->update( $source );
 
-    return \@names;
+    return \@preexisting;
 }
 
 sub _create_description {
@@ -547,7 +547,7 @@ sub _create_performers {
     
     $proto_app->{performers} = \@preexisting if scalar @preexisting;
 
-    return \@names;
+    return \@preexisting;
 }
 
 sub _create_date {
@@ -1128,20 +1128,25 @@ sub _add_comment_to_thing {
 
 sub _create_comment {
 
-    my ( $self, $name, $value, $thing ) = @_;
+    my ( $self, $name, $value, @things ) = @_;
 
-    return if ( ! $thing || $value =~ $BLANK );
+    return if ( ! scalar @things || $value =~ $BLANK );
 
-    my $comment = $self->get_builder()->find_or_create_comment({
-	name   => $name,
-	value  => $value,
-        object => $thing,
-    });
+    my @comments;
+    foreach my $thing ( @things ) {
+        my $comment = $self->get_builder()->find_or_create_comment({
+            name   => $name,
+            value  => $value,
+            object => $thing,
+        });
 
-    $self->_add_comment_to_thing( $comment, $thing )
-	if $thing;
+        $self->_add_comment_to_thing( $comment, $thing )
+            if $thing;
 
-    return $comment;
+        push @comments, $comment;
+    }
+
+    return @comments;
 }
 
 sub _get_characteristic_type {
@@ -1598,18 +1603,14 @@ __DATA__
                                    { $return = sub {
                                          my $source = shift;
 
-                                         my $names = $::sdrf->_create_providers( shift, $source );
-
-                      # FIXME we attach comments to the source, rather
-                      # than the provider (model problem FIXME? or at
-                      # least remove comments from the production.)
+                                         my $providers = $::sdrf->_create_providers( shift, $source );
 
                                          foreach my $sub (@{$item[2]}){
-                                             unshift( @_, $source ) and
+                                             unshift( @_, @{$providers} ) and
                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );
                                          }
 
-                                         return @$names if defined $names;
+                                         return @$providers if defined $providers;
                                      };
                                    }
 
@@ -1816,18 +1817,14 @@ __DATA__
                                    { $return = sub {
                                          my $protocolapp = shift;
 
-                                         my $names = $::sdrf->_create_performers( shift, $protocolapp );
-
-                 # FIXME we attach comments to the protocolapp, rather
-                 # than the performer (model problem FIXME?  or at
-                 # least remove comments from the production.)
+                                         my $performers = $::sdrf->_create_performers( shift, $protocolapp );
 
                                          foreach my $sub (@{$item[2]}){
-                                             unshift( @_, $protocolapp ) and
+                                             unshift( @_, @{$performers} ) and
                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );
                                          }
 
-                                         return @$names if defined $names;
+                                         return @$performers if defined $performers;
                                      };
                                    }
 
