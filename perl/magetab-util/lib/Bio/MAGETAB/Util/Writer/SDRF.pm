@@ -23,7 +23,7 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
-use List::Util qw( sum );
+use List::Util qw( sum max );
 
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
@@ -58,7 +58,7 @@ sub write {
     my $max_column = max( map { scalar @{ $_ } } $header, @{ $table } );
     $self->set_num_columns( $max_column );
     foreach my $line ( $header, @{ $table } ) {
-        $self->_write_line( $line );
+        $self->_write_line( @$line );
     }
 
     return;
@@ -120,6 +120,7 @@ sub _construct_lines {
         );
 
         $wanted =~ s/\A Bio::MAGETAB:: //xms;
+        if ( $wanted =~ /\b FactorValue \b/xms ) { $wanted = 'FactorValue' }
 
         if ( my $sub = $dispatch{ $wanted } ) {
             $sub->( $slice );
@@ -147,7 +148,8 @@ sub _next_slice {
 
     my $wanted = $self->_best_object_type( \@firstnodes, $coderef );
 
-    my @slice = map { $coderef->( $_->[0] ) eq $wanted ? shift @{$_} : undef }
+    my @slice = map { ( defined $_->[0] && $coderef->( $_->[0] ) eq $wanted )
+                          ? shift @{$_} : undef }
                    @{ $nodelists };
 
     return wantarray ? ( \@slice, $wanted ) : \@slice;
@@ -157,7 +159,7 @@ sub _remaining_elements {
 
     my ( $self, $AoA ) = @_;
 
-    return sum map { scalar grep { defined $_ } @{ $_ } } @{ $AoA };
+    return sum map { scalar grep { defined $_ } @{ $_ || [] } } @{ $AoA };
 }
 
 sub _best_object_type {
@@ -268,20 +270,20 @@ sub _process_sources {
     $self->_process_objects( $objs );
 
     # Providers
-    $self->_process_obj_contacts( $objs, 'Provider' );
+    $self->_process_obj_contacts( $objs, 'Provider', 'get_providers' );
 }
 
 sub _process_obj_contacts {
 
-    my ( $self, $objs, $colname ) = @_;
+    my ( $self, $objs, $colname, $getter ) = @_;
 
     # FIXME check if multiple Providers/Performers columns are allowed in the
     # format, and if not concatenate with semicolons.
-    my @providers = map { [ sort { $a->get_lastName() cmp $b->get_lastName() }
-                                   $_->get_providers() ] } @{ $objs };
+    my @contacts = map { [ sort { $a->get_lastName() cmp $b->get_lastName() }
+                                   $_->$getter ] if defined $_ } @{ $objs };
 
-    while ( $self->_remaining_elements( \@providers ) ) {
-        my $slice = $self->_next_slice( \@providers,
+    while ( $self->_remaining_elements( \@contacts ) ) {
+        my $slice = $self->_next_slice( \@contacts,
                                         sub { sprintf( "%s %s",
                                                        $_[0]->get_firstName(),
                                                        $_[0]->get_lastName(),) } );
@@ -345,7 +347,7 @@ sub _process_controlled_terms {
                                $colname,
                                sub { $_[0]->get_value() }, );
 
-    if ( scalar grep { defined $_->get_termSource() } @{ $objs } ) {
+    if ( scalar grep { $_ && defined $_->get_termSource() } @{ $objs } ) {
         $self->_process_dbentries( $objs );
     }
 }
@@ -363,7 +365,7 @@ sub _process_dbentries {
         },
     );
 
-    if ( scalar grep { defined $_->get_accession() } @{ $objs } ) {
+    if ( scalar grep { $_ && defined $_->get_accession() } @{ $objs } ) {
         $self->_add_single_column( $objs,
                                    'Term Accession Number',
                                    sub { $_[0]->get_accession() }, );
@@ -434,21 +436,21 @@ sub _process_materials {
     my ( $self, $objs ) = @_;
 
     # Description
-    if ( scalar grep { defined $_->get_description() } @{ $objs } ) {
+    if ( scalar grep { $_ && defined $_->get_description() } @{ $objs } ) {
         $self->_add_single_column( $objs,
                                    'Description',
                                    sub { $_[0]->get_description() }, );
     }
 
     # Material Type
-    my @types = map { $_ ? $_->get_type() : undef } @{ $objs };
+    my @types = map { $_ ? $_->get_materialType() : undef } @{ $objs };
     if ( scalar grep { defined $_ } @types ) {
         $self->_process_controlled_terms( \@types, 'Material Type' );
     }
 
     # Characteristics
     my @chars = map { [ sort { $a->get_category() cmp $b->get_category() }
-                               $_->get_characteristics() ] } @{ $objs };
+                               $_->get_characteristics() ] if defined $_ } @{ $objs };
 
     while ( $self->_remaining_elements( \@chars ) ) {
         my ( $slice, $category ) =
@@ -457,12 +459,12 @@ sub _process_materials {
     }
 
     # Measurements
-    my @measurements = map { [ sort { $a->get_type() cmp $b->get_type() }
-                                      $_->get_measurements() ] } @{ $objs };
+    my @measurements = map { [ sort { $a->get_measurementType() cmp $b->get_measurementType() }
+                                      $_->get_measurements() ] if defined $_ } @{ $objs };
 
     while ( $self->_remaining_elements( \@measurements ) ) {
         my ( $slice, $type ) =
-            $self->_next_slice( \@chars, sub { $_[0]->get_type() } );
+            $self->_next_slice( \@chars, sub { $_[0]->get_measurementType() } );
         $self->_process_measurements( $slice, "Characteristic [$type]" );
     }
 }
@@ -472,20 +474,20 @@ sub _process_objects {
     my ( $self, $objs ) = @_;
 
     my @comments = map { [ sort { $a->get_name() cmp $b->get_name() }
-                                  $_->get_comments() ] } @{ $objs };
+                                  $_->get_comments() ] if defined $_ } @{ $objs };
 
     while ( $self->_remaining_elements( \@comments ) ) {
-        my $slice = $self->_next_slice( \@comments, sub { $_[0]->get_name() } );
-        $self->_process_comments( $slice );
+        my ( $slice, $name ) = $self->_next_slice( \@comments, sub { $_[0]->get_name() } );
+        $self->_process_comments( $slice, $name );
     }
 }
 
 sub _process_comments {
 
-    my ( $self, $objs, $colname ) = @_;
+    my ( $self, $objs, $name ) = @_;
 
     $self->_add_single_column( $objs,
-                               sprintf('Comment [%s]', $colname),
+                               sprintf('Comment [%s]', $name),
                                sub { $_[0]->get_value() }, );
 }
 
@@ -535,7 +537,7 @@ sub _process_array_designs {
         # REFs can have Term Source, accession, and comments. Array
         # Design File comments would normally be handled in the ADF.
         $self->_process_objects( $objs );
-        $self->_process_dbentry( $objs );
+        $self->_process_dbentries( $objs );
     }
 }
 
@@ -630,31 +632,39 @@ sub _process_protocolapps {
     $self->_process_objects( $objs );
 
     # Date
-    if ( scalar grep { defined $_->get_date() } @{ $objs } ) {
+    if ( scalar grep { $_ && defined $_->get_date() } @{ $objs } ) {
         $self->_add_single_column( $objs,
                                    'Date',
                                    sub { $_[0]->get_date() }, );
     }
 
     # Performers
-    $self->_process_obj_contacts( $objs, 'Performer' );
+    $self->_process_obj_contacts( $objs, 'Performer', 'get_performers' );
 
     # ParameterValues
     my @pvals = map { [ sort { $a->get_parameter() cmp $b->get_parameter() }
-                               $_->get_parameterValues() ] } @{ $objs };
+                               $_->get_parameterValues() ] if defined $_ } @{ $objs };
 
     while ( $self->_remaining_elements( \@pvals ) ) {
         my ( $slice, $param ) =
             $self->_next_slice( \@pvals, sub { $_[0]->get_parameter()->get_name() } );
 
-        # At the moment the model only supports Measurement here; in
-        # future this may need to be modified to support
-        # ControlledTerm also FIXME.
-        $self->_process_measurements( $slice, "Parameter Value [$param]" );
-
-        # ParameterValue Comments
-        $self->_process_objects( $slice );
+        $self->_process_parametervalues( $slice, $param );
     }
+}
+
+sub _process_parametervalues {
+
+    my ( $self, $objs, $param ) = @_;
+
+    # At the moment the model only supports Measurement here; in
+    # future this may need to be modified to support
+    # ControlledTerm also FIXME.
+    my @meas = map { $_ ? $_->get_measurement() : undef } @{ $objs };
+    $self->_process_measurements( \@meas, "Parameter Value [$param]" );
+
+    # ParameterValue Comments
+    $self->_process_objects( $objs );
 }
 
 sub _process_factorvalues {

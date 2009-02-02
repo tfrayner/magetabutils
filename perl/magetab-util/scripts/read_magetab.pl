@@ -29,6 +29,7 @@ use strict;
 use warnings;
 
 use Getopt::Long;
+use File::Path;
 
 use Bio::MAGETAB::Util::Reader;
 use Bio::MAGETAB::Util::Writer::GraphViz;
@@ -41,7 +42,8 @@ my ( $idf,
      $want_help,
      $want_version,
      $graph_file,
-     $dsn );
+     $dsn,
+     $write );
 
 GetOptions(
     "i|idf=s"       => \$idf,
@@ -51,6 +53,7 @@ GetOptions(
     "x|ignore-data" => \$ignore_datafiles,
     "g|graph=s"     => \$graph_file,
     "d|dsn=s"       => \$dsn,
+    "w|write=s"     => \$write,
     "h|help"        => \$want_help,
     "v|version"     => \$want_version,
 );
@@ -69,6 +72,8 @@ if ( $want_help || ! ($idf && -r $idf) ) {
     -a :   Use the specified authority string.
     -g :   Filename to use for SDRF graph output using GraphViz.
     -d :   DSN, or SQLite database file to load the generated objects into.
+    -w :   Attempt to round-trip the MAGE-TAB information by writing a new document
+               to the specified directory.
 
     -v :   Print version information.
     -h :   Print this help.
@@ -141,4 +146,18 @@ if ( $graph_file ) {
     my $g = $writer->draw();
 
     print $fh $g->as_png();
+}
+
+if ( $write ) {
+
+    require Bio::MAGETAB::Util::Writer;
+
+    mkpath( $write );
+    chdir( $write );
+
+    my $writer = Bio::MAGETAB::Util::Writer->new({
+        magetab => $magetab,
+    });
+ 
+    $writer->write();
 }
