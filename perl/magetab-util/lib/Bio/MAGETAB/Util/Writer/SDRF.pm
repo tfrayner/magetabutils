@@ -622,7 +622,7 @@ sub _process_protocolapps {
     my ( $self, $objs ) = @_;
 
     # FIXME namespace/authority may also be needed here.
-    $self->add_single_column( $objs,
+    $self->_add_single_column( $objs,
                               'Protocol REF',
                               sub { $_[0]->get_protocol()->get_name() } );
 

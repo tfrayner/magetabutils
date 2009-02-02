@@ -37,10 +37,10 @@ sub write {
     my ( $self ) = @_;
 
     my $magetab = $self->get_magetab();
-    foreach my $investigation ( $self->get_investigations() ) {
+    foreach my $investigation ( $magetab->get_investigations() ) {
         my $filename = $self->_sanitize_path( $investigation->get_title() );
 
-        open( my $fh, '>', $filename )
+        open( my $fh, '>', "$filename.idf" )
             or croak("Error: Unable to open IDF output file: $!");
 
         my $writer = Bio::MAGETAB::Util::Writer::IDF->new(
@@ -50,14 +50,14 @@ sub write {
 
         $writer->write();
     }
-    foreach my $array ( $self->get_arrayDesigns() ) {
+    foreach my $array ( $magetab->get_arrayDesigns() ) {
         my $filename;
-        if ( my $uri = $array->uri() ) {
+        if ( my $uri = $array->get_uri() ) {
             my $path = $uri->path();
             ( $filename ) = ( $path =~ m/([^\/]+) \z/xms );
         }
         unless ( $filename ) {
-            $filename = $self->_sanitize_path( $array->name() );
+            $filename = $self->_sanitize_path( $array->get_name() ) . '.adf';
         }
 
         open( my $fh, '>', $filename )
@@ -69,8 +69,8 @@ sub write {
 
         $writer->write();
     }
-    foreach my $sdrf ( $self->get_sdrfs() ) {
-        my $path = $sdrf->uri()->path();
+    foreach my $sdrf ( $magetab->get_sdrfs() ) {
+        my $path = $sdrf->get_uri()->path();
         my ( $filename ) = ( $path =~ m/([^\/]+) \z/xms );
         
         open( my $fh, '>', $filename )

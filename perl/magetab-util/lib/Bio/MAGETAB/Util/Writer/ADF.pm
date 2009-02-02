@@ -61,11 +61,14 @@ sub _write_header {
 
     # Elements pointing to objects need a bit more work.
     my %multi = (
-        'termSources' => [
-            sub { return ( [ 'Term Source Name',       map { $_->get_name()    } @_ ] ) },
-            sub { return ( [ 'Term Source Version',    map { $_->get_version() } @_ ] ) },
-            sub { return ( [ 'Term Source File',       map { $_->get_uri()     } @_ ] ) },
-        ],
+
+        # FIXME these are store in Investigation, so not too sure how
+        # we can reliable retrieve them here.
+#        'termSources' => [
+#            sub { return ( [ 'Term Source Name',       map { $_->get_name()    } @_ ] ) },
+#            sub { return ( [ 'Term Source Version',    map { $_->get_version() } @_ ] ) },
+#            sub { return ( [ 'Term Source File',       map { $_->get_uri()     } @_ ] ) },
+#        ],
         'technologyType' => [
             sub { return ( [ 'Technology Type',
                              map { $_->get_value()     } @_ ] ) },
@@ -102,9 +105,11 @@ sub _write_header {
 
     # All the complicated stuff gets handled by the dispatch methods
     # in %multi.
+    ATTR:
     while ( my ( $field, $subs ) = each %multi ) {
         my $getter = "get_$field";
         my @attrs = $array->$getter;
+        next ATTR if ( scalar @attrs == 1 && ! defined $attrs[0] );
         foreach my $sub ( @$subs ) {
             foreach my $lineref ( $sub->( @attrs ) ) {
                 $self->_write_line( @{ $lineref } );
@@ -341,7 +346,7 @@ sub _must_generate_mapping {
 
         REPORTER:
         foreach my $rep ( @reporters ) {
-            if ( scalar $rep->get_compositeElements() > 1 ) {
+            if ( scalar @{ [ $rep->get_compositeElements() ] } > 1 ) {
                 $self->set_cached_mapping_flag(1);
                 last REPORTER;
             }

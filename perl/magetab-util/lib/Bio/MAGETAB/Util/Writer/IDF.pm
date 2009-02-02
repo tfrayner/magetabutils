@@ -68,10 +68,10 @@ sub _collapse_contacts {
         }
 
         # Warn where the model isn't quite in line with the spec.
-        if ( scalar grep { defined $_ } values %ts_test > 1 ) {
+        if ( ( scalar grep { defined $_ } values %ts_test ) > 1 ) {
             carp("Warning: Multiple Role Term Sources (unsupported by MAGE-TAB format).");
         }
-        if ( scalar grep { defined $_ } values %acc_test > 1 ) {
+        if ( ( scalar grep { defined $_ } values %acc_test ) > 1 ) {
             carp("Warning: Multiple Role Term Accessions (unsupported by MAGE-TAB format).");
         }
 
@@ -145,7 +145,7 @@ sub write {
             sub { return ( [ 'Person First Name',    map { $_->get_firstName()    } @_ ] ) },
             sub { return ( [ 'Person Mid Initials',  map { $_->get_midInitials()  } @_ ] ) },
             sub { return ( [ 'Person Email',         map { $_->get_email()        } @_ ] ) },
-            sub { return ( [ 'Person Affiliation',   map { $_->get_affiliation()  } @_ ] ) },
+            sub { return ( [ 'Person Affiliation',   map { $_->get_organization() } @_ ] ) },
             sub { return ( [ 'Person Phone',         map { $_->get_phone()        } @_ ] ) },
             sub { return ( [ 'Person Fax',           map { $_->get_fax()          } @_ ] ) },
             sub { return ( [ 'Person Address',       map { $_->get_address()      } @_ ] ) },
@@ -232,7 +232,7 @@ sub write {
     # need.
     my @objcounts = map {
         my $getter = "get_$_";
-        scalar $inv->$getter;
+        scalar @{ [ $inv->$getter ] };
     } keys %multi;
     $self->set_num_columns( 1 + max @objcounts );
 
@@ -244,12 +244,14 @@ sub write {
 
     # All the complicated stuff gets handled by the dispatch methods
     # in %multi.
+    ATTR:
     while ( my ( $field, $subs ) = each %multi ) {
         my $getter = "get_$field";
         my @attrs = $inv->$getter;
+        next ATTR if ( scalar @attrs == 1 && ! defined $attrs[0] );
         foreach my $sub ( @$subs ) {
             foreach my $lineref ( $sub->( @attrs ) ) {
-                $self->_write_line( @{ $lineref } );
+                $self->_write_line( @{ $lineref } ) if ( ref $lineref eq 'ARRAY' );
             }
         }
     }
