@@ -23,12 +23,23 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
+use List::Util qw( sum );
 
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
 has 'magetab_object'     => ( is         => 'ro',
                               isa        => 'Bio::MAGETAB::SDRF',
                               required   => 1 );
+
+has '_table'             => ( is         => 'rw',
+                              isa        => 'ArrayRef[ArrayRef]',
+                              required   => 1,
+                              default    => sub { [[]] }, );
+
+has '_header'            => ( is         => 'rw',
+                              isa        => 'ArrayRef',
+                              required   => 1,
+                              default    => sub { [] }, );
 
 sub _reassign_typed_layers {
 
@@ -134,53 +145,6 @@ sub _assign_layers {
     return $self->_reassign_typed_layers( \@layers, \%is_assigned );
 }
 
-sub _nodelists_from_rows {
-
-    my ( $self, $rows ) = @_;
-
-    # Return the node lists in the same order as the rows were passed.
-    my @lists;
-    foreach my $row ( @{ $rows }  ) {
-        my @nodes = $row->get_nodes();
-
-        # Quick and dirty way to get the starting node.
-        my @input_nodes = grep { ! $_->has_inputEdges() } @nodes;
-        my $num_inputs  = scalar @input_nodes;
-        unless ( $num_inputs == 1 ) {
-            croak("Error: Cannot identify a single starting node; "
-                      . "SDRFRow has $num_inputs starting nodes.");
-        }
-        my $current = $input_nodes[0];
-
-        # Add all the nodes in the SDRFRow, in order, by following the
-        # node-edge graph.
-        my @ordered_nodes;
-        my %in_this_row = map { $_ => 1 } @nodes;
-        while ( $current->has_outputEdges() ) {
-            EDGE:
-            foreach my $edge ( $current->get_outputEdges() ) {
-                my $next = $edge->get_outputNode()
-                    or croak("Error: Edge without an output node (this really shouldn't happen).");
-                if ( $in_this_row{ $next } ) {
-                    push @ordered_nodes, $current;
-                    $current = $next;
-
-                    # This assumes that no branching occurs within the
-                    # SDRFRow; but then it shouldn't anyway.
-                    last EDGE;
-                }
-            }
-        }
-
-        # This is now the last node.
-        push @ordered_nodes, $current;
-
-        # Store the row nodes in the return array.
-        push @lists, \@ordered_nodes;
-    }
-
-    return \@lists;
-}
 ##################################################################################################
 sub _expand_layer {
 
@@ -218,40 +182,6 @@ sub _output_from_objects {
     # FIXME interrogate the results. Make ragged lists regular, prune
     # lists to remove columns with no contents for any of the objects,
     # etc. etc.
-}
-
-sub _process_object {
-
-    my ( $self, $object, $parent ) = @_;
-
-    # Comments are so often used in the model that we just duck-type
-    # to get at them.
-    my $comment_headings = [];
-    my $comment_values   = [];
-    if ( UNIVERSAL::can( $object, 'get_comments' ) ) {
-
-        # FIXME consider excluding ArrayDesign from this, as its
-        # comments will typically be in the ADF anyway.
-        my ( $comment_headings, $comment_values )
-            = $self->_process_comments( $object->get_comments() );
-    }
-
-    # I imagine this will be controversial.
-    my $namespace = join( ':', $object->get_namespace(), $object->get_authority() );
-
-    return ( $comment_headings, $comment_values, $namespace );
-}
-
-sub _process_comments {
-
-    my ( $self, @comments ) = @_;
-
-    my (@headings, @values);
-    foreach my $comm ( @comments ) {
-        push @headings, sprintf("Comment [%s]", $comm->name());
-        push @values,   $comm->value();
-    }
-    return( \@headings, \@values );
 }
 
 sub _process_measurement {
@@ -416,6 +346,8 @@ sub _process_array_design {
         push @colvalues, $arraydesign->get_uri();
     }
     else {
+
+        # FIXME REF columns may need a namespace:authority tag?
         push @colnames,  'Array Design REF';
         push @colvalues, $arraydesign->get_name();
     }
@@ -518,87 +450,6 @@ sub _process_datamatrix {
     return $self->_process_data( $obj, $colname );
 }
 
-sub _process_provider {
-
-    my ( $self, $prov, $parent ) = @_;
-
-    return( [ 'Provider' ], [ $prov ] );
-}
-
-sub _process_material {
-
-    my ( $self, $obj, $namecol ) = @_;
-
-    my @colnames  = $namecol;
-    my @colvalues = $obj->get_name();
-
-    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
-    push @colnames,  @{ $commentcols }, 'Description';
-    push @colvalues, @{ $commentvals }, $obj->get_description();
-
-    my ( $typecols, $typevals ) = $self->_process_controlled_term( $obj->get_type(), $obj );
-    push @colnames,  @{ $typecols };
-    push @colvalues, @{ $typevals };
-
-    foreach my $char ( $obj->get_characteristics() ) {
-        my ( $charcols, $charvals ) = $self->_process_controlled_term( $char, $obj );
-        push @colnames,  @{ $charcols };
-        push @colvalues, @{ $charvals };
-    }
-
-    foreach my $meas ( $obj->get_measurements() ) {
-        my ( $meascols, $measvals ) = $self->_process_measurement( $meas, $obj );
-        push @colnames,  @{ $meascols };
-        push @colvalues, @{ $measvals };
-    }
-
-    return ( \@colnames, \@colvalues );
-}
-
-sub _process_source {
-
-    my ( $self, $obj ) = @_;
-
-    my ( $colnames, $colvalues ) = $self->_process_material( $obj, 'Source Name' );
-
-    my ( $provcols, $provvals ) = $self->_process_provider( $obj->get_providers(), $obj );
-
-    push @{ $colnames },  @{ $provcols };
-    push @{ $colvalues }, @{ $provvals };
-
-    return( $colnames, $colvalues );
-}
-
-sub _process_sample {
-
-    my ( $self, $obj ) = @_;
-
-    return $self->_process_material( $obj, 'Sample Name' );
-}
-
-sub _process_extract {
-
-    my ( $self, $obj ) = @_;
-
-    return $self->_process_material( $obj, 'Extract Name' );
-}
-
-sub _process_labeled_extract {
-
-    my ( $self, $obj ) = @_;
-
-    my ( $colnames, $colvalues ) = $self->_process_material( $obj, 'Labeled Extract Name' );
-
-    if ( my $label = $obj->get_label() ) {
-        my ( $labcols, $labvals ) = $self->_process_controlled_term( $label, $obj );
-
-        push @{ $colnames },  @{ $labcols };
-        push @{ $colvalues }, @{ $labvals };
-    }
-
-    return( $colnames, $colvalues );
-}
-
 sub _columns_from_object {
 
     my ( $self, $object, $parent ) = @_;
@@ -619,28 +470,6 @@ sub _columns_from_object {
 
     # FIXME don't forget we have to decide how to process namespace,
     # authority in here somewhere as well.
-
-    # I think we're just processing Node objects here now.
-    my %dispatch = (
-
-        # Materials
-        'Source'              => sub { $self->_process_source( @_ )          },
-        'Sample'              => sub { $self->_process_sample( @_ )          },
-        'Extract'             => sub { $self->_process_extract( @_ )         },
-        'LabeledExtract'      => sub { $self->_process_labeled_extract( @_ ) },
-
-        # Events
-        'Assay'               => sub { $self->_process_assay( @_ )           },
-        'DataAcquisition'     => sub { $self->_process_scan( @_ )            },
-        'Normalization'       => sub { $self->_process_normalization( @_ )   },
-
-        # Data
-        'DataFile'            => sub { $self->_process_datafile( @_ )        },
-        'DataMatrix'          => sub { $self->_process_datamatrix( @_ )      },
-
-#        'ProtocolApplication' => sub { 'Protocol REF' },
-#        'FactorValue' => whatever.
-    );
 
     my $col_sub;
     unless ( $col_sub = $dispatch{ $class } ) {
@@ -671,7 +500,7 @@ sub write {
     # rows.
     my $sdrf       = $self->get_magetab_object();
     my @rows       = $sdrf->get_sdrfRows();
-    my $node_lists = $self->_nodelists_from_rows( \@rows );
+    my $node_lists = $self->_nodes_and_edges_from_rows( \@rows );
     my $layers     = $self->_assign_layers( $node_lists );
 
     # Generate the layer fragments to print out.
@@ -697,6 +526,338 @@ sub write {
 
     return;
 }
+
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+
+sub blah {
+
+    my ( $self, $node_lists ) = @_;
+
+    # Quick Schwarzian transform to list the rows in order, longest
+    # first.
+    my @sorted_lists = map { $_->[1] }
+                       reverse sort { $a->[0] <=> $b->[0] }
+                       map { [ scalar @{ $_ }, $_ ] } @{ $node_lists };
+
+    # Initialise our internal structures.
+    $self->set__header( [] );
+    $self->set__table( [ map { [] } 1 .. scalar @sorted_lists ] );
+
+    # I think we're just processing Node, Edge and FactorValue objects here now.
+    my %dispatch = (
+
+        # Materials
+        'Source'              => sub { $self->_process_sources( @_ )          },
+        'Sample'              => sub { $self->_process_samples( @_ )          },
+        'Extract'             => sub { $self->_process_extracts( @_ )         },
+        'LabeledExtract'      => sub { $self->_process_labeled_extracts( @_ ) },
+
+        # Events
+        'Assay'               => sub { $self->_process_assays( @_ )           },
+        'DataAcquisition'     => sub { $self->_process_scans( @_ )            },
+        'Normalization'       => sub { $self->_process_normalizations( @_ )   },
+
+        # Data
+        'DataFile'            => sub { $self->_process_datafiles( @_ )        },
+        'DataMatrix'          => sub { $self->_process_datamatrixs( @_ )      },
+
+#        'ProtocolApplication' => sub { 'Protocol REF' },
+#        'FactorValue' => whatever.
+    );
+
+    while ( $self->remaining_elements( \@sorted_lists ) ) {
+
+        my @firstnodes = map { $_->[0] } @sorted_lists;
+
+        my $wanted = $self->best_nodetype( \@firstnodes );
+
+        my @processing = map { ref $_->[0] eq $wanted ? shift @{$_} : undef }
+                             @sorted_lists;
+
+        $wanted =~ s/\A Bio::MAGETAB:: //xms;
+
+        $dispatch{ $wanted }->( \@processing );  # FIXME better error handling!
+    }
+
+    return ( $self->get__table(), $self->get__header() );
+    # FIXME add factor values.
+}
+
+sub remaining_elements {
+
+    my ( $self, $AoA ) = @_;
+
+    return sum map { scalar grep { defined $_ } @{ $_ } } @{ $AoA };
+}
+
+sub best_nodetype {
+
+    my ( $self, $nodes ) = @_;
+
+    # Handle either objects or strings.
+    my @terms;
+    if ( ref $nodes->[0] ) {   # assume first node is representative.
+        @terms = map { ref $_ } @{ $nodes };
+    }
+    else {
+        @terms = @{ $nodes };
+    }
+
+    # FIXME this needs to be *much* more sophisticated; voting and
+    # potentially some deep introspection needed.
+    return $terms[0];
+}
+
+sub _nodes_and_edges_from_rows {
+
+    my ( $self, $rows ) = @_;
+
+    # Return the node lists in the same order as the rows were passed.
+    my @lists;
+    foreach my $row ( @{ $rows }  ) {
+        my @nodes = $row->get_nodes();
+
+        # Quick and dirty way to get the starting node.
+        my @input_nodes = grep { ! $_->has_inputEdges() } @nodes;
+        my $num_inputs  = scalar @input_nodes;
+        unless ( $num_inputs == 1 ) {
+            croak("Error: Cannot identify a single starting node; "
+                      . "SDRFRow has $num_inputs starting nodes.");
+        }
+        my $current = $input_nodes[0];
+
+        # Add all the nodes in the SDRFRow, in order, by following the
+        # node-edge graph.
+        my @ordered_nodes;
+        my %in_this_row = map { $_ => 1 } @nodes;
+        while ( $current->has_outputEdges() ) {
+            EDGE:
+            foreach my $edge ( $current->get_outputEdges() ) {
+                my $next = $edge->get_outputNode()
+                    or croak("Error: Edge without an output node (this really shouldn't happen).");
+                if ( $in_this_row{ $next } ) {
+                    push @ordered_nodes, $current, $edge;
+                    $current = $next;
+
+                    # This assumes that no branching occurs within the
+                    # SDRFRow; but then it shouldn't anyway.
+                    last EDGE;
+                }
+            }
+        }
+
+        # This is now the last node.
+        push @ordered_nodes, $current;
+
+        # Add the FactorValues (sorted)
+        my @fvs = sort { $a->get_factor()->get_name() cmp $b->get_factor()->get_name() }
+                        $row->get_factorValues()
+        push @ordered_nodes, @fvs;
+
+        # Store the row nodes in the return array.
+        push @lists, \@ordered_nodes;
+    }
+
+    return \@lists;
+}
+
+sub _add_single_column {
+
+    my ( $self, $objs, $colname, $coderef ) = @_;
+
+    my $header = $self->get__header();
+    push @{ $header }, $colname;
+    $self->set__header( $header );    # unnecessary?
+
+    my $table  = $self->get__table();
+    OBJ:
+    for ( my $i = 0; $i < scalar @{ $objs }; $i++ ) {
+        my $obj = $objs->[ $i ];
+        unless ( $obj ) {
+            push @{ $table->[ $i ] }, undef;
+            next OBJ;
+        }
+        push @{ $table->[ $i ] }, $coderef->($obj);
+    }
+    $self->set__table( $table );    #unnecessary?
+}    
+
+sub _process_sources {
+
+    my ( $self, $objs ) = @_;
+
+    # Add our main node name column.
+    $self->_add_single_column( $objs,
+                               'Source Name',
+                               sub { $_[0]->get_name() }, );
+
+    # FIXME check if multiple Providers columns are allowed in the
+    # format, and if not concatenate with semicolons.
+    if ( my $num = scalar grep { $_->has_providers() } @{ $objs } ) {
+
+        # Create as many Provider columns as are needed to cover all
+        # the node providers.
+        my $header = $self->get__header();
+        push @{ $header }, ('Provider') x $num;
+        $self->set__header( $header );
+
+        my $table = $self->get__table();
+        OBJ:
+        for ( my $i = 0; $i < scalar @{ $objs }; $i++ ) {
+            my $obj = $objs->[ $i ];
+            unless ( $obj ) {
+                push @{ $table->[ $i ] }, (undef) x $num;
+                next OBJ;
+            }
+            my @providers = $obj->get_providers();
+            push @{ $table->[ $i ] },
+                map { my $p = shift @providers;
+                      $p ? sprintf("%s %s", $p->firstName(), $p->lastName())
+                         : undef }
+                              1 .. $num;
+        }
+        $self->set__table( $table );
+    }
+
+    # Hand the objects on to the next class processor in the
+    # heirarchy.
+    $self->_process_materials( $objs );
+}
+
+sub _process_samples {
+
+    my ( $self, $objs ) = @_;
+
+    # Add our main node name column.
+    $self->_add_single_column( $objs,
+                               'Sample Name',
+                               sub { $_[0]->get_name() }, );
+
+    # Hand the objects on to the next class processor in the
+    # heirarchy.
+    $self->_process_materials( $objs );
+}
+
+sub _process_extracts {
+
+    my ( $self, $objs ) = @_;
+
+    # Add our main node name column.
+    $self->_add_single_column( $objs,
+                               'Extract Name',
+                               sub { $_[0]->get_name() }, );
+
+    # Hand the objects on to the next class processor in the
+    # heirarchy.
+    $self->_process_materials( $objs );
+}
+
+sub _process_controlled_terms {
+
+    my ( $self, $objs, $colname ) = @_;
+
+    $self->_add_single_column( $objs,
+                               $colname,
+                               sub { $_[0]->get_value() }, );
+
+    if ( scalar grep { defined $_->get_termSource() } @{ $objs } ) {
+        $self->_process_dbentries( $objs );
+    }
+}
+
+sub _process_dbentries {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_add_single_column( $objs,
+                               'Term Source REF',
+                               sub { $_[0]->get_termSource()->get_name() }, );
+
+    if ( scalar grep { defined $_->get_accession() } @{ $objs } ) {
+        $self->_add_single_column( $objs,
+                                   'Term Accession Number',
+                                   sub { $_[0]->get_accession() }, );
+    }
+}
+
+sub _process_labeled_extracts {
+
+    my ( $self, $objs ) = @_;
+
+    # Add our main node name column.
+    $self->_add_single_column( $objs,
+                               'Labeled Extract Name',
+                               sub { $_[0]->get_name() }, );
+
+    if ( scalar grep { defined $_->get_label() } @{ $objs } ) {
+        my @labels = map { $_ ? $_->get_label() : undef } @{ $objs };
+        $self->_process_controlled_terms( \@labels, 'Label' );
+    }
+
+    # Hand the objects on to the next class processor in the
+    # heirarchy.
+    $self->_process_materials( $objs );
+}
+
+sub _process_materials {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_process_objects( $objs );
+
+    if ( scalar grep { defined $_->get_description() } @{ $objs } ) {
+        $self->_add_single_column( $objs,
+                                   'Description',
+                                   sub { $_[0]->get_description() }, );
+    }
+
+    if ( scalar grep { defined $_->get_type() } @{ $objs } ) {
+        my @types = map { $_ ? $_->get_type() : undef } @{ $objs };
+        $self->_process_controlled_terms( \@types, 'Material Type' );
+    }
+
+    # FIXME not part of the New Way just yet...
+    foreach my $char ( $obj->get_characteristics() ) {
+        my ( $charcols, $charvals ) = $self->_process_controlled_term( $char, $obj );
+        push @colnames,  @{ $charcols };
+        push @colvalues, @{ $charvals };
+    }
+
+    foreach my $meas ( $obj->get_measurements() ) {
+        my ( $meascols, $measvals ) = $self->_process_measurement( $meas, $obj );
+        push @colnames,  @{ $meascols };
+        push @colvalues, @{ $measvals };
+    }
+
+    return ( \@colnames, \@colvalues );
+}
+
+sub _process_objects {
+# FIXME not done yet
+    my ( $self, $objs ) = @_;
+
+    # Comments are so often used in the model that we just duck-type
+    # to get at them.
+    if ( UNIVERSAL::can( $object, 'get_comments' ) ) {
+
+        # FIXME consider excluding ArrayDesign from this, as its
+        # comments will typically be in the ADF anyway.
+#        my ( $comment_headings, $comment_values )
+#            = $self->_process_comments( $object->get_comments() );
+    }
+}
+
+sub _process_comments {
+
+    my ( $self, $objs, $colname ) = @_;
+
+    $self->_add_single_column( $objs,
+                               sprintf('Comment [%s]', $colname),
+                               sub { $_[0]->get_name() }, );
+}
+
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.
