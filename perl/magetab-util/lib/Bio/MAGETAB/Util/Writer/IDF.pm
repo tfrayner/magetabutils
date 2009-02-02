@@ -133,7 +133,7 @@ sub write {
     my %single = (
         'Investigation Title'    => 'title',
         'Experiment Description' => 'description',
-        'Experiment Date'        => 'date',
+        'Date of Experiment'     => 'date',
         'Public Release Date'    => 'publicReleaseDate',
     );
 

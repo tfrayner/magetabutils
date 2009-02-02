@@ -271,6 +271,10 @@ sub _process_sources {
 
     # Providers
     $self->_process_obj_contacts( $objs, 'Provider', 'get_providers' );
+
+    # Hand the objects on to the next class processor in the
+    # heirarchy.
+    $self->_process_materials( $objs );
 }
 
 sub _process_obj_contacts {
@@ -495,23 +499,38 @@ sub _process_assays {
 
     my ( $self, $objs ) = @_;
 
-    $self->_add_single_column( $objs,
-                               'Assay Name',
-                               sub { $_[0]->get_name() }, );
+    # Again, the first defined assay makes our choice between Hyb and
+    # Assay; this is not good FIXME.
+    my @defined = grep { defined $_ } @{ $objs };
+    my $type = $defined[0]->get_technologyType();
+    if ( $type->get_value() =~ /\b hybridi[sz]ation \b/xms ) {
+        $self->_add_single_column( $objs,
+                                   'Hybridization Name',
+                                   sub { $_[0]->get_name() }, );
 
-    # Comments
-    $self->_process_objects( $objs );
+        # Comments
+        $self->_process_objects( $objs );
 
-    # Technology Type
-    my @types = map { $_ ? $_->get_technologyType() : undef } @{ $objs };
-    if ( scalar grep { defined $_ } @types ) {
-        $self->_process_controlled_terms( \@types, 'Technology Type' );
+        # Array Design
+        my @arrays = map { $_ ? $_->get_arrayDesign() : undef } @{ $objs };
+        if ( scalar grep { defined $_ } @arrays ) {
+            $self->_process_array_designs( \@arrays );
+        }
     }
+    else {
+        $self->_add_single_column( $objs,
+                                   'Assay Name',
+                                   sub { $_[0]->get_name() }, );
 
-    # Array Design
-    my @arrays = map { $_ ? $_->get_arrayDesign() : undef } @{ $objs };
-    if ( scalar grep { defined $_ } @arrays ) {
-        $self->_process_array_designs( \@arrays );
+        # Comments
+        $self->_process_objects( $objs );
+
+        # Technology Type (N.B. Hybs could have this as well, although
+        # it's a bit redundant).
+        my @types = map { $_ ? $_->get_technologyType() : undef } @{ $objs };
+        if ( scalar grep { defined $_ } @types ) {
+            $self->_process_controlled_terms( \@types, 'Technology Type' );
+        }
     }
 }
 
