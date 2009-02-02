@@ -41,138 +41,6 @@ has '_header'            => ( is         => 'rw',
                               required   => 1,
                               default    => sub { [] }, );
 
-sub _reassign_typed_layers {
-
-    my ( $self, $layers, $is_assigned ) = @_;
-
-    # We now check the types of all the columns in the various layers,
-    # and reassign between layers where necessary/possible.
-    for ( my $layernum = 0; $layernum < scalar @{ $layers }; $layernum++ ) {
-
-        my $layer = $layers->[$layernum] ||= [];
-        my $layertype;
-
-        NODE:
-        for ( my $rownum = 0; $rownum < scalar @{ $layer }; $rownum++ ) {
-
-            my $node = $layer->[$rownum];
-
-            # Gaps are allowed in this matrix.
-            next NODE unless defined $node;
-
-            my $type = blessed $node;
-
-            # First node determines the layer type. Might be better to
-            # put it to a vote FIXME.
-            $layertype ||= $type;
-            unless ( $layertype eq $type ) {
-
-                # Cache the rest of the row.
-                my @subsequent = map { $_->[ $rownum ] } @{ $layers }[ $layernum .. $#{ $layers } ];
-
-                # Delete the node from the current layer.
-                undef($layer->[$rownum]);
-
-                # Reassign numbers, starting with the next
-                # layer. FIXME at the moment all this does is
-                # right-shift the rest of the current row, and
-                # subsequent layers are then checked and reshifted as
-                # necessary. It would be nice if we could be a bit
-                # more intelligent about this.
-                for ( my $outputnum = $layernum + 1; $outputnum <= scalar @{ $layers }; $outputnum++ ) {
-
-                    my $node = shift @subsequent;
-
-                    # A hole in the matrix gives us an opportunity to
-                    # skip to the next node in the original layer
-                    # (next row down). Hopefully this will help
-                    # prevent creating too many unnecessary layers.
-                    next NODE unless defined $node;
-
-                    my $outputlayer = $layers->[$outputnum] ||= [];
-
-                    # Move the node from the previous layer into this one.
-                    $outputlayer->[ $rownum ] = $node;
-
-                    # This may not be necessary, but if we ever want
-                    # to re-use %is_assigned we'll need this.
-                    $is_assigned->{ $node } = $outputnum;
-                }
-            }
-        }
-    }
-
-    return $layers;
-}
-
-sub _assign_layers {
-
-    my ( $self, $node_lists ) = @_;
-
-    # Quick Schwarzian transform to list the rows in order, longest first.
-    my @sorted_lists = map { $_->[1] }
-                       reverse sort { $a->[0] <=> $b->[0] }
-                       map { [ scalar @{ $_ }, $_ ] } @{ $node_lists };
-
-    # Track layer assignments.
-    my %is_assigned;
-
-    # Reassign layers.
-    my @layers;
-    my $rownum = 0;
-    foreach my $list ( @sorted_lists ) {
-        my $index = 0;
-        foreach my $node ( @{ $list } ) {
-
-            # We must in theory check ALL input node layer values for
-            # a given unassigned node, and select the
-            # maximum. However, I think this works, but only because
-            # we're dealing with the longest SDRFRow first.
-            my $oldlayer = $is_assigned{ $node };
-            if ( defined $oldlayer ) {
-                $index = $oldlayer;
-                $layers[ $index ][ $rownum ] = $node;
-            }
-            else {
-                $layers[ $index ][ $rownum ] = $node;
-                $is_assigned{ $node } = $index;
-            }
-            $index++;
-        }
-        $rownum++;
-    }
-
-    return $self->_reassign_typed_layers( \@layers, \%is_assigned );
-}
-
-##################################################################################################
-sub _output_from_objects {
-
-    my ( $self, $objects ) = @_;
-
-    # All the objects passed in must be of the same type.
-    my %check = map { blessed($_) => 1 } @{ $objects };
-    unless ( ( scalar grep { defined $_ } values %check ) == 1 ) {
-        croak("Error: Multiple object types in layer.");
-    }
-
-    my ( @values, @headings );
-    foreach my $object ( @{ $objects } ) {
-        my ( $obj_vals, $obj_headings ) = $self->_columns_from_object( $object );
-        push @values, $obj_vals;
-        push @headings, $obj_headings;
-    }
-
-    # FIXME interrogate the results. Make ragged lists regular, prune
-    # lists to remove columns with no contents for any of the objects,
-    # etc. etc.
-}
-
-###################################################################################################
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-
 sub write {
 
     my ( $self ) = @_;
@@ -182,7 +50,6 @@ sub write {
     my $sdrf       = $self->get_magetab_object();
     my @rows       = $sdrf->get_sdrfRows();
     my $node_lists = $self->_nodes_and_edges_from_rows( \@rows );
-#    my $layers     = $self->_assign_layers( $node_lists );
 
     # Generate the layer fragments to print out.
     my ( $table, $header ) = $self->_construct_lines( $node_lists );
@@ -238,7 +105,19 @@ sub _construct_lines {
 
     while ( $self->_remaining_elements( \@sorted_lists ) ) {
 
-        my ( $slice, $wanted ) = $self->_next_slice( \@sorted_lists, sub { ref $_[0] } );
+        my ( $slice, $wanted ) = $self->_next_slice(
+            \@sorted_lists,
+            sub {
+                my $id = ref $_[0];
+
+                # FactorValues are a special case.
+                if ( $id =~ /::FactorValue \z/xms ) {
+                    $id .= '::' . $_[0]->get_factor()->get_name();
+                }
+
+                return $id;
+            },
+        );
 
         $wanted =~ s/\A Bio::MAGETAB:: //xms;
 
@@ -388,7 +267,15 @@ sub _process_sources {
     # Comments
     $self->_process_objects( $objs );
 
-    # FIXME check if multiple Providers columns are allowed in the
+    # Providers
+    $self->_process_obj_contacts( $objs, 'Provider' );
+}
+
+sub _process_obj_contacts {
+
+    my ( $self, $objs, $colname ) = @_;
+
+    # FIXME check if multiple Providers/Performers columns are allowed in the
     # format, and if not concatenate with semicolons.
     my @providers = map { [ sort { $a->get_lastName() cmp $b->get_lastName() }
                                    $_->get_providers() ] } @{ $objs };
@@ -398,16 +285,16 @@ sub _process_sources {
                                         sub { sprintf( "%s %s",
                                                        $_[0]->get_firstName(),
                                                        $_[0]->get_lastName(),) } );
-        $self->_process_providers( $slice );
+        $self->_process_contacts( $slice, $colname );
     }
 }
 
-sub _process_providers {
+sub _process_contacts {
 
-    my ( $self, $objs ) = @_;
+    my ( $self, $objs, $colname ) = @_;
 
     $self->_add_single_column( $objs,
-                               'Provider',
+                               $colname,
                                sub { sprintf( "%s %s",
                                               $_[0]->get_firstName(),
                                               $_[0]->get_lastName(), ) }, );
@@ -680,8 +567,8 @@ sub _process_datafiles {
 
     my ( $self, $objs ) = @_;
 
-    # FIXME first defined data file determines whether it's image, raw
-    # or derived. This isn't great.
+    # FIXME first defined data file determines whether the column
+    # contains image, raw or derived data. This isn't great.
     my @defined = grep { defined $_ } @{ $objs };
     my $type = $defined[0]->get_dataType()->get_value();
     my $colname = $type eq 'image' ? 'Image File'
@@ -700,8 +587,8 @@ sub _process_datamatrices {
 
     my ( $self, $objs ) = @_;
 
-    # FIXME first defined data file determines whether it's image, raw
-    # or derived. This isn't great.
+    # FIXME first defined data file determines whether the column
+    # contains raw or derived data. This isn't great.
     my @defined = grep { defined $_ } @{ $objs };
     my $type = $defined[0]->get_dataType()->get_value();
     my $colname = $type eq 'raw'   ? 'Array Data Matrix File'
@@ -715,9 +602,85 @@ sub _process_datamatrices {
     $self->_process_objects( $objs );
 }
 
-sub _process_edges {}
+sub _process_edges {
 
-sub _process_factorvalues {}
+    my ( $self, $objs ) = @_;
+
+    # Protocol Applications; we don't sort these because the order is
+    # supposedly already set to indicate chronological order.
+    my @papps = map { [ $_->get_protocolApplications() ] } @{ $objs };
+
+    while ( $self->_remaining_elements( \@papps ) ) {
+        my ( $slice, $pname ) =
+            $self->_next_slice( \@papps, sub { $_[0]->get_protocol()->get_name() } );
+        $self->_process_protocolapps( $slice );
+    }
+}
+
+sub _process_protocolapps {
+
+    my ( $self, $objs ) = @_;
+
+    # FIXME namespace/authority may also be needed here.
+    $self->add_single_column( $objs,
+                              'Protocol REF',
+                              sub { $_[0]->get_protocol()->get_name() } );
+
+    # Comments
+    $self->_process_objects( $objs );
+
+    # Date
+    if ( scalar grep { defined $_->get_date() } @{ $objs } ) {
+        $self->_add_single_column( $objs,
+                                   'Date',
+                                   sub { $_[0]->get_date() }, );
+    }
+
+    # Performers
+    $self->_process_obj_contacts( $objs, 'Performer' );
+
+    # ParameterValues
+    my @pvals = map { [ sort { $a->get_parameter() cmp $b->get_parameter() }
+                               $_->get_parameterValues() ] } @{ $objs };
+
+    while ( $self->_remaining_elements( \@pvals ) ) {
+        my ( $slice, $param ) =
+            $self->_next_slice( \@pvals, sub { $_[0]->get_parameter()->get_name() } );
+
+        # At the moment the model only supports Measurement here; in
+        # future this may need to be modified to support
+        # ControlledTerm also FIXME.
+        $self->_process_measurements( $slice, "Parameter Value [$param]" );
+
+        # ParameterValue Comments
+        $self->_process_objects( $slice );
+    }
+}
+
+sub _process_factorvalues {
+
+    my ( $self, $objs ) = @_;
+
+    # We've previously established that FVs from only one factor are
+    # passed to this method at any given time.
+    my @defined = grep { defined $_ } @{ $objs };
+    my $factor  = $defined[0]->get_factor()->get_name();
+    my $colname = "FactorValue [$factor]";
+
+    # However, we've not established that all FVs are term- or
+    # measurement-based, and yet we make that assumption here FIXME.
+    if ( $defined[0]->has_term() ) {
+        my @terms = map { $_ ? $_->get_term() : undef } @{ $objs };
+        $self->_process_controlled_terms( \@terms, $colname );
+    }
+    elsif ( $defined[0]->has_measurement() ) {
+        my @meas = map { $_ ? $_->get_measurement() : undef } @{ $objs };
+        $self->_process_measurements( \@meas, $colname );
+    }
+    else {
+        croak("Error: FactorValue has no term or measurement.");
+    }
+}
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.
