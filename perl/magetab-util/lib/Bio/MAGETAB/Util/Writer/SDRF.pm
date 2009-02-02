@@ -146,22 +146,6 @@ sub _assign_layers {
 }
 
 ##################################################################################################
-sub _expand_layer {
-
-    my ( $self, $layer ) = @_;
-
-    # Given a layer arrayref, return an arrayref with n+1 arrayref
-    # members (the extra line is the header) containing data ready to
-    # print.
-
-    my @output;
-
-    # FIXME much to do here yet!
-    
-
-    return \@output;
-}
-
 sub _output_from_objects {
 
     my ( $self, $objects ) = @_;
@@ -184,314 +168,11 @@ sub _output_from_objects {
     # etc. etc.
 }
 
-sub _process_measurement {
-
-    my ( $self, $meas, $parent ) = @_;
-
-    my ( @colnames, @colvalues );
-    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $meas );
-    push @colnames,  @{ $commentcols };
-    push @colvalues, @{ $commentvals };
-
-    if ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Material' ) ) {
-        push @colnames, sprintf("Characteristic [%s]", $meas->get_type() );
-    }
-    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::ParameterValue' ) ) {
-        my $param = $parent->get_parameter();
-        push @colnames, sprintf("Parameter Value [%s]", $param->get_name() );
-    }
-    else {
-        croak("Error: Parent object class does not associate with Measurements.");
-    }
-
-    # We support both regular values and min-max ranges. Sort of.
-    my $value = $meas->get_value();
-    my $min   = $meas->get_minValue();
-    my $max   = $meas->get_maxValue();
-    if ( defined $value && ! ( defined $min || defined $max ) ) {
-        push @colvalues, $value;
-    }
-    elsif ( defined $min && defined $max && ! defined $value ) {
-        push @colvalues, sprintf("%s - %s", $min, $max);
-    }
-    else {
-        croak("Error: Ambiguous Measurement - must have either value alone, or both minValue and maxValue.");
-    }
-    
-    # Units
-    if ( my $unit = $meas->get_unit() ) {
-        my ( $unitcols, $unitvals ) = $self->_process_controlled_term( $unit, $meas );
-        push @colnames,  @{ $unitcols };
-        push @colvalues, @{ $unitvals };
-    }
-    
-    return ( \@colnames, \@colvalues );
-}
-
-sub _process_controlled_term {
-
-    my ( $self, $term, $parent ) = @_;
-
-    unless ( UNIVERSAL::isa( $term, 'Bio::MAGETAB::ControlledTerm' ) ) {
-        croak("Error: method requires a ControlledTerm object.");
-    }
-
-    # FIXME this list is probably incomplete. Links the parent class
-    # and term category together to generate a column heading. Beware
-    # inheritance if any of the parent classes are descended from any
-    # of the others.
-    my %dispatch = (
-
-        # Parent class
-        'Bio::MAGETAB::Material' => {
-
-            # Term category;     Column heading.
-            'MaterialType'    => 'Material Type',
-            'LabelCompound'   => 'Label',
-        },
-
-        'Bio::MAGETAB::Assay' => {
-            'TechnologyType'  => 'Technology Type',
-        },
-    );
-
-    my ( @colnames, @colvalues );
-
-    my $column;
-    DISPATCH:
-    foreach my $testclass ( keys %dispatch ) {
-        if ( UNIVERSAL::isa( $parent, $testclass ) ) {
-            $column = $dispatch{ $testclass }{ $term->get_category() };
-            last DISPATCH if ( defined $column );
-        }
-    }
-
-    # Store the main column heading.
-    if ( defined $column ) {
-
-        # Term category is in the dispatch table; we store a
-        # column.
-        push @colnames, $column;
-    }
-    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Material' ) ) {
-
-        # Not in dispatch table, but parent is a Material, implying
-        # the term is a Characteristic.
-        push @colnames, sprintf("Characterististics [%s]", $term->get_category() );
-    }
-    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::Measurement' ) ) {
-
-        # Not in dispatch table, but parent is a Measurement, implying
-        # the term is a Unit.
-        push @colnames, sprintf("Unit [%s]", $term->get_category() );
-    }
-    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::ParameterValue' ) ) {
-
-        # Placeholder; I anticipate that this will change at some
-        # point. Column heading would be "Parameter Value [<name of
-        # Parameter>]" which is easily derived in the current
-        # model. We could fix it now but then we'd be generating SDRFs
-        # we can't actually parse.
-        croak("Error: ParameterValue link to ControlledTerm not supported in MAGE-TAB v1.1");
-    }
-    elsif ( UNIVERSAL::isa( $parent, 'Bio::MAGETAB::DataFile' ) ) {
-
-        # Do nothing. DataFile has DataFormat but this isn't actually
-        # in the SDRF spec. We derive DataFormat from the actual data
-        # files on every parse. We also have DataType but that just
-        # determines raw vs derived and will be handled elsewhere.
-    }
-    else {
-        confess("Probably not implemented yet FIXME.");
-    }
-
-    # Store the main value.
-    push @colvalues, $term->get_value();
-
-    # Now get the Term Source, Term Accession info. We fill these in
-    # empty if they don't exist, and they get pruned out later on.
-    my ( $tscols, $tsvals ) = $self->_process_dbentry( $term );
-    push @colnames,  @$tscols;
-    push @colvalues, @$tsvals;
-
-    return \@colnames, \@colvalues;
-}
-
-sub _process_dbentry {
-
-    my ( $self, $dbentry ) = @_;
-
-    my @colnames = ('Term Source REF', 'Term Accession Number');
-
-    my @colvalues;
-    if ( my $ts = $dbentry->get_termSource() ) {
-        push @colvalues, $ts->get_name(), $dbentry->get_accession();
-    }
-    else {
-
-        # FIXME is it worth printing the accession if there's no term source?
-        push @colvalues, undef, $dbentry->get_accession();
-    }
-
-    return( \@colnames, \@colvalues );
-}
-
-sub _process_array_design {
-
-    my ( $self, $arraydesign ) = @_;
-
-    my ( @colnames, @colvalues );
-    if ( $arraydesign->has_uri() ) {
-        push @colnames,  'Array Design File';
-        push @colvalues, $arraydesign->get_uri();
-    }
-    else {
-
-        # FIXME REF columns may need a namespace:authority tag?
-        push @colnames,  'Array Design REF';
-        push @colvalues, $arraydesign->get_name();
-    }
-
-    # FIXME not sure about comments here (see also _process_object).
-    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $arraydesign );
-
-    # Deal with Term Source, Term Accession...
-    my ( $tsnames, $tsvals ) = $self->_process_dbentry( $arraydesign );
-    push @colnames,  @$commentcols, @$tsnames;
-    push @colvalues, @$commentvals, @$tsvals;
-    
-    return( \@colnames, \@colvalues );
-}
-
-sub _process_event {
-
-    my ( $self, $obj, $colname ) = @_;
-
-    my @colnames  = $colname;
-    my @colvalues = $obj->get_name();
-
-    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
-    push @colnames,  @{ $commentcols };
-    push @colvalues, @{ $commentvals };
-
-    return( \@colnames, \@colvalues );
-}
-
-sub _process_assay {
-
-    my ( $self, $obj ) = @_;
-
-    # Core stuff.
-    my $type    = $obj->get_technologyType();
-    my $namecol = ($type->get_value() =~ /\A hybridization \z/ixms
-                ? 'Hybridization Name'
-                : 'Assay Name');
-    my ( $colnames, $colvalues ) = $self->_process_event( $obj, $namecol );
-
-    # Other attributes.
-    my ( $typecols, $typevals )   = $self->_process_controlled_term( $type, $obj );
-    my ( $arraycols, $arrayvals ) = $self->_process_array_design( $obj->get_ArrayDesign(), $obj );
-
-    # Put it all together in a parsable order.
-    push @{ $colnames },  @{ $typecols }, @{ $arraycols };
-    push @{ $colvalues }, @{ $typevals }, @{ $arrayvals };
-
-    return( $colnames, $colvalues );
-}
-
-sub _process_scan {
-
-    my ( $self, $obj ) = @_;
-
-    return $self->_process_event( $obj, 'Scan Name' );
-}
-
-sub _process_normalization {
-
-    my ( $self, $obj ) = @_;
-
-    return $self->_process_event( $obj, 'Normalization Name' );
-}
-
-sub _process_data {
-
-    my ( $self, $obj, $namecol ) = @_;
-
-    my @colnames  = $namecol;
-    my @colvalues = $obj->get_uri();
-
-    my ( $commentcols, $commentvals, $namespace ) = $self->_process_object( $obj );
-    push @colnames,  @{ $commentcols };
-    push @colvalues, @{ $commentvals };
-
-    return ( \@colnames, \@colvalues );
-}
-
-sub _process_datafile {
-
-    my ( $self, $obj ) = @_;
-
-    my $type    = $obj->get_dataType();
-    my $colname = $type->get_value() eq 'image' ? 'Image File'
-                                      : 'raw'   ? 'Array Data File'
-                                                : 'Derived Array Data File';
-
-    return $self->_process_data( $obj, $colname );
-}
-
-sub _process_datamatrix {
-
-    my ( $self, $obj ) = @_;
-
-    my $type    = $obj->get_dataType();
-    my $colname = $type->get_value() eq 'raw' ? 'Array Data Matrix File'
-                                              : 'Derived Array Data Matrix File';
-
-    return $self->_process_data( $obj, $colname );
-}
-
-sub _columns_from_object {
-
-    my ( $self, $object, $parent ) = @_;
-
-    # This is the main entry point for the Node objects which have
-    # been ordered into layers. This method flattens the objects into
-    # two lists: column headings, and column values. No guarantee is
-    # made that the lists for two objects of the same class will be
-    # the same, however; Material Characteristics spring to mind as a
-    # source of variability.
-
-    unless ( UNIVERSAL::isa( $object, 'Bio::MAGETAB::Node' ) ) {
-        croak("Error: method requires a Node object.");
-    }
-
-    my $class = blessed $object;
-    $class =~ s/\A Bio::MAGETAB:: //xms;
-
-    # FIXME don't forget we have to decide how to process namespace,
-    # authority in here somewhere as well.
-
-    my $col_sub;
-    unless ( $col_sub = $dispatch{ $class } ) {
-        confess(qq{Error: Node class "$class" is not mapped to an action.});
-    }
-
-    # All "_process_*" methods expect to receive both the object, and
-    # its parent where applicable. Obviously for top-level Node
-    # objects the parent isn't really meaningful. FIXME revisit this?
-    my ( $headings, $values ) = $col_sub->( $object, $parent );
-
-    # FIXME look at either inputEdges or outputEdges (but not both;
-    # and check which corresponds to this SDRFRow!). This is going to
-    # be a bit tricky and will probably need upstream code fixes.
-
-    # Also we'll need to look at FactorValues; probably best to dump
-    # them into the layers prior to calling this routine? FIXME
-
-    return ( $headings, $values );
-}
-
 ###################################################################################################
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
+
 sub write {
 
     my ( $self ) = @_;
@@ -501,37 +182,22 @@ sub write {
     my $sdrf       = $self->get_magetab_object();
     my @rows       = $sdrf->get_sdrfRows();
     my $node_lists = $self->_nodes_and_edges_from_rows( \@rows );
-    my $layers     = $self->_assign_layers( $node_lists );
+#    my $layers     = $self->_assign_layers( $node_lists );
 
     # Generate the layer fragments to print out.
-    my @outputs = map { $self->_output_from_objects( $_ ) } @{ $layers };
-
-    # Assume the first layer is representative (as it *should* be).
-    my $num_rows = scalar @{ $outputs[0] };
-
-    # Merge each layer into an array of line arrayrefs. 
-    my @lines;
-    for ( my $i = 0; $i < $num_rows; $i++ ) {
-
-        # FIXME need to handle undef values somewhere.
-        $lines[ $i ] = [ map { @{ $_->[$i] } } @outputs ];
-    }
+    my ( $table, $header ) = $self->_construct_lines( $node_lists );
 
     # Finally, dump everything to the file.
-    my $max_column = max( map { scalar @{ $_ } } @lines );
+    my $max_column = max( map { scalar @{ $_ } } $header, @{ $table } );
     $self->set_num_columns( $max_column );
-    foreach my $line ( @lines ) {
+    foreach my $line ( $header, @{ $table } ) {
         $self->_write_line( $line );
     }
 
     return;
 }
 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
-
-sub blah {
+sub _construct_lines {
 
     my ( $self, $node_lists ) = @_;
 
@@ -552,7 +218,7 @@ sub blah {
         'Source'              => sub { $self->_process_sources( @_ )          },
         'Sample'              => sub { $self->_process_samples( @_ )          },
         'Extract'             => sub { $self->_process_extracts( @_ )         },
-        'LabeledExtract'      => sub { $self->_process_labeled_extracts( @_ ) },
+        'LabeledExtract'      => sub { $self->_process_labeledextracts( @_ )  },
 
         # Events
         'Assay'               => sub { $self->_process_assays( @_ )           },
@@ -561,52 +227,77 @@ sub blah {
 
         # Data
         'DataFile'            => sub { $self->_process_datafiles( @_ )        },
-        'DataMatrix'          => sub { $self->_process_datamatrixs( @_ )      },
+        'DataMatrix'          => sub { $self->_process_datamatrices( @_ )     },
 
-#        'ProtocolApplication' => sub { 'Protocol REF' },
-#        'FactorValue' => whatever.
+        # Edge
+        'Edge'                => sub { $self->_process_edges( @_ )            },
+
+        # FactorValue
+        'FactorValue'         => sub { $self->_process_factorvalues( @_ )     },
     );
 
-    while ( $self->remaining_elements( \@sorted_lists ) ) {
+    while ( $self->_remaining_elements( \@sorted_lists ) ) {
 
-        my @firstnodes = map { $_->[0] } @sorted_lists;
-
-        my $wanted = $self->best_nodetype( \@firstnodes );
-
-        my @processing = map { ref $_->[0] eq $wanted ? shift @{$_} : undef }
-                             @sorted_lists;
+        my ( $slice, $wanted ) = $self->_next_slice( \@sorted_lists, sub { ref $_[0] } );
 
         $wanted =~ s/\A Bio::MAGETAB:: //xms;
 
-        $dispatch{ $wanted }->( \@processing );  # FIXME better error handling!
+        if ( my $sub = $dispatch{ $wanted } ) {
+            $sub->( $slice );
+        }
+        else {
+            confess(qq{Error: Cannot find dispatch method for "$wanted".});
+        }
     }
 
     return ( $self->get__table(), $self->get__header() );
-    # FIXME add factor values.
 }
 
-sub remaining_elements {
+sub _next_slice {
+
+    # Given a list of (sorted) lists, and a code reference which when
+    # passed an object in those lists will return an identifying
+    # string, this method determines which object type is best to
+    # process next, and, where the first element of a given list is of
+    # that type shifts the object into a slice list of objects to be
+    # processed.
+
+    my ( $self, $nodelists, $coderef ) = @_;
+
+    my @firstnodes = map { $_->[0] } @{ $nodelists };
+
+    my $wanted = $self->_best_object_type( \@firstnodes, $coderef );
+
+    my @slice = map { $coderef->( $_->[0] ) eq $wanted ? shift @{$_} : undef }
+                   @{ $nodelists };
+
+    return wantarray ? ( \@slice, $wanted ) : \@slice;
+}
+
+sub _remaining_elements {
 
     my ( $self, $AoA ) = @_;
 
     return sum map { scalar grep { defined $_ } @{ $_ } } @{ $AoA };
 }
 
-sub best_nodetype {
+sub _best_object_type {
 
-    my ( $self, $nodes ) = @_;
-
-    # Handle either objects or strings.
-    my @terms;
-    if ( ref $nodes->[0] ) {   # assume first node is representative.
-        @terms = map { ref $_ } @{ $nodes };
-    }
-    else {
-        @terms = @{ $nodes };
-    }
+    # Given a list of objects and a coderef which can be used to
+    # identify nodes in the list, return the best object type to use
+    # for subsequent processing.
 
     # FIXME this needs to be *much* more sophisticated; voting and
-    # potentially some deep introspection needed.
+    # potentially some deep list introspection needed. Currently we
+    # just return the first identifier term we find.
+
+    my ( $self, $nodes, $coderef ) = @_;
+
+    # Handle either objects or strings.
+    my @terms = map { $coderef->( $_ ) }
+               grep { defined $_ }
+                   @{ $nodes };
+
     return $terms[0];
 }
 
@@ -636,7 +327,8 @@ sub _nodes_and_edges_from_rows {
             EDGE:
             foreach my $edge ( $current->get_outputEdges() ) {
                 my $next = $edge->get_outputNode()
-                    or croak("Error: Edge without an output node (this really shouldn't happen).");
+                    or croak("Error: Edge without an output node "
+                              . "(this really shouldn't happen).");
                 if ( $in_this_row{ $next } ) {
                     push @ordered_nodes, $current, $edge;
                     $current = $next;
@@ -653,7 +345,7 @@ sub _nodes_and_edges_from_rows {
 
         # Add the FactorValues (sorted)
         my @fvs = sort { $a->get_factor()->get_name() cmp $b->get_factor()->get_name() }
-                        $row->get_factorValues()
+                        $row->get_factorValues();
         push @ordered_nodes, @fvs;
 
         # Store the row nodes in the return array.
@@ -693,37 +385,35 @@ sub _process_sources {
                                'Source Name',
                                sub { $_[0]->get_name() }, );
 
+    # Comments
+    $self->_process_objects( $objs );
+
     # FIXME check if multiple Providers columns are allowed in the
     # format, and if not concatenate with semicolons.
-    if ( my $num = scalar grep { $_->has_providers() } @{ $objs } ) {
+    my @providers = map { [ sort { $a->get_lastName() cmp $b->get_lastName() }
+                                   $_->get_providers() ] } @{ $objs };
 
-        # Create as many Provider columns as are needed to cover all
-        # the node providers.
-        my $header = $self->get__header();
-        push @{ $header }, ('Provider') x $num;
-        $self->set__header( $header );
-
-        my $table = $self->get__table();
-        OBJ:
-        for ( my $i = 0; $i < scalar @{ $objs }; $i++ ) {
-            my $obj = $objs->[ $i ];
-            unless ( $obj ) {
-                push @{ $table->[ $i ] }, (undef) x $num;
-                next OBJ;
-            }
-            my @providers = $obj->get_providers();
-            push @{ $table->[ $i ] },
-                map { my $p = shift @providers;
-                      $p ? sprintf("%s %s", $p->firstName(), $p->lastName())
-                         : undef }
-                              1 .. $num;
-        }
-        $self->set__table( $table );
+    while ( $self->_remaining_elements( \@providers ) ) {
+        my $slice = $self->_next_slice( \@providers,
+                                        sub { sprintf( "%s %s",
+                                                       $_[0]->get_firstName(),
+                                                       $_[0]->get_lastName(),) } );
+        $self->_process_providers( $slice );
     }
+}
 
-    # Hand the objects on to the next class processor in the
-    # heirarchy.
-    $self->_process_materials( $objs );
+sub _process_providers {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_add_single_column( $objs,
+                               'Provider',
+                               sub { sprintf( "%s %s",
+                                              $_[0]->get_firstName(),
+                                              $_[0]->get_lastName(), ) }, );
+
+    # Comments
+    $self->_process_objects( $objs );
 }
 
 sub _process_samples {
@@ -734,6 +424,9 @@ sub _process_samples {
     $self->_add_single_column( $objs,
                                'Sample Name',
                                sub { $_[0]->get_name() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
 
     # Hand the objects on to the next class processor in the
     # heirarchy.
@@ -748,6 +441,9 @@ sub _process_extracts {
     $self->_add_single_column( $objs,
                                'Extract Name',
                                sub { $_[0]->get_name() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
 
     # Hand the objects on to the next class processor in the
     # heirarchy.
@@ -771,9 +467,14 @@ sub _process_dbentries {
 
     my ( $self, $objs ) = @_;
 
-    $self->_add_single_column( $objs,
-                               'Term Source REF',
-                               sub { $_[0]->get_termSource()->get_name() }, );
+    $self->_add_single_column(
+        $objs,
+        'Term Source REF',
+        sub { $_[0]->get_termSource()
+            ? $_[0]->get_termSource()->get_name()
+            : undef
+        },
+    );
 
     if ( scalar grep { defined $_->get_accession() } @{ $objs } ) {
         $self->_add_single_column( $objs,
@@ -782,7 +483,43 @@ sub _process_dbentries {
     }
 }
 
-sub _process_labeled_extracts {
+sub _process_measurements {
+
+    my ( $self, $objs, $colname ) = @_;
+
+    # Values
+    $self->_add_single_column(
+        $objs,
+        $colname,
+        sub {
+
+            # We support both regular values and min-max ranges. Sort of.
+            my $value = $_[0]->get_value();
+            my $min   = $_[0]->get_minValue();
+            my $max   = $_[0]->get_maxValue();
+            if ( defined $value && ! ( defined $min || defined $max ) ) {
+                return $value
+            }
+            elsif ( defined $min && defined $max && ! defined $value ) {
+                return sprintf("%s - %s", $min, $max);
+            }
+            else {
+                croak("Error: Ambiguous Measurement - must have either"
+                          . " value alone, or both minValue and maxValue.");
+            }
+        },
+    );
+
+    # Units
+    my @units = map { $_ ? $_->get_unit() : undef } @{ $objs };
+    my @defined = grep { defined $_ } @units;
+    if ( scalar @defined ) {
+        my $class = $defined[0]->get_category();    # First defined unit speaks for all.
+        $self->_process_controlled_terms( \@units, "Unit [$class]" );
+    }
+}
+
+sub _process_labeledextracts {
 
     my ( $self, $objs ) = @_;
 
@@ -791,8 +528,12 @@ sub _process_labeled_extracts {
                                'Labeled Extract Name',
                                sub { $_[0]->get_name() }, );
 
-    if ( scalar grep { defined $_->get_label() } @{ $objs } ) {
-        my @labels = map { $_ ? $_->get_label() : undef } @{ $objs };
+    # Comments
+    $self->_process_objects( $objs );
+
+    # Label
+    my @labels = map { $_ ? $_->get_label() : undef } @{ $objs };
+    if ( scalar grep { defined $_ } @labels ) {
         $self->_process_controlled_terms( \@labels, 'Label' );
     }
 
@@ -805,47 +546,50 @@ sub _process_materials {
 
     my ( $self, $objs ) = @_;
 
-    $self->_process_objects( $objs );
-
+    # Description
     if ( scalar grep { defined $_->get_description() } @{ $objs } ) {
         $self->_add_single_column( $objs,
                                    'Description',
                                    sub { $_[0]->get_description() }, );
     }
 
-    if ( scalar grep { defined $_->get_type() } @{ $objs } ) {
-        my @types = map { $_ ? $_->get_type() : undef } @{ $objs };
+    # Material Type
+    my @types = map { $_ ? $_->get_type() : undef } @{ $objs };
+    if ( scalar grep { defined $_ } @types ) {
         $self->_process_controlled_terms( \@types, 'Material Type' );
     }
 
-    # FIXME not part of the New Way just yet...
-    foreach my $char ( $obj->get_characteristics() ) {
-        my ( $charcols, $charvals ) = $self->_process_controlled_term( $char, $obj );
-        push @colnames,  @{ $charcols };
-        push @colvalues, @{ $charvals };
+    # Characteristics
+    my @chars = map { [ sort { $a->get_category() cmp $b->get_category() }
+                               $_->get_characteristics() ] } @{ $objs };
+
+    while ( $self->_remaining_elements( \@chars ) ) {
+        my ( $slice, $category ) =
+            $self->_next_slice( \@chars, sub { $_[0]->get_category() } );
+        $self->_process_controlled_terms( $slice, "Characteristic [$category]" );
     }
 
-    foreach my $meas ( $obj->get_measurements() ) {
-        my ( $meascols, $measvals ) = $self->_process_measurement( $meas, $obj );
-        push @colnames,  @{ $meascols };
-        push @colvalues, @{ $measvals };
-    }
+    # Measurements
+    my @measurements = map { [ sort { $a->get_type() cmp $b->get_type() }
+                                      $_->get_measurements() ] } @{ $objs };
 
-    return ( \@colnames, \@colvalues );
+    while ( $self->_remaining_elements( \@measurements ) ) {
+        my ( $slice, $type ) =
+            $self->_next_slice( \@chars, sub { $_[0]->get_type() } );
+        $self->_process_measurements( $slice, "Characteristic [$type]" );
+    }
 }
 
 sub _process_objects {
-# FIXME not done yet
+
     my ( $self, $objs ) = @_;
 
-    # Comments are so often used in the model that we just duck-type
-    # to get at them.
-    if ( UNIVERSAL::can( $object, 'get_comments' ) ) {
+    my @comments = map { [ sort { $a->get_name() cmp $b->get_name() }
+                                  $_->get_comments() ] } @{ $objs };
 
-        # FIXME consider excluding ArrayDesign from this, as its
-        # comments will typically be in the ADF anyway.
-#        my ( $comment_headings, $comment_values )
-#            = $self->_process_comments( $object->get_comments() );
+    while ( $self->_remaining_elements( \@comments ) ) {
+        my $slice = $self->_next_slice( \@comments, sub { $_[0]->get_name() } );
+        $self->_process_comments( $slice );
     }
 }
 
@@ -855,9 +599,125 @@ sub _process_comments {
 
     $self->_add_single_column( $objs,
                                sprintf('Comment [%s]', $colname),
-                               sub { $_[0]->get_name() }, );
+                               sub { $_[0]->get_value() }, );
 }
 
+sub _process_assays {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_add_single_column( $objs,
+                               'Assay Name',
+                               sub { $_[0]->get_name() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
+
+    # Technology Type
+    my @types = map { $_ ? $_->get_technologyType() : undef } @{ $objs };
+    if ( scalar grep { defined $_ } @types ) {
+        $self->_process_controlled_terms( \@types, 'Technology Type' );
+    }
+
+    # Array Design
+    my @arrays = map { $_ ? $_->get_arrayDesign() : undef } @{ $objs };
+    if ( scalar grep { defined $_ } @arrays ) {
+        $self->_process_array_designs( \@arrays );
+    }
+}
+
+sub _process_array_designs {
+
+    my ( $self, $objs ) = @_;
+
+    # FIXME first defined array design determines whether it's a File
+    # or a REF. This isn't great.
+    my @defined = grep { defined $_ } @{ $objs };
+    if ( $defined[0]->has_uri() ) {
+        $self->_add_single_column( $objs,
+                                   'Array Design File',
+                                   sub { $_[0]->get_uri() }, );
+    }
+    else {
+
+        # FIXME REF columns may need a namespace:authority tag?
+        $self->_add_single_column( $objs,
+                                   'Array Design REF',
+                                   sub { $_[0]->get_name() }, );
+
+        # REFs can have Term Source, accession, and comments. Array
+        # Design File comments would normally be handled in the ADF.
+        $self->_process_objects( $objs );
+        $self->_process_dbentry( $objs );
+    }
+}
+
+sub _process_scans {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_add_single_column( $objs,
+                               'Scan Name',
+                               sub { $_[0]->get_name() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
+}
+
+sub _process_normalizations {
+
+    my ( $self, $objs ) = @_;
+
+    $self->_add_single_column( $objs,
+                               'Normalization Name',
+                               sub { $_[0]->get_name() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
+}
+
+sub _process_datafiles {
+
+    my ( $self, $objs ) = @_;
+
+    # FIXME first defined data file determines whether it's image, raw
+    # or derived. This isn't great.
+    my @defined = grep { defined $_ } @{ $objs };
+    my $type = $defined[0]->get_dataType()->get_value();
+    my $colname = $type eq 'image' ? 'Image File'
+                         : 'raw'   ? 'Array Data File'
+                         : 'Derived Array Data File';
+
+    $self->_add_single_column( $objs,
+                               $colname,
+                               sub { $_[0]->get_uri() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
+}
+
+sub _process_datamatrices {
+
+    my ( $self, $objs ) = @_;
+
+    # FIXME first defined data file determines whether it's image, raw
+    # or derived. This isn't great.
+    my @defined = grep { defined $_ } @{ $objs };
+    my $type = $defined[0]->get_dataType()->get_value();
+    my $colname = $type eq 'raw'   ? 'Array Data Matrix File'
+                         : 'Derived Array Data Matrix File';
+
+    $self->_add_single_column( $objs,
+                               $colname,
+                               sub { $_[0]->get_uri() }, );
+
+    # Comments
+    $self->_process_objects( $objs );
+}
+
+sub _process_edges {}
+
+sub _process_factorvalues {}
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.
