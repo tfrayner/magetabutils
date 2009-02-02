@@ -29,6 +29,7 @@ use URI;
 use DateTime;
 use Email::Valid;
 use Params::Coerce;
+use Carp;
 
 subtype 'Uri'
 
@@ -73,7 +74,8 @@ coerce 'Date'
     => from 'Str'
     => via {
         require DateTime::Format::DateManip;
-        DateTime::Format::DateManip->parse_datetime($_);
+        DateTime::Format::DateManip->parse_datetime($_)
+            or croak(qq{Cannot parse date format "$_"; try YYYY-MM-DD});
     };
 
 subtype 'Email'
