@@ -430,7 +430,7 @@ instantiation, such that the back-end storage engine populated by a
 given Reader object may be redefined as desired. This base Builder
 class simply tracks objects in a hash of hashes; this is sufficient
 for simple parsing of MAGE-TAB documents. See
-<Bio::MAGETAB::Util::DBLoader> for an example of a Builder subclass
+L<Bio::MAGETAB::Util::DBLoader> for an example of a Builder subclass
 that can be used to populate a Tangram-based relational database
 schema.
 
