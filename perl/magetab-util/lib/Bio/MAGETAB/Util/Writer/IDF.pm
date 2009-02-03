@@ -288,9 +288,7 @@ objects.
 
 =head1 DESCRIPTION
 
-Export of Investigations to IDF files. **NOTE** that this module is not
-yet fully implemented or tested, although the API should remain
-unchanged.
+Export of Investigations to IDF files.
 
 =head1 ATTRIBUTES
 

@@ -62,13 +62,15 @@ sub _write_header {
     # Elements pointing to objects need a bit more work.
     my %multi = (
 
-        # FIXME these are store in Investigation, so not too sure how
-        # we can reliable retrieve them here.
+        # FIXME these are stored in Investigation, so I'm not too sure
+        # how we can reliably retrieve them here.
+
 #        'termSources' => [
 #            sub { return ( [ 'Term Source Name',       map { $_->get_name()    } @_ ] ) },
 #            sub { return ( [ 'Term Source Version',    map { $_->get_version() } @_ ] ) },
 #            sub { return ( [ 'Term Source File',       map { $_->get_uri()     } @_ ] ) },
 #        ],
+        
         'technologyType' => [
             sub { return ( [ 'Technology Type',
                              map { $_->get_value()     } @_ ] ) },
@@ -486,9 +488,7 @@ objects.
 
 =head1 DESCRIPTION
 
-Export of ArrayDesigns to ADF files. **NOTE** that this module is not
-yet fully implemented or tested, although the API should remain
-unchanged.
+Export of ArrayDesigns to ADF files.
 
 =head1 ATTRIBUTES
 

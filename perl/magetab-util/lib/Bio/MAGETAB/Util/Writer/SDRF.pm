@@ -663,6 +663,10 @@ sub _process_protocolapps {
                               'Protocol REF',
                               sub { $_[0]->get_protocol()->get_name() } );
 
+    # Term Source, accession.
+    my @protocols = map { $_ ? $_->get_protocol() : undef } @{ $objs };
+    $self->_process_dbentries( \@protocols );
+
     # Comments
     $self->_process_objects( $objs );
 
@@ -754,10 +758,7 @@ objects.
 
 =head1 DESCRIPTION
 
-Export of SDRF objects to SDRF files. **NOTE** that this module is
-not yet fully implemented or tested; indeed, as of this release the
-code is incomplete and will not work. However, the API should remain
-unchanged in future releases.
+Export of SDRF objects to SDRF files.
 
 =head1 ATTRIBUTES
 
