@@ -23,7 +23,8 @@ use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
-use List::Util qw( sum max );
+use List::Util qw( sum max first );
+use Scalar::Util qw( refaddr );
 
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
@@ -143,7 +144,7 @@ sub _next_slice {
     # processed.
 
     my ( $self, $nodelists, $coderef ) = @_;
-confess unless  $nodelists;
+
     my @firstnodes = map { $_->[0] } @{ $nodelists };
 
     my $wanted = $self->_best_object_type( \@firstnodes, $coderef );
@@ -182,6 +183,48 @@ sub _best_object_type {
     return $terms[0];
 }
 
+sub _first_node_in_row {
+
+    my ( $self, $row, $thisnode, $stackcount ) = @_;
+
+    $stackcount++;
+    if ( $stackcount > 10 ) {
+        confess("Probable deep recursion while finding first node in"
+                . " row. Are you sure you don't have any cycles?");
+    }
+
+    my @nodes = $row->get_nodes();
+
+    $thisnode ||= $nodes[0];
+
+    # Quick sanity check.
+    unless ( first { refaddr $thisnode eq refaddr $_ } @nodes ) {
+        confess("Error: Node is not in row list.");
+    }
+
+    if ( $thisnode->has_inputEdges() ) {
+        foreach my $edge ( $thisnode->get_inputEdges() ) {
+            my $prevnode = $edge->get_inputNode();
+
+            if ( first { refaddr $prevnode eq refaddr $_ } @nodes ) {
+
+                # Prior node found in this row.
+                return $self->_first_node_in_row( $row,
+                                                  $prevnode,
+                                                  $stackcount );
+            }
+        }
+
+        # Any prior nodes are not in this row.
+        return $thisnode;
+    }
+    else {
+
+        # If no input edges, we know it must be the first.
+        return $thisnode;
+    }
+}
+
 sub _nodes_and_edges_from_rows {
 
     my ( $self, $rows ) = @_;
@@ -191,34 +234,43 @@ sub _nodes_and_edges_from_rows {
     foreach my $row ( @{ $rows }  ) {
         my @nodes = $row->get_nodes();
 
-        # Quick and dirty way to get the starting node.
+        # Quick sanity check.
         my @input_nodes = grep { ! $_->has_inputEdges() } @nodes;
         my $num_inputs  = scalar @input_nodes;
-        unless ( $num_inputs == 1 ) {
-            croak("Error: Cannot identify a single starting node; "
-                      . "SDRFRow has $num_inputs starting nodes.");
+        unless ( $num_inputs <= 1 ) {
+            croak("Error: SDRFRow has multiple nodes without"
+                      . " inputEdges ($num_inputs)");
         }
-        my $current = $input_nodes[0];
+
+        # Recurse through the graph to find the first row node.
+        my $current = $self->_first_node_in_row( $row );
+        unless ( $current ) {
+            croak("Error: Cannot identify a suitable starting node in SDRFRow.");
+        }
 
         # Add all the nodes in the SDRFRow, in order, by following the
         # node-edge graph.
         my @ordered_nodes;
-        my %in_this_row = map { $_ => 1 } @nodes;
+        my %in_this_row = map { refaddr $_ => 1 } @nodes;
+
+        NODE:
         while ( $current->has_outputEdges() ) {
-            EDGE:
             foreach my $edge ( $current->get_outputEdges() ) {
                 my $next = $edge->get_outputNode()
                     or croak("Error: Edge without an output node "
                               . "(this really shouldn't happen).");
-                if ( $in_this_row{ $next } ) {
+                if ( $in_this_row{ refaddr $next } ) {
                     push @ordered_nodes, $current, $edge;
                     $current = $next;
 
                     # This assumes that no branching occurs within the
                     # SDRFRow; but then it shouldn't anyway.
-                    last EDGE;
+                    next NODE;
                 }
             }
+
+            # $next not found in the row, so we bail.
+            last NODE;
         }
 
         # This is now the last node.

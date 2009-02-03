@@ -103,6 +103,8 @@ my $reader = Bio::MAGETAB::Util::Reader->new(
 # associated objects into a SQLite schema.
 if ( $dsn ) {
 
+    warn("Attempting to connect to database...\n");
+
     # We default to SQLite here for the sake of simplicity. In
     # principle, any database backend supported by Tangram should
     # work. NOTE that during testing, SQLite performance didn't scale
@@ -130,11 +132,14 @@ if ( $dsn ) {
 }
 
 # Parse the IDF and any associated SDRFs/ADFs.
+warn("Parsing MAGE-TAB document...\n");
 my ( $inv, $magetab ) = $reader->parse();
 
 # If a graph file was specified, attempt to use GraphViz to draw the
 # experimental design graph.
 if ( $graph_file ) {
+
+    warn("Attempting to generate a graph visualisation...\n");
 
     open ( my $fh, '>', $graph_file )
         or die("Error: Unable to open output file: $!");
@@ -150,6 +155,8 @@ if ( $graph_file ) {
 
 if ( $write ) {
 
+    warn("Attempting to write out a new set of MAGE-TAB documents...\n");
+
     require Bio::MAGETAB::Util::Writer;
 
     mkpath( $write );
@@ -161,3 +168,5 @@ if ( $write ) {
  
     $writer->write();
 }
+
+warn("Done.\n");

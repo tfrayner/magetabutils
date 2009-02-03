@@ -260,8 +260,8 @@ sub write {
     # the end. FIXME consider maybe inserting them at the appropriate
     # places? Subsequent parsing won't preserve these locations though.
     foreach my $comment ( $inv->get_comments(), @other_comments ) {
-        my $field = sprintf("Comment[%s]", $comment->name());
-        $self->_write_line( $field, $comment->value() );
+        my $field = sprintf("Comment[%s]", $comment->get_name());
+        $self->_write_line( $field, $comment->get_value() );
     }
 }
 
