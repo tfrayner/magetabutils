@@ -4,13 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
-"HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
-<title>Bio::MAGETAB::Util::Writer::Graphviz - Visualization of
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
+<title>Bio::MAGETAB::Util::Writer::GraphViz - Visualization of
 MAGE-TAB objects.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
-<link rev="made" href="mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#109;&#97;&#99;&#107;&#105;&#110;&#97;&#99;&#46;&#108;&#111;&#99;&#97;&#108;" />
+<link rev="made" href=
+"mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
 <p><a name="__index__"></a></p>
@@ -31,48 +32,49 @@ MAGE-TAB objects.</title>
 -->
 <!-- INDEX END -->
 <h1><a name="name" id="name">NAME</a></h1>
-<p>Bio::MAGETAB::Util::Writer::Graphviz - Visualization of MAGE-TAB
+<p>Bio::MAGETAB::Util::Writer::GraphViz - Visualization of MAGE-TAB
 objects.</p>
 <hr />
 <h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
 <pre>
- use Bio::MAGETAB::Util::Writer::Graphviz;
- my $drawer = Bio::MAGETAB::Util::Writer::Graphviz-&gt;new({
-    magetab    =&gt; $magetab_container,
-    filehandle =&gt; $output_fh,
-    font       =&gt; 'luxisr',
+ use Bio::MAGETAB::Util::Writer::GraphViz;
+ my $graphviz = Bio::MAGETAB::Util::Writer::GraphViz-&gt;new({
+    sdrfs =&gt; \@sdrfs,
+    font  =&gt; 'luxisr',
  });
  
- $drawer-&gt;draw();
+ my $image = $graphviz-&gt;draw();
+ 
+ print $fh $image-&gt;as_png();
 </pre>
 <hr />
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
-<p>This is a simple visualization class for MAGE-TAB objects. It
-may be developed further in future; at the moment, given a
-Bio::MAGETAB container and a filehandle, it will just generate a
-'.dot' file which can then be processed using the Graphviz ``dot''
-application.</p>
+<p>This is a simple visualization class for MAGE-TAB objects. Given
+a list of Bio::MAGETAB::SDRF objects and a filehandle, it will
+return a GraphViz object which can then be written to file in a
+number of formats.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_magetab" id=
-"item_magetab">magetab</a></strong></dt>
+<dt><strong><a name="item_sdrfs" id=
+"item_sdrfs">sdrfs</a></strong></dt>
 <dd>
-<p>The Bio::MAGETAB container containing the MAGE-TAB objects to
-visualize. This is a required attribute. See <a href=
-"/model/Bio/MAGETAB.html">the Bio::MAGETAB manpage</a> for more
-information on this container class.</p>
-</dd>
-<dt><strong><a name="item_filehandle" id=
-"item_filehandle">filehandle</a></strong></dt>
-<dd>
-<p>The filehandle to use to output (i.e. the ``dot'' input
-file).</p>
+<p>A list of Bio::MAGETAB::SDRFs object to visualize. This is a
+required attribute. See <a href="/model/Bio/MAGETAB/SDRF.html">the
+Bio::MAGETAB::SDRF manpage</a> for more information on this
+class.</p>
 </dd>
 <dt><strong><a name="item_font" id=
 "item_font">font</a></strong></dt>
 <dd>
 <p>The font used for object labels in the output.</p>
+</dd>
+<dt><strong><a name="item_graphviz" id=
+"item_graphviz">graphviz</a></strong></dt>
+<dd>
+<p>A GraphViz object. If this is not supplied, a default object
+will be created; this attribute is provided so that you have a
+means of accessing the underlying graph generation object.</p>
 </dd>
 </dl>
 <hr />
@@ -81,14 +83,13 @@ file).</p>
 <dt><strong><a name="item_draw" id=
 "item_draw">draw</a></strong></dt>
 <dd>
-<p>Generates output suitable for use with the Graphviz ``dot''
-application.</p>
+<p>Creates a GraphViz graph in memory ready for output.</p>
 </dd>
 </dl>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
-manpage</a></p>
+<p><a href="/model/Bio/MAGETAB/SDRF.html">the Bio::MAGETAB::SDRF
+manpage</a>, GraphViz</p>
 <hr />
 <h1><a name="author" id="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
