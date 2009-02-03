@@ -40,7 +40,7 @@ use parent qw/Catalyst/;
 use Catalyst qw/-Debug
                 ConfigLoader
                 Static::Simple/;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 # Configure the application. 
 #
@@ -51,7 +51,8 @@ our $VERSION = '0.01';
 # with a external configuration file acting as an override for
 # local deployment.
 
-__PACKAGE__->config( name => 'Bio::MAGETAB::Util::Web' );
+__PACKAGE__->config( name          => 'Bio::MAGETAB::Util::Web',
+                     default_model => 'DB' );
 
 # Start the application
 __PACKAGE__->setup();
