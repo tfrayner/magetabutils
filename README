@@ -1,14 +1,20 @@
 Bio::MAGETAB Documentation
 ==========================
 
+Introduction
+------------
+
 This package provides the perl implementation of the object model used
 by the MAGE-TAB Utilities (available from
 http://magetabutils.sourceforge.net). The API is mostly finalised, but
 some details may yet change where necessary to improve usability.
 
+Dependencies
+------------
+
 Note that MAGE-TAB import, export and visualisation functions are not
-provided by this package, but rather by the main magetab-utils package
-available from the above link.
+provided by this package, but rather by the "magetab-utils" package
+available from the main project SourceForge page.
 
 The Bio::MAGETAB module requires at least version 5.8.1 of perl, and
 depends on the following perl modules, all available from CPAN
@@ -23,5 +29,8 @@ depends on the following perl modules, all available from CPAN
     DateTime
     DateTime::Format::DateManip
     Email::Valid
+
+Contact
+-------
 
 Please contact Tim Rayner (tfrayner@gmail.com) with any questions.
