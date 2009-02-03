@@ -65,7 +65,7 @@ has 'builder'             => ( is         => 'rw',
                                required   => 1 );
 
 # Make this visible to users of the module.
-our $VERSION = 0.31;
+our $VERSION = 0.4;
 
 sub parse {
 
