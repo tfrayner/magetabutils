@@ -1,7 +1,30 @@
+#!/usr/bin/env perl
+#
+# Copyright 2008 Tim Rayner
+# 
+# This file is part of Bio::MAGETAB::Util::Web.
+# 
+# Bio::MAGETAB::Util::Web is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# Bio::MAGETAB::Util::Web is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Bio::MAGETAB::Util::Web.  If not, see <http://www.gnu.org/licenses/>.
+#
+# $Id$
+
 package Bio::MAGETAB::Util::Web;
 
 use strict;
 use warnings;
+
+use 5.008001;
 
 use Catalyst::Runtime '5.70';
 
@@ -21,7 +44,7 @@ our $VERSION = '0.01';
 
 # Configure the application. 
 #
-# Note that settings in bio_magetab_util_web.conf (or other external
+# Note that settings in bio_magetab_util_web.yml (or other external
 # configuration file that you set up manually) take precedence
 # over this when using ConfigLoader. Thus configuration
 # details given here can function as a default configuration,
@@ -46,7 +69,7 @@ sub uri_for {
 
 =head1 NAME
 
-Bio::MAGETAB::Util::Web - Catalyst based application
+Bio::MAGETAB::Util::Web - Catalyst based web application for MAGE-TAB Utilities
 
 =head1 SYNOPSIS
 
@@ -54,20 +77,24 @@ Bio::MAGETAB::Util::Web - Catalyst based application
 
 =head1 DESCRIPTION
 
-[enter your description here]
+This is a web application, built using MAGE-TAB Utilities and the
+Catalyst framework, which allows the user to interact with MAGE-TAB
+metadata stored in a database back-end. The database is managed via
+the Bio::MAGETAB::Util::Persistence and Bio::MAGETAB::Util::DBLoader
+modules, and is based on the Tangram object persistence mechanism.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Web::Controller::Root>, L<Catalyst>
+L<Bio::MAGETAB::Util::Web::Controller::Root>, Catalyst, L<Bio::MAGETAB>, L<Bio::MAGETAB::Util::Persistence>
 
 =head1 AUTHOR
 
-Tim Rayner
+Tim F. Rayner <tfrayner@gmail.com>
 
 =head1 LICENSE
 
-This library is free software, you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is released under version 2 of the GNU General Public
+License (GPL).
 
 =cut
 
