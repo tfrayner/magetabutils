@@ -172,11 +172,17 @@ sub _coerce_adf_main_headings {
         qr/Reporter [ ]* Groups? [ ]* Term [ ]* Source [ ]* REFs?/ixms
             => 'reporter_group_term_source',
 
+        qr/Reporter [ ]* Groups? [ ]* Term [ ]* Accession [ ]* Numbers?/ixms
+            => 'reporter_group_term_accession',
+
         qr/Control [ ]* Types?/ixms
             => 'control_type',
 
         qr/Control [ ]* Types? [ ]* Term [ ]* Source [ ]* REFs?/ixms
             => 'control_type_term_source',
+
+        qr/Control [ ]* Types? [ ]* Term [ ]* Accession [ ]* Numbers?/ixms
+            => 'control_type_term_accession',
 
         qr/Composite [ ]* Element [ ]* Names?/ixms
             => 'composite_element_name',
@@ -419,7 +425,7 @@ sub _parse_adfrow_for_reporter {
 
     my ( $self, $larry, $header ) = @_;
 
-    my (%data, $group_ts, $ctype_ts);
+    my (%data, $group_ts, $ctype_ts, $group_accno, $ctype_accno);
 
     # Map our internal column tags to MAGETAB attributes.
     my %dispatch = (
@@ -463,6 +469,14 @@ sub _parse_adfrow_for_reporter {
                      $ctype_ts = $self->get_builder()->get_term_source({
                          name => $lc,
                      }); },
+        'reporter_group_term_accession',
+            => sub { my ( $hc, $lc ) = @_;
+                     $group_accno = $lc;
+                 },
+        'control_type_term_accession',
+            => sub { my ( $hc, $lc ) = @_;
+                     $ctype_accno = $lc;
+                 },
     );
 
     # Call the dispatch methods to populate %data.
@@ -474,18 +488,24 @@ sub _parse_adfrow_for_reporter {
         }
     }
 
-    # Add term sources to groups, control types.
-    if ( $group_ts ) {
-        foreach my $group ( @{ $data{'groups'} } ) {
+    # Add term sources and accessions to groups, control types.
+    foreach my $group ( @{ $data{'groups'} } ) {
+        if ( $group_ts ) {
             $group->set_termSource( $group_ts );
-            $self->get_builder()->update( $group );
         }
+        if ( $group_accno ) {
+            $group->set_accession( $group_accno );
+        }
+        $self->get_builder()->update( $group );
     }
-    if ( $ctype_ts ) {
-        if ( my $ctype = $data{'controlType'} ) {
+    if ( my $ctype = $data{'controlType'} ) {
+        if ( $ctype_ts ) {
             $ctype->set_termSource( $ctype_ts );
-            $self->get_builder()->update( $ctype );
         }
+        if ( $ctype_accno ) {
+            $ctype->set_accession( $ctype_accno );
+        }
+        $self->get_builder()->update( $ctype );
     }
 
     return \%data;
