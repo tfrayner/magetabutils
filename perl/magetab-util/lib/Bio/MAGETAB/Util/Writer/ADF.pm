@@ -26,14 +26,14 @@ use Carp;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
-has 'magetab_object'      => ( is         => 'ro',
-                               isa        => 'Bio::MAGETAB::ArrayDesign',
-                               required   => 1 );
+has 'magetab_object'       => ( is         => 'ro',
+                                isa        => 'Bio::MAGETAB::ArrayDesign',
+                                required   => 1 );
 
-has 'cached_mapping_flag' => ( is         => 'rw',
-                               isa        => 'Bool',
-                               predicate  => 'has_cached_mapping_flag',
-                               required   => 0 );
+has '_cached_mapping_flag' => ( is         => 'rw',
+                                isa        => 'Bool',
+                                predicate  => 'has__cached_mapping_flag',
+                                required   => 0 );
 
 sub _write_header {
 
@@ -41,9 +41,23 @@ sub _write_header {
 
     my $array = $self->get_magetab_object();
 
-    # Just two columns for the header section; main and mapping
-    # sections will differ (FIXME check this against the spec).
-    $self->set_num_columns( 2 );
+    # Term Sources are a bit ugly, because they're normally attached
+    # to Investigation. We currently cheat and go via any Bio::MAGETAB
+    # container that's available (this means that *all* in-memory term
+    # sources are dumped into the ADF):
+    my ( @termsources, $num_cols );
+    if ( my $magetab = $array->get_ClassContainer() ) {
+        @termsources = $magetab->get_termSources();
+        if ( my $num_ts = scalar @termsources ) {
+            $num_cols = $num_ts + 1;
+        }
+    }
+
+    # Just two columns is standard for the header section if there are
+    # no Term Sources; main and mapping sections will differ (FIXME
+    # check this against the spec; is this valid?).
+    $num_cols ||= 2;
+    $self->set_num_columns( $num_cols );
     $self->_write_line( '[header]' );
 
     my %single = (
@@ -61,15 +75,6 @@ sub _write_header {
 
     # Elements pointing to objects need a bit more work.
     my %multi = (
-
-        # FIXME these are stored in Investigation, so I'm not too sure
-        # how we can reliably retrieve them here.
-
-#        'termSources' => [
-#            sub { return ( [ 'Term Source Name',       map { $_->get_name()    } @_ ] ) },
-#            sub { return ( [ 'Term Source Version',    map { $_->get_version() } @_ ] ) },
-#            sub { return ( [ 'Term Source File',       map { $_->get_uri()     } @_ ] ) },
-#        ],
         
         'technologyType' => [
             sub { return ( [ 'Technology Type',
@@ -117,6 +122,16 @@ sub _write_header {
                 $self->_write_line( @{ $lineref } );
             }
         }
+    }
+
+    # Dump out our Term Source info.
+    if ( scalar @termsources ) {
+        $self->_write_line( 'Term Source Name',
+                            map { $_->get_name() } @termsources );
+        $self->_write_line( 'Term Source Version',
+                            map { $_->get_version() } @termsources );
+        $self->_write_line( 'Term Source File',
+                            map { $_->get_uri() } @termsources );
     }
 
     # Attach all comments to the ArrayDesign.
@@ -337,7 +352,7 @@ sub _must_generate_mapping {
 
     my ( $self ) = @_;
 
-    unless ( $self->has_cached_mapping_flag() ) {
+    unless ( $self->has__cached_mapping_flag() ) {
 
         # Check all reporters; if any map to more than one CE, we need
         # a mapping section. The result is cached so we only check
@@ -349,16 +364,16 @@ sub _must_generate_mapping {
         REPORTER:
         foreach my $rep ( @reporters ) {
             if ( scalar @{ [ $rep->get_compositeElements() ] } > 1 ) {
-                $self->set_cached_mapping_flag(1);
+                $self->set__cached_mapping_flag(1);
                 last REPORTER;
             }
         }
 
-        $self->set_cached_mapping_flag(0)
-            unless $self->has_cached_mapping_flag();
+        $self->set__cached_mapping_flag(0)
+            unless $self->has__cached_mapping_flag();
     }
 
-    return $self->get_cached_mapping_flag();
+    return $self->get__cached_mapping_flag();
 }
 
 sub _write_main {
@@ -398,9 +413,10 @@ sub _write_main {
 
         unless ( $self->_must_generate_mapping() ) {
 
-            # There will be only one CompositeElement in such cases.
+            # There will be only one (or zero) CompositeElements in
+            # such cases.
             my $composite = $reporter->get_compositeElements();
-            push @line, $self->_generate_composite_data( $composite, $composite_dbs );
+            push @line, $self->_generate_composite_data( $composite, $composite_dbs ) if $composite;
         }
 
         # Write out the line.
@@ -500,11 +516,6 @@ See L<Bio::MAGETAB::Util::Writer::Tabfile> for superclass attributes.
 
 The Bio::MAGETAB::ArrayDesign to export. This is a required
 attribute.
-
-=item cached_mapping_flag
-
-A flag, for internal use only, that helps determine whether a
-"[mapping]" section needs to be generated in the output ADF.
 
 =back
 
