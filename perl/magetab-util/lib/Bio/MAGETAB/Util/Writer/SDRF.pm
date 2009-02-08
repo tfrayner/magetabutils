@@ -188,7 +188,7 @@ sub _first_node_in_row {
     my ( $self, $row, $thisnode, $stackcount ) = @_;
 
     $stackcount++;
-    if ( $stackcount > 10 ) {
+    if ( $stackcount > 256 ) {
         confess("Probable deep recursion while finding first node in"
                 . " row. Are you sure you don't have any cycles?");
     }
