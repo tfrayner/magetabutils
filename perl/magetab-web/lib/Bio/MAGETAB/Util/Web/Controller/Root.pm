@@ -65,12 +65,12 @@ sub end : ActionClass('RenderView') {}
 
 =head1 AUTHOR
 
-Tim Rayner
+Tim F. Rayner <tfrayner@gmail.com>
 
 =head1 LICENSE
 
-This library is free software, you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is released under version 2 of the GNU General Public
+License (GPL).
 
 =cut
 
