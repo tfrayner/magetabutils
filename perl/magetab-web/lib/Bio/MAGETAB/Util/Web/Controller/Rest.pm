@@ -56,9 +56,11 @@ sub object_by_oid_GET {
         my $class = blessed $object;
         my $method = $self->_summary_method( $class );
         if ( UNIVERSAL::can( $self, $method ) ) {
+
+            # Return a full serialization.
             $self->status_ok(
                 $c,
-                entity => $self->$method( $c, $object ),
+                entity => $self->$method( $c, $object, 1 ),
             );
         }
         else {
@@ -90,15 +92,23 @@ sub investigation_GET {
                     ->select( $remote, $remote->{title}      ->like("%${query}%")
                                      | $remote->{description}->like("%${query}%") );
 
-    my @data;
-    foreach my $obj ( @objects ) {
-        push @data, $self->_summarize_investigation( $c, $obj );
-    }
+    if ( scalar @objects ) {
+        my @data;
+        foreach my $obj ( @objects ) {
+            push @data, $self->_summarize_investigation( $c, $obj );
+        }
 
-    $self->status_ok(
-        $c,
-        entity => \@data,
-    );
+        $self->status_ok(
+            $c,
+            entity => \@data,
+        );
+    }
+    else {
+        $self->status_not_found(
+            $c,
+            message => qq{No Investigations found for "$query"},
+        );
+    }
 }
 
 #
@@ -107,7 +117,9 @@ sub investigation_GET {
 
 sub _summarize_investigation : Private {
 
-    my ( $self, $c, $obj ) = @_;
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
 
     my %data = (
         oid               => $c->model()->storage()->id( $obj ),
@@ -117,9 +129,11 @@ sub _summarize_investigation : Private {
         publicReleaseDate => $obj->get_publicReleaseDate(),
     );
 
+    return \%data unless $full;
+
     my @factors;
     foreach my $factor ( $obj->get_factors() ) {
-        push @factors, $self->_summarize_factor( $c, $factor );
+        push @factors, $self->_summarize_factor( $c, $factor, $full );
     }
     $data{factors} = \@factors;
 
@@ -128,21 +142,86 @@ sub _summarize_investigation : Private {
 
 sub _summarize_factor : Private {
 
-    my ( $self, $c, $obj ) = @_;
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
 
     my %data = (
         oid               => $c->model()->storage()->id( $obj ),
         name              => $obj->get_name(),
         factorType        => $self->_summarize_controlled_term(
-                                         $c, $obj->get_factorType() ),
+                                         $c, $obj->get_factorType(), $full ),
     );
 
+    return \%data unless $full;
+
+    # Reflexive query to retrieve FVs for this Factor
+    my $remote  = $c->model()->storage()
+                    ->remote( "Bio::MAGETAB::FactorValue" );
+
+    # FactorValues (N.B. potential race condition here, we may end up
+    # wanting to drop this part).
+    my @fvs = $c->model()->storage()
+                ->select( $remote, $remote->{factor} == $obj );
+    my @fvdata;
+    foreach my $fv ( @fvs ) {
+        push @fvdata, $self->_summarize_factor_value( $c, $fv, $full );
+    }
+
+    $data{factorValues} = \@fvdata;
+
+    return \%data;
+}
+
+sub _summarize_factor_value : Private {
+
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
+
+    # NB this MUST NOT reference the parent Factor, or we'll be here
+    # forever (a race condition; FIXME?).
+    my %data = (
+        oid               => $c->model()->storage()->id( $obj ),
+        term              => $self->_summarize_controlled_term(
+                                         $c, $obj->get_term(), $full ),
+        measurement       => $self->_summarize_measurement(
+                                         $c, $obj->get_measurement(), $full ),
+    );
+
+    return \%data unless $full;
+
+    # FIXME how about datafiles here?
+    return \%data;
+}
+
+sub _summarize_measurement : Private {
+
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
+
+    my %data = (
+        oid               => $c->model()->storage()->id( $obj ),
+        measurementType   => $obj->get_measurementType(),
+        value             => $obj->get_value(),
+        min_value         => $obj->get_min_value(),
+        max_value         => $obj->get_max_value(),
+        unit              => $self->_summarize_controlled_term(
+                                         $c, $obj->get_unit(), $full ),
+    );
+
+    return \%data unless $full;
+
+    # FIXME Anything here?.
     return \%data;
 }
 
 sub _summarize_controlled_term : Private {
 
-    my ( $self, $c, $obj ) = @_;
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
 
     my %data = (
         oid               => $c->model()->storage()->id( $obj ),
@@ -150,6 +229,9 @@ sub _summarize_controlled_term : Private {
         value             => $obj->get_value(),
     );
 
+    return \%data unless $full;
+
+    # FIXME TermSource etc.
     return \%data;
 }
 
