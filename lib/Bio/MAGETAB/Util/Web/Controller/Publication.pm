@@ -50,12 +50,12 @@ sub new {
 
 =head1 AUTHOR
 
-tfr23
+Tim F. Rayner <tfrayner@gmail.com>
 
 =head1 LICENSE
 
-This library is free software, you can redistribute it and/or modify
-it under the same terms as Perl itself.
+This library is released under version 2 of the GNU General Public
+License (GPL).
 
 =cut
 

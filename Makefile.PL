@@ -31,6 +31,7 @@ requires 'Catalyst::Runtime'                  => '5.7015';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
+requires 'Catalyst::Action::REST';
 requires 'Tangram';
 requires 'Class::Tangram';
 requires 'Bio::MAGETAB::Util::Reader'         => '0.4';

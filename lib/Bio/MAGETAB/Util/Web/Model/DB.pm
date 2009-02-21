@@ -48,12 +48,12 @@ FIXME
 
 =head1 AUTHOR
 
-Tim Rayner
+Tim F. Rayner <tfrayner@gmail.com>
 
 =head1 LICENSE
 
-This library is free software. You can redistribute it and/or modify it under
-the same terms as perl itself.
+This library is released under version 2 of the GNU General Public
+License (GPL).
 
 =cut
 
