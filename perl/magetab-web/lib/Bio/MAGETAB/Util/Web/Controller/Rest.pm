@@ -135,7 +135,7 @@ sub _summarize_investigation : Private {
     foreach my $factor ( $obj->get_factors() ) {
         push @factors, $self->_summarize_factor( $c, $factor, $full );
     }
-    $data{factors} = \@factors;
+    $data{factor} = \@factors;
 
     return \%data;
 }
@@ -168,7 +168,7 @@ sub _summarize_factor : Private {
         push @fvdata, $self->_summarize_factor_value( $c, $fv, $full );
     }
 
-    $data{factorValues} = \@fvdata;
+    $data{factorValue} = \@fvdata;
 
     return \%data;
 }
@@ -183,11 +183,15 @@ sub _summarize_factor_value : Private {
     # forever (a race condition; FIXME?).
     my %data = (
         oid               => $c->model()->storage()->id( $obj ),
-        term              => $self->_summarize_controlled_term(
-                                         $c, $obj->get_term(), $full ),
-        measurement       => $self->_summarize_measurement(
-                                         $c, $obj->get_measurement(), $full ),
     );
+    if ( my $term = $obj->get_term() ) {
+        $data{term} = $self->_summarize_controlled_term(
+            $c, $obj->get_term(), $full );
+    }
+    if ( my $meas = $obj->get_measurement() ) {
+        $data{measurement} = $self->_summarize_measurement(
+            $c, $obj->get_measurement(), $full );
+    }
 
     return \%data unless $full;
 
