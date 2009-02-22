@@ -195,7 +195,65 @@ sub _summarize_factor_value : Private {
 
     return \%data unless $full;
 
-    # FIXME how about datafiles here?
+    # Reflexive query to retrieve SDRFRows for this FactorValue
+    my $remote  = $c->model()->storage()
+                    ->remote( "Bio::MAGETAB::SDRFRow" );
+    my @rows = $c->model()->storage()
+                ->select( $remote, $remote->{factorValues}->includes($obj) );
+    my @rowdata;
+    foreach my $row ( @rows ) {
+        push @rowdata, $self->_summarize_sdrfrow( $c, $row, $full );
+    }
+
+    $data{sdrfRow} = \@rowdata;
+
+    return \%data;
+}
+
+sub _summarize_sdrfrow : Private {
+
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
+
+    # FIXME again, listing FactorValue here can really screw things up.
+    my %data = (
+        oid               => $c->model()->storage()->id( $obj ),
+        rowNumber         => $obj->get_rowNumber(),
+        channel           => $self->_summarize_controlled_term(
+                                         $c, $obj->get_channel(), $full ),
+    );
+
+    return \%data unless $full;
+
+    my @files = grep { UNIVERSAL::isa( $_, 'Bio::MAGETAB::DataFile' ) }
+        $obj->get_nodes();
+
+    my @filedata;
+    foreach my $file ( @files ) {
+        push @filedata, $self->_summarize_data_file( $c, $file, $full );
+    }
+
+    $data{dataFile} = \@filedata;
+
+    return \%data;
+}
+
+sub _summarize_data_file : Private {
+
+    my ( $self, $c, $obj, $full ) = @_;
+
+    return unless $obj;
+
+    my %data = (
+        oid               => $c->model()->storage()->id( $obj ),
+        uri               => $obj->get_uri(),
+        format            => $self->_summarize_controlled_term(
+                                         $c, $obj->get_format(), $full ),
+        dataType          => $self->_summarize_controlled_term(
+                                         $c, $obj->get_dataType(), $full ),
+    );    
+
     return \%data;
 }
 
