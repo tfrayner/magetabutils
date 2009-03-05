@@ -119,8 +119,7 @@ Bio::MAGETAB::Util::Writer - Export of MAGE-TAB objects.
 
 This class is designed to export all the MAGE-TAB objects from a given
 Bio::MAGETAB container, creating as many IDFs, ADFs and SDRFs as are
-necessary to do so. **NOTE** that this module is not yet fully
-implemented or tested, although the API should remain unchanged.
+necessary to do so.
 
 Export of the individual MAGE-TAB components is delegated to separate
 writer classes. See L<Bio::MAGETAB::Util::Writer::ADF>,
