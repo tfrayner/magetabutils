@@ -218,7 +218,7 @@ print $index <<'FOOTER';
       </ul>
     </div>
     <div>
-      <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=241102&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" /></a>
+      <a href="http://sourceforge.net/projects/magetabutils"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=241102&type=13" width="120" height="30" border="0" alt="Get MAGE-TAB Utilities at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
     </div>
   </body>
 </html>
