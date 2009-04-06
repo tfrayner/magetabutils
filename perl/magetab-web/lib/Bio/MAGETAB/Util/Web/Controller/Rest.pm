@@ -124,22 +124,43 @@ sub _summarize_object : Private {
 
     my ( $self, $c, $obj, $level, $class ) = @_;
 
+    my $namespace = 'Bio::MAGETAB';
+
     $class ||= blessed $obj;
     my $method  = $self->_summary_method( $class );
     if ( UNIVERSAL::can( $self, $method ) ) {
 
+        # Return a full serialization. Summarize superclass
+        # attributes recursively here. 
+        my $data = {};
+        CLASS:
+        foreach my $super ( $class->meta()->superclasses() ) {
+
+            # Don't follow superclasses outside the Bio::MAGETAB
+            # namespace.
+            next CLASS unless $super =~ /^${namespace}/;
+
+            # Summarize information from the superclass.
+            my $newdata = $self->_summarize_object( $c, $obj, $level, $super );
+            @{ $data }{keys %$newdata} = values %$newdata;
+        }
+
         # Rather than dump everything for every object from
         # e.g. Investigation on down, we use this $level variable to
-        # track how far down in the heirarchy we want to descend.
+        # track how far down in the heirarchy we want to descend. We
+        # decrement after processing the superclasses.
         $level-- if $level;
-        
-        # Return a full serialization. FIXME summarize superclass
-        # attributes recursively here. This will probably use Class::MOP or similar.
-        my $data = $self->$method( $c, $obj, $level );
+
+        # Get information from this class.
+        my $newdata = $self->$method( $c, $obj, $level );
+        @{ $data }{keys %$newdata} = values %$newdata;
+
+        # Set some standard attributes.
         $data->{oid} = $c->model()->storage()->id( $obj );
-        $class =~ s/^.*:://;
+        $class =~ s/^${namespace}:://;
         $data->{class} = $class;
 
+        # And we're done.
         return $data;
     }
     else {
@@ -147,6 +168,22 @@ sub _summarize_object : Private {
         # This should be caught in an eval.
         die(qq{Error: Unknown summary method "$method"\n});
     }
+}
+
+sub _summarize_base_class : Private {
+
+    my ( $self, $c, $obj, $level ) = @_;
+
+    return unless $obj;
+
+    return {} unless $level;
+
+    my %data = (
+        authority => $obj->get_authority(),
+        namespace => $obj->get_namespace(),
+    );
+
+    return \%data;    
 }
            
 sub _summarize_investigation : Private {
@@ -332,6 +369,22 @@ sub _summarize_measurement : Private {
     return \%data;
 }
 
+sub _summarize_database_entry : Private {
+
+    my ( $self, $c, $obj, $level ) = @_;
+
+    return unless $obj;
+
+    my %data = (
+        accession         => $obj->get_accession(),
+    );
+
+    return \%data unless $level;
+
+    # FIXME TermSource etc.
+    return \%data;
+}
+
 sub _summarize_controlled_term : Private {
 
     my ( $self, $c, $obj, $level ) = @_;
@@ -345,7 +398,7 @@ sub _summarize_controlled_term : Private {
 
     return \%data unless $level;
 
-    # FIXME TermSource etc.
+    # TermSource handled by superclass; anything else to add here?
     return \%data;
 }
 
