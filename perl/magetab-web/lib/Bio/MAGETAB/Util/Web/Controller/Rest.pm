@@ -26,6 +26,7 @@ use warnings;
 use parent 'Catalyst::Controller::REST';
 
 use Scalar::Util qw( blessed );
+use Carp;
 
 =head1 NAME
 
@@ -53,20 +54,24 @@ sub object_by_oid_GET {
     };
 
     if ( $object && ! $@ ) {
-        my $class = blessed $object;
-        my $method = $self->_summary_method( $class );
-        if ( UNIVERSAL::can( $self, $method ) ) {
 
-            # Return a full serialization.
+        my $data;
+        eval {
+            $data = $self->_summarize_object( $c, $object, 2 );
+        };
+
+        if ( $data && ! $@ ) {
             $self->status_ok(
                 $c,
-                entity => $self->$method( $c, $object, 1 ),
+                entity => $data,
             );
         }
         else {
+
+            my $class = blessed $object;
             $self->status_bad_request(
                 $c,
-                message => "Unable to summarize $class objects",
+                message => "Unable to summarize $class objects: $@",
             );
         }
     }
@@ -115,143 +120,192 @@ sub investigation_GET {
 # Methods used to sanitize objects before serialisation.
 #
 
+sub _summarize_object : Private {
+
+    my ( $self, $c, $obj, $level, $class ) = @_;
+
+    $class ||= blessed $obj;
+    my $method  = $self->_summary_method( $class );
+    if ( UNIVERSAL::can( $self, $method ) ) {
+
+        # Rather than dump everything for every object from
+        # e.g. Investigation on down, we use this $level variable to
+        # track how far down in the heirarchy we want to descend.
+        $level-- if $level;
+        
+        # Return a full serialization. FIXME summarize superclass
+        # attributes recursively here. This will probably use Class::MOP or similar.
+        my $data = $self->$method( $c, $obj, $level );
+        $data->{oid} = $c->model()->storage()->id( $obj );
+        $class =~ s/^.*:://;
+        $data->{class} = $class;
+
+        return $data;
+    }
+    else {
+
+        # This should be caught in an eval.
+        die(qq{Error: Unknown summary method "$method"\n});
+    }
+}
+           
 sub _summarize_investigation : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         title             => $obj->get_title(),
         description       => $obj->get_description(),
         date              => $obj->get_date(),
         publicReleaseDate => $obj->get_publicReleaseDate(),
     );
 
-    return \%data unless $full;
+    return \%data unless $level;
 
     my @factors;
     foreach my $factor ( $obj->get_factors() ) {
-        push @factors, $self->_summarize_factor( $c, $factor, $full );
+        push @factors, $self->_summarize_object( $c, $factor, $level );
     }
-    $data{factor} = \@factors;
+    $data{factors} = \@factors;
+
+    my @sdrfs;
+    foreach my $sdrf ( $obj->get_sdrfs() ) {
+        push @sdrfs, $self->_summarize_object( $c, $sdrf, $level );
+    }
+    $data{sdrfs} = \@sdrfs;
+
+    return \%data;
+}
+
+sub _summarize_sdrf : Private {
+
+    my ( $self, $c, $obj, $level ) = @_;
+
+    return unless $obj;
+
+    my %data = (
+        uri               => $obj->get_uri(),
+    );
+
+    return \%data unless $level;
+
+    my @sdrfrows;
+    foreach my $row ( $obj->get_sdrfRows() ) {
+        push @sdrfrows, $self->_summarize_object( $c, $row, $level );
+    }
+    $data{sdrfRows} = \@sdrfrows;
 
     return \%data;
 }
 
 sub _summarize_factor : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         name              => $obj->get_name(),
-        factorType        => $self->_summarize_controlled_term(
-                                         $c, $obj->get_factorType(), $full ),
+        factorType        => $self->_summarize_object(
+                                         $c, $obj->get_factorType(), $level ),
     );
-
-    return \%data unless $full;
-
-    # Reflexive query to retrieve FVs for this Factor
-    my $remote  = $c->model()->storage()
-                    ->remote( "Bio::MAGETAB::FactorValue" );
-
-    # FactorValues (N.B. potential race condition here, we may end up
-    # wanting to drop this part).
-    my @fvs = $c->model()->storage()
-                ->select( $remote, $remote->{factor} == $obj );
-    my @fvdata;
-    foreach my $fv ( @fvs ) {
-        push @fvdata, $self->_summarize_factor_value( $c, $fv, $full );
-    }
-
-    $data{factorValue} = \@fvdata;
 
     return \%data;
 }
 
 sub _summarize_factor_value : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
-    # NB this MUST NOT reference the parent Factor, or we'll be here
-    # forever (a race condition; FIXME?).
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
+        factor            => $self->_summarize_object(
+                                         $c, $obj->get_factor(), $level ),
     );
     if ( my $term = $obj->get_term() ) {
-        $data{term} = $self->_summarize_controlled_term(
-            $c, $obj->get_term(), $full );
+        $data{term} = $self->_summarize_object(
+            $c, $obj->get_term(), $level );
     }
     if ( my $meas = $obj->get_measurement() ) {
-        $data{measurement} = $self->_summarize_measurement(
-            $c, $obj->get_measurement(), $full );
+        $data{measurement} = $self->_summarize_object(
+            $c, $obj->get_measurement(), $level );
     }
-
-    return \%data unless $full;
-
-    # Reflexive query to retrieve SDRFRows for this FactorValue
-    my $remote  = $c->model()->storage()
-                    ->remote( "Bio::MAGETAB::SDRFRow" );
-    my @rows = $c->model()->storage()
-                ->select( $remote, $remote->{factorValues}->includes($obj) );
-    my @rowdata;
-    foreach my $row ( @rows ) {
-        push @rowdata, $self->_summarize_sdrfrow( $c, $row, $full );
-    }
-
-    $data{sdrfRow} = \@rowdata;
 
     return \%data;
 }
 
 sub _summarize_sdrfrow : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
-    # FIXME again, listing FactorValue here can really screw things up.
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         rowNumber         => $obj->get_rowNumber(),
-        channel           => $self->_summarize_controlled_term(
-                                         $c, $obj->get_channel(), $full ),
+        channel           => $self->_summarize_object(
+                                         $c, $obj->get_channel(), $level ),
     );
 
-    return \%data unless $full;
+    return \%data unless $level;
 
-    my @files = grep { UNIVERSAL::isa( $_, 'Bio::MAGETAB::DataFile' ) }
-        $obj->get_nodes();
-
-    my @filedata;
-    foreach my $file ( @files ) {
-        push @filedata, $self->_summarize_data_file( $c, $file, $full );
+    my @nodedata;
+    foreach my $node ( $obj->get_nodes() ) {
+        push @nodedata, $self->_summarize_object( $c, $node, $level );
     }
 
-    $data{dataFile} = \@filedata;
+    $data{nodes} = \@nodedata;
+
+    return \%data;
+}
+
+sub _summarize_node : Private {
+
+    my ( $self, $c, $obj, $level ) = @_;
+
+    return unless $obj;
+
+    my %data;
+
+    my @commentdata;
+    foreach my $comment ( $obj->get_comments() ) {
+        push @commentdata, $self->_summarize_object( $c, $comment, $level );
+    }
+    $data{comments} = \@commentdata;
+
+    # Note that we only go one way here; handling outputEdges might
+    # result in a race condition. Note also that we're omitting
+    # sdrfRows for the same reason.
+    my @inputedgedata;
+    foreach my $input ( $obj->get_inputEdges() ) {
+        push @inputedgedata, $self->_summarize_object( $c, $input, $level );
+    }
+    $data{inputEdges} = \@inputedgedata;
+
+    my $class = blessed $obj;
+    my $method = $self->_summary_method( $class );
+    if ( UNIVERSAL::can( $self, $method ) ) {
+        my %subdata = $self->$method( $c, $obj, $level );
+        @data{ keys %subdata } = values %subdata;
+    }
 
     return \%data;
 }
 
 sub _summarize_data_file : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         uri               => $obj->get_uri(),
-        format            => $self->_summarize_controlled_term(
-                                         $c, $obj->get_format(), $full ),
-        dataType          => $self->_summarize_controlled_term(
-                                         $c, $obj->get_dataType(), $full ),
+        format            => $self->_summarize_object(
+                                         $c, $obj->get_format(), $level ),
+        dataType          => $self->_summarize_object(
+                                         $c, $obj->get_dataType(), $level ),
     );    
 
     return \%data;
@@ -259,21 +313,20 @@ sub _summarize_data_file : Private {
 
 sub _summarize_measurement : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         measurementType   => $obj->get_measurementType(),
         value             => $obj->get_value(),
         min_value         => $obj->get_min_value(),
         max_value         => $obj->get_max_value(),
-        unit              => $self->_summarize_controlled_term(
-                                         $c, $obj->get_unit(), $full ),
+        unit              => $self->_summarize_object(
+                                         $c, $obj->get_unit(), $level ),
     );
 
-    return \%data unless $full;
+    return \%data unless $level;
 
     # FIXME Anything here?.
     return \%data;
@@ -281,17 +334,16 @@ sub _summarize_measurement : Private {
 
 sub _summarize_controlled_term : Private {
 
-    my ( $self, $c, $obj, $full ) = @_;
+    my ( $self, $c, $obj, $level ) = @_;
 
     return unless $obj;
 
     my %data = (
-        oid               => $c->model()->storage()->id( $obj ),
         category          => $obj->get_category(),
         value             => $obj->get_value(),
     );
 
-    return \%data unless $full;
+    return \%data unless $level;
 
     # FIXME TermSource etc.
     return \%data;
@@ -314,6 +366,25 @@ sub _summary_method : Private {
     $class = lc($class);
 
     return "_summarize_$class";
+}
+
+sub _pluralize_class : Private {
+
+    my ( $self, $class ) = @_;
+
+    my %irregular_plural = (
+        'BaseClass'     => 'BaseClasses',
+        'Data'          => 'Data',
+        'DataMatrix'    => 'DataMatrices',
+        'DatabaseEntry' => 'DatabaseEntries',
+    );
+
+    $class =~ s/^.*:://;
+    $class = $irregular_plural{$class} || "${class}s";
+    $class = lcfirst($class);
+    $class =~ s/^SDRF/sdrf/i;
+
+    return $class;
 }
 
 =head1 AUTHOR
