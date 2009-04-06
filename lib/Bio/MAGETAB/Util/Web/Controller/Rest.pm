@@ -170,6 +170,11 @@ sub _summarize_object : Private {
     }
 }
 
+# Individual class summarization methods. Within each method, only the
+# immediate attributes of each class need to be considered. Each
+# method should have two levels of verbosity: when $level evaluates
+# true or not.
+
 sub _summarize_base_class : Private {
 
     my ( $self, $c, $obj, $level ) = @_;
