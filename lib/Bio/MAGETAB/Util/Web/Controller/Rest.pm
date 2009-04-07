@@ -57,6 +57,12 @@ sub object_by_oid_GET {
 
         my $data;
         eval {
+
+            # The $depth_wanted argument in this call can be increased
+            # to dump more information to the REST user. In practice
+            # I'd suggest not going above 3, because otherwise the
+            # cycles in the model (Edge-Node, SDRFRow-Node) start to
+            # rear their ugly head.
             $data = $self->_summarize_object( $c, $object, 2 );
         };
 
@@ -195,6 +201,8 @@ sub _summarize_object : Private {
     my $namespace = 'Bio::MAGETAB';
 
     $class ||= blessed $obj;
+
+    return unless $class;
 
     # Return a full serialization. Summarize superclass
     # attributes recursively here. 
