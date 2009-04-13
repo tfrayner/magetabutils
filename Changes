@@ -1,6 +1,4 @@
-Changelog for Bio::MAGETAB::Util::Web
+Changelog for Bio::GeneSigDB::Web
 -------------------------------------
 
-0.02    Bio-MAGETAB-Util-Web-0.02.tar.gz     Fix for problems with Catalyst::Runtime 5.71
-
-0.01	Bio-MAGETAB-Util-Web-0.01.tar.gz     Initial public release
+0.01	Bio-GeneSigDB-Web-0.01.tar.gz     Initial public release

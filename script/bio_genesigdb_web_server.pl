@@ -2,20 +2,20 @@
 #
 # Copyright 2008 Tim Rayner
 # 
-# This file is part of Bio::MAGETAB::Util::Web.
+# This file is part of Bio::GeneSigDB::Web.
 # 
-# Bio::MAGETAB::Util::Web is free software: you can redistribute it and/or modify
+# Bio::GeneSigDB::Web is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 # 
-# Bio::MAGETAB::Util::Web is distributed in the hope that it will be useful,
+# Bio::GeneSigDB::Web is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Bio::MAGETAB::Util::Web.  If not, see <http://www.gnu.org/licenses/>.
+# along with Bio::GeneSigDB::Web.  If not, see <http://www.gnu.org/licenses/>.
 #
 # $Id$
 
@@ -38,9 +38,9 @@ my $debug             = 0;
 my $fork              = 0;
 my $help              = 0;
 my $host              = undef;
-my $port              = $ENV{BIO_MAGETAB_UTIL_WEB_PORT} || $ENV{CATALYST_PORT} || 3000;
+my $port              = $ENV{BIO_GENESIGDB_WEB_PORT} || $ENV{CATALYST_PORT} || 3000;
 my $keepalive         = 0;
-my $restart           = $ENV{BIO_MAGETAB_UTIL_WEB_RELOAD} || $ENV{CATALYST_RELOAD} || 0;
+my $restart           = $ENV{BIO_GENESIGDB_WEB_RELOAD} || $ENV{CATALYST_RELOAD} || 0;
 my $restart_delay     = 1;
 my $restart_regex     = '(?:/|^)(?!\.#).+(?:\.yml$|\.yaml$|\.conf|\.pm)$';
 my $restart_directory = undef;
@@ -73,9 +73,9 @@ if ( $debug ) {
 
 # This is require instead of use so that the above environment
 # variables can be set at runtime.
-require Bio::MAGETAB::Util::Web;
+require Bio::GeneSigDB::Web;
 
-Bio::MAGETAB::Util::Web->run( $port, $host, {
+Bio::GeneSigDB::Web->run( $port, $host, {
     argv              => \@argv,
     'fork'            => $fork,
     keepalive         => $keepalive,
@@ -90,11 +90,11 @@ Bio::MAGETAB::Util::Web->run( $port, $host, {
 
 =head1 NAME
 
-bio_magetab_util_web_server.pl - Catalyst Testserver
+bio_genesigdb_web_server.pl - Catalyst Testserver
 
 =head1 SYNOPSIS
 
-bio_magetab_util_web_server.pl [options]
+bio_genesigdb_web_server.pl [options]
 
  Options:
    -d -debug          force debug mode

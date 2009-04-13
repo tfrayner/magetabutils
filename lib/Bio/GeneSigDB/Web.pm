@@ -2,24 +2,24 @@
 #
 # Copyright 2008 Tim Rayner
 # 
-# This file is part of Bio::MAGETAB::Util::Web.
+# This file is part of Bio::GeneSigDB::Web.
 # 
-# Bio::MAGETAB::Util::Web is free software: you can redistribute it and/or modify
+# Bio::GeneSigDB::Web is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 # 
-# Bio::MAGETAB::Util::Web is distributed in the hope that it will be useful,
+# Bio::GeneSigDB::Web is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Bio::MAGETAB::Util::Web.  If not, see <http://www.gnu.org/licenses/>.
+# along with Bio::GeneSigDB::Web.  If not, see <http://www.gnu.org/licenses/>.
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Web;
+package Bio::GeneSigDB::Web;
 
 use strict;
 use warnings;
@@ -44,14 +44,14 @@ our $VERSION = '0.02';
 
 # Configure the application. 
 #
-# Note that settings in bio_magetab_util_web.yml (or other external
+# Note that settings in bio_genesigdb_web.yml (or other external
 # configuration file that you set up manually) take precedence
 # over this when using ConfigLoader. Thus configuration
 # details given here can function as a default configuration,
 # with a external configuration file acting as an override for
 # local deployment.
 
-__PACKAGE__->config( name          => 'Bio::MAGETAB::Util::Web',
+__PACKAGE__->config( name          => 'Bio::GeneSigDB::Web',
                      default_model => 'DB' );
 
 # Start the application
@@ -70,23 +70,23 @@ sub uri_for {
 
 =head1 NAME
 
-Bio::MAGETAB::Util::Web - Catalyst based web application for MAGE-TAB Utilities
+Bio::GeneSigDB::Web - Catalyst based web application for MAGE-TAB Utilities
 
 =head1 SYNOPSIS
 
-    script/bio_magetab_util_web_server.pl
+    script/bio_genesigdb_web_server.pl
 
 =head1 DESCRIPTION
 
 This is a web application, built using MAGE-TAB Utilities and the
 Catalyst framework, which allows the user to interact with MAGE-TAB
 metadata stored in a database back-end. The database is managed via
-the Bio::MAGETAB::Util::Persistence and Bio::MAGETAB::Util::DBLoader
+the Bio::GeneSigDB::Persistence and Bio::GeneSigDB::DBLoader
 modules, and is based on the Tangram object persistence mechanism.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Web::Controller::Root>, Catalyst, L<Bio::MAGETAB>, L<Bio::MAGETAB::Util::Persistence>
+L<Bio::GeneSigDB::Web::Controller::Root>, Catalyst, L<Bio::MAGETAB>, L<Bio::GeneSigDB::Persistence>
 
 =head1 AUTHOR
 

@@ -1,27 +1,17 @@
-Bio::MAGETAB::Util::Web Documentation
-=====================================
+Bio::GeneSigDB::Web Documentation
+=================================
 
 Introduction
 ------------
 
-This package contains a web application built using the
-"magetab-utils" package and the Catalyst framework to allow users to
-interact with data stored in a Bio::MAGETAB::Util::Persistence
-database (based on the Tangram perl modules).
-
-At the moment this application is more of a successful
-proof-of-principle than a serious production web application, but if
-there is sufficient demand this code may be developed further.
-
-See the documentation for the "magetab-utils" package for information
-on how to set up the database.
+This package contains a web application developed around the
+"magetab-web" package.
 
 Dependencies
 ------------
 
-This web application requires that the Bio::MAGETAB::Util modules are
-installed. These modules are provided by the "magetab-utils" package,
-available from the MAGE-TAB Utilities SourceForge project page.
+This web application requires that the Bio::GeneSigDB modules are
+installed.
 
 The following CPAN modules are also required (see http://www.cpan.org):
 
@@ -37,7 +27,7 @@ Scripts
 -------
 
 All the usual Catalyst scripts are included in the package. Run
-./script/bio_magetab_util_web_server.pl to test the application.
+./script/bio_genesigdb_web_server.pl to test the application.
 
 Contact
 -------

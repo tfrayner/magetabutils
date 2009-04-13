@@ -2,32 +2,32 @@
 #
 # Copyright 2008 Tim Rayner
 # 
-# This file is part of Bio::MAGETAB::Util::Web.
+# This file is part of Bio::GeneSigDB::Web.
 # 
-# Bio::MAGETAB::Util::Web is free software: you can redistribute it and/or modify
+# Bio::GeneSigDB::Web is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 # 
-# Bio::MAGETAB::Util::Web is distributed in the hope that it will be useful,
+# Bio::GeneSigDB::Web is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Bio::MAGETAB::Util::Web.  If not, see <http://www.gnu.org/licenses/>.
+# along with Bio::GeneSigDB::Web.  If not, see <http://www.gnu.org/licenses/>.
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Web::Controller::SDRF;
+package Bio::GeneSigDB::Web::Controller::SDRF;
 
 use strict;
 use warnings;
-use parent 'Bio::MAGETAB::Util::Web::Controller::BaseClass';
+use parent 'Bio::GeneSigDB::Web::Controller::BaseClass';
 
 =head1 NAME
 
-Bio::MAGETAB::Util::Web::Controller::SDRF - Catalyst Controller
+Bio::GeneSigDB::Web::Controller::SDRF - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -69,8 +69,8 @@ sub image : Local {
      my $imagedata;
      if ( ! -e $cachefile ) {
      
-         require Bio::MAGETAB::Util::Writer::GraphViz;
-         my $g = Bio::MAGETAB::Util::Writer::GraphViz->new(
+         require Bio::GeneSigDB::Writer::GraphViz;
+         my $g = Bio::GeneSigDB::Writer::GraphViz->new(
              sdrfs => [ $object ],
          );
 

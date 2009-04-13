@@ -1,5 +1,5 @@
-[% META title = "Welcome to MAGE-TAB Utilities" %] 
-<p>Here you will find All Things MAGE-TAB.</p> 
+[% META title = "Welcome to GeneSigDB" %] 
+<p>Here you will find gene signature information.</p> 
 <p>From here, you can: 
 <ul> 
 <li><a href="[% c.uri_for('/investigation/list') %]">List all investigations</a></li> 

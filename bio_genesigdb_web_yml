@@ -1,6 +1,6 @@
 ---
 
-name: Bio::MAGETAB::Util::Web
+name: Bio::GeneSigDB::Web
 
 # Main database configuration.
 Model::DB:

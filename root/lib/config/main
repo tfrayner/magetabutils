@@ -19,7 +19,7 @@
 
    # define a data structure to hold sitewide data
    site = {
-     title     => 'MAGETAB Utilities',
+     title     => 'GeneSigDB',
      copyright => '2009 Tim Rayner',
    };
 

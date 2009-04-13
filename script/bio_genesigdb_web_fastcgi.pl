@@ -2,20 +2,20 @@
 #
 # Copyright 2008 Tim Rayner
 # 
-# This file is part of Bio::MAGETAB::Util::Web.
+# This file is part of Bio::GeneSigDB::Web.
 # 
-# Bio::MAGETAB::Util::Web is free software: you can redistribute it and/or modify
+# Bio::GeneSigDB::Web is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 # 
-# Bio::MAGETAB::Util::Web is distributed in the hope that it will be useful,
+# Bio::GeneSigDB::Web is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with Bio::MAGETAB::Util::Web.  If not, see <http://www.gnu.org/licenses/>.
+# along with Bio::GeneSigDB::Web.  If not, see <http://www.gnu.org/licenses/>.
 #
 # $Id$
 
@@ -29,7 +29,7 @@ use Getopt::Long;
 use Pod::Usage;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
-use Bio::MAGETAB::Util::Web;
+use Bio::GeneSigDB::Web;
 
 my $help = 0;
 my ( $listen, $nproc, $pidfile, $manager, $detach, $keep_stderr );
@@ -46,7 +46,7 @@ GetOptions(
 
 pod2usage(1) if $help;
 
-Bio::MAGETAB::Util::Web->run( 
+Bio::GeneSigDB::Web->run( 
     $listen, 
     {   nproc   => $nproc,
         pidfile => $pidfile, 
@@ -60,11 +60,11 @@ Bio::MAGETAB::Util::Web->run(
 
 =head1 NAME
 
-bio_magetab_util_web_fastcgi.pl - Catalyst FastCGI
+bio_genesigdb_web_fastcgi.pl - Catalyst FastCGI
 
 =head1 SYNOPSIS
 
-bio_magetab_util_web_fastcgi.pl [options]
+bio_genesigdb_web_fastcgi.pl [options]
  
  Options:
    -? -help      display this help and exits
