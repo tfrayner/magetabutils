@@ -30,10 +30,10 @@ has 'name'                => ( is         => 'rw',
                                isa        => 'Str',
                                required   => 1 );
 
-has 'biomart_filter'      => ( is         => 'rw',
+has 'biomartFilter'       => ( is         => 'rw',
                                isa        => 'Str',
-                               clearer    => 'clear_biomart_filter',
-                               predicate  => 'has_biomart_filter',
+                               clearer    => 'clear_biomartFilter',
+                               predicate  => 'has_biomartFilter',
                                required   => 0 );
 
 sub BUILD {

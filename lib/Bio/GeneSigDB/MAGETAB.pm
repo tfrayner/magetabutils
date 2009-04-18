@@ -17,24 +17,29 @@
 #
 # $Id$
 
-package Bio::GeneSigDB::Category;
+package Bio::GeneSigDB::MAGETAB;
 
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
 use Carp;
 
-BEGIN { extends 'Bio::GeneSigDB' };
+BEGIN { extends 'Bio::GeneSigDB::Provenance' };
 
-has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+has 'investigation'       => ( is         => 'rw',
+                               isa        => 'Bio::MAGETAB::Investigation',
                                required   => 1 );
 
-has 'parentCategory'      => ( is         => 'rw',
-                               isa        => 'Bio::GeneSigDB::Category',
-                               clearer    => 'clear_parentCategory',
-                               predicate  => 'has_parentCategory',
-                               required   => 0 );
+has 'test'                => ( is         => 'rw',
+                               isa        => 'Bio::MAGETAB::FactorValue',
+                               required   => 1 );
+
+has 'reference'           => ( is         => 'rw',
+                               isa        => 'Bio::MAGETAB::FactorValue',
+                               required   => 1 );
+
+# FIXME we could profitably add a check that test and reference are
+# actually used in the investigation (and aren't the same).
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.
@@ -46,12 +51,12 @@ no Moose;
 
 =head1 NAME
 
-Bio::GeneSigDB::Category - Class used to annotate signatures to
-various user-defined categories.
+Bio::GeneSigDB::MAGETAB - Class linking a Signature to the evidence
+from the MAGE-TAB model used to derive it.
 
 =head1 SYNOPSIS
 
- use Bio::GeneSigDB::Category;
+ use Bio::GeneSigDB::MAGETAB;
 
 =head1 DESCRIPTION
 
@@ -61,7 +66,7 @@ various user-defined categories.
 
 =head1 SEE ALSO
 
-L<Bio::GeneSigDB::Signature>
+L<Bio::GeneSigDB::Provenance>, L<Bio::MAGETAB::Investigation>, L<Bio::MAGETAB::FactorValue>
 
 =head1 AUTHOR
 

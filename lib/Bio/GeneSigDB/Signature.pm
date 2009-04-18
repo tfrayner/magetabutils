@@ -47,10 +47,10 @@ has 'categories'          => ( is         => 'rw',
                                required   => 0,
                                auto_deref => 1 );
 
-has 'parent_signature'    => ( is         => 'rw',
+has 'parentSignature'     => ( is         => 'rw',
                                isa        => 'Bio::GeneSigDB::Signature',
-                               clearer    => 'clear_parent_signature',
-                               predicate  => 'has_parent_signature',
+                               clearer    => 'clear_parentSignature',
+                               predicate  => 'has_parentSignature',
                                required   => 0 );
 
 has 'elements'            => ( is         => 'rw',

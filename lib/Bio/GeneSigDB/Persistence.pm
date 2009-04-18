@@ -39,7 +39,66 @@ sub class_config {
             },
         },
 
-        # FIXME the rest of the model needs filling in here.
+        'Bio::GeneSigDB::Platform' => {
+            fields => {
+                string => [ qw( name
+                                biomartFilter ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::Array' => {
+            bases => [ 'Bio::GeneSigDB::Platform' ],
+            fields => {
+                string => [ qw( manufacturer ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::Database' => {
+            bases => [ 'Bio::GeneSigDB::Platform' ],
+            fields => {
+                string => [ qw( uri ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::Category' => {
+            fields => {
+                string => [ qw( name ) ],
+                ref    => [ qw( parentCategory ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::Element' => {
+            fields => {
+                string => [ qw( identifier ) ],
+                ref    => [ qw( platform ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::PublishedSignature' => {
+            bases  => [ 'Bio::GeneSigDB::Signature' ],
+            fields => {
+                string => [ qw( criteria ) ],
+                ref    => [ qw( provenance ) ],
+            },
+        },
+
+        'Bio::GeneSigDB::Signature' => {
+            fields => {
+                string => [ qw( name species notes ) ],
+                array  => { categories => 'Bio::GeneSigDB::Category',
+                            elements   => 'Bio::GeneSigDB::Element' },
+                ref    => [ qw( parentSignature ) ],
+            },
+        },
+
+        # This class is the link between GeneSigDB and MAGE-TAB
+        # models.
+        'Bio::GeneSigDB::MAGETAB' => {
+            bases  => [ 'Bio::GeneSigDB::Provenance' ],
+            fields => {
+                ref => [ qw( test reference investigation ) ],
+            },
+        },
     );
 
     push @{ $hashref->{'classes'} }, @genesig_classes;
