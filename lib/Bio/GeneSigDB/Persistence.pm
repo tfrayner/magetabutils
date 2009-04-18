@@ -22,13 +22,13 @@ package Bio::GeneSigDB::Persistence;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-BEGIN { extends 'Bio::GeneSigDB::Persistence' };
+BEGIN { extends 'Bio::MAGETAB::Util::Persistence' };
 
 sub class_config {
 
     my ( $class ) = @_;
 
-    my $hashref = $class::SUPER->class_config();
+    my $hashref = $class->SUPER::class_config();
 
     my @genesig_classes = (
 

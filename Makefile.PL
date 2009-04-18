@@ -34,7 +34,7 @@ requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::Action::REST';
 requires 'Tangram';
 requires 'Class::Tangram';
-requires 'Bio::GeneSigDB::Persistence';
+requires 'Bio::MAGETAB';
 requires 'parent';
 requires 'Config::YAML';
 
