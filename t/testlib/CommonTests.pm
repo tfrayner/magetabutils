@@ -22,12 +22,14 @@
 use strict;
 use warnings;
 
+package CommonTests;
+
 use Test::More;
 use Test::Exception;
 use Storable qw(dclone);
 
 use base qw(Exporter);
-our @EXPORT_OK = qw(test_class);
+our @EXPORT_OK = qw(test_class test_methods);
 
 sub instantiate {
 
