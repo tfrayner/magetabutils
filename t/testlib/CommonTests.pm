@@ -115,7 +115,6 @@ sub test_instantiation {
         my $getter = "get_$key";
         is( $obj->$getter, $value, qq{with the correct "$key" attribute} );
     }
-    ok( ! defined $obj->get_ClassContainer(), 'and no container object set' );
 
     # Check predicate method behaviour - after opt attr setting.
     while ( my ( $key, $value ) = each %{ $optional } ) {
