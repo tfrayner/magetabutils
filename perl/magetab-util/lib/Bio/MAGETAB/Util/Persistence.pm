@@ -431,7 +431,7 @@ sub class_config {
     };
 }
 
-has 'config'   => ( is       => 'ro',
+has 'config'   => ( is       => 'rw',
                     isa      => 'HashRef',
                     required => 1,
                     default  => \&class_config, );
