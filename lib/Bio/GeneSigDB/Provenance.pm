@@ -32,10 +32,10 @@ has 'notes'               => ( is         => 'rw',
                                predicate  => 'has_notes',
                                required   => 0 );
 
-has 'reference'           => ( is         => 'rw',
+has 'bibref'              => ( is         => 'rw',
                                isa        => 'Str',
-                               clearer    => 'clear_reference',
-                               predicate  => 'has_reference',
+                               clearer    => 'clear_bibref',
+                               predicate  => 'has_bibref',
                                required   => 0 );
 
 # Make the classes immutable. In theory this speeds up object
