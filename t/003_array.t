@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Bio::GeneSigDB.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id: 002_base_class.t 127 2008-12-01 10:00:08Z tfrayner $
+# $Id: 003_array_design.t 50 2008-06-17 06:47:44Z tfrayner $
 
 use strict;
 use warnings;
@@ -26,19 +26,41 @@ use Test::More qw(no_plan);
 use Test::Exception;
 
 BEGIN {
-    use_ok( 'Bio::GeneSigDB' );
+    use_ok( 'Bio::GeneSigDB::Array' );
 }
 
 INIT {
     use lib 't/testlib';
-    use CommonTests qw(test_methods);
+    use CommonTests qw(test_class);
 }
 
-dies_ok( sub { Bio::GeneSigDB->new() }, 'abstract class cannot be instantiated' );
-
-# Very basic tests that methods exist. Anything more would require
-# instantiation.
-my @expected = qw(
+my %required_attr = (
+    name         => 'test array',
+    manufacturer => 'test manuf',
 );
 
-test_methods( 'Bio::GeneSigDB', \@expected );
+my %optional_attr = (
+    biomartFilter => 'test filter',
+);
+
+my %bad_attr = (
+    name          => [],
+    manufacturer  => [],
+    biomartFilter => [],
+);
+
+my %secondary_attr = (
+    name          => 'test array 2',
+    manufacturer  => 'manufacturer 2',
+    biomartFilter => 'filter 2',
+);
+
+my $obj = test_class(
+    'Bio::GeneSigDB::Array',
+    \%required_attr,
+    \%optional_attr,
+    \%bad_attr,
+    \%secondary_attr,
+);
+
+ok( $obj->isa('Bio::GeneSigDB::Platform'), 'object has correct superclass' );
