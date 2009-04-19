@@ -24,6 +24,16 @@ use Moose;
 
 BEGIN { extends 'Bio::MAGETAB::Util::Persistence' };
 
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    # We need to set the object config to our class config explicitly.
+    $self->set_config( $self->class_config() );
+
+    return;
+}
+
 sub class_config {
 
     my ( $class ) = @_;
