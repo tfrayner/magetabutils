@@ -31,7 +31,7 @@ all_from 'lib/Bio/MAGETAB/Util/Reader.pm';
 requires 'Bio::MAGETAB'                => '0.96';
 requires 'Moose'                       => '0.43';
 requires 'Moose::Policy'               => '0.03';
-requires 'Parse::RecDescent'           => '1.94';
+requires 'Parse::RecDescent'           => '1.96.0';
 requires 'Text::CSV_XS'                => '0.32';
 
 test_requires 'Test::Exception'        => '0.26';
