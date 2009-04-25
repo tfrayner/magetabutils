@@ -299,7 +299,7 @@ sub _create_people {
                 $self->get_builder()->update( $role );
             }                
             $role;
-        } split /\s*;\s*/, $p_data->{'roles'};
+        } split /\s*;\s*/, ( $p_data->{'roles'} || q{} );
 
         my @wanted = grep { $_ !~ /^roles|termSource|accession$/ } keys %{ $p_data };
         my %args   = map { $_ => $p_data->{$_} } @wanted;
