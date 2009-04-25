@@ -40,7 +40,6 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
-    use_ok( 'Bio::MAGETAB::Util::Writer::GraphViz' );
 }
 
 SKIP: {
@@ -55,4 +54,16 @@ SKIP: {
 
     require_ok('Bio::MAGETAB::Util::Persistence');
     require_ok('Bio::MAGETAB::Util::DBLoader');
+}
+
+SKIP: {
+
+    eval {
+        require GraphViz;
+    };
+
+    skip 'Visualisation needs GraphViz',
+        1 if $@;
+
+    use_ok( 'Bio::MAGETAB::Util::Writer::GraphViz' );
 }
