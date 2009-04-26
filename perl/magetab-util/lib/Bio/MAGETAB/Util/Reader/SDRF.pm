@@ -44,11 +44,11 @@ sub parse {
     my ( $self ) = @_;
 
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
     my $row_parser = $self->_parse_header();
-    my $sdrf_fh    = $self->_get_filehandle();
-    my $csv_parser = $self->_construct_csv_parser();
+    my $sdrf_fh    = $self->get_filehandle();
+    my $csv_parser = $self->get_csv_parser();
 
     my $larry;
     my @sdrf_rows;
@@ -69,10 +69,10 @@ sub parse {
     while ( $larry = $csv_parser->getline($sdrf_fh) ) {
     
         # Skip empty lines, comments.
-        next FILE_LINE if $self->_can_ignore( $larry );
+        next FILE_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         # Parse the line into Bio::MAGETAB objects using the row-level parser.
 	my $objects = $row_parser->(@$larry);
@@ -114,7 +114,7 @@ sub parse {
     }
 
     # Check we've parsed to the end of the file.
-    $self->_confirm_full_parse( $csv_parser );
+    $self->confirm_full_parse();
 
     # Add the rows to the SDRF object.
     if ( scalar @sdrf_rows ) {
@@ -144,8 +144,8 @@ sub _parse_header {
 
     # Check linebreaks; get first line as $header_string and generate
     # row-level parser.
-    my $csv_parser = $::sdrf->_construct_csv_parser();
-    my $sdrf_fh    = $::sdrf->_get_filehandle();
+    my $csv_parser = $::sdrf->get_csv_parser();
+    my $sdrf_fh    = $::sdrf->get_filehandle();
 
     # Get the header line - the first non-empty, non-comment line in the file.
     my ( $header_string, $harry );
@@ -153,7 +153,7 @@ sub _parse_header {
     while ( $harry = $csv_parser->getline($sdrf_fh) ) {
 
 	# Skip empty and commented lines.
-        next HEADERLINE if $::sdrf->_can_ignore( $harry );
+        next HEADERLINE if $::sdrf->can_ignore( $harry );
 
 	$header_string = join( qq{\x{0}}, @$harry );
 
@@ -167,7 +167,7 @@ sub _parse_header {
     }
 
     # Check we have no CSV parse errors.
-    $::sdrf->_confirm_full_parse( $csv_parser, $harry );
+    $::sdrf->confirm_full_parse( $harry );
 
     # N.B. MAGE-TAB 1.1 SDRFs can actually be empty, so an empty
     # $header_string is valid at this point.

@@ -60,10 +60,10 @@ sub parse {
     $self->set__array_design( $ad ) if $ad;
 
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
-    my $matrix_fh  = $self->_get_filehandle();
-    my $csv_parser = $self->_construct_csv_parser();
+    my $matrix_fh  = $self->get_filehandle();
+    my $csv_parser = $self->get_csv_parser();
 
     my $qts;
     my $nodes;
@@ -78,10 +78,10 @@ sub parse {
     while ( my $larry = $csv_parser->getline($matrix_fh) ) {
     
         # Skip empty lines, comments.
-        next FILE_LINE if $self->_can_ignore( $larry );
+        next FILE_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         if ( $row_number == 1 ) {
             $nodes = $self->_parse_node_heading( $larry );
@@ -118,7 +118,7 @@ sub parse {
     }
 
     # Confirm we've read to the end of the file.
-    $self->_confirm_full_parse( $csv_parser );
+    $self->confirm_full_parse();
 
     # Sanity check.
     unless ( scalar @{ $qts } == scalar @{ $nodes } ) {

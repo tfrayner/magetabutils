@@ -104,10 +104,10 @@ sub _position_fh_at_section {
     my ( $self, $section ) = @_;
 
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
-    my $adf_fh     = $self->_get_filehandle();
-    my $csv_parser = $self->_construct_csv_parser();
+    my $adf_fh     = $self->get_filehandle();
+    my $csv_parser = $self->get_csv_parser();
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
 
@@ -118,10 +118,10 @@ sub _position_fh_at_section {
     while ( $larry = $csv_parser->getline($adf_fh) ) {
     
         # Skip empty lines, comments.
-        next HEADER_LINE if $self->_can_ignore( $larry );
+        next HEADER_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         # First useful line after the start of the ADF body.
         if ( $is_body ) {
@@ -135,7 +135,7 @@ sub _position_fh_at_section {
         }
     }
 
-    $self->_confirm_full_parse( $csv_parser, $larry );
+    $self->confirm_full_parse( $larry );
 
     return ( $adf_fh, $larry );
 }
@@ -273,9 +273,9 @@ sub _parse_mapping_section {
     }
 
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
-    my $csv_parser = $self->_construct_csv_parser();
+    my $csv_parser = $self->get_csv_parser();
 
     my @design_elements;
 
@@ -283,10 +283,10 @@ sub _parse_mapping_section {
     while ( my $larry = $csv_parser->getline($adf_fh) ) {
 
         # Skip empty lines, comments.
-        next MAPPING_LINE if $self->_can_ignore( $larry );
+        next MAPPING_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         my @row_elements = $self->_parse_adfrow( $larry, $header );
 
@@ -294,7 +294,7 @@ sub _parse_mapping_section {
     }
 
     # Check we've parsed to the end of the file.
-    $self->_confirm_full_parse( $csv_parser );
+    $self->confirm_full_parse();
 
     # N.B. this *may* contain duplicates, beware.
     return \@design_elements;
@@ -312,9 +312,9 @@ sub _parse_body {
     }
 
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
-    my $csv_parser = $self->_construct_csv_parser();
+    my $csv_parser = $self->get_csv_parser();
 
     my %design_elements;
 
@@ -322,10 +322,10 @@ sub _parse_body {
     while ( my $larry = $csv_parser->getline($adf_fh) ) {
 
         # Skip empty lines, comments.
-        next BODY_LINE if $self->_can_ignore( $larry );
+        next BODY_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         # If we find a mapping section, parse it also.
         if ( $larry->[0] =~ /\A \[ [ ]* (?:mapping) [ ]* \] \z/ixms ) {
@@ -344,7 +344,7 @@ sub _parse_body {
     }
 
     # Check we've parsed to the end of the file.
-    $self->_confirm_full_parse( $csv_parser );
+    $self->confirm_full_parse();
 
     # Add our DesignElements to our ArrayDesign
     my $array_design;
@@ -732,10 +732,10 @@ sub _read_header_as_arrayref {
     my ( $self ) = @_;
     
     # This has to be set for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
-    my $adf_fh     = $self->_get_filehandle();
-    my $csv_parser = $self->_construct_csv_parser();
+    my $adf_fh     = $self->get_filehandle();
+    my $csv_parser = $self->get_csv_parser();
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
 
@@ -745,10 +745,10 @@ sub _read_header_as_arrayref {
     while ( $larry = $csv_parser->getline($adf_fh) ) {
     
         # Skip empty lines, comments.
-        next FILE_LINE if $self->_can_ignore( $larry );
+        next FILE_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
         my ( $tag, @values ) = @$larry;
 
@@ -770,7 +770,7 @@ sub _read_header_as_arrayref {
 	push @rows, $larry;
     }
 
-    $self->_confirm_full_parse( $csv_parser, $larry );
+    $self->confirm_full_parse( $larry );
 
     return \@rows;
 }

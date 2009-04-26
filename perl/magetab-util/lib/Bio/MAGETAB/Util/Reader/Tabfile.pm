@@ -39,7 +39,7 @@ has 'eol_char'           => ( is         => 'rw',
                               isa        => 'Str',
                               required   => 0 );
 
-has 'filehandle_cache'   => ( is         => 'rw',
+has 'filehandle'         => ( is         => 'rw',
                               isa        => 'FileHandle',
                               required   => 0 );
 
@@ -57,7 +57,18 @@ my $RE_EMPTY_STRING             = qr{\A \s* \z}xms;
 my $RE_COMMENTED_STRING         = qr{\A [\"\s]* \#}xms;
 my $RE_SURROUNDED_BY_WHITESPACE = qr{\A [\"\s]* (.*?) [\"\s]* \z}xms;
 
-sub _can_ignore {
+sub BUILD {
+
+    my ( $self, $params ) = @_;
+
+    $self->_calculate_eol_char();
+    $self->_construct_csv_parser();
+    $self->_cache_filehandle();
+
+    return;
+}
+
+sub can_ignore {
 
     my ( $self, $larry ) = @_;
 
@@ -71,7 +82,7 @@ sub _can_ignore {
     return;
 }
 
-sub _strip_whitespace {
+sub strip_whitespace {
 
     my ( $self, $larry ) = @_;
 
@@ -83,14 +94,14 @@ sub _strip_whitespace {
     return $larry;
 }
 
-sub _confirm_full_parse {
+sub confirm_full_parse {
 
-    my ( $self, $csv_parser, $nextline ) = @_;
+    my ( $self, $nextline ) = @_;
 
     # $nextline is an optional argument used to check for correct
     # parsing in the middle of a file (where $error != 2012, but we
     # don't want to throw an exception if we have a real $nextline).
-    $csv_parser ||= $self->_construct_csv_parser();
+    my $csv_parser = $self->get_csv_parser();
 
     # Check we've parsed to the end of the file.
     my ( $error, $mess ) = $csv_parser->error_diag();
@@ -104,6 +115,10 @@ sub _confirm_full_parse {
 	);
     }
 }
+
+###################
+# PRIVATE METHODS #
+###################
 
 sub _calculate_eol_char {
 
@@ -196,16 +211,16 @@ sub _get_filepath {
     return $path;
 }
 
-sub _get_filehandle {
+sub _cache_filehandle {
 
     my ( $self ) = @_;
 
     my $fh;
-    unless ( $fh = $self->get_filehandle_cache ) {
+    unless ( $fh = $self->get_filehandle ) {
         my $path = $self->_get_filepath();
         open( $fh, '<', $path )
             or croak(qq{Error: Unable to open file "$path": $!});
-        $self->set_filehandle_cache( $fh );
+        $self->set_filehandle( $fh );
     }
 
     return $fh;
@@ -270,7 +285,7 @@ sub _check_linebreaks {
 
     my $bytelength = -s $path;
 
-    my $fh = $self->_get_filehandle();
+    my $fh = $self->_cache_filehandle();
 
     # Count all the line endings. This can get memory intensive
     # (implicit list generation, can be over 1,000,000 entries for
@@ -370,7 +385,7 @@ Required URI path to the file to be parsed.
 The end-of-line character to use while parsing. Typically this is set
 by the Reader subclasses.
 
-=item filehandle_cache
+=item filehandle
 
 The filehandle for the file being parsed.
 
@@ -387,7 +402,31 @@ MAGE-TAB object creation.
 
 =head1 METHODS
 
-No public methods.
+=over 2
+
+=item can_ignore
+
+When passed an arrayref of column values for a given line, returns 1
+if the line is ignorable (typically blank or commented lines fall into
+this category) or undef if not.
+
+=item strip_whitespace
+
+This method strips any whitespace surrounding the string values passed
+to it.
+
+=item confirm_full_parse
+
+Raises an exception if the file has not been parsed to completion
+(i.e., EOF). Takes a line arrayref as returned by
+C<$csv_parser-&gt;getline()> as an optional argument to allow testing
+for either (a) the existence of a next line in the file, or (b)
+EOF. This is useful when pausing parsing partway through a file,
+e.g. after parsing the ADF header section.
+
+=back
+
+In addition, each attribute has accessor (get_*) and mutator (set_*) methods.
 
 =head1 SEE ALSO
 

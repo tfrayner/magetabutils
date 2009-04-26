@@ -132,13 +132,13 @@ sub _read_as_arrayref {
 
     # First, determine the file linebreak type and generate a CSV
     # parser object.
-    my $csv_parser = $self->_construct_csv_parser();
+    my $csv_parser = $self->get_csv_parser();
 
     # This is still required for Text::CSV_XS.
-    local $/ = $self->_calculate_eol_char();
+    local $/ = $self->get_eol_char();
 
     # Open the file
-    my $fh = $self->_get_filehandle();
+    my $fh = $self->get_filehandle();
 
     my (@rows, $larry);
 
@@ -146,10 +146,10 @@ sub _read_as_arrayref {
     while ( $larry = $csv_parser->getline($fh) ) {
 
         # Skip empty lines, comments.
-        next FILE_LINE if $self->_can_ignore( $larry );
+        next FILE_LINE if $self->can_ignore( $larry );
 
 	# Strip surrounding whitespace from each element.
-        $larry = $self->_strip_whitespace( $larry );
+        $larry = $self->strip_whitespace( $larry );
 
 	# Strip off empty trailing values.
 	my $end_value;
@@ -167,7 +167,7 @@ sub _read_as_arrayref {
     }
 
     # Check we've parsed to the end of the file.
-    $self->_confirm_full_parse( $csv_parser );
+    $self->confirm_full_parse();
 
     return \@rows;
 }
