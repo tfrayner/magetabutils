@@ -107,7 +107,6 @@ sub _position_fh_at_section {
     local $/ = $self->get_eol_char();
 
     my $adf_fh     = $self->get_filehandle();
-    my $csv_parser = $self->get_csv_parser();
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
 
@@ -115,7 +114,7 @@ sub _position_fh_at_section {
     my $is_body;
 
     HEADER_LINE:
-    while ( $larry = $csv_parser->getline($adf_fh) ) {
+    while ( $larry = $self->getline($adf_fh) ) {
     
         # Skip empty lines, comments.
         next HEADER_LINE if $self->can_ignore( $larry );
@@ -275,12 +274,10 @@ sub _parse_mapping_section {
     # This has to be set for Text::CSV_XS.
     local $/ = $self->get_eol_char();
 
-    my $csv_parser = $self->get_csv_parser();
-
     my @design_elements;
 
     MAPPING_LINE:
-    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+    while ( my $larry = $self->getline($adf_fh) ) {
 
         # Skip empty lines, comments.
         next MAPPING_LINE if $self->can_ignore( $larry );
@@ -314,12 +311,10 @@ sub _parse_body {
     # This has to be set for Text::CSV_XS.
     local $/ = $self->get_eol_char();
 
-    my $csv_parser = $self->get_csv_parser();
-
     my %design_elements;
 
     BODY_LINE:
-    while ( my $larry = $csv_parser->getline($adf_fh) ) {
+    while ( my $larry = $self->getline($adf_fh) ) {
 
         # Skip empty lines, comments.
         next BODY_LINE if $self->can_ignore( $larry );
@@ -735,14 +730,13 @@ sub _read_header_as_arrayref {
     local $/ = $self->get_eol_char();
 
     my $adf_fh     = $self->get_filehandle();
-    my $csv_parser = $self->get_csv_parser();
 
     seek( $adf_fh, 0, 0 ) or croak("Error seeking within ADF filehandle: $!\n");
 
     my ( $larry, @rows );
 
     FILE_LINE:
-    while ( $larry = $csv_parser->getline($adf_fh) ) {
+    while ( $larry = $self->getline($adf_fh) ) {
     
         # Skip empty lines, comments.
         next FILE_LINE if $self->can_ignore( $larry );

@@ -130,20 +130,13 @@ sub _read_as_arrayref {
 
     my ( $self ) = @_;
 
-    # First, determine the file linebreak type and generate a CSV
-    # parser object.
-    my $csv_parser = $self->get_csv_parser();
-
-    # This is still required for Text::CSV_XS.
+    # This is required for Text::CSV_XS.
     local $/ = $self->get_eol_char();
-
-    # Open the file
-    my $fh = $self->get_filehandle();
 
     my (@rows, $larry);
 
     FILE_LINE:
-    while ( $larry = $csv_parser->getline($fh) ) {
+    while ( $larry = $self->getline() ) {
 
         # Skip empty lines, comments.
         next FILE_LINE if $self->can_ignore( $larry );

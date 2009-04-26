@@ -47,8 +47,6 @@ sub parse {
     local $/ = $self->get_eol_char();
 
     my $row_parser = $self->_parse_header();
-    my $sdrf_fh    = $self->get_filehandle();
-    my $csv_parser = $self->get_csv_parser();
 
     my $larry;
     my @sdrf_rows;
@@ -66,7 +64,7 @@ sub parse {
     my $row_number = 1;
 
     FILE_LINE:
-    while ( $larry = $csv_parser->getline($sdrf_fh) ) {
+    while ( $larry = $self->getline() ) {
     
         # Skip empty lines, comments.
         next FILE_LINE if $self->can_ignore( $larry );
@@ -144,13 +142,11 @@ sub _parse_header {
 
     # Check linebreaks; get first line as $header_string and generate
     # row-level parser.
-    my $csv_parser = $::sdrf->get_csv_parser();
-    my $sdrf_fh    = $::sdrf->get_filehandle();
 
     # Get the header line - the first non-empty, non-comment line in the file.
     my ( $header_string, $harry );
     HEADERLINE:
-    while ( $harry = $csv_parser->getline($sdrf_fh) ) {
+    while ( $harry = $::sdrf->getline() ) {
 
 	# Skip empty and commented lines.
         next HEADERLINE if $::sdrf->can_ignore( $harry );

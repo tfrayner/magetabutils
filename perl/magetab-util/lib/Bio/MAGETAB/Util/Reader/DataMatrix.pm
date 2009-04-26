@@ -62,9 +62,6 @@ sub parse {
     # This has to be set for Text::CSV_XS.
     local $/ = $self->get_eol_char();
 
-    my $matrix_fh  = $self->get_filehandle();
-    my $csv_parser = $self->get_csv_parser();
-
     my $qts;
     my $nodes;
     my $row_identifier_type;
@@ -75,7 +72,7 @@ sub parse {
     my $row_number = 1;
 
     FILE_LINE:
-    while ( my $larry = $csv_parser->getline($matrix_fh) ) {
+    while ( my $larry = $self->getline() ) {
     
         # Skip empty lines, comments.
         next FILE_LINE if $self->can_ignore( $larry );

@@ -45,7 +45,8 @@ has 'filehandle'         => ( is         => 'rw',
 
 has 'csv_parser'         => ( is         => 'rw',
                               isa        => 'Text::CSV_XS',
-                              required   => 0 );
+                              required   => 0,
+                              handles    => [ qw(print) ]);
 
 has 'builder'            => ( is         => 'ro',
                               isa        => 'Bio::MAGETAB::Util::Builder',
@@ -66,6 +67,15 @@ sub BUILD {
     $self->_cache_filehandle();
 
     return;
+}
+
+sub getline {
+
+    my ( $self, $fh ) = @_;
+
+    $fh ||= $self->get_filehandle();
+
+    return $self->get_csv_parser()->getline($fh);
 }
 
 sub can_ignore {
@@ -404,6 +414,14 @@ MAGE-TAB object creation.
 
 =over 2
 
+=item getline
+
+A simple wrapper for the Text::CSV_XS C<getline()> method which takes
+an optional filehandle argument, using the cached filehandle returned
+by C<get_filehandle()> as the default. This filehandle argument can be
+useful when explicitly controlling the read position of the script
+within the file (e.g. as in ADF parsing).
+
 =item can_ignore
 
 When passed an arrayref of column values for a given line, returns 1
@@ -419,7 +437,7 @@ to it.
 
 Raises an exception if the file has not been parsed to completion
 (i.e., EOF). Takes a line arrayref as returned by
-C<$csv_parser-&gt;getline()> as an optional argument to allow testing
+C<$self-E<gt>getline()> as an optional argument to allow testing
 for either (a) the existence of a next line in the file, or (b)
 EOF. This is useful when pausing parsing partway through a file,
 e.g. after parsing the ADF header section.
