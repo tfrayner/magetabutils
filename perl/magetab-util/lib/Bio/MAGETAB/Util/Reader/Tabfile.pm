@@ -431,7 +431,7 @@ this category) or undef if not.
 =item strip_whitespace
 
 This method strips any whitespace surrounding the string values passed
-to it.
+to it in an arrayref.
 
 =item confirm_full_parse
 
