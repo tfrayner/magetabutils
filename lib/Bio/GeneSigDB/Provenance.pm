@@ -24,16 +24,18 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::GeneSigDB' };
 
 has 'notes'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_notes',
                                predicate  => 'has_notes',
                                required   => 0 );
 
 has 'bibref'              => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_bibref',
                                predicate  => 'has_bibref',
                                required   => 0 );

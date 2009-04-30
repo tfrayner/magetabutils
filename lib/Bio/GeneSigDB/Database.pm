@@ -24,11 +24,13 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::GeneSigDB::Platform' };
 
 # FIXME consider using a distinct URI type here.
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 # Make the classes immutable. In theory this speeds up object

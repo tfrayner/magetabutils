@@ -24,14 +24,16 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::GeneSigDB' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'biomartFilter'       => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_biomartFilter',
                                predicate  => 'has_biomartFilter',
                                required   => 0 );

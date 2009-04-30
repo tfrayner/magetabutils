@@ -24,10 +24,12 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::GeneSigDB' };
 
 has 'identifier'          => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'platform'            => ( is         => 'rw',

@@ -24,24 +24,26 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str ArrayRef );
+
 BEGIN { extends 'Bio::GeneSigDB' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'species'             => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'notes'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_notes',
                                predicate  => 'has_notes',
                                required   => 0 );
 
 has 'categories'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::GeneSigDB::Category]',
+                               isa        => ArrayRef['Bio::GeneSigDB::Category'],
                                clearer    => 'clear_categories',
                                predicate  => 'has_categories',
                                required   => 0,
@@ -54,7 +56,7 @@ has 'parentSignature'     => ( is         => 'rw',
                                required   => 0 );
 
 has 'elements'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::GeneSigDB::Element]',
+                               isa        => ArrayRef['Bio::GeneSigDB::Element'],
                                required   => 1,
                                auto_deref => 1 );
 

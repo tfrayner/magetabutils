@@ -37,6 +37,7 @@ requires 'Class::Tangram';
 requires 'Bio::MAGETAB';
 requires 'parent';
 requires 'Config::YAML';
+requires 'MooseX::Types'                      => '0.10';
 
 catalyst;
 

@@ -24,10 +24,12 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::GeneSigDB::Signature' };
 
 has 'criteria'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'provenance'          => ( is         => 'rw',
