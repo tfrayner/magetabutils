@@ -24,6 +24,8 @@ use Moose;
 
 use Carp;
 
+use MooseX::Types::Moose qw( Bool );
+
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
 has 'magetab_object'       => ( is         => 'ro',
@@ -31,7 +33,7 @@ has 'magetab_object'       => ( is         => 'ro',
                                 required   => 1 );
 
 has '_cached_mapping_flag' => ( is         => 'rw',
-                                isa        => 'Bool',
+                                isa        => Bool,
                                 predicate  => 'has__cached_mapping_flag',
                                 required   => 0 );
 

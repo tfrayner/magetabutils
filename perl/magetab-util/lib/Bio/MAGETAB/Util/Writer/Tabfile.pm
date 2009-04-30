@@ -25,13 +25,15 @@ use Moose;
 use Carp;
 use Text::CSV_XS;
 
+use MooseX::Types::Moose qw( Int FileHandle );
+
 has 'filehandle'         => ( is         => 'rw',
-                              isa        => 'FileHandle',
+                              isa        => FileHandle,
                               coerce     => 1,
                               required   => 1 );
 
 has 'num_columns'        => ( is         => 'rw',
-                              isa        => 'Int',
+                              isa        => Int,
                               required   => 0 );
 
 has 'csv_writer'         => ( is         => 'rw',

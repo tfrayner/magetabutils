@@ -22,7 +22,8 @@ package Bio::MAGETAB::Util::Reader::Tabfile;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Uri);
+use MooseX::Types::Moose qw( Str FileHandle );
+use Bio::MAGETAB::Types qw( Uri );
 
 use Carp;
 use charnames qw( :full );
@@ -31,16 +32,16 @@ use Text::CSV_XS;
 use Bio::MAGETAB::Util::Builder;
 
 has 'uri'                => ( is         => 'rw',
-                              isa        => 'Uri',
+                              isa        => Uri,
                               coerce     => 1,
                               required   => 1 );
 
 has 'eol_char'           => ( is         => 'rw',
-                              isa        => 'Str',
+                              isa        => Str,
                               required   => 0 );
 
 has 'filehandle'         => ( is         => 'rw',
-                              isa        => 'FileHandle',
+                              isa        => FileHandle,
                               required   => 0 );
 
 has 'csv_parser'         => ( is         => 'rw',

@@ -24,7 +24,8 @@ use 5.008001;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Uri);
+use MooseX::Types::Moose qw( Str Bool );
+use Bio::MAGETAB::Types qw( Uri );
 
 use Carp;
 
@@ -35,27 +36,27 @@ use Bio::MAGETAB::Util::Reader::DataMatrix;
 use Bio::MAGETAB::Util::Builder;
 
 has 'idf'                 => ( is         => 'rw',
-                               isa        => 'Uri',
+                               isa        => Uri,
                                required   => 1,
                                coerce     => 1 );
 
 has 'authority'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                default    => q{},
                                required   => 1 );
 
 has 'namespace'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                default    => q{},
                                required   => 1 );
 
 has 'relaxed_parser'      => ( is         => 'rw',
-                               isa        => 'Bool',
+                               isa        => Bool,
                                default    => 0,
                                required   => 1 );
 
 has 'ignore_datafiles'    => ( is         => 'rw',
-                               isa        => 'Bool',
+                               isa        => Bool,
                                default    => 0,
                                required   => 1 );
 

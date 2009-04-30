@@ -26,6 +26,8 @@ use Carp;
 use List::Util qw( sum max first );
 use Scalar::Util qw( refaddr );
 
+use MooseX::Types::Moose qw( ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::Util::Writer::Tabfile' };
 
 has 'magetab_object'     => ( is         => 'ro',
@@ -33,12 +35,12 @@ has 'magetab_object'     => ( is         => 'ro',
                               required   => 1 );
 
 has '_table'             => ( is         => 'rw',
-                              isa        => 'ArrayRef[ArrayRef]',
+                              isa        => ArrayRef['ArrayRef'],
                               required   => 1,
                               default    => sub { [[]] }, );
 
 has '_header'            => ( is         => 'rw',
-                              isa        => 'ArrayRef',
+                              isa        => ArrayRef,
                               required   => 1,
                               default    => sub { [] }, );
 

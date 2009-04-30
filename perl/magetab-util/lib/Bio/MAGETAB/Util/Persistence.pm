@@ -26,6 +26,8 @@ use Carp;
 use Tangram;
 use DBI;
 
+use MooseX::Types::Moose qw( Str HashRef ArrayRef );
+
 # Uncomment these to print the SQL statements used to STDOUT.
 #$Tangram::TRACE = \*STDOUT;
 #$Tangram::DEBUG_LEVEL = 1;
@@ -432,7 +434,7 @@ sub class_config {
 }
 
 has 'config'   => ( is       => 'rw',
-                    isa      => 'HashRef',
+                    isa      => HashRef,
                     required => 1,
                     default  => \&class_config, );
 
@@ -452,7 +454,7 @@ has 'store'    => ( is       => 'rw',
                                      remote )] );
 
 has 'dbparams' => ( is         => 'ro',
-                    isa        => 'ArrayRef',
+                    isa        => ArrayRef,
                     required   => 1,
                     auto_deref => 1, );
 

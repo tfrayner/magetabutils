@@ -25,13 +25,15 @@ use Moose;
 use GraphViz;
 use Carp;
 
+use MooseX::Types::Moose qw( Str ArrayRef );
+
 has 'sdrfs'              => ( is         => 'rw',
-                              isa        => 'ArrayRef[Bio::MAGETAB::SDRF]',
+                              isa        => ArrayRef['Bio::MAGETAB::SDRF'],
                               auto_deref => 1,
                               required   => 1 );
 
 has 'font'               => ( is         => 'rw',
-                              isa        => 'Str',
+                              isa        => Str,
                               default    => sub { 'courier' },
                               required   => 1 );
 

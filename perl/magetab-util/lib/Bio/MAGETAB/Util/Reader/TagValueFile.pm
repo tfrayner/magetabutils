@@ -25,15 +25,17 @@ use Moose;
 use Carp;
 use List::Util qw(first);
 
+use MooseX::Types::Moose qw( HashRef );
+
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
 has 'text_store'          => ( is         => 'rw',
-                               isa        => 'HashRef',
+                               isa        => HashRef,
                                default    => sub { {} },
                                required   => 1 );
 
 has 'dispatch_table'      => ( is         => 'rw',
-                               isa        => 'HashRef',
+                               isa        => HashRef,
                                default    => sub { {} },
                                required   => 1 );
 

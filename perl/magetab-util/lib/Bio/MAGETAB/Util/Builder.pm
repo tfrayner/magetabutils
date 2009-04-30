@@ -22,23 +22,25 @@ package Bio::MAGETAB::Util::Builder;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str HashRef Bool );
+
 use Bio::MAGETAB;
 use Carp;
 use List::Util qw( first );
 use English qw( -no_match_vars );
 
 has 'authority'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                default    => q{},
                                required   => 1 );
 
 has 'namespace'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                default    => q{},
                                required   => 1 );
 
 has 'database'            => ( is         => 'rw',
-                               isa        => 'HashRef',
+                               isa        => HashRef,
                                default    => sub { {} },
                                required   => 1 );
 
@@ -48,7 +50,7 @@ has 'magetab'             => ( is         => 'ro',
                                required   => 1 );
 
 has 'relaxed_parser'      => ( is         => 'rw',
-                               isa        => 'Bool',
+                               isa        => Bool,
                                default    => 0,
                                required   => 1 );
 
