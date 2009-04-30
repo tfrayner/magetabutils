@@ -22,10 +22,12 @@ package Bio::MAGETAB::ProtocolParameter;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'protocol'            => ( is         => 'rw',

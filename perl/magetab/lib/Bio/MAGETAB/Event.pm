@@ -22,6 +22,8 @@ package Bio::MAGETAB::Event;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::Node' };
 
 # This is an abstract class; block direct instantiation.
@@ -37,7 +39,7 @@ sub BUILD {
 }
 
 has 'name'                => ( is       => 'rw',
-                               isa      => 'Str',
+                               isa      => Str,
                                required => 1 );
 
 __PACKAGE__->meta->make_immutable();

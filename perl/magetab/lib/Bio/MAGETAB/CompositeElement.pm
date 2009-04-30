@@ -22,21 +22,23 @@ package Bio::MAGETAB::CompositeElement;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::DesignElement' };
 
 has 'name'                => ( is       => 'rw',
-                               isa      => 'Str',
+                               isa      => Str,
                                required => 1 );
 
 has 'databaseEntries'     => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::DatabaseEntry]',
+                               isa        => ArrayRef['Bio::MAGETAB::DatabaseEntry'],
                                auto_deref => 1,
                                clearer    => 'clear_databaseEntries',
                                predicate  => 'has_databaseEntries',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
+                               isa        => ArrayRef['Bio::MAGETAB::Comment'],
                                auto_deref => 1,
                                clearer    => 'clear_comments',
                                predicate  => 'has_comments',

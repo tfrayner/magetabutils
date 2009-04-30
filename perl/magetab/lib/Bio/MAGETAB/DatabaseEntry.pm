@@ -22,10 +22,12 @@ package Bio::MAGETAB::DatabaseEntry;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'accession'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_accession',
                                predicate  => 'has_accession',
                                required   => 0 );

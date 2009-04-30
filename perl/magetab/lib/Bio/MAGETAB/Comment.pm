@@ -22,14 +22,16 @@ package Bio::MAGETAB::Comment;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'value'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 __PACKAGE__->meta->make_immutable();

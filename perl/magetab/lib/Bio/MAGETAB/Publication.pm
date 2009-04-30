@@ -22,26 +22,28 @@ package Bio::MAGETAB::Publication;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'title'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'authorList'          => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_authorList',
                                predicate  => 'has_authorList',
                                required   => 0 );
 
 has 'pubMedID'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_pubMedID',
                                predicate  => 'has_pubMedID',
                                required   => 0 );
 
 has 'DOI'                 => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_DOI',
                                predicate  => 'has_DOI',
                                required   => 0 );

@@ -25,6 +25,8 @@ use Moose;
 use Scalar::Util qw(weaken);
 use List::Util qw(first);
 
+use MooseX::Types::Moose qw( ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 # This is an abstract class; block direct instantiation.
@@ -59,28 +61,28 @@ sub BUILD {
 }
 
 has 'inputEdges'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
+                               isa        => ArrayRef['Bio::MAGETAB::Edge'],
                                auto_deref => 1,
                                clearer    => 'clear_inputEdges',
                                predicate  => 'has_inputEdges',
                                required   => 0 );
 
 has 'outputEdges'         => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Edge]',
+                               isa        => ArrayRef['Bio::MAGETAB::Edge'],
                                auto_deref => 1,
                                clearer    => 'clear_outputEdges',
                                predicate  => 'has_outputEdges',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
+                               isa        => ArrayRef['Bio::MAGETAB::Comment'],
                                auto_deref => 1,
                                clearer    => 'clear_comments',
                                predicate  => 'has_comments',
                                required   => 0 );
 
 has 'sdrfRows'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::SDRFRow]',
+                               isa        => ArrayRef['Bio::MAGETAB::SDRFRow'],
                                auto_deref => 1,
                                clearer    => 'clear_sdrfRows',
                                predicate  => 'has_sdrfRows',

@@ -22,26 +22,28 @@ package Bio::MAGETAB::Measurement;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'measurementType'     => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'value'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_value',
                                predicate  => 'has_value',
                                required   => 0 );
 
 has 'minValue'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_minValue',
                                predicate  => 'has_minValue',
                                required   => 0 );
 
 has 'maxValue'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_maxValue',
                                predicate  => 'has_maxValue',
                                required   => 0 );

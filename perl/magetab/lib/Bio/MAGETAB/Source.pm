@@ -22,10 +22,12 @@ package Bio::MAGETAB::Source;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::Material' };
 
 has 'providers'           => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Contact]',
+                               isa        => ArrayRef['Bio::MAGETAB::Contact'],
                                auto_deref => 1,
                                clearer    => 'clear_providers',
                                predicate  => 'has_providers',

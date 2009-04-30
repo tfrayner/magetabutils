@@ -25,15 +25,17 @@ use Moose;
 use Carp;
 use Scalar::Util qw(weaken);
 
+use MooseX::Types::Moose qw( Str );
+
 has 'authority'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_authority',
                                predicate  => 'has_authority',
                                default    => q{},
                                required   => 1 );
 
 has 'namespace'           => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_namespace',
                                predicate  => 'has_namespace',
                                default    => q{},

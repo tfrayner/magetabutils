@@ -22,6 +22,8 @@ package Bio::MAGETAB::ParameterValue;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 # Not required because (a) a controlled term may be added later, and
@@ -33,7 +35,7 @@ has 'measurement'         => ( is         => 'rw',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
+                               isa        => ArrayRef['Bio::MAGETAB::Comment'],
                                auto_deref => 1,
                                clearer    => 'clear_comments',
                                predicate  => 'has_comments',

@@ -22,7 +22,8 @@ package Bio::MAGETAB::ProtocolApplication;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Date);
+use MooseX::Types::Moose qw( ArrayRef );
+use Bio::MAGETAB::Types qw( Date );
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
@@ -31,28 +32,28 @@ has 'protocol'            => ( is         => 'rw',
                                required   => 1 );
 
 has 'parameterValues'     => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::ParameterValue]',
+                               isa        => ArrayRef['Bio::MAGETAB::ParameterValue'],
                                auto_deref => 1,
                                clearer    => 'clear_parameterValues',
                                predicate  => 'has_parameterValues',
                                required   => 0 );
 
 has 'performers'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Contact]',
+                               isa        => ArrayRef['Bio::MAGETAB::Contact'],
                                auto_deref => 1,
                                clearer    => 'clear_performers',
                                predicate  => 'has_performers',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Comment]',
+                               isa        => ArrayRef['Bio::MAGETAB::Comment'],
                                auto_deref => 1,
                                clearer    => 'clear_comments',
                                predicate  => 'has_comments',
                                required   => 0 );
 
 has 'date'                => ( is         => 'rw',
-                               isa        => 'Date',
+                               isa        => Date,
                                clearer    => 'clear_date',
                                predicate  => 'has_date',
                                coerce     => 1,

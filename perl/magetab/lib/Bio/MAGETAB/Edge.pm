@@ -24,6 +24,8 @@ use Moose;
 
 use List::Util qw(first);
 
+use MooseX::Types::Moose qw( ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 sub BUILD {
@@ -59,7 +61,7 @@ has 'outputNode'           => ( is         => 'rw',
                                 required   => 1 );
 
 has 'protocolApplications' => ( is         => 'rw',
-                                isa        => 'ArrayRef[Bio::MAGETAB::ProtocolApplication]',
+                                isa        => ArrayRef['Bio::MAGETAB::ProtocolApplication'],
                                 auto_deref => 1,
                                 clearer    => 'clear_protocolApplications',
                                 predicate  => 'has_protocolApplications',

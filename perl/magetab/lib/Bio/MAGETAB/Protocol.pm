@@ -22,26 +22,28 @@ package Bio::MAGETAB::Protocol;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::DatabaseEntry' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'text'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_text',
                                predicate  => 'has_text',
                                required   => 0 );
 
 has 'software'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_software',
                                predicate  => 'has_software',
                                required   => 0 );
 
 has 'hardware'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_hardware',
                                predicate  => 'has_hardware',
                                required   => 0 );
@@ -53,7 +55,7 @@ has 'protocolType'        => ( is         => 'rw',
                                required   => 0 );
 
 has 'contact'             => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_contact',
                                predicate  => 'has_contact',
                                required   => 0 );

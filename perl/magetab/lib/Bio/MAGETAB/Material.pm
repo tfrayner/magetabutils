@@ -22,6 +22,8 @@ package Bio::MAGETAB::Material;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::Node'; };
 
 # This is an abstract class; block direct instantiation.
@@ -37,7 +39,7 @@ sub BUILD {
 }
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'materialType'        => ( is         => 'rw',
@@ -47,20 +49,20 @@ has 'materialType'        => ( is         => 'rw',
                                required   => 0 );
 
 has 'description'         => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_description',
                                predicate  => 'has_description',
                                required   => 0 );
 
 has 'characteristics'     => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::ControlledTerm]',
+                               isa        => ArrayRef['Bio::MAGETAB::ControlledTerm'],
                                auto_deref => 1,
                                clearer    => 'clear_characteristics',
                                predicate  => 'has_characteristics',
                                required   => 0 );
 
 has 'measurements'        => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Measurement]',
+                               isa        => ArrayRef['Bio::MAGETAB::Measurement'],
                                auto_deref => 1,
                                clearer    => 'clear_measurements',
                                predicate  => 'has_measurements',

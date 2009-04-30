@@ -22,6 +22,7 @@ use warnings;
 
 package Bio::MAGETAB::Types;
 
+use MooseX::Types::Moose qw( Object Str HashRef );
 use MooseX::Types
     -declare => [ qw( Uri Date Email ) ];
 
@@ -31,20 +32,20 @@ use Email::Valid;
 use Params::Coerce;
 use Carp;
 
-subtype 'Uri'
+subtype Uri,
 
-    => as 'Object'
-    => where { UNIVERSAL::isa( $_, 'URI' ) };
+    as Object,
+    where { UNIVERSAL::isa( $_, 'URI' ) };
 
-coerce 'Uri'
+coerce Uri,
 
-    => from 'Object'
-    => via { UNIVERSAL::isa( $_, 'URI' )
+    from Object,
+    via { UNIVERSAL::isa( $_, 'URI' )
                  ? $_
-                 : Params::Coerce::coerce( 'URI', $_ ) }
+                 : Params::Coerce::coerce( 'URI', $_ ) },
 
-    => from 'Str'
-    => via {
+    from Str,
+    via {
         my $uri = URI->new( $_ );
 
         # We assume here that thet default URI scheme is "file".
@@ -54,34 +55,34 @@ coerce 'Uri'
         return $uri;
     };
 
-subtype 'Date'
+subtype Date,
 
-    => as 'Object'
-    => where { UNIVERSAL::isa( $_, 'DateTime' ) };
+    as Object,
+    where { UNIVERSAL::isa( $_, 'DateTime' ) };
 
-coerce 'Date'
+coerce Date,
 
-    => from 'Object'
-    => via { UNIVERSAL::isa( $_, 'DateTime' )
+    from Object,
+    via { UNIVERSAL::isa( $_, 'DateTime' )
                  ? $_
-                 : Params::Coerce::coerce( 'DateTime', $_ ) }
+                 : Params::Coerce::coerce( 'DateTime', $_ ) },
 
-    => from 'HashRef'
-    => via {
+    from HashRef,
+    via {
         DateTime->new(%$_);
-    }
+    },
 
-    => from 'Str'
-    => via {
+    from Str,
+    via {
         require DateTime::Format::DateManip;
         DateTime::Format::DateManip->parse_datetime($_)
             or croak(qq{Cannot parse date format "$_"; try YYYY-MM-DD});
     };
 
-subtype 'Email'
+subtype Email,
 
-    => as 'Str'
-    => where { Email::Valid->address( $_ ) };
+    as Str,
+    where { Email::Valid->address( $_ ) };
 
 # Make the classes immutable. In theory this speeds up object
 # instantiation for a small compilation time cost.
