@@ -22,22 +22,24 @@ package Bio::MAGETAB::Feature;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Int );
+
 BEGIN { extends 'Bio::MAGETAB::DesignElement' };
 
 has 'blockCol'            => ( is       => 'rw',
-                               isa      => 'Int',
+                               isa      => Int,
                                required => 1 );
 
 has 'blockRow'            => ( is       => 'rw',
-                               isa      => 'Int',
+                               isa      => Int,
                                required => 1 );
 
 has 'col'                 => ( is       => 'rw',
-                               isa      => 'Int',
+                               isa      => Int,
                                required => 1 );
 
 has 'row'                 => ( is       => 'rw',
-                               isa      => 'Int',
+                               isa      => Int,
                                required => 1 );
 
 has 'reporter'            => ( is         => 'rw',

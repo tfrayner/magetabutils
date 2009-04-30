@@ -22,7 +22,7 @@ package Bio::MAGETAB::Data;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Uri);
+use Bio::MAGETAB::Types qw( Uri );
 
 BEGIN { extends 'Bio::MAGETAB::Node' };
 
@@ -39,7 +39,7 @@ sub BUILD {
 }
 
 has 'uri'                 => ( is       => 'rw',
-                               isa      => 'Uri',
+                               isa      => Uri,
                                coerce   => 1,
                                required => 1 );
 

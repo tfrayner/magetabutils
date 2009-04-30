@@ -22,24 +22,26 @@ package Bio::MAGETAB::DataMatrix;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::Data' };
 
 # FIXME consider dropping rowIdentifierType; it's redundant.
 has 'rowIdentifierType'   => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_rowIdentifierType',
                                predicate  => 'has_rowIdentifierType',
                                required   => 0 );
 
 has 'matrixColumns'       => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::MatrixColumn]',
+                               isa        => ArrayRef['Bio::MAGETAB::MatrixColumn'],
                                clearer    => 'clear_matrixColumns',
                                predicate  => 'has_matrixColumns',
                                auto_deref => 1,
                                required   => 0 );
 
 has 'matrixRows'          => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::MatrixRow]',
+                               isa        => ArrayRef['Bio::MAGETAB::MatrixRow'],
                                clearer    => 'clear_matrixRows',
                                predicate  => 'has_matrixRows',
                                auto_deref => 1,

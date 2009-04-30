@@ -22,19 +22,20 @@ package Bio::MAGETAB::SDRF;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Uri);
+use MooseX::Types::Moose qw( ArrayRef );
+use Bio::MAGETAB::Types qw( Uri );
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'sdrfRows'            => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::SDRFRow]',
+                               isa        => ArrayRef['Bio::MAGETAB::SDRFRow'],
                                auto_deref => 1,
                                clearer    => 'clear_sdrfRows',
                                predicate  => 'has_sdrfRows',
                                required   => 0 );
 
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Uri',
+                               isa        => Uri,
                                coerce     => 1,
                                required   => 1 );
 

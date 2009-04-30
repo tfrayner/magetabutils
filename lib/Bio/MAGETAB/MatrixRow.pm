@@ -22,10 +22,12 @@ package Bio::MAGETAB::MatrixRow;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Int );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'rowNumber'           => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => Int,
                                required   => 1 );
 
 has 'designElement'       => ( is         => 'rw',

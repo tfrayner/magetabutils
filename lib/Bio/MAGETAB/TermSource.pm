@@ -22,23 +22,24 @@ package Bio::MAGETAB::TermSource;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
-use Bio::MAGETAB::Types qw(Uri);
+use MooseX::Types::Moose qw( Str );
+use Bio::MAGETAB::Types qw( Uri );
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'name'                => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'uri'                 => ( is         => 'rw',
-                               isa        => 'Uri',
+                               isa        => Uri,
                                clearer    => 'clear_uri',
                                predicate  => 'has_uri',
                                coerce     => 1,
                                required   => 0 );
 
 has 'version'             => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_version',
                                predicate  => 'has_version',
                                required   => 0 );

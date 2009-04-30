@@ -25,6 +25,8 @@ use Moose;
 use Scalar::Util qw(weaken);
 use List::Util qw(first);
 
+use MooseX::Types::Moose qw( Int ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 sub BUILD {
@@ -43,18 +45,18 @@ sub BUILD {
 }
 
 has 'nodes'               => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Node]',
+                               isa        => ArrayRef['Bio::MAGETAB::Node'],
                                auto_deref => 1,
                                required   => 1 );
 
 has 'rowNumber'           => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => Int,
                                clearer    => 'clear_rowNumber',
                                predicate  => 'has_rowNumber',
                                required   => 0 );
 
 has 'factorValues'        => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::FactorValue]',
+                               isa        => ArrayRef['Bio::MAGETAB::FactorValue'],
                                auto_deref => 1,
                                clearer    => 'clear_factorValues',
                                predicate  => 'has_factorValues',

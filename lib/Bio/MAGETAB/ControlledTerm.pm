@@ -22,14 +22,16 @@ package Bio::MAGETAB::ControlledTerm;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str );
+
 BEGIN { extends 'Bio::MAGETAB::DatabaseEntry' };
 
 has 'value'               => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 has 'category'            => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                required   => 1 );
 
 __PACKAGE__->meta->make_immutable();

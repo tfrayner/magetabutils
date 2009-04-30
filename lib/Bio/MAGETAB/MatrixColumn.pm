@@ -22,10 +22,12 @@ package Bio::MAGETAB::MatrixColumn;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Int ArrayRef );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 has 'columnNumber'        => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => Int,
                                required   => 1 );
 
 has 'quantitationType'    => ( is         => 'rw',
@@ -33,7 +35,7 @@ has 'quantitationType'    => ( is         => 'rw',
                                required   => 1 );
 
 has 'referencedNodes'     => ( is         => 'rw',
-                               isa        => 'ArrayRef[Bio::MAGETAB::Node]',
+                               isa        => ArrayRef['Bio::MAGETAB::Node'],
                                auto_deref => 1,
                                required   => 1 );
 

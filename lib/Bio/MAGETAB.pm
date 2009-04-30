@@ -29,12 +29,14 @@ use Bio::MAGETAB::BaseClass;
 
 use List::Util qw(first);
 
-our $VERSION = 0.96;
+use MooseX::Types::Moose qw( HashRef );
+
+our $VERSION = 0.97;
 
 # This cache is used to store all the Bio::MAGETAB objects registered
 # with this instance (which, by default, is all of them).
 has 'object_cache'          => ( is         => 'rw',
-                                 isa        => 'HashRef',
+                                 isa        => HashRef,
                                  default    => sub{ {} },
                                  required   => 0 );
 

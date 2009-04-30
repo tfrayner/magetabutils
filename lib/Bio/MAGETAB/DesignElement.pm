@@ -22,6 +22,8 @@ package Bio::MAGETAB::DesignElement;
 use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
 
+use MooseX::Types::Moose qw( Str Int );
+
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
 # This is an abstract class; block direct instantiation.
@@ -40,19 +42,19 @@ sub BUILD {
 # moving them to e.g. Reporter, or even their own 'Coordinate'
 # subclass.
 has 'chromosome'          => ( is         => 'rw',
-                               isa        => 'Str',
+                               isa        => Str,
                                clearer    => 'clear_chromosome',
                                predicate  => 'has_chromosome',
                                required   => 0 );
 
 has 'startPosition'       => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => Int,
                                clearer    => 'clear_startPosition',
                                predicate  => 'has_startPosition',
                                required   => 0 );
 
 has 'endPosition'         => ( is         => 'rw',
-                               isa        => 'Int',
+                               isa        => Int,
                                clearer    => 'clear_endPosition',
                                predicate  => 'has_endPosition',
                                required   => 0 );
