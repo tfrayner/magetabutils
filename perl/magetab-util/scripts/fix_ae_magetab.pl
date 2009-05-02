@@ -33,6 +33,8 @@ use warnings;
 use Getopt::Long;
 use File::Temp qw(tempfile);
 use File::Copy;
+use List::Util qw(first);
+
 use Bio::MAGETAB::Util::Reader::Tabfile;
 
 my $VERSION = 0.01;
@@ -101,12 +103,52 @@ sub rewrite_idf {
         uri => $idf,
     );
 
+    my ( $out_fh, $outfile ) = tempfile();
+
+    my %needed = map { $_ => 1 } @$termsources;
+
     local $/ = $idf_parser->get_eol_char();
+
+    my ( @lines, $tsline );
     while ( my $larry = $idf_parser->getline() ) {
         $larry = $idf_parser->strip_whitespace( $larry );
+
+        # Store this line arrayref for later.
+        if ( $larry->[0] =~ /Term *Source *Names?/ ) {
+            $tsline = $larry;
+        }
+
+        # Record all the Term Source REFs used in the IDF, add them to
+        # the list from the SDRF.
+        if ( $larry->[0] =~ /Term *Source *REF/ ) {
+            foreach my $name ( @{ $larry }[1..$#$larry] ) {
+                $needed{ $name } = 1;
+            }
+        }
+
+        push @lines, $larry;
     }
+
     $idf_parser->confirm_full_parse();
 
+    # Add missing Term Sources to the Term Source Name line (we don't
+    # bother with File or Version since they're optional).
+    foreach my $needed ( keys %needed ) {
+        unless ( first { $_ eq $needed } @{ $tsline }[1..$#$tsline] ) {
+            push @$tsline, $needed;
+        }
+    }
+
+    # Print out the result in a temporary file.
+    foreach my $larry ( @lines ) {
+        $idf_parser->print( $out_fh, $larry );
+    }
+
+    # Replace the original IDF with the new one.
+    close( $out_fh );
+    copy( $outfile, $idf_parser->get_uri()->path() )
+        or die("Error: unable to overwrite old IDF: $!");
+    
     return;
 }
 
