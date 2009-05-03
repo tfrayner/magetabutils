@@ -24,7 +24,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 55;
+use Test::More tests => 56;
 
 BEGIN {
     use_ok( 'Bio::MAGETAB' );
@@ -79,6 +79,7 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
     use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
+    use_ok( 'Bio::MAGETAB::Util::RewriteAE' );
 }
 
 SKIP: {
