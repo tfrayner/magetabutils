@@ -24,7 +24,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 39;
+use Test::More tests => 55;
 
 BEGIN {
     use_ok( 'Bio::MAGETAB' );
@@ -66,5 +66,44 @@ BEGIN {
     use_ok( 'Bio::MAGETAB::SDRFRow' );
     use_ok( 'Bio::MAGETAB::Source' );
     use_ok( 'Bio::MAGETAB::TermSource' );
+    use_ok( 'Bio::MAGETAB::Util::Builder' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::Tabfile' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::TagValueFile' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::ADF' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::DataMatrix' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::IDF' );
+    use_ok( 'Bio::MAGETAB::Util::Reader::SDRF' );
+    use_ok( 'Bio::MAGETAB::Util::Reader' );
+    use_ok( 'Bio::MAGETAB::Util::Writer' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::Tabfile' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
+}
+
+SKIP: {
+
+    eval {
+        require Tangram;
+        require DBI;
+    };
+
+    skip 'Persistence needs Tangram and DBI.',
+        2 if $@;
+
+    require_ok('Bio::MAGETAB::Util::Persistence');
+    require_ok('Bio::MAGETAB::Util::DBLoader');
+}
+
+SKIP: {
+
+    eval {
+        require GraphViz;
+    };
+
+    skip 'Visualisation needs GraphViz',
+        1 if $@;
+
+    use_ok( 'Bio::MAGETAB::Util::Writer::GraphViz' );
 }
 

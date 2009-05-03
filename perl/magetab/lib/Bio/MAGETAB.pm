@@ -228,7 +228,7 @@ no Moose;
 
 =head1 NAME
 
-Bio::MAGETAB - A data model and supporting classes for the MAGE-TAB format.
+Bio::MAGETAB - A data model and utility API for the MAGE-TAB format.
 
 =head1 SYNOPSIS
 
