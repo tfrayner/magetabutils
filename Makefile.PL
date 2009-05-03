@@ -35,10 +35,17 @@ requires 'Date::Manip'                 => '5.44';
 requires 'DateTime'                    => '0.4302';
 requires 'DateTime::Format::DateManip' => '0.04';
 requires 'Email::Valid'                => '0.179';
+requires 'Parse::RecDescent'           => '1.96.0';
+requires 'Text::CSV_XS'                => '0.32';
 
 test_requires 'Test::Exception'        => '0.26';
 
-#install_script glob('script/*.pl');
+recommends 'GraphViz'                  => '2.03';
+recommends 'Tangram'                   => '2.10';
+recommends 'DBI'                       => '';
+recommends 'DBD::SQLite'               => '';
+
+install_script glob('scripts/*.pl');
 auto_install;
 WriteAll;
 
