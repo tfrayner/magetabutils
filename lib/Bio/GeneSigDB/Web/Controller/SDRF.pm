@@ -69,8 +69,8 @@ sub image : Local {
      my $imagedata;
      if ( ! -e $cachefile ) {
      
-         require Bio::GeneSigDB::Writer::GraphViz;
-         my $g = Bio::GeneSigDB::Writer::GraphViz->new(
+         require Bio::MAGETAB::Util::Writer::GraphViz;
+         my $g = Bio::MAGETAB::Util::Writer::GraphViz->new(
              sdrfs => [ $object ],
          );
 
