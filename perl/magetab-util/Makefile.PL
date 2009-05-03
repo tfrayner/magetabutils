@@ -42,6 +42,6 @@ recommends 'Tangram'                   => '2.10';
 recommends 'DBI'                       => '';
 recommends 'DBD::SQLite'               => '';
 
-install_script glob('script/*.pl');
+install_script glob('scripts/*.pl');
 auto_install;
 WriteAll;

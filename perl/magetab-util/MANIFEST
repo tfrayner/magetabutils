@@ -8,6 +8,7 @@ inc/Module/Install/Fetch.pm
 inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
+inc/Module/Install/Scripts.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Bio/MAGETAB/Util/Builder.pm
@@ -33,7 +34,8 @@ MANIFEST
 META.yml
 scripts/deploy_magetab_db.pl
 scripts/read_magetab.pl
-scripts/unload_namespace.pl
+scripts/unload_magetab_namespace.pl
+scripts/fix_ae_magetab.pl
 sql/tangram_with_indices.sql
 t/001_load.t
 t/002_builder.t
