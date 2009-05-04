@@ -71,7 +71,7 @@ sub rewrite_sdrf {
 
         foreach my $col ( @tscols ) {
             my $ts = $larry->[$col];
-            $termsource{$ts}++ if length($ts);
+            $termsource{$ts}++ if $ts;
         }
 
         $sdrf_parser->print( $out_fh, $larry );
