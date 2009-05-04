@@ -119,6 +119,11 @@ sub rewrite_idf {
             }
         }
 
+        # Fix the Experiment Design Term Source REF issue.
+        if ( $larry->[0] =~ /Experiment *Design *Term *Source *REF/ ) {
+            $larry->[0] = 'Experimental Design Term Source REF';
+        }
+
         push @lines, $larry;
     }
 
