@@ -76,7 +76,7 @@ Bio::MAGETAB::ProtocolApplication - MAGE-TAB protocol application class
 =head1 DESCRIPTION
 
 This class is used to describe the actual application of experimental
-protocols in the MAGE-TAB SDRF. See L<Bio::MAGETAB::BaseClass> for
+protocols in the MAGE-TAB SDRF. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for
 superclass methods.
 
 =head1 ATTRIBUTES

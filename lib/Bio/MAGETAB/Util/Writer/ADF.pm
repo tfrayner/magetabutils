@@ -510,7 +510,7 @@ Export of ArrayDesigns to ADF files.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Writer::Tabfile> for superclass attributes.
+See the L<Tabfile|Bio::MAGETAB::Util::Writer::Tabfile> class for superclass attributes.
 
 =over 2
 

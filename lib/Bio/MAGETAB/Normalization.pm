@@ -40,8 +40,8 @@ Bio::MAGETAB::Normalization - MAGE-TAB data acquisition class
 
 =head1 DESCRIPTION
 
-This class represents events which normalize or transform data. See
-L<Bio::MAGETAB::Event> for superclass methods.
+This class represents events which normalize or transform data. See the
+L<Event|Bio::MAGETAB::Event> class for superclass methods.
 
 =head1 ATTRIBUTES
 

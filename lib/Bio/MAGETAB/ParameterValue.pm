@@ -65,7 +65,7 @@ This class is used to describe the values of parameters within a
 MAGE-TAB SDRF document. Note that as of the v1.1 MAGE-TAB
 specification, parameter values can only be used with Measurements;
 subsequent releases may allow ControlledTerms to be used as an
-alternative. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+alternative. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

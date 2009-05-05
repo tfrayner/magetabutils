@@ -335,13 +335,13 @@ database.
 
 DBLoader is a Builder subclass which uses a relational database
 backend to track object creation, rather than the simple hash
-reference mechanism used by Builder. See
-L<Bio::MAGETAB::Util::Persistence> and the Tangram module
+reference mechanism used by Builder. See the
+L<Persistence|Bio::MAGETAB::Util::Persistence> class and the Tangram module
 documentation for more information on supported database engines.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Builder> for documentation on the superclass
+See the L<Builder|Bio::MAGETAB::Util::Builder> class for documentation on the superclass
 attributes.
 
 =over 2
@@ -355,14 +355,14 @@ Bio::MAGETAB::Util::Persistence object.
 
 =head1 METHODS
 
-See L<Bio::MAGETAB::Util::Builder> for documentation on the superclass
+See the L<Builder|Bio::MAGETAB::Util::Builder> class for documentation on the superclass
 methods.
 
 =head1 CAVEATS
 
 Objects when modified are not automatically updated in the
 database. You should use the C<update> method to do this (see
-L<Bio::MAGETAB::Util::Builder/METHODS>). In particular, it is
+L<METHODS|Bio::MAGETAB::Util::Builder/METHODS> in the Builder class). In particular, it is
 important to bear in mind that there are places in the Bio::MAGETAB
 model where relationships between objects are being maintained behind
 the scenes (this allows certain relationships to be navigable in both
@@ -395,14 +395,16 @@ character, so that this character is replaced with '%%'. This means
 that while values are correctly inserted into the database they are
 not retrieved correctly, and this may result in errors or duplicate
 entries when working with objects whose identifying fields contains a
-'%' character. See L<Bio::MAGETAB::Util::Builder> for a discussion on
+'%' character. See the L<Builder|Bio::MAGETAB::Util::Builder> class for a discussion on
 object identity, and
 L<http://rt.cpan.org/Public/Bug/Display.html?id=29133> for a possible
 quick fix for this Tangram bug.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::Builder>, L<Bio::MAGETAB::Util::Persistence>
+L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util::Builder>
+L<Bio::MAGETAB::Util::Persistence>
 
 =head1 AUTHOR
 

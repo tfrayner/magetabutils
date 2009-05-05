@@ -71,7 +71,7 @@ Bio::MAGETAB::Publication - MAGE-TAB publication class
 =head1 DESCRIPTION
 
 This class is used to describe the publications listed in a MAGE-TAB
-IDF file. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+IDF file. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

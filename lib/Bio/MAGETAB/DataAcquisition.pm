@@ -41,7 +41,7 @@ Bio::MAGETAB::DataAcquisition - MAGE-TAB data acquisition class
 =head1 DESCRIPTION
 
 This class represents events which generate data files, such as the
-scanning of a hybridized microarray slide. See L<Bio::MAGETAB::Event>
+scanning of a hybridized microarray slide. See the L<Event|Bio::MAGETAB::Event> class
 for superclass methods.
 
 =head1 ATTRIBUTES

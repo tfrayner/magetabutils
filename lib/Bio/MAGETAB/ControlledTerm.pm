@@ -54,7 +54,7 @@ This class is used to store information on controlled terms in
 MAGE-TAB. These will often (but not always) be terms from an ontology,
 in which case the source of these terms should also be given via the
 parent class DatabaseEntry attributes. See
-L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+the L<DatabaseEntry|Bio::MAGETAB::DatabaseEntry> class for superclass methods.
 
 =head1 ATTRIBUTES
 

@@ -54,7 +54,7 @@ This class is used to store user-defined comments in MAGE-TAB. The
 MAGE-TAB specification indicates that these comments may be legally
 ignored by downstream data processing operations, and so therefore
 should not be used for experimental annotation purposes. See
-L<Bio::MAGETAB::BaseClass> for superclass methods.
+the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

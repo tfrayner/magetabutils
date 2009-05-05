@@ -77,7 +77,7 @@ Bio::MAGETAB::DesignElement - Abstract design element class
 
 This class is an abstract class from which all MAGE-TAB DesignElement
 classes (Feature, Reporter, CompositeElement) are derived. It cannot
-be instantiated directly. See L<Bio::MAGETAB::BaseClass> for
+be instantiated directly. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for
 superclass methods.
 
 =head1 ATTRIBUTES

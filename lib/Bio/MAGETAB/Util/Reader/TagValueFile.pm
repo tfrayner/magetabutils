@@ -346,7 +346,7 @@ files. It is not designed to be used directly.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Reader::Tabfile> for superclass attributes.
+See the L<Tabfile|Bio::MAGETAB::Util::Reader::Tabfile> class for superclass attributes.
 
 =over 2
 
@@ -364,10 +364,10 @@ No public methods.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Reader::Tabfile>,
-L<Bio::MAGETAB::Util::Reader>,
-L<Bio::MAGETAB::Util::Reader::ADF>,
-L<Bio::MAGETAB::Util::Reader::IDF>,
+L<Bio::MAGETAB::Util::Reader::Tabfile>
+L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util::Reader::ADF>
+L<Bio::MAGETAB::Util::Reader::IDF>
 
 =head1 AUTHOR
 

@@ -796,7 +796,7 @@ class which handles extended parsing options more transparently.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Reader::TagValueFile> for superclass attributes.
+See the L<TagValueFile|Bio::MAGETAB::Util::Reader::TagValueFile> class for superclass attributes.
 
 =over 2
 
@@ -821,9 +821,9 @@ Bio::MAGETAB::ArrayDesign object updated with the ADF contents.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Reader::TagValueFile>,
-L<Bio::MAGETAB::Util::Reader::Tabfile>,
-L<Bio::MAGETAB::Util::Reader>,
+L<Bio::MAGETAB::Util::Reader::TagValueFile>
+L<Bio::MAGETAB::Util::Reader::Tabfile>
+L<Bio::MAGETAB::Util::Reader>
 L<Bio::MAGETAB::ArrayDesign>
 
 =head1 AUTHOR

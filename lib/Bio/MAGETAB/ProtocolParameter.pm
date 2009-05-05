@@ -51,7 +51,7 @@ Bio::MAGETAB::ProtocolParameter - MAGE-TAB protocol parameter class
 =head1 DESCRIPTION
 
 This class is used to describe the parameters which may be used with a
-given MAGE-TAB protocol. See L<Bio::MAGETAB::BaseClass> for superclass
+given MAGE-TAB protocol. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass
 methods.
 
 =head1 ATTRIBUTES

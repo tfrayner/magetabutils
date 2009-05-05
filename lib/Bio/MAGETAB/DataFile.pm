@@ -46,8 +46,8 @@ Bio::MAGETAB::DataFile - MAGE-TAB data file class
 
 This class describes data files having arbitrary formats. Most
 software-specific data files fall into this category. The sole
-exception are data matrices; see L<Bio::MAGETAB::DataMatrix>. See
-L<Bio::MAGETAB::Data> for superclass methods.
+exception are data matrices; see the L<DataMatrix|Bio::MAGETAB::DataMatrix> class. See the
+L<Data|Bio::MAGETAB::Data> class for superclass methods.
 
 =head1 ATTRIBUTES
 

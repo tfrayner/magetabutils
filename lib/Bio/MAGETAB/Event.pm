@@ -60,7 +60,7 @@ Bio::MAGETAB::Event - Abstract event class
 
 This class is an abstract class from which all MAGE-TAB Event classes
 (Assay, DataAcquisition, Normalization) are derived. It cannot be
-instantiated directly. See L<Bio::MAGETAB::Node> for superclass
+instantiated directly. See the L<Node|Bio::MAGETAB::Node> class for superclass
 methods.
 
 =head1 ATTRIBUTES

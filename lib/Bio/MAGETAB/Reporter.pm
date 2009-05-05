@@ -82,7 +82,7 @@ Bio::MAGETAB::Reporter - MAGE-TAB reporter class
 This class is used to store information on array reporter elements in
 MAGE-TAB. These elements typically correspond to probe sequences, or
 in simple cases they may map directly to biologically interesting
-sequences (e.g., genes). See L<Bio::MAGETAB::DesignElement> for
+sequences (e.g., genes). See the L<DesignElement|Bio::MAGETAB::DesignElement> class for
 superclass methods.
 
 =head1 ATTRIBUTES

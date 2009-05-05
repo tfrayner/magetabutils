@@ -172,7 +172,7 @@ Bio::MAGETAB::SDRF - MAGE-TAB SDRF class
 =head1 DESCRIPTION
 
 This class is used to describe the SDRFs used in a given
-investigation. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+investigation. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

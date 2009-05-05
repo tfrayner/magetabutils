@@ -55,7 +55,7 @@ is a generic class which can represent any assay type, specified via
 its technologyType attribute. Assays which specifically represent
 hybridization events should use a 'hybridization' ControlledTerm as
 their technologyType and should also link to an ArrayDesign. See
-L<Bio::MAGETAB::Event> for superclass methods.
+the L<Event|Bio::MAGETAB::Event> class for superclass methods.
 
 =head1 ATTRIBUTES
 

@@ -200,7 +200,8 @@ Given the name of an IDF file, overwrite said file with a fixed copy.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB>, L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB>
+L<Bio::MAGETAB::Util::Reader>
 
 =head1 AUTHOR
 

@@ -72,7 +72,7 @@ Bio::MAGETAB::Measurement - MAGE-TAB measurement class
 
 This class is used to describe measurements in MAGE-TAB. It can
 describe individual values, or ranges of values, associated with an
-optional unit. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+optional unit. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

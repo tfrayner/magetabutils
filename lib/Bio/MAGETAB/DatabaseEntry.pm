@@ -58,7 +58,7 @@ This class is used to store MAGE-TAB database entry information. These
 entries can be from sequence databases (e.g. as attached to
 Reporters), ontologies (when using the ControlledTerm subclass), or
 databases which hold higher-level metadata (e.g. ArrayDesigns,
-Protocols). See L<Bio::MAGETAB::BaseClass> for superclass methods.
+Protocols). See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

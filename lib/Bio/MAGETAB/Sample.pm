@@ -41,7 +41,7 @@ Bio::MAGETAB::Sample - MAGE-TAB sample class
 =head1 DESCRIPTION
 
 This class is used to store information on biological samples (as
-distinct from Sources) in MAGE-TAB. L<Bio::MAGETAB::Material> for
+distinct from Sources) in MAGE-TAB. See the L<Material|Bio::MAGETAB::Material> class for
 superclass methods.
 
 =head1 ATTRIBUTES

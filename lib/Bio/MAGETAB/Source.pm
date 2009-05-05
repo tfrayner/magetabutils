@@ -52,7 +52,7 @@ Bio::MAGETAB::Source - MAGE-TAB source class
 This class is used to store information on the starting biological
 material for a given experiment ('source'). These nodes typically form
 the starting point for the experimental design
-graph. L<Bio::MAGETAB::Material> for superclass methods.
+graph. See the L<Material|Bio::MAGETAB::Material> class for superclass methods.
 
 =head1 ATTRIBUTES
 

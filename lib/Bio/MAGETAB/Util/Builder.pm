@@ -431,8 +431,8 @@ mechanism. Builder objects are created and included in Reader object
 instantiation, such that the back-end storage engine populated by a
 given Reader object may be redefined as desired. This base Builder
 class simply tracks objects in a hash of hashes; this is sufficient
-for simple parsing of MAGE-TAB documents. See
-L<Bio::MAGETAB::Util::DBLoader> for an example of a Builder subclass
+for simple parsing of MAGE-TAB documents. See the
+L<DBLoader|Bio::MAGETAB::Util::DBLoader> class for an example of a Builder subclass
 that can be used to populate a Tangram-based relational database
 schema.
 
@@ -453,7 +453,7 @@ non-existent objects instead.
 
 An optional Bio::MAGETAB container object. If none is passed upon
 Builder object instantiation, a new Bio::MAGETAB object is created for
-you. See L<Bio::MAGETAB> for details.
+you. See the L<Bio::MAGETAB|Bio::MAGETAB> class for details.
 
 =item authority
 
@@ -553,7 +553,7 @@ subclass):
 Passed a list of Bio::MAGETAB objects, this method will attempt to
 update those objects in any persistent storage engine. This method
 doesn't have any effect in the base Builder class, but it is very
-important to the DBLoader subclass. See L<Bio::MAGETAB::Util::DBLoader/CAVEATS>.
+important to the DBLoader subclass. See L<CAVEATS|Bio::MAGETAB::Util::DBLoader/CAVEATS> in the DBLoader class.
 
 =back
 
@@ -629,7 +629,7 @@ around the Protocol being applied, and the Edge to which it is
 attached. Ideally, the protocol application date would also be
 included, but this can create problems for persistence-based Builder
 subclasses where the exact serialization behavior of DateTime objects
-needs to be defined (see L<Bio::MAGETAB::Util::DBLoader>). This is a
+needs to be defined (see the L<DBLoader|Bio::MAGETAB::Util::DBLoader> class). This is a
 tractable problem, but a fix has been omitted from this release since
 the use case (the same Protocol applied to a single Edge multiple
 times on different dates) seems a minor one. The workaround is to
@@ -637,7 +637,9 @@ split the protocol applications into as many Edges as are needed.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB>, L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::DBLoader>
+L<Bio::MAGETAB>
+L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util::DBLoader>
 
 =head1 AUTHOR
 

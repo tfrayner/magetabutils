@@ -146,7 +146,7 @@ Bio::MAGETAB::Investigation - MAGE-TAB investigation class
 
 This class is used to store top-level information on the investigation
 in MAGE-TAB. This class also acts as a container for the information
-in an IDF file. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+in an IDF file. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

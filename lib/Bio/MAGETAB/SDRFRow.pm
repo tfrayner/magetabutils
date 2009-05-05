@@ -138,8 +138,8 @@ Bio::MAGETAB::SDRFRow - MAGE-TAB SDRF row class
 
 This class is used to describe the rows in a given MAGE-TAB SDRF
 document. Links between Nodes, channel and FactorValue are handled by
-this class. See L<Bio::MAGETAB::BaseClass> for superclass methods, and
-L<Bio::MAGETAB::SDRF> for its add_nodes method which can be used to
+this class. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods, and the
+L<SDRF|Bio::MAGETAB::SDRF> class for its add_nodes method which can be used to
 automatically sort Nodes into SDRFRows.
 
 =head1 ATTRIBUTES

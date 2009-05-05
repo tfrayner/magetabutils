@@ -185,8 +185,8 @@ An optional authority string to be used in object creation.
 
 An optional Builder object. These Builder objects are used to track
 the creation of Bio::MAGETAB objects by caching the objects in an
-internal store, keyed by a set of identifying information (see
-L<Bio::MAGETAB::Util::Builder>). This object can be used in
+internal store, keyed by a set of identifying information (see the
+L<Builder|Bio::MAGETAB::Util::Builder> class). This object can be used in
 multiple Reader objects to help link common objects from multiple
 MAGE-TAB documents together. In its simplest form this internal store
 is a simple hash; however in principle this could be extended by

@@ -58,7 +58,7 @@ Bio::MAGETAB::MatrixColumn - MAGE-TAB matrix column class
 This class is used to describe the columns of a MAGE-TAB data
 matrix. It acts as a mapping between a numbered column in the matrix,
 the quantitation type of that column, and the SDRF node or nodes to
-which it applies. See L<Bio::MAGETAB::BaseClass> for superclass
+which it applies. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass
 methods.
 
 =head1 ATTRIBUTES

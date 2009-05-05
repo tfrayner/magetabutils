@@ -65,7 +65,7 @@ Bio::MAGETAB::Data - Abstract data class
 
 This class is an abstract class from which all MAGE-TAB Data classes
 (DataFile, DataMatrix) are derived. It cannot be instantiated
-directly. See L<Bio::MAGETAB::Node> for superclass methods.
+directly. See the L<Node|Bio::MAGETAB::Node> class for superclass methods.
 
 =head1 ATTRIBUTES
 

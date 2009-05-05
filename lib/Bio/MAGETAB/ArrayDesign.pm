@@ -113,7 +113,7 @@ Bio::MAGETAB::ArrayDesign - MAGE-TAB array design class
 This class is used to store information about array designs in
 MAGE-TAB. This class can represent information from an ADF, or a
 reference to an array design in a database. See
-L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+the L<DatabaseEntry|Bio::MAGETAB::DatabaseEntry> class for superclass methods.
 
 =head1 ATTRIBUTES
 
