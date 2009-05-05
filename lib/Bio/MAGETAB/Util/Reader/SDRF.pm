@@ -1124,25 +1124,20 @@ sub _add_comment_to_thing {
 
 sub _create_comment {
 
-    my ( $self, $name, $value, @things ) = @_;
+    my ( $self, $name, $value, $thing ) = @_;
 
-    return if ( ! scalar @things || $value =~ $BLANK );
+    return if ( ! $thing || $value =~ $BLANK );
 
-    my @comments;
-    foreach my $thing ( @things ) {
-        my $comment = $self->get_builder()->find_or_create_comment({
-            name   => $name,
-            value  => $value,
-            object => $thing,
-        });
+    my $comment = $self->get_builder()->find_or_create_comment({
+        name   => $name,
+        value  => $value,
+        object => $thing,
+    });
 
-        $self->_add_comment_to_thing( $comment, $thing )
-            if $thing;
+    $self->_add_comment_to_thing( $comment, $thing )
+        if $thing;
 
-        push @comments, $comment;
-    }
-
-    return @comments;
+    return $comment;
 }
 
 sub _get_characteristic_type {
