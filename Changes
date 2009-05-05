@@ -4,6 +4,9 @@ Changelog for Bio::MAGETAB
 0.97    Bio::MAGETAB-0.97.tar.gz        Merged magetab and magetab-util packages together for
                                           convenience (see below for old Bio::MAGETAB::Util
                                           changelog).
+                                        Minor bug fixes.
+                                        New class to automate fixes to ArrayExpress MAGE-TAB
+                                          documents.
 
 0.96    Bio::MAGETAB-0.96.tar.gz        Made LabeledExtract->label attribute optional. This
                                           better agrees with the MAGE-TAB specification, even
