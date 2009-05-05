@@ -4,13 +4,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
-"HTML Tidy for Mac OS X (vers 1 September 2005), see www.w3.org" />
+"HTML Tidy for Mac OS X (vers 31 October 2006 - Apple Inc. build 13), see www.w3.org" />
 <title>Bio::MAGETAB::Util::Reader::Tabfile - An abstract class
 providing methods for handling tab-delimited files.</title>
 <link rel="stylesheet" href="/style.css" type="text/css" />
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii" />
-<link rev="made" href="mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#109;&#97;&#99;&#107;&#105;&#110;&#97;&#99;&#46;&#108;&#111;&#99;&#97;&#108;" />
+<link rev="made" href=
+"mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
 <p><a name="__index__"></a></p>
@@ -57,8 +58,8 @@ directly.</p>
 <p>The end-of-line character to use while parsing. Typically this
 is set by the Reader subclasses.</p>
 </dd>
-<dt><strong><a name="item_filehandle_cache" id=
-"item_filehandle_cache">filehandle_cache</a></strong></dt>
+<dt><strong><a name="item_filehandle" id=
+"item_filehandle">filehandle</a></strong></dt>
 <dd>
 <p>The filehandle for the file being parsed.</p>
 </dd>
@@ -76,7 +77,45 @@ track MAGE-TAB object creation.</p>
 </dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>No public methods.</p>
+<dl>
+<dt><strong><a name="item_getline" id=
+"item_getline">getline</a></strong></dt>
+<dd>
+<p>A simple wrapper for the Text::CSV_XS <a href=
+"#item_getline"><code>getline()</code></a> method which takes an
+optional filehandle argument, using the cached filehandle returned
+by <code>get_filehandle()</code> as the default. This filehandle
+argument can be useful when explicitly controlling the read
+position of the script within the file (e.g. as in ADF
+parsing).</p>
+</dd>
+<dt><strong><a name="item_can_ignore" id=
+"item_can_ignore">can_ignore</a></strong></dt>
+<dd>
+<p>When passed an arrayref of column values for a given line,
+returns 1 if the line is ignorable (typically blank or commented
+lines fall into this category) or undef if not.</p>
+</dd>
+<dt><strong><a name="item_strip_whitespace" id=
+"item_strip_whitespace">strip_whitespace</a></strong></dt>
+<dd>
+<p>This method strips any whitespace surrounding the string values
+passed to it in an arrayref.</p>
+</dd>
+<dt><strong><a name="item_confirm_full_parse" id=
+"item_confirm_full_parse">confirm_full_parse</a></strong></dt>
+<dd>
+<p>Raises an exception if the file has not been parsed to
+completion (i.e., EOF). Takes a line arrayref as returned by
+<a href="#item_getline"><code>$self-&gt;getline()</code></a> as an
+optional argument to allow testing for either (a) the existence of
+a next line in the file, or (b) EOF. This is useful when pausing
+parsing partway through a file, e.g. after parsing the ADF header
+section.</p>
+</dd>
+</dl>
+<p>In addition, each attribute has accessor (get_*) and mutator
+(set_*) methods.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/Util/Reader.html">the

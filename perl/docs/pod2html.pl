@@ -70,9 +70,9 @@ sub mangle_email {
 
 sub base_wanted {
 
-    my ( $libdir, $cwd, $modules ) = @_;
+    my ( $libdir, $cwd, $modules, $pattern ) = @_;
 
-    return unless $_ =~ m/ \.pm \z/xms;
+    return unless $File::Find::name =~ m/ $pattern .* \.pm \z/xms;
     
     my $modfile = File::Spec->abs2rel( $File::Find::name, $libdir );
     my $htmldoc = File::Spec->rel2abs( $modfile, $cwd );
@@ -114,7 +114,7 @@ sub make_wanted {
 
 sub generate_html {
 
-    my ( $libdir, $cwd ) = @_;
+    my ( $libdir, $cwd, $pattern ) = @_;
 
     $libdir = File::Spec->rel2abs( $libdir );
     $libdir = File::Spec->catdir( $libdir, 'lib' );
@@ -124,23 +124,22 @@ sub generate_html {
 
     my $modules = [];
 
-    my $wanted = make_wanted( \&base_wanted, $libdir, $cwd, $modules );
+    my $wanted = make_wanted( \&base_wanted, $libdir, $cwd, $modules, $pattern );
 
     find( $wanted, $libdir );
 
     return $modules;
 }
 
-my ( $topdir, $utildir );
+my ( $topdir );
 
 GetOptions(
     "d|topdir=s"  => \$topdir,
-    "u|utildir=s" => \$utildir,
 );
 
-unless ( $topdir && -d $topdir && $utildir && -d $utildir ) {
+unless ( $topdir && -d $topdir ) {
     print <<"USAGE";
-Usage: $0 -d <top-level model directory> -u <top-level utils directory>
+Usage: $0 -d <magetab package directory>
 USAGE
 
     exit 255;
@@ -148,7 +147,7 @@ USAGE
 
 my $cwd = getcwd();
 
-my $modules = generate_html( $utildir, $cwd );
+my $modules = generate_html( $topdir, $cwd, qr/Bio\/MAGETAB\/Util/ );
 
 my $idx_file = File::Spec->catfile( $cwd, 'index.html' );
 printf ( "Creating %s\n", $idx_file );
@@ -183,7 +182,7 @@ foreach my $mod ( @$modules ) {
 LINK
 }
 
-$modules = generate_html( $topdir, $cwd );
+$modules = generate_html( $topdir, $cwd, qr/Bio\/MAGETAB(?!\/Util)/ );
 
 print $index <<"UTILHEAD";
       </ul>
