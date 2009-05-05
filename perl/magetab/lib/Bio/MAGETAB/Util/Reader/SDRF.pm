@@ -939,7 +939,7 @@ sub _create_data_file {
 
     my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
-    return if ( $uri =~ $BLANK );
+    return if ( ! $uri || $uri =~ $BLANK );
 
     my $format = $self->_find_data_format( $uri );
 
@@ -963,7 +963,7 @@ sub _create_data_matrix {
 
     my ( $self, $uri, $type_str, $previous, $protocolapps ) = @_;
 
-    return if ( $uri =~ $BLANK );
+    return if ( ! $uri || $uri =~ $BLANK );
 
     # There's a lot more metadata to acquire here, by actually parsing
     # the data matrix file. We do that later after everything else has
