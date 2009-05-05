@@ -74,16 +74,15 @@ relational database.</p>
 <h1><a name="description" id="description">DESCRIPTION</a></h1>
 <p>DBLoader is a Builder subclass which uses a relational database
 backend to track object creation, rather than the simple hash
-reference mechanism used by Builder. See <a href=
-"/model/Bio/MAGETAB/Util/Persistence.html">the
-Bio::MAGETAB::Util::Persistence manpage</a> and the Tangram module
-documentation for more information on supported database
-engines.</p>
+reference mechanism used by Builder. See the <a href=
+"/model/Bio/MAGETAB/Util/Persistence.html">Persistence</a> class
+and the Tangram module documentation for more information on
+supported database engines.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
-<p>See <a href="/model/Bio/MAGETAB/Util/Builder.html">the
-Bio::MAGETAB::Util::Builder manpage</a> for documentation on the
-superclass attributes.</p>
+<p>See the <a href=
+"/model/Bio/MAGETAB/Util/Builder.html">Builder</a> class for
+documentation on the superclass attributes.</p>
 <dl>
 <dt><strong><a name="item_database" id=
 "item_database">database</a></strong></dt>
@@ -94,22 +93,22 @@ Bio::MAGETAB::Util::Persistence object.</p>
 </dl>
 <hr />
 <h1><a name="methods" id="methods">METHODS</a></h1>
-<p>See <a href="/model/Bio/MAGETAB/Util/Builder.html">the
-Bio::MAGETAB::Util::Builder manpage</a> for documentation on the
-superclass methods.</p>
+<p>See the <a href=
+"/model/Bio/MAGETAB/Util/Builder.html">Builder</a> class for
+documentation on the superclass methods.</p>
 <hr />
 <h1><a name="caveats" id="caveats">CAVEATS</a></h1>
 <p>Objects when modified are not automatically updated in the
 database. You should use the <code>update</code> method to do this
-(see <a href="/model/Bio/MAGETAB/Util/Builder.html#methods">METHODS
-in the Bio::MAGETAB::Util::Builder manpage</a>). In particular, it
-is important to bear in mind that there are places in the
-Bio::MAGETAB model where relationships between objects are being
-maintained behind the scenes (this allows certain relationships to
-be navigable in both directions). When modifying these objects, you
-must also call <code>update</code> on their target objects to
-ensure the database is kept synchronized with the objects held in
-memory. For example:</p>
+(see <a href=
+"/model/Bio/MAGETAB/Util/Builder.html#methods">METHODS</a> in the
+Builder class). In particular, it is important to bear in mind that
+there are places in the Bio::MAGETAB model where relationships
+between objects are being maintained behind the scenes (this allows
+certain relationships to be navigable in both directions). When
+modifying these objects, you must also call <code>update</code> on
+their target objects to ensure the database is kept synchronized
+with the objects held in memory. For example:</p>
 <pre>
  # SDRFRow to Nodes is a reciprocal relationship:
  my $row = $loader-&gt;create_sdrf_row({
@@ -137,18 +136,17 @@ statements containing the '%' character, so that this character is
 replaced with '%%'. This means that while values are correctly
 inserted into the database they are not retrieved correctly, and
 this may result in errors or duplicate entries when working with
-objects whose identifying fields contains a '%' character. See
-<a href="/model/Bio/MAGETAB/Util/Builder.html">the
-Bio::MAGETAB::Util::Builder manpage</a> for a discussion on object
-identity, and <a href=
+objects whose identifying fields contains a '%' character. See the
+<a href="/model/Bio/MAGETAB/Util/Builder.html">Builder</a> class
+for a discussion on object identity, and <a href=
 "http://rt.cpan.org/Public/Bug/Display.html?id=29133">http://rt.cpan.org/Public/Bug/Display.html</a>
 for a possible quick fix for this Tangram bug.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/Util/Reader.html">the
-Bio::MAGETAB::Util::Reader manpage</a>, <a href=
+Bio::MAGETAB::Util::Reader manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/Builder.html">the
-Bio::MAGETAB::Util::Builder manpage</a>, <a href=
+Bio::MAGETAB::Util::Builder manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/Persistence.html">the
 Bio::MAGETAB::Util::Persistence manpage</a></p>
 <hr />

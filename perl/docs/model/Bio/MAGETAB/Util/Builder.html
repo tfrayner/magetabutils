@@ -54,10 +54,9 @@ object instantiation, such that the back-end storage engine
 populated by a given Reader object may be redefined as desired.
 This base Builder class simply tracks objects in a hash of hashes;
 this is sufficient for simple parsing of MAGE-TAB documents. See
-<a href="/model/Bio/MAGETAB/Util/DBLoader.html">the
-Bio::MAGETAB::Util::DBLoader manpage</a> for an example of a
-Builder subclass that can be used to populate a Tangram-based
-relational database schema.</p>
+the <a href="/model/Bio/MAGETAB/Util/DBLoader.html">DBLoader</a>
+class for an example of a Builder subclass that can be used to
+populate a Tangram-based relational database schema.</p>
 <hr />
 <h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
 <dl>
@@ -76,8 +75,8 @@ silently autogenerate the non-existent objects instead.</p>
 <dd>
 <p>An optional Bio::MAGETAB container object. If none is passed
 upon Builder object instantiation, a new Bio::MAGETAB object is
-created for you. See <a href="/model/Bio/MAGETAB.html">the
-Bio::MAGETAB manpage</a> for details.</p>
+created for you. See the <a href=
+"/model/Bio/MAGETAB.html">Bio::MAGETAB</a> class for details.</p>
 </dd>
 <dt><strong><a name="item_authority" id=
 "item_authority">authority</a></strong></dt>
@@ -180,8 +179,8 @@ DBLoader subclass):</p>
 to update those objects in any persistent storage engine. This
 method doesn't have any effect in the base Builder class, but it is
 very important to the DBLoader subclass. See <a href=
-"/model/Bio/MAGETAB/Util/DBLoader.html#caveats">CAVEATS in the
-Bio::MAGETAB::Util::DBLoader manpage</a>.</p>
+"/model/Bio/MAGETAB/Util/DBLoader.html#caveats">CAVEATS</a> in the
+DBLoader class.</p>
 </dd>
 </dl>
 <hr />
@@ -255,18 +254,18 @@ solely around the Protocol being applied, and the Edge to which it
 is attached. Ideally, the protocol application date would also be
 included, but this can create problems for persistence-based
 Builder subclasses where the exact serialization behavior of
-DateTime objects needs to be defined (see <a href=
-"/model/Bio/MAGETAB/Util/DBLoader.html">the
-Bio::MAGETAB::Util::DBLoader manpage</a>). This is a tractable
-problem, but a fix has been omitted from this release since the use
-case (the same Protocol applied to a single Edge multiple times on
-different dates) seems a minor one. The workaround is to split the
-protocol applications into as many Edges as are needed.</p>
+DateTime objects needs to be defined (see the <a href=
+"/model/Bio/MAGETAB/Util/DBLoader.html">DBLoader</a> class). This
+is a tractable problem, but a fix has been omitted from this
+release since the use case (the same Protocol applied to a single
+Edge multiple times on different dates) seems a minor one. The
+workaround is to split the protocol applications into as many Edges
+as are needed.</p>
 <hr />
 <h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB manpage</a>,
+<p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB manpage</a>
 <a href="/model/Bio/MAGETAB/Util/Reader.html">the
-Bio::MAGETAB::Util::Reader manpage</a>, <a href=
+Bio::MAGETAB::Util::Reader manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/DBLoader.html">the
 Bio::MAGETAB::Util::DBLoader manpage</a></p>
 <hr />
