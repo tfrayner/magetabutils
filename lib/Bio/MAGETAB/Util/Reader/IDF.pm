@@ -170,10 +170,11 @@ sub parse {
     my $array_of_rows = $self->_read_as_arrayref();
 
     # Check tags for duplicates, make sure that tags are recognized.
-    my $idf_hash = $self->_validate_arrayref_tags( $array_of_rows );
+    my $idf_data = $self->_validate_arrayref_tags( $array_of_rows );
 
     # Populate the IDF object's internal data text_store attribute.
-    while ( my ( $tag, $values ) = each %$idf_hash ) {
+    foreach my $datum ( @$idf_data ) {
+        my ( $tag, $values ) = @$datum;
 	$self->_dispatch( $tag, @$values );
     }
 

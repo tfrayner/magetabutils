@@ -107,18 +107,20 @@ sub _create_comments {
 
     my @comments;
     COMM:
-    while ( my ( $name, $value ) = each %{ $self->get_text_store()->{'comment'} } ) {
+    while ( my ( $name, $values ) = each %{ $self->get_text_store()->{'comment'} } ) {
 
         # Value is required for all Comment objects.
-        next COMM unless ( defined $value
-                                && $value !~ $BLANK );
+        foreach my $value ( @$values ) {
+            next COMM unless ( defined $value
+                                   && $value !~ $BLANK );
+            
+            my $comment = $self->get_builder()->find_or_create_comment({
+                'name'    => $name,
+                'value'   => $value,
+            });
 
-        my $comment = $self->get_builder()->find_or_create_comment({
-            'name'    => $name,
-            'value'   => $value,
-        });
-
-	push @comments, $comment;
+            push @comments, $comment;
+        }
     }
 
     return \@comments;
@@ -167,18 +169,6 @@ sub _read_as_arrayref {
     return \@rows;
 }
 
-sub _normalize_tag {
-
-    # Takes a string, returns the lowercase, whitespace-stripped
-    # version.
-    my ( $self, $tag ) = @_;
-
-    $tag =~ s/\s+//g;
-    $tag = lc($tag);
-
-    return $tag
-}
-
 sub _validate_arrayref_tags {
 
     # Method to check the return value from _read_as_arrayref to check
@@ -188,39 +178,16 @@ sub _validate_arrayref_tags {
 
     my ($self, $array_of_rows) = @_;
 
-    # Duplicate tag check. This is somewhat primitive at the moment,
-    # and can be fooled FIXME.
-    my (%seen);
-    foreach my $row ( @$array_of_rows ) {
-
-	# Two-dimensional hash; normalized then actual file tags.
-	my $normtag = $self->_normalize_tag( $row->[0] );
-	$seen{ $normtag }{ $row->[0] } ++;
+    # Array with row tags linked to rest-of-row arrayref values.
+    my @file_data;
+    foreach my $row ( @{ $array_of_rows } ) {
+        push @file_data, [ $row->[0], [@{ $row }[1..$#$row] ] ];
     }
-    while ( my ($norm_tag, $file_tags) = each %seen ) {
-
-	# Differently typed but identical tags.
-	if ( scalar (grep { defined $_ } values %$file_tags ) > 1 ) {
-	    my $tagstring = join(", ", keys %$file_tags);
-	    croak(qq{Error: duplicated tag(s): "$tagstring"});
-	}
-
-	# Identically typed duplicate tags.
-	while ( my ($file_tag, $count) = each %$file_tags ) {
-	    if ( $count > 1 ) {
-		croak(qq{Error: duplicated tag: "$file_tag"});
-	    }
-	}
-    }
-
-    # Hash of row tag keys with rest-of-row arrayref values.
-    my %file_hash = map
-	{ $_->[0] => [ @{ $_ }[1 .. $#$_] ] }
-	    @{ $array_of_rows };
 
     # A list of acceptable tags, expressed as qr//
     my @acceptable = keys %{ $self->get_dispatch_table() };
-    while ( my ( $tag, $values ) = each %file_hash ) {
+    foreach my $datum ( @file_data ) {
+        my ( $tag, $values ) = @$datum;
 
 	# N.B. acceptable tag REs may contain whitespace; no x option
 	# here.
@@ -242,7 +209,7 @@ sub _validate_arrayref_tags {
 	}
     }
 
-    return \%file_hash;
+    return \@file_data;
 }
 
 sub _add_grouped_data {
@@ -251,6 +218,15 @@ sub _add_grouped_data {
     my ( $self, $group, $tag, @args ) = @_;
 
     for ( my $i = 0; $i <= $#args; $i++ ) {
+
+        # It's conceivable that this should actually be valid, but
+        # until someone comes up with a way to unambiguously group
+        # more than one set of lines specifying a given list of
+        # objects (e.g. protocols) *within the current specification*,
+        # it's not practical to try and support it.
+        if ( defined $self->get_text_store()->{ $group }[$i]{ $tag } ) {
+            croak("Error: Duplicate $group $tag field encountered")
+        }
         $self->get_text_store()->{ $group }[$i]{ $tag } = $args[$i];
     }
 
@@ -263,7 +239,10 @@ sub _add_singleton_data {
     my ( $self, $group, $tag, @args ) = @_;
 
     # Make a copy of @args, just in case.
-    $self->get_text_store()->{ $group }{ $tag } = [ @args ];
+    my $data = $self->get_text_store()->{ $group }{ $tag } || [];
+    push @{ $data }, @args;
+    my %uniq = map { $_ => 1 } @{ $data };
+    $self->get_text_store()->{ $group }{ $tag } = [ keys %uniq ];
 
     return;
 }
@@ -272,6 +251,12 @@ sub _add_singleton_datum {
 
     # Record a 1:1 group:arg relationship.
     my ( $self, $group, $tag, $arg ) = @_;
+
+    # These really aren't allowed to be duplicated so we throw an
+    # error here rather than try and cope.
+    if ( defined $self->get_text_store()->{ $group }{ $tag } ) {
+        croak("Error: Duplicate $group $tag field encountered");
+    }
 
     $self->get_text_store()->{ $group }{ $tag } = $arg;
 
@@ -286,7 +271,11 @@ sub _add_comment {
 
     return if ( ! defined $value || $value =~ $BLANK );
 
-    $self->get_text_store()->{ 'comment' }{ $name } = $value;
+    my $comments = $self->get_text_store()->{ 'comment' }{ $name } || [];
+    push @{ $comments }, $value;
+
+    my %uniq = map { $_ => 1 } @{ $comments };
+    $self->get_text_store()->{ 'comment' }{ $name } = [ keys %uniq ];
 
     return;
 }

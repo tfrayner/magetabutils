@@ -650,10 +650,11 @@ sub _parse_header {
     my $array_of_rows = $self->_read_header_as_arrayref();
 
     # Check tags for duplicates, make sure that tags are recognized.
-    my $adf_hash = $self->_validate_arrayref_tags( $array_of_rows );
+    my $adf_data = $self->_validate_arrayref_tags( $array_of_rows );
 
     # Populate the ADF object's internal data text_store attribute.
-    while ( my ( $tag, $values ) = each %$adf_hash ) {
+    foreach my $datum ( @$adf_data ) {
+        my ( $tag, $values ) = @$datum;
 	$self->_dispatch( $tag, @$values );
     }
 
