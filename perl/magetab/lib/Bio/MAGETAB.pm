@@ -260,8 +260,11 @@ Bio::MAGETAB - A data model and utility API for the MAGE-TAB format.
 The Bio::MAGETAB module provides the core set of classes used to
 support the perl MAGE-TAB API. This module provides a set of data
 structures and type constraints which help to reliably handle data in
-MAGE-TAB format. See the L<Bio::MAGETAB::Util> module for classes
-which can be used to read, write and visualize MAGE-TAB data.
+MAGE-TAB format. See the L<Reader|Bio::MAGETAB::Util::Reader>,
+L<Writer|Bio::MAGETAB::Util::Writer> and
+L<GraphViz|Bio::MAGETAB::Util::Writer::GraphViz> modules for classes
+which can be used to read, write and visualize MAGE-TAB data
+respectively.
 
 This top-level Bio::MAGETAB class provides convenience methods for
 managing MAGE-TAB objects. It can be used to import the class
@@ -658,7 +661,9 @@ Returns all the TermSource objects held by the container.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util>, L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::BaseClass>
+L<Bio::MAGETAB::Util>
+L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::BaseClass>
 
 =head1 AUTHOR
 

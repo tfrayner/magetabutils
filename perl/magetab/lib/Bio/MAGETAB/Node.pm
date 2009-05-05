@@ -220,8 +220,8 @@ Bio::MAGETAB::Node - Abstract node class
 =head1 DESCRIPTION
 
 This class is an abstract class from which all MAGE-TAB SDRF Node
-classes are derived. It cannot be instantiated directly. See
-L<Bio::MAGETAB::BaseClass> for superclass methods.
+classes are derived. It cannot be instantiated directly. See the
+L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

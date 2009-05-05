@@ -143,8 +143,8 @@ No public methods.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Writer::ADF>,
-L<Bio::MAGETAB::Util::Writer::IDF>,
+L<Bio::MAGETAB::Util::Writer::ADF>
+L<Bio::MAGETAB::Util::Writer::IDF>
 L<Bio::MAGETAB::Util::Writer::SDRF>
 
 =head1 AUTHOR

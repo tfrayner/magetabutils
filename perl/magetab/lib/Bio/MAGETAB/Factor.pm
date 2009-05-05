@@ -53,7 +53,7 @@ Bio::MAGETAB::Factor - MAGE-TAB experimental factor class
 =head1 DESCRIPTION
 
 This class is used to store information on the factors being probed by
-a given investigation in MAGE-TAB. See L<Bio::MAGETAB::BaseClass> for
+a given investigation in MAGE-TAB. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for
 superclass methods.
 
 =head1 ATTRIBUTES

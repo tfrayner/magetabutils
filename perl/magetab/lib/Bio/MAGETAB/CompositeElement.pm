@@ -63,7 +63,7 @@ Bio::MAGETAB::CompositeElement - MAGE-TAB composite element class
 This class is used to store information on composite elements in
 MAGE-TAB. These elements typically correspond to biologically relevant
 sequences or features (e.g., genes, exons, etc.). See
-L<Bio::MAGETAB::DesignElement> for superclass methods.
+the L<DesignElement|Bio::MAGETAB::DesignElement> class for superclass methods.
 
 =head1 ATTRIBUTES
 

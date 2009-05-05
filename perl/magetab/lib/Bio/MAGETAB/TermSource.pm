@@ -63,7 +63,7 @@ Bio::MAGETAB::TermSource - MAGE-TAB term source class
 This class is used to describe the sources of controlled terms within
 a MAGE-TAB document. These term sources may be databases, ontologies,
 or even just local controlled vocabularies expressed as a flat
-file. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+file. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

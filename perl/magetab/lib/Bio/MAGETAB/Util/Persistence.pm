@@ -601,7 +601,8 @@ information on these methods.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::DBLoader>, Tangram
+L<Bio::MAGETAB::DBLoader>
+L<http://tangram.utsl.gen.nz/>
 
 =head1 AUTHOR
 

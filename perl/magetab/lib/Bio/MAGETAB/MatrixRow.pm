@@ -53,7 +53,7 @@ Bio::MAGETAB::MatrixRow - MAGE-TAB matrix row class
 This class is used to describe the rows of a MAGE-TAB data matrix. It
 acts as a mapping between a numbered row in the matrix, and the design
 element (Feature, Reporter or CompositeElement) to which it
-applies. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+applies. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

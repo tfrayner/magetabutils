@@ -338,7 +338,7 @@ class which handles extended parsing options more transparently.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Reader::TabFile> for superclass attributes.
+See the L<TabFile|Bio::MAGETAB::Util::Reader::TabFile> class for superclass attributes.
 
 =over 2
 
@@ -364,8 +364,8 @@ contents.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Reader::Tabfile>,
-L<Bio::MAGETAB::Util::Reader>,
+L<Bio::MAGETAB::Util::Reader::Tabfile>
+L<Bio::MAGETAB::Util::Reader>
 L<Bio::MAGETAB::DataMatrix>
 
 =head1 AUTHOR

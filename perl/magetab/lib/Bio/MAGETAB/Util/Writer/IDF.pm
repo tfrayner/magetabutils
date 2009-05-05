@@ -292,7 +292,7 @@ Export of Investigations to IDF files.
 
 =head1 ATTRIBUTES
 
-See L<Bio::MAGETAB::Util::Writer::Tabfile> for superclass attributes.
+See the L<Tabfile|Bio::MAGETAB::Util::Writer::Tabfile> class for superclass attributes.
 
 =over 2
 
@@ -315,7 +315,8 @@ Exports the Investigation to IDF.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Writer>, L<Bio::MAGETAB::Writer::Tabfile>
+L<Bio::MAGETAB::Writer>
+L<Bio::MAGETAB::Writer::Tabfile>
 
 =head1 AUTHOR
 

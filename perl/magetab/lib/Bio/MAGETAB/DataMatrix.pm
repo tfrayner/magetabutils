@@ -67,8 +67,8 @@ This class describes a particular type of data file known as a data
 matrix. The format of these data matrices is precisely defined, such
 that columns represent quantitation types applied to nodes of interest
 within the SDRF (e.g. scanned intensity values), and rows represent
-design elements (e.g. probes). See L<Bio::MAGETAB::Data> for
-superclass methods, L<Bio::MAGETAB::DataFile> for the generic data
+design elements (e.g. probes). See the L<Data|Bio::MAGETAB::Data> class for
+superclass methods, the L<DataFile|Bio::MAGETAB::DataFile> class for the generic data
 file class, and the MAGE-TAB specification for more information on
 data matrices.
 

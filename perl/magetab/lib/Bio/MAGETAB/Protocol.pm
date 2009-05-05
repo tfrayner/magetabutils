@@ -79,7 +79,7 @@ Bio::MAGETAB::Protocol - MAGE-TAB protocol class
 This class is used to describe experimental protocols in MAGE-TAB. It
 can either contain all the information about a protocol itself, or it
 can link to a protocol entry in a suitable database via its
-superclass. See L<Bio::MAGETAB::DatabaseEntry> for superclass methods.
+superclass. See the L<DatabaseEntry|Bio::MAGETAB::DatabaseEntry> class for superclass methods.
 
 =head1 ATTRIBUTES
 

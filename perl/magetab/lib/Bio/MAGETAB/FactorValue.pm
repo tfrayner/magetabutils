@@ -60,7 +60,7 @@ This class is used to store the values of the factors investigated by
 the experiment. This class links the Factor objects to Measurements or
 ControlledTerms describing the variables applying to each line of the
 SDRF. Either the measurement or term attribute should be used, but not
-both. See L<Bio::MAGETAB::BaseClass> for superclass methods.
+both. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

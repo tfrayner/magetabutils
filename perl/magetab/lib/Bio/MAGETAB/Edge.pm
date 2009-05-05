@@ -169,7 +169,7 @@ Bio::MAGETAB::Edge - MAGE-TAB edge class
 
 This class is used to store information on edges in the experimental
 design graph described by a MAGE-TAB SDRF. Each Edge must link to both
-an input and an output Node. L<Bio::MAGETAB::BaseClass> for superclass
+an input and an output Node. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass
 methods.
 
 =head1 ATTRIBUTES

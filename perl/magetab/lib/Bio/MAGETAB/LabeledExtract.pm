@@ -47,7 +47,7 @@ Bio::MAGETAB::LabeledExtract - MAGE-TAB labeled extract class
 =head1 DESCRIPTION
 
 This class is used to store information on labeled extracts
-in MAGE-TAB. L<Bio::MAGETAB::Material> for superclass methods.
+in MAGE-TAB. See the L<Material|Bio::MAGETAB::Material> class for superclass methods.
 
 =head1 ATTRIBUTES
 

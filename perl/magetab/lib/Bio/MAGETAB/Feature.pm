@@ -64,7 +64,7 @@ Bio::MAGETAB::Feature - MAGE-TAB feature class
 
 This class is used to store information on array features in
 MAGE-TAB. These elements will correspond to the individual spots on
-the array. See L<Bio::MAGETAB::DesignElement> for superclass methods.
+the array. See the L<DesignElement|Bio::MAGETAB::DesignElement> class for superclass methods.
 
 =head1 ATTRIBUTES
 

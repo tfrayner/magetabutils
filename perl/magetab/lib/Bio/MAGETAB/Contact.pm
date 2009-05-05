@@ -105,7 +105,7 @@ Bio::MAGETAB::Contact - MAGE-TAB contact class
 
 This class is used to store information on contacts (i.e., the people
 responsible for the experiment) in MAGE-TAB. See
-L<Bio::MAGETAB::BaseClass> for superclass methods.
+the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
 
 =head1 ATTRIBUTES
 

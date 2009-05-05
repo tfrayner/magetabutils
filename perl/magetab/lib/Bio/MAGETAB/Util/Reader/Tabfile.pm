@@ -449,7 +449,8 @@ In addition, each attribute has accessor (get_*) and mutator (set_*) methods.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util::Reader>, L<Bio::MAGETAB::Util::Reader::TagValueFile>
+L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util::Reader::TagValueFile>
 
 =head1 AUTHOR
 

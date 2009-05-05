@@ -180,7 +180,7 @@ formats.
 =item sdrfs
 
 A list of Bio::MAGETAB::SDRFs object to visualize. This is a required
-attribute. See L<Bio::MAGETAB::SDRF> for more information on this
+attribute. See the L<SDRF|Bio::MAGETAB::SDRF> class for more information on this
 class.
 
 =item font
