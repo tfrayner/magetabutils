@@ -129,6 +129,12 @@ sub rewrite_idf {
 
     $idf_parser->confirm_full_parse();
 
+    # Sometimes there's just no Term Source Name line. We handle that here.
+    unless ( $tsline ) {
+        $tsline = ['Term Source Name'];
+        push @lines, $tsline;
+    }
+
     # Add missing Term Sources to the Term Source Name line (we don't
     # bother with File or Version since they're optional).
     foreach my $needed ( keys %needed ) {
