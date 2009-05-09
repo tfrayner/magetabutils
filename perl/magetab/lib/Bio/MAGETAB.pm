@@ -661,8 +661,8 @@ Returns all the TermSource objects held by the container.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Util>
 L<Bio::MAGETAB::Util::Reader>
+L<Bio::MAGETAB::Util::Writer>
 L<Bio::MAGETAB::BaseClass>
 
 =head1 AUTHOR
