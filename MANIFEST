@@ -127,5 +127,6 @@ t/013_sdrf.t
 t/014_persistence.t
 t/015_dbloader.t
 t/100_pod_coverage.t
+t/100_pod_correctness.t
 t/testlib/CommonTests.pm
 

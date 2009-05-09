@@ -49,6 +49,7 @@ The following modules are recommended, especially if you wish to use
 Bio::MAGETAB with the optional database integration modules or
 graph visualization:
 
+    LWP::UserAgent
     Tangram
     DBI
     DBD::SQLite, DBD::mysql or similar
