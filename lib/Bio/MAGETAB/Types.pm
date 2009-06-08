@@ -84,9 +84,8 @@ subtype Email,
     as Str,
     where { Email::Valid->address( $_ ) };
 
-# Make the classes immutable. In theory this speeds up object
-# instantiation for a small compilation time cost.
-__PACKAGE__->meta->make_immutable();
+# N.B. Don't try and make this class immutable - it'll fail on recent
+# versions of Moose, and is inappropriate anyway.
 
 no Moose;
 

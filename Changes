@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+0.98	Bio::MAGETAB-0.98.tar.gz        Minor fixes to enable Bio::MAGETAB::Types to work
+                                          with the most recent Moose and MooseX::Types modules.
+
 0.97    Bio::MAGETAB-0.97.tar.gz        Merged magetab and magetab-util packages together for
                                           convenience (see below for old Bio::MAGETAB::Util
                                           changelog).
