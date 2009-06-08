@@ -31,7 +31,7 @@ use List::Util qw(first);
 
 use MooseX::Types::Moose qw( HashRef );
 
-our $VERSION = 0.97;
+our $VERSION = 0.98;
 
 # This cache is used to store all the Bio::MAGETAB objects registered
 # with this instance (which, by default, is all of them).
