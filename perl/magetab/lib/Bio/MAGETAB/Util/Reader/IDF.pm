@@ -151,6 +151,9 @@ sub BUILD {
             => sub{ $self->_add_grouped_data('termsource', 'uri',      @_) },
         qr/Term *Source *Versions?/i
             => sub{ $self->_add_grouped_data('termsource', 'version',  @_) },
+
+        qr/Version/i    # New in 1.1; Strictly speaking 1.0 should never appear.
+            => sub{ croak("Unsupported MAGE-TAB version.") unless( first { $_[0] eq $_ } qw(1.1 1.0) ) },
     };
 
     $self->set_dispatch_table( $dispatch );
