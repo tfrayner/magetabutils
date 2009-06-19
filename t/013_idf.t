@@ -82,6 +82,7 @@ is( $ts->get_uri(), 'http://www.random-ontology.org/file.obo', 'and the correct 
 # FIXME test with bad IDF input (unrecognized headers etc.)
 
 __DATA__
+Version	1.1
 Investigation Title	Dummy title
 # This is a comment to be ignored.
 Experimental Design	dummy_design
