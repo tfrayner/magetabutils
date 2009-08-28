@@ -284,7 +284,7 @@ objects.
  use Bio::MAGETAB::Util::Writer::IDF;
  my $writer = Bio::MAGETAB::Util::Writer::IDF->new({
     magetab_object => $investigation,
-    filename       => $idf_fh,
+    filehandle     => $idf_fh,
  });
  
  $writer->write();

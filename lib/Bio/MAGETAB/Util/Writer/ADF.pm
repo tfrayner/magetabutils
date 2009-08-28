@@ -499,7 +499,7 @@ objects.
  use Bio::MAGETAB::Util::Writer::ADF;
  my $writer = Bio::MAGETAB::Util::Writer::ADF->new({
     magetab_object => $array_design,
-    filename       => $adf_fh,
+    filehandle     => $adf_fh,
  });
  
  $writer->write();
