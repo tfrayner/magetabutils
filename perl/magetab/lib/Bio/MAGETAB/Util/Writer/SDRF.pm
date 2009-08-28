@@ -805,7 +805,7 @@ objects.
  use Bio::MAGETAB::Util::Writer::SDRF;
  my $writer = Bio::MAGETAB::Util::Writer::SDRF->new({
     magetab_object => $sdrf_object,
-    filename       => $sdrf_fh,
+    filehandle     => $sdrf_fh,
  });
  
  $writer->write();
