@@ -255,13 +255,13 @@ my %method_map = (
     'protocol'        => [ 'Bio::MAGETAB::Protocol',
                            qw( name accession termSource ) ],
 
-    # Date not included for protocol_application to simplify the
+    # FIXME: Date not included for protocol_application to simplify the
     # implementation of the DBLoader class. We could include date, but
     # then we'd have to be careful how it serialises to the database
     # (c.f. uri). This is only useful in a rare use case (one edge,
     # with the same protocol applied multiple times on different
     # dates) and so we leave it out for now. Workaround: use more
-    # edges. (FIXME note this in the BUGS section of the POD).
+    # edges.
     'protocol_application' => [ 'Bio::MAGETAB::ProtocolApplication',
                            qw( protocol edge ) ],
 

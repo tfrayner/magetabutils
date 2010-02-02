@@ -237,7 +237,7 @@ sub write {
     $self->set_num_columns( 1 + max @objcounts );
 
     # Introduce a Version tag (new in v1.1).
-    $self->_write_line( 'Version', '1.1' );
+    $self->_write_line( 'MAGE-TAB Version', '1.1' );
 
     # Single elements are straightforward.
     while ( my ( $field, $value ) = each %single ) {
