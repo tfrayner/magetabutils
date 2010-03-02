@@ -229,12 +229,12 @@ sub write {
     );
 
     # We want a regular table, so figure out how many columns we will
-    # need.
+    # need. Note that we need a minimum of 2 columns to accommodate the single fields.
     my @objcounts = map {
         my $getter = "get_$_";
         scalar @{ [ $inv->$getter ] };
     } keys %multi;
-    $self->set_num_columns( 1 + max @objcounts );
+    $self->set_num_columns( max( 1 + max @objcounts, 2 ) );
 
     # Introduce a Version tag (new in v1.1).
     $self->_write_line( 'MAGE-TAB Version', '1.1' );
