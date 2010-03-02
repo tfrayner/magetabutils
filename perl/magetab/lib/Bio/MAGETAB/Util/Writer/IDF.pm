@@ -318,8 +318,8 @@ Exports the Investigation to IDF.
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::Writer>
-L<Bio::MAGETAB::Writer::Tabfile>
+L<Bio::MAGETAB::Util::Writer>
+L<Bio::MAGETAB::Util::Writer::Tabfile>
 
 =head1 AUTHOR
 
