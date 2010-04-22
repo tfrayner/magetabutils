@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.00    Bio::MAGETAB-1.00.tar.gz        Bug fix for export of IDF containing no multi-value
+                                          fields. Minor POD fixes.
+
 0.99    Bio::MAGETAB-0.99.tar.gz        Added support for IDF "MAGE-TAB Version" tag. Now
                                           compliant with the second draft of the MAGE-TAB
                                           v1.1 specification document.
