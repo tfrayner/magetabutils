@@ -1,4 +1,4 @@
-# Copyright 2009 Tim Rayner
+# Copyright 2009-2010 Tim Rayner
 # 
 # This file is part of Bio::MAGETAB.
 # 
