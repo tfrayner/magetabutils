@@ -32,6 +32,7 @@ use CommonTests qw( test_parse check_term );
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::ADF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::ADF' );
 }
 
 my $adf;
@@ -138,6 +139,24 @@ foreach my $feat ( @{ $de{ 'Bio::MAGETAB::Feature' } } ) {
     }
 }
 
+# Brief test of the export code; this is nowhere near as thorough as it should be FIXME.
+( $fh, $filename ) = tempfile( UNLINK => 1 );
+my $adf_writer;
+
+dies_ok( sub{ $adf_writer = Bio::MAGETAB::Util::Writer::ADF->new( filehandle     => $fh,
+                                                                  magetab_object => $ad,
+                                                                  export_version => '1.2' ) },
+         'writer fails to instantiate with an invalid export version' );
+
+foreach my $version ( qw( 1.0 1.1 ) ) {
+    lives_ok( sub{ $adf_writer = Bio::MAGETAB::Util::Writer::ADF->new( filehandle     => $fh,
+                                                                       magetab_object => $ad,
+                                                                       export_version => $version ) },
+              "writer instantiates with export version $version" );
+}
+
+lives_ok( sub{ $adf_writer->write() }, 'writer outputs ADF data without crashing' );
+
 # FIXME don't forget to add Term Accession Numbers for all these things.
 
 __DATA__
@@ -163,10 +182,10 @@ Comment[Ceci n'est pas un comment]	all fun and games.
 													
 [main]													
 # FIXME more columns needed here also.													
-Block Column	Block Row	Column	Row	Reporter Name	Reporter Sequence	Reporter Group [Role]	Reporter Group Term Source REF	Control Type	Control Type Term Source REF	Reporter Database Entry [embl]	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment
-1	1	1	1	Test1	ATGC	control	RO	control_biosequence	RO	AK12334	CompTest1	NM_12344	random text
-1	1	1	2	Test2	ATGG	experimental	RO		RO	AW54321	CompTest2	NM_54321	more randomness
-    													
+Block Column	Block Row	Column	Row	Reporter Name	Reporter Sequence	Reporter Group [Role]	Reporter Group Term Source REF	Reporter Group Term Accession Number	Control Type	Control Type Term Source REF	Reporter Database Entry [embl]	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment
+1	1	1	1	Test1	ATGC	control	RO	C1	control_biosequence	RO	AK12334	CompTest1	NM_12344	random text
+1	1	1	2	Test2	ATGG	experimental	RO	C2		RO	AW54321	CompTest2	NM_54321	more randomness
+
 [mapping]													
 Map2Reporters	Composite Element Name	Composite Element Database Entry [refseq]	Composite Element Comment [Testing a feature not in the spec]										
 Test1;Test2	CompTest3	NM_98765	another pointless comment										

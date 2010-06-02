@@ -82,7 +82,7 @@ sub _write_header {
             sub { return ( [ 'Technology Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Technology Type Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Technology Type Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -90,7 +90,7 @@ sub _write_header {
             sub { return ( [ 'Surface Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Surface Type Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Surface Type Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -98,7 +98,7 @@ sub _write_header {
             sub { return ( [ 'Substrate Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Substrate Type Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Substrate Type Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -106,7 +106,7 @@ sub _write_header {
             sub { return ( [ 'Sequence Polymer Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Sequence Polymer Type Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Sequence Polymer Type Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -121,7 +121,11 @@ sub _write_header {
         next ATTR if ( scalar @attrs == 1 && ! defined $attrs[0] );
         foreach my $sub ( @$subs ) {
             foreach my $lineref ( $sub->( @attrs ) ) {
-                $self->_write_line( @{ $lineref } );
+
+                # Don't write the line if there's nothing to write but the tag.
+                if ( scalar grep { defined $_ && $_ ne q{} } @{ $lineref }[1..$#$lineref] ) {
+                    $self->_write_line( @{ $lineref } );
+                }
             }
         }
     }
@@ -206,16 +210,19 @@ sub _generate_main_header_line {
         ( map { "Reporter Group [$_]" }          @$groups ),
     );
     if ( scalar @$groups ) {
-        push @header, (
-            'Reporter Group Term Source REF',
-            'Reporter Group Term Accession Number',
-        );
+        push @header, 'Reporter Group Term Source REF';
+
+        if ( $self->get_export_version ne '1.0' ) {
+            push @header, 'Reporter Group Term Accession Number';
+        }
     }
     push @header, (
         'Control Type',
         'Control Type Term Source REF',
-        'Control Type Term Accession Number',
     );
+    if ( $self->get_export_version ne '1.0' ) {
+        push @header, 'Control Type Term Accession Number';
+    }
 
     # CompositeElement.
     unless ( $self->_must_generate_mapping() ) {
@@ -243,6 +250,7 @@ sub _get_element_dbentries {
     my ( $self, $element, $dbs ) = @_;
 
     my @accessions;
+
     my %accession = map {
         my $ts = $_->get_termSource();
         ( $ts ? $ts->get_name() : q{} ) => $_->get_accession();
@@ -286,8 +294,11 @@ sub _get_reporter_group_source {
                . $rep_groups[0]->get_category() . qq{"\n})
         }
         push @sources, $self->_get_type_termsource_name( $rep_groups[0] );
-        my $acc = $rep_groups[0]->get_accession();
-        push @sources, ( defined $acc ? $acc : q{} );
+
+        if ( $self->get_export_version() ne '1.0' ) {
+            my $acc = $rep_groups[0]->get_accession();
+            push @sources, ( defined $acc ? $acc : q{} );
+        }
     }
 
     return @sources;
@@ -301,11 +312,17 @@ sub _get_reporter_control_type {
     if ( my $ctype = $reporter->get_controlType() ) {
         push @typeinfo, $ctype->get_value();
         push @typeinfo, $self->_get_type_termsource_name( $ctype );
-        my $acc = $ctype->get_accession();
-        push @typeinfo, ( defined $acc ? $acc : q{} );
+
+        if ( $self->get_export_version() ne '1.0' ) {
+            my $acc = $ctype->get_accession();
+            push @typeinfo, ( defined $acc ? $acc : q{} );
+        }
     }
     else {
-        push @typeinfo, (q{}) x 3;
+        push @typeinfo, (q{}) x 2;
+        if ( $self->get_export_version() ne '1.0' ) {
+            push @typeinfo, q{};
+        }
     }
 
     return @typeinfo;
@@ -445,17 +462,29 @@ sub _write_mapping {
     $self->set_num_columns( scalar @header );
     $self->_write_line( '[mapping]' );
     $self->_write_line( @header );
-    
+
+    # Build a compositeElement to reporter mapping.
+    my @reporters = grep { UNIVERSAL::isa( $_, 'Bio::MAGETAB::Reporter' ) }
+                       $array->get_designElements();
+    my %map2reporters;
+    foreach my $rep ( @reporters ) {
+        foreach my $comp ( $rep->get_compositeElements() ) {
+            push @{ $map2reporters{ $comp->get_name() } }, $rep->get_name();
+        }
+    }
+
+    # Build our mapping lines and write them out.
     my @compelems = grep { UNIVERSAL::isa( $_, 'Bio::MAGETAB::CompositeElement' ) }
                        $array->get_designElements();
-
     foreach my $element ( @compelems ) {
+        my $name = $element->get_name();
         my @line = (
-            $element->get_name(),
-            join(';', map { $_->get_name() } $element->get_reporters() ),
+            $name,
+            join(';', @{ $map2reporters{ $name } } ),
             $self->_get_element_dbentries( $element, $dbs ),
-            $element->get_comments(),
+            join('; ', map { $_->get_value() } $element->get_comments()),
         );
+        $self->_write_line( @line );
     }
 
     return;

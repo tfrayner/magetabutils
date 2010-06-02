@@ -31,6 +31,7 @@ use CommonTests qw( test_parse check_term );
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::IDF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::IDF' );
 }
 
 my $idf;
@@ -81,12 +82,32 @@ is( $ts->get_uri(), 'http://www.random-ontology.org/file.obo', 'and the correct 
 
 # FIXME test with bad IDF input (unrecognized headers etc.)
 
+# Brief test of the export code; this is nowhere near as thorough as it should be FIXME.
+( $fh, $filename ) = tempfile( UNLINK => 1 );
+my $idf_writer;
+
+dies_ok( sub{ $idf_writer = Bio::MAGETAB::Util::Writer::IDF->new( filehandle     => $fh,
+                                                                  magetab_object => $inv,
+                                                                  export_version => '1.2' ) },
+         'writer fails to instantiate with an invalid export version' );
+
+foreach my $version ( qw( 1.0 1.1 ) ) {
+    lives_ok( sub{ $idf_writer = Bio::MAGETAB::Util::Writer::IDF->new( filehandle     => $fh,
+                                                                       magetab_object => $inv,
+                                                                       export_version => $version ) },
+              "writer instantiates with export version $version" );
+}
+
+lives_ok( sub{ $idf_writer->write() }, 'writer outputs IDF data without crashing' );
+
+
 __DATA__
 MAGE-TAB Version	1.1
 Investigation Title	Dummy title
 # This is a comment to be ignored.
-Experimental Design	dummy_design
-Experimental Design Term Source REF	RO
+Experimental Design	dummy_design	dummy_design2
+Experimental Design Term Source REF	RO	RO
+Experimental Design Term Accession Number	111	222
 Experimental Factor Name	DUMMYFACTOR
 Experimental Factor Type	dummy_factor
 Experimental Factor Term Source REF	RO
@@ -100,6 +121,7 @@ Person Address	Arkansas, USA
 Person Affiliation	Projects-R-Us
 Person Roles	investigator
 Person Roles Term Source REF	RO
+Person Roles Term Accession Number	12345
 Quality Control Type	poor
 Quality Control Term Source REF	RO
 Replicate Type	few
