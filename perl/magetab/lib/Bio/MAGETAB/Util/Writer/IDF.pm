@@ -77,7 +77,11 @@ sub _collapse_contacts {
 
         # Just output the first TermSource and/or Accession we encountered.
         push @{ $list{'termSource'} }, ( $ts1 ? $ts1->get_name() : q{} );
-        push @{ $list{'accession'} },  ( $acc1 || q{} );
+
+        # Skip accessions for MAGE-TAB v1.0 export.
+        if ( $self->get_export_version ne '1.0' ) {
+            push @{ $list{'accession'} },  ( $acc1 || q{} );
+        }
     }
 
     # This will be the eventual output order of the lines.
@@ -114,6 +118,10 @@ sub _get_thing_type_value {
 
 sub _get_thing_type_accession {
     my ( $self, $thing ) = @_;
+
+    # Return undef if we're exporting MAGE-TAB v1.0.
+    return if ( $self->get_export_version() eq '1.0' );
+
     my $type = $self->_get_thing_type( $thing );
     return $type ? $type->get_accession() : q{};
 }
@@ -122,6 +130,15 @@ sub _get_thing_type_termsource_name {
     my ( $self, $thing ) = @_;
     my $type = $self->_get_thing_type( $thing );
     return $self->_get_type_termsource_name($type);
+}
+
+sub _get_thing_accession {
+    my ( $self, $thing ) = @_;
+
+    # Return undef if we're exporting MAGE-TAB v1.0.
+    return if ( $self->get_export_version() eq '1.0' );
+
+    return $thing->get_accession();    
 }
 
 sub write {
@@ -198,7 +215,7 @@ sub write {
             sub { return ( [ 'Experimental Design',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Experimental Design Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Experimental Design Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -206,7 +223,7 @@ sub write {
             sub { return ( [ 'Normalization Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Normalization Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Normalization Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -214,7 +231,7 @@ sub write {
             sub { return ( [ 'Replicate Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Replicate Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Replicate Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -222,7 +239,7 @@ sub write {
             sub { return ( [ 'Quality Control Type',
                              map { $_->get_value()     } @_ ] ) },
             sub { return ( [ 'Quality Control Term Accession Number',
-                             map { $_->get_accession() } @_ ] ) },
+                             map { $self->_get_thing_accession($_) } @_ ] ) },
             sub { return ( [ 'Quality Control Term Source REF',
                              map { $self->_get_type_termsource_name($_) } @_ ] ) },
         ],
@@ -237,12 +254,17 @@ sub write {
     $self->set_num_columns( max( 1 + max @objcounts, 2 ) );
 
     # Introduce a Version tag (new in v1.1).
-    $self->_write_line( 'MAGE-TAB Version', '1.1' );
+    unless ( $self->get_export_version() eq '1.0' ) {
+        $self->_write_line( 'MAGE-TAB Version', '1.1' );
+    }
 
     # Single elements are straightforward.
     while ( my ( $field, $value ) = each %single ) {
         my $getter = "get_$value";
-        $self->_write_line( $field, $inv->$getter );
+        my $value  = $inv->$getter;
+        if ( defined $value && $value ne q{} ) {
+            $self->_write_line( $field, $value );
+        }
     }
 
     # All the complicated stuff gets handled by the dispatch methods
@@ -253,8 +275,15 @@ sub write {
         my @attrs = $inv->$getter;
         next ATTR if ( scalar @attrs == 1 && ! defined $attrs[0] );
         foreach my $sub ( @$subs ) {
+
+            LINEREF:
             foreach my $lineref ( $sub->( @attrs ) ) {
-                $self->_write_line( @{ $lineref } ) if ( ref $lineref eq 'ARRAY' );
+                next LINEREF unless ref $lineref eq 'ARRAY';
+
+                # Don't write the line if there's nothing to write but the tag.
+                if ( scalar grep { defined $_ && $_ ne q{} } @{ $lineref }[1..$#$lineref] ) {
+                    $self->_write_line( @{ $lineref } );
+                }
             }
         }
     }

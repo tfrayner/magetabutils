@@ -31,6 +31,7 @@ use CommonTests qw( test_parse check_term );
 
 BEGIN {
     use_ok( 'Bio::MAGETAB::Util::Reader::SDRF' );
+    use_ok( 'Bio::MAGETAB::Util::Writer::SDRF' );
 }
 
 sub add_dummy_objects {
@@ -92,6 +93,25 @@ my $sdrf2 = Bio::MAGETAB::SDRF->new( uri => $filename );
 lives_ok( sub{ $sdrf_reader = Bio::MAGETAB::Util::Reader::SDRF->new( uri            => $filename,
                                                                      magetab_object => $sdrf2, ) },
           'parser instantiates with uri and magetab_object attributes' );
+
+# Brief test of the export code; this is nowhere near as thorough as it should be FIXME.
+( $fh, $filename ) = tempfile( UNLINK => 1 );
+my $sdrf_writer;
+
+dies_ok( sub{ $sdrf_writer = Bio::MAGETAB::Util::Writer::SDRF->new( filehandle     => $fh,
+                                                                    magetab_object => $sdrf,
+                                                                    export_version => '1.2' ) },
+         'writer fails to instantiate with an invalid export version' );
+
+foreach my $version ( qw( 1.0 1.1 ) ) {
+    lives_ok( sub{ $sdrf_writer = Bio::MAGETAB::Util::Writer::SDRF->new( filehandle     => $fh,
+                                                                         magetab_object => $sdrf,
+                                                                         export_version => $version ) },
+              "writer instantiates with export version $version" );
+}
+
+lives_ok( sub{ $sdrf_writer->write() }, 'writer outputs SDRF data without crashing' );
+
 
 #########
 # These tests take a long time to run and don't really contribute much.
