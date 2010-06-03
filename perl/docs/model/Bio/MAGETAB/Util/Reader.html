@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ documents.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,13 +28,14 @@ documents.</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Util::Reader - A parser/validator for MAGE-TAB
 documents.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::Util::Reader;
  my $reader = Bio::MAGETAB::Util::Reader-&gt;new({
@@ -47,40 +47,40 @@ documents.</p>
  my $magetab = $reader-&gt;parse();
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This is the main parsing and validation class which can be used
 to read a MAGE-TAB document into a set of Bio::MAGETAB classes for
 further manipulation.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_idf" id="item_idf">idf</a></strong></dt>
+<dt><strong><a name="idf" class="item">idf</a></strong></dt>
 <dd>
 <p>A filesystem or URI path to the top-level IDF file describing
 the investigation. This attribute is *required*.</p>
 </dd>
-<dt><strong><a name="item_relaxed_parser" id=
-"item_relaxed_parser">relaxed_parser</a></strong></dt>
+<dt><strong><a name="relaxed_parser" class=
+"item">relaxed_parser</a></strong></dt>
 <dd>
 <p>A boolean value (default FALSE) indicating whether or not the
-parse should take place in ``relaxed mode'' or not. The regular
+parse should take place in "relaxed mode" or not. The regular
 parsing mode will throw an exception in cases where an object is
 referenced before it has been declared (e.g., Protocol REF pointing
 to a non-existent Protocol Name). Relaxed parsing mode will
 silently autogenerate the non-existent objects instead.</p>
 </dd>
-<dt><strong><a name="item_namespace" id=
-"item_namespace">namespace</a></strong></dt>
+<dt><strong><a name="namespace" class=
+"item">namespace</a></strong></dt>
 <dd>
 <p>An optional namespace string to be used in object creation.</p>
 </dd>
-<dt><strong><a name="item_authority" id=
-"item_authority">authority</a></strong></dt>
+<dt><strong><a name="authority" class=
+"item">authority</a></strong></dt>
 <dd>
 <p>An optional authority string to be used in object creation.</p>
 </dd>
-<dt><strong><a name="item_builder" id=
-"item_builder">builder</a></strong></dt>
+<dt><strong><a name="builder" class=
+"item">builder</a></strong></dt>
 <dd>
 <p>An optional Builder object. These Builder objects are used to
 track the creation of Bio::MAGETAB objects by caching the objects
@@ -94,10 +94,9 @@ e.g. persistent database storage mechanisms.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <dl>
-<dt><strong><a name="item_parse" id=
-"item_parse">parse</a></strong></dt>
+<dt><strong><a name="parse" class="item">parse</a></strong></dt>
 <dd>
 <p>Attempts to parse the full MAGE-TAB document, starting with the
 top-level IDF file, and returns the resulting Bio::MAGETAB
@@ -107,15 +106,15 @@ context.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB
 manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ providing methods for handling tab-delimited files.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,85 +28,86 @@ providing methods for handling tab-delimited files.</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Util::Reader::Tabfile - An abstract class
 providing methods for handling tab-delimited files.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use base qw(Bio::MAGETAB::Util::Reader::Tabfile);
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This abstract class acts as a wrapper for the Text::CSV_XS
 module and line ending detection code used by the rest of the
 Bio::MAGETAB::Util::Reader modules. It is not designed to be used
 directly.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_uri" id="item_uri">uri</a></strong></dt>
+<dt><strong><a name="uri" class="item">uri</a></strong></dt>
 <dd>
 <p>Required URI path to the file to be parsed.</p>
 </dd>
-<dt><strong><a name="item_eol_char" id=
-"item_eol_char">eol_char</a></strong></dt>
+<dt><strong><a name="eol_char" class=
+"item">eol_char</a></strong></dt>
 <dd>
 <p>The end-of-line character to use while parsing. Typically this
 is set by the Reader subclasses.</p>
 </dd>
-<dt><strong><a name="item_filehandle" id=
-"item_filehandle">filehandle</a></strong></dt>
+<dt><strong><a name="filehandle" class=
+"item">filehandle</a></strong></dt>
 <dd>
 <p>The filehandle for the file being parsed.</p>
 </dd>
-<dt><strong><a name="item_csv_parser" id=
-"item_csv_parser">csv_parser</a></strong></dt>
+<dt><strong><a name="csv_parser" class=
+"item">csv_parser</a></strong></dt>
 <dd>
 <p>A Text::CSV_XS parser object.</p>
 </dd>
-<dt><strong><a name="item_builder" id=
-"item_builder">builder</a></strong></dt>
+<dt><strong><a name="builder" class=
+"item">builder</a></strong></dt>
 <dd>
 <p>A Bio::MAGETAB::Util::Builder object, used by subclasses to
 track MAGE-TAB object creation.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <dl>
-<dt><strong><a name="item_getline" id=
-"item_getline">getline</a></strong></dt>
+<dt><strong><a name="getline" class=
+"item">getline</a></strong></dt>
 <dd>
 <p>A simple wrapper for the Text::CSV_XS <a href=
-"#item_getline"><code>getline()</code></a> method which takes an
+"#getline"><code>getline()</code></a> method which takes an
 optional filehandle argument, using the cached filehandle returned
 by <code>get_filehandle()</code> as the default. This filehandle
 argument can be useful when explicitly controlling the read
 position of the script within the file (e.g. as in ADF
 parsing).</p>
 </dd>
-<dt><strong><a name="item_can_ignore" id=
-"item_can_ignore">can_ignore</a></strong></dt>
+<dt><strong><a name="can_ignore" class=
+"item">can_ignore</a></strong></dt>
 <dd>
 <p>When passed an arrayref of column values for a given line,
 returns 1 if the line is ignorable (typically blank or commented
 lines fall into this category) or undef if not.</p>
 </dd>
-<dt><strong><a name="item_strip_whitespace" id=
-"item_strip_whitespace">strip_whitespace</a></strong></dt>
+<dt><strong><a name="strip_whitespace" class=
+"item">strip_whitespace</a></strong></dt>
 <dd>
 <p>This method strips any whitespace surrounding the string values
 passed to it in an arrayref.</p>
 </dd>
-<dt><strong><a name="item_confirm_full_parse" id=
-"item_confirm_full_parse">confirm_full_parse</a></strong></dt>
+<dt><strong><a name="confirm_full_parse" class=
+"item">confirm_full_parse</a></strong></dt>
 <dd>
 <p>Raises an exception if the file has not been parsed to
 completion (i.e., EOF). Takes a line arrayref as returned by
-<a href="#item_getline"><code>$self-&gt;getline()</code></a> as an
+<a href="#getline"><code>$self-&gt;getline()</code></a> as an
 optional argument to allow testing for either (a) the existence of
 a next line in the file, or (b) EOF. This is useful when pausing
 parsing partway through a file, e.g. after parsing the ADF header
@@ -117,17 +117,17 @@ section.</p>
 <p>In addition, each attribute has accessor (get_*) and mutator
 (set_*) methods.</p>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/Util/Reader.html">the
 Bio::MAGETAB::Util::Reader manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/Reader/TagValueFile.html">the
 Bio::MAGETAB::Util::Reader::TagValueFile manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

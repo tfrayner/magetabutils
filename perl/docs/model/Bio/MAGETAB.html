@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ format.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -27,21 +26,22 @@ format.</title>
         <ul>
 
                 <li><a href="#generic_methods">Generic methods</a></li>
-                <li><a href="#classspecific_methods">Class-specific methods</a></li>
+                <li><a href="#class_specific_methods">Class-specific methods</a></li>
         </ul>
 
         <li><a href="#see_also">SEE ALSO</a></li>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
 <hr />
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB - A data model and utility API for the MAGE-TAB
 format.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  # Use case 1: using Bio::MAGETAB simply to import all of the MAGE-TAB
  # classes:
@@ -68,7 +68,7 @@ format.</p>
  $container-&gt;get_samples();
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>The Bio::MAGETAB module provides the core set of classes used to
 support the perl MAGE-TAB API. This module provides a set of data
 structures and type constraints which help to reliably handle data
@@ -84,19 +84,18 @@ namespaces needed for all the MAGE-TAB classes, but more usefully
 it can also be used to create container objects which automatically
 track object creation.</p>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
-<h2><a name="generic_methods" id="generic_methods">Generic
-methods</a></h2>
+<h1><a name="methods">METHODS</a></h1>
+<h2><a name="generic_methods">Generic methods</a></h2>
 <dl>
-<dt><strong><a name="item_new" id="item_new">new</a></strong></dt>
+<dt><strong><a name="new" class="item">new</a></strong></dt>
 <dd>
 <p>Instantiate a new container object. This method writes its
 result to a Bio::MAGETAB::BaseClass class variable such that the
 new container will automatically receive all subsequently
 instantiated MAGE-TAB objects.</p>
 </dd>
-<dt><strong><a name="item_add_objects" id=
-"item_add_objects">add_objects( @objects )</a></strong></dt>
+<dt><strong><a name="add_objects" class="item">add_objects(
+@objects )</a></strong></dt>
 <dd>
 <p>Add the passed objects to the Bio::MAGETAB container object. The
 objects are sorted by class behind the scenes. Note that this
@@ -104,470 +103,469 @@ method is typically invoked for you upon instantiation of MAGE-TAB
 objects; it is only needed in cases where you are using multiple
 Bio::MAGETAB container classes.</p>
 </dd>
-<dt><strong><a name="item_delete_objects" id=
-"item_delete_objects">delete_objects( @objects )</a></strong></dt>
+<dt><strong><a name="delete_objects" class="item">delete_objects(
+@objects )</a></strong></dt>
 <dd>
 <p>Delete the passed MAGE-TAB object from the container.</p>
 </dd>
-<dt><strong><a name="item_get_objects" id=
-"item_get_objects">get_objects( $class )</a></strong></dt>
+<dt><strong><a name="get_objects" class="item">get_objects( $class
+)</a></strong></dt>
 <dd>
 <p>Return all the remaining MAGE-TAB objects of the specified
 class. Usually you will want one of the class-specific accessors
 listed below which wrap this method, but <a href=
-"#item_get_objects"><code>get_objects</code></a> can be used as a
-simple way of dynamically accessing the objects of multiple
-classes.</p>
+"#get_objects"><code>get_objects</code></a> can be used as a simple
+way of dynamically accessing the objects of multiple classes.</p>
 </dd>
 </dl>
-<h2><a name="classspecific_methods" id=
-"classspecific_methods">Class-specific methods</a></h2>
+<h2><a name="class_specific_methods">Class-specific
+methods</a></h2>
 <p>Each MAGE-TAB class has its own predicate (has_*) and accessor
 (get_*) method. Note that the <a href=
-"#item_has_baseclasses"><code>has_baseClasses</code></a> and
-<a href="#item_get_baseclasses"><code>get_baseClasses</code></a>
-methods can be used to query all MAGE-TAB objects held by the
-container.</p>
+"#has_baseclasses"><code>has_baseClasses</code></a> and <a href=
+"#get_baseclasses"><code>get_baseClasses</code></a> methods can be
+used to query all MAGE-TAB objects held by the container.</p>
 <dl>
-<dt><strong><a name="item_has_arraydesigns" id=
-"item_has_arraydesigns">has_arrayDesigns</a></strong></dt>
+<dt><strong><a name="has_arraydesigns" class=
+"item">has_arrayDesigns</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any ArrayDesign objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_arraydesigns" id=
-"item_get_arraydesigns">get_arrayDesigns</a></strong></dt>
+<dt><strong><a name="get_arraydesigns" class=
+"item">get_arrayDesigns</a></strong></dt>
 <dd>
 <p>Returns all the ArrayDesign objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_assays" id=
-"item_has_assays">has_assays</a></strong></dt>
+<dt><strong><a name="has_assays" class=
+"item">has_assays</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Assay objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_assays" id=
-"item_get_assays">get_assays</a></strong></dt>
+<dt><strong><a name="get_assays" class=
+"item">get_assays</a></strong></dt>
 <dd>
 <p>Returns all the Assay objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_baseclasses" id=
-"item_has_baseclasses">has_baseClasses</a></strong></dt>
+<dt><strong><a name="has_baseclasses" class=
+"item">has_baseClasses</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any BaseClass objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_baseclasses" id=
-"item_get_baseclasses">get_baseClasses</a></strong></dt>
+<dt><strong><a name="get_baseclasses" class=
+"item">get_baseClasses</a></strong></dt>
 <dd>
 <p>Returns all the BaseClass objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_comments" id=
-"item_has_comments">has_comments</a></strong></dt>
+<dt><strong><a name="has_comments" class=
+"item">has_comments</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Comment objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_comments" id=
-"item_get_comments">get_comments</a></strong></dt>
+<dt><strong><a name="get_comments" class=
+"item">get_comments</a></strong></dt>
 <dd>
 <p>Returns all the Comment objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_compositeelements" id=
-"item_has_compositeelements">has_compositeElements</a></strong></dt>
+<dt><strong><a name="has_compositeelements" class=
+"item">has_compositeElements</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any CompositeElement
 objects, and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_compositeelements" id=
-"item_get_compositeelements">get_compositeElements</a></strong></dt>
+<dt><strong><a name="get_compositeelements" class=
+"item">get_compositeElements</a></strong></dt>
 <dd>
 <p>Returns all the CompositeElement objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_contacts" id=
-"item_has_contacts">has_contacts</a></strong></dt>
+<dt><strong><a name="has_contacts" class=
+"item">has_contacts</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Contact objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_contacts" id=
-"item_get_contacts">get_contacts</a></strong></dt>
+<dt><strong><a name="get_contacts" class=
+"item">get_contacts</a></strong></dt>
 <dd>
 <p>Returns all the Contact objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_controlledterms" id=
-"item_has_controlledterms">has_controlledTerms</a></strong></dt>
+<dt><strong><a name="has_controlledterms" class=
+"item">has_controlledTerms</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any ControlledTerm objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_controlledterms" id=
-"item_get_controlledterms">get_controlledTerms</a></strong></dt>
+<dt><strong><a name="get_controlledterms" class=
+"item">get_controlledTerms</a></strong></dt>
 <dd>
 <p>Returns all the ControlledTerm objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_data" id=
-"item_has_data">has_data</a></strong></dt>
+<dt><strong><a name="has_data" class=
+"item">has_data</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Data objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_data" id=
-"item_get_data">get_data</a></strong></dt>
+<dt><strong><a name="get_data" class=
+"item">get_data</a></strong></dt>
 <dd>
 <p>Returns all the Data objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_dataacquisitions" id=
-"item_has_dataacquisitions">has_dataAcquisitions</a></strong></dt>
+<dt><strong><a name="has_dataacquisitions" class=
+"item">has_dataAcquisitions</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any DataAcquisition objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_dataacquisitions" id=
-"item_get_dataacquisitions">get_dataAcquisitions</a></strong></dt>
+<dt><strong><a name="get_dataacquisitions" class=
+"item">get_dataAcquisitions</a></strong></dt>
 <dd>
 <p>Returns all the DataAcquisition objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_datafiles" id=
-"item_has_datafiles">has_dataFiles</a></strong></dt>
+<dt><strong><a name="has_datafiles" class=
+"item">has_dataFiles</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any DataFile objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_datafiles" id=
-"item_get_datafiles">get_dataFiles</a></strong></dt>
+<dt><strong><a name="get_datafiles" class=
+"item">get_dataFiles</a></strong></dt>
 <dd>
 <p>Returns all the DataFile objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_datamatrices" id=
-"item_has_datamatrices">has_dataMatrices</a></strong></dt>
+<dt><strong><a name="has_datamatrices" class=
+"item">has_dataMatrices</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any DataMatrix objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_datamatrices" id=
-"item_get_datamatrices">get_dataMatrices</a></strong></dt>
+<dt><strong><a name="get_datamatrices" class=
+"item">get_dataMatrices</a></strong></dt>
 <dd>
 <p>Returns all the DataMatrix objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_databaseentries" id=
-"item_has_databaseentries">has_databaseEntries</a></strong></dt>
+<dt><strong><a name="has_databaseentries" class=
+"item">has_databaseEntries</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any DatabaseEntry objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_databaseentries" id=
-"item_get_databaseentries">get_databaseEntries</a></strong></dt>
+<dt><strong><a name="get_databaseentries" class=
+"item">get_databaseEntries</a></strong></dt>
 <dd>
 <p>Returns all the DatabaseEntry objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_designelements" id=
-"item_has_designelements">has_designElements</a></strong></dt>
+<dt><strong><a name="has_designelements" class=
+"item">has_designElements</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any DesignElement objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_designelements" id=
-"item_get_designelements">get_designElements</a></strong></dt>
+<dt><strong><a name="get_designelements" class=
+"item">get_designElements</a></strong></dt>
 <dd>
 <p>Returns all the DesignElement objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_edges" id=
-"item_has_edges">has_edges</a></strong></dt>
+<dt><strong><a name="has_edges" class=
+"item">has_edges</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Edge objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_edges" id=
-"item_get_edges">get_edges</a></strong></dt>
+<dt><strong><a name="get_edges" class=
+"item">get_edges</a></strong></dt>
 <dd>
 <p>Returns all the Edge objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_events" id=
-"item_has_events">has_events</a></strong></dt>
+<dt><strong><a name="has_events" class=
+"item">has_events</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Event objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_events" id=
-"item_get_events">get_events</a></strong></dt>
+<dt><strong><a name="get_events" class=
+"item">get_events</a></strong></dt>
 <dd>
 <p>Returns all the Event objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_extracts" id=
-"item_has_extracts">has_extracts</a></strong></dt>
+<dt><strong><a name="has_extracts" class=
+"item">has_extracts</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Extract objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_extracts" id=
-"item_get_extracts">get_extracts</a></strong></dt>
+<dt><strong><a name="get_extracts" class=
+"item">get_extracts</a></strong></dt>
 <dd>
 <p>Returns all the Extract objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_factors" id=
-"item_has_factors">has_factors</a></strong></dt>
+<dt><strong><a name="has_factors" class=
+"item">has_factors</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Factor objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_factors" id=
-"item_get_factors">get_factors</a></strong></dt>
+<dt><strong><a name="get_factors" class=
+"item">get_factors</a></strong></dt>
 <dd>
 <p>Returns all the Factor objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_factorvalues" id=
-"item_has_factorvalues">has_factorValues</a></strong></dt>
+<dt><strong><a name="has_factorvalues" class=
+"item">has_factorValues</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any FactorValue objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_factorvalues" id=
-"item_get_factorvalues">get_factorValues</a></strong></dt>
+<dt><strong><a name="get_factorvalues" class=
+"item">get_factorValues</a></strong></dt>
 <dd>
 <p>Returns all the FactorValue objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_features" id=
-"item_has_features">has_features</a></strong></dt>
+<dt><strong><a name="has_features" class=
+"item">has_features</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Feature objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_features" id=
-"item_get_features">get_features</a></strong></dt>
+<dt><strong><a name="get_features" class=
+"item">get_features</a></strong></dt>
 <dd>
 <p>Returns all the Feature objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_investigations" id=
-"item_has_investigations">has_investigations</a></strong></dt>
+<dt><strong><a name="has_investigations" class=
+"item">has_investigations</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Investigation objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_investigations" id=
-"item_get_investigations">get_investigations</a></strong></dt>
+<dt><strong><a name="get_investigations" class=
+"item">get_investigations</a></strong></dt>
 <dd>
 <p>Returns all the Investigation objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_labeledextracts" id=
-"item_has_labeledextracts">has_labeledExtracts</a></strong></dt>
+<dt><strong><a name="has_labeledextracts" class=
+"item">has_labeledExtracts</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any LabeledExtract objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_labeledextracts" id=
-"item_get_labeledextracts">get_labeledExtracts</a></strong></dt>
+<dt><strong><a name="get_labeledextracts" class=
+"item">get_labeledExtracts</a></strong></dt>
 <dd>
 <p>Returns all the LabeledExtract objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_materials" id=
-"item_has_materials">has_materials</a></strong></dt>
+<dt><strong><a name="has_materials" class=
+"item">has_materials</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Material objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_materials" id=
-"item_get_materials">get_materials</a></strong></dt>
+<dt><strong><a name="get_materials" class=
+"item">get_materials</a></strong></dt>
 <dd>
 <p>Returns all the Material objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_matrixcolumns" id=
-"item_has_matrixcolumns">has_matrixColumns</a></strong></dt>
+<dt><strong><a name="has_matrixcolumns" class=
+"item">has_matrixColumns</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any MatrixColumn objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_matrixcolumns" id=
-"item_get_matrixcolumns">get_matrixColumns</a></strong></dt>
+<dt><strong><a name="get_matrixcolumns" class=
+"item">get_matrixColumns</a></strong></dt>
 <dd>
 <p>Returns all the MatrixColumn objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_matrixrows" id=
-"item_has_matrixrows">has_matrixRows</a></strong></dt>
+<dt><strong><a name="has_matrixrows" class=
+"item">has_matrixRows</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any MatrixRow objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_matrixrows" id=
-"item_get_matrixrows">get_matrixRows</a></strong></dt>
+<dt><strong><a name="get_matrixrows" class=
+"item">get_matrixRows</a></strong></dt>
 <dd>
 <p>Returns all the MatrixRow objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_measurements" id=
-"item_has_measurements">has_measurements</a></strong></dt>
+<dt><strong><a name="has_measurements" class=
+"item">has_measurements</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Measurement objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_measurements" id=
-"item_get_measurements">get_measurements</a></strong></dt>
+<dt><strong><a name="get_measurements" class=
+"item">get_measurements</a></strong></dt>
 <dd>
 <p>Returns all the Measurement objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_nodes" id=
-"item_has_nodes">has_nodes</a></strong></dt>
+<dt><strong><a name="has_nodes" class=
+"item">has_nodes</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Node objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_nodes" id=
-"item_get_nodes">get_nodes</a></strong></dt>
+<dt><strong><a name="get_nodes" class=
+"item">get_nodes</a></strong></dt>
 <dd>
 <p>Returns all the Node objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_normalizations" id=
-"item_has_normalizations">has_normalizations</a></strong></dt>
+<dt><strong><a name="has_normalizations" class=
+"item">has_normalizations</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Normalization objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_normalizations" id=
-"item_get_normalizations">get_normalizations</a></strong></dt>
+<dt><strong><a name="get_normalizations" class=
+"item">get_normalizations</a></strong></dt>
 <dd>
 <p>Returns all the Normalization objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_parametervalues" id=
-"item_has_parametervalues">has_parameterValues</a></strong></dt>
+<dt><strong><a name="has_parametervalues" class=
+"item">has_parameterValues</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any ParameterValue objects,
 and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_parametervalues" id=
-"item_get_parametervalues">get_parameterValues</a></strong></dt>
+<dt><strong><a name="get_parametervalues" class=
+"item">get_parameterValues</a></strong></dt>
 <dd>
 <p>Returns all the ParameterValue objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_protocols" id=
-"item_has_protocols">has_protocols</a></strong></dt>
+<dt><strong><a name="has_protocols" class=
+"item">has_protocols</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Protocol objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_protocols" id=
-"item_get_protocols">get_protocols</a></strong></dt>
+<dt><strong><a name="get_protocols" class=
+"item">get_protocols</a></strong></dt>
 <dd>
 <p>Returns all the Protocol objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_protocolapplications" id=
-"item_has_protocolapplications">has_protocolApplications</a></strong></dt>
+<dt><strong><a name="has_protocolapplications" class=
+"item">has_protocolApplications</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any ProtocolApplication
 objects, and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_protocolapplications" id=
-"item_get_protocolapplications">get_protocolApplications</a></strong></dt>
+<dt><strong><a name="get_protocolapplications" class=
+"item">get_protocolApplications</a></strong></dt>
 <dd>
 <p>Returns all the ProtocolApplication objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_protocolparameters" id=
-"item_has_protocolparameters">has_protocolParameters</a></strong></dt>
+<dt><strong><a name="has_protocolparameters" class=
+"item">has_protocolParameters</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any ProtocolParameter
 objects, and false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_protocolparameters" id=
-"item_get_protocolparameters">get_protocolParameters</a></strong></dt>
+<dt><strong><a name="get_protocolparameters" class=
+"item">get_protocolParameters</a></strong></dt>
 <dd>
 <p>Returns all the ProtocolParameter objects held by the
 container.</p>
 </dd>
-<dt><strong><a name="item_has_publications" id=
-"item_has_publications">has_publications</a></strong></dt>
+<dt><strong><a name="has_publications" class=
+"item">has_publications</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Publication objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_publications" id=
-"item_get_publications">get_publications</a></strong></dt>
+<dt><strong><a name="get_publications" class=
+"item">get_publications</a></strong></dt>
 <dd>
 <p>Returns all the Publication objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_reporters" id=
-"item_has_reporters">has_reporters</a></strong></dt>
+<dt><strong><a name="has_reporters" class=
+"item">has_reporters</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Reporter objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_reporters" id=
-"item_get_reporters">get_reporters</a></strong></dt>
+<dt><strong><a name="get_reporters" class=
+"item">get_reporters</a></strong></dt>
 <dd>
 <p>Returns all the Reporter objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_sdrfs" id=
-"item_has_sdrfs">has_sdrfs</a></strong></dt>
+<dt><strong><a name="has_sdrfs" class=
+"item">has_sdrfs</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any SDRF objects, and false
 otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_sdrfs" id=
-"item_get_sdrfs">get_sdrfs</a></strong></dt>
+<dt><strong><a name="get_sdrfs" class=
+"item">get_sdrfs</a></strong></dt>
 <dd>
 <p>Returns all the SDRF objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_sdrfrows" id=
-"item_has_sdrfrows">has_sdrfRows</a></strong></dt>
+<dt><strong><a name="has_sdrfrows" class=
+"item">has_sdrfRows</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any SDRFRow objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_sdrfrows" id=
-"item_get_sdrfrows">get_sdrfRows</a></strong></dt>
+<dt><strong><a name="get_sdrfrows" class=
+"item">get_sdrfRows</a></strong></dt>
 <dd>
 <p>Returns all the SDRFRow objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_samples" id=
-"item_has_samples">has_samples</a></strong></dt>
+<dt><strong><a name="has_samples" class=
+"item">has_samples</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Sample objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_samples" id=
-"item_get_samples">get_samples</a></strong></dt>
+<dt><strong><a name="get_samples" class=
+"item">get_samples</a></strong></dt>
 <dd>
 <p>Returns all the Sample objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_sources" id=
-"item_has_sources">has_sources</a></strong></dt>
+<dt><strong><a name="has_sources" class=
+"item">has_sources</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any Source objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_sources" id=
-"item_get_sources">get_sources</a></strong></dt>
+<dt><strong><a name="get_sources" class=
+"item">get_sources</a></strong></dt>
 <dd>
 <p>Returns all the Source objects held by the container.</p>
 </dd>
-<dt><strong><a name="item_has_termsources" id=
-"item_has_termsources">has_termSources</a></strong></dt>
+<dt><strong><a name="has_termsources" class=
+"item">has_termSources</a></strong></dt>
 <dd>
 <p>Returns true if the container holds any TermSource objects, and
 false otherwise.</p>
 </dd>
-<dt><strong><a name="item_get_termsources" id=
-"item_get_termsources">get_termSources</a></strong></dt>
+<dt><strong><a name="get_termsources" class=
+"item">get_termSources</a></strong></dt>
 <dd>
 <p>Returns all the TermSource objects held by the container.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
-<p><a href="/model/Bio/MAGETAB/Util.html">the Bio::MAGETAB::Util
-manpage</a> <a href="/model/Bio/MAGETAB/Util/Reader.html">the
+<h1><a name="see_also">SEE ALSO</a></h1>
+<p><a href="/model/Bio/MAGETAB/Util/Reader.html">the
 Bio::MAGETAB::Util::Reader manpage</a> <a href=
+"/model/Bio/MAGETAB/Util/Writer.html">the
+Bio::MAGETAB::Util::Writer manpage</a> <a href=
 "/model/Bio/MAGETAB/BaseClass.html">the Bio::MAGETAB::BaseClass
 manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

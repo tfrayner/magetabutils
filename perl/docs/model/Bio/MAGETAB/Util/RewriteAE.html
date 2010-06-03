@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -15,8 +13,9 @@ documents.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,14 +28,15 @@ documents.</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Util::RewriteAE - A utility class providing
 methods to correct some common errors in ArrayExpress MAGE-TAB
 documents.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::Util::RewriteAE;
  my $rw = Bio::MAGETAB::Util::RewriteAE-&gt;new();
@@ -44,7 +44,7 @@ documents.</p>
  $rw-&gt;rewrite_idf( $idf );
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>At the time of writing, many ArrayExpress MAGE-TAB documents do
 not fully comply with the latest MAGE-TAB specification, and this
 class can be used to rewrite such documents prior to import with
@@ -54,32 +54,32 @@ first. This is so the RewriteAE object can record all the Term
 Sources referenced by the SDRF and make sure they are all declared
 in the IDF.</p>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <dl>
-<dt><strong><a name="item_rewrite_sdrf" id=
-"item_rewrite_sdrf">rewrite_sdrf</a></strong></dt>
+<dt><strong><a name="rewrite_sdrf" class=
+"item">rewrite_sdrf</a></strong></dt>
 <dd>
 <p>Given the name of an SDRF file, overwrite said file with a fixed
 copy.</p>
 </dd>
-<dt><strong><a name="item_rewrite_idf" id=
-"item_rewrite_idf">rewrite_idf</a></strong></dt>
+<dt><strong><a name="rewrite_idf" class=
+"item">rewrite_idf</a></strong></dt>
 <dd>
 <p>Given the name of an IDF file, overwrite said file with a fixed
 copy.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB.html">the Bio::MAGETAB manpage</a>
 <a href="/model/Bio/MAGETAB/Util/Reader.html">the
 Bio::MAGETAB::Util::Reader manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

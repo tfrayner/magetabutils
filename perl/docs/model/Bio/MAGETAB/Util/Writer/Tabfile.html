@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ exporter class.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,48 +28,56 @@ exporter class.</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Util::Writer::Tabfile - Abstract MAGE-TAB exporter
 class.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use base qw( Bio::MAGETAB::Util::Writer::Tabfile );
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This abstract class provides some basic functions for export of
 MAGE-TAB objects in tab-delimited format. It is not designed to be
 used directly.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_filehandle" id=
-"item_filehandle">filehandle</a></strong></dt>
+<dt><strong><a name="filehandle" class=
+"item">filehandle</a></strong></dt>
 <dd>
 <p>The filehandle to use for output (required).</p>
 </dd>
-<dt><strong><a name="item_num_columns" id=
-"item_num_columns">num_columns</a></strong></dt>
+<dt><strong><a name="num_columns" class=
+"item">num_columns</a></strong></dt>
 <dd>
 <p>The number of columns to use for output. This must be set before
 anything is exported. Typically calculated and set from the
 subclass.</p>
 </dd>
-<dt><strong><a name="item_csv_writer" id=
-"item_csv_writer">csv_writer</a></strong></dt>
+<dt><strong><a name="csv_writer" class=
+"item">csv_writer</a></strong></dt>
 <dd>
 <p>The Text::CSV_XS object to use for output. This attribute is
 typically set in the subclass.</p>
 </dd>
+<dt><strong><a name="export_version" class=
+"item">export_version</a></strong></dt>
+<dd>
+<p>A string indicating which version of the MAGE-TAB format to
+export; currently restricted to "1.0" or "1.1". The default is
+"1.1".</p>
+</dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <p>No public methods.</p>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/Util/Writer/ADF.html">the
 Bio::MAGETAB::Util::Writer::ADF manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/Writer/IDF.html">the
@@ -78,11 +85,11 @@ Bio::MAGETAB::Util::Writer::IDF manpage</a> <a href=
 "/model/Bio/MAGETAB/Util/Writer/SDRF.html">the
 Bio::MAGETAB::Util::Writer::SDRF manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -13,8 +11,9 @@
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -28,18 +27,19 @@
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
 <hr />
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Reporter - MAGE-TAB reporter class</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::Reporter;
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This class is used to store information on array reporter
 elements in MAGE-TAB. These elements typically correspond to probe
 sequences, or in simple cases they may map directly to biologically
@@ -47,40 +47,39 @@ interesting sequences (e.g., genes). See the <a href=
 "/model/Bio/MAGETAB/DesignElement.html">DesignElement</a> class for
 superclass methods.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_name" id="item_name">name
+<dt><strong><a name="name" class="item">name
 (required)</a></strong></dt>
 <dd>
 <p>The name of the reporter (data type: String).</p>
 </dd>
-<dt><strong><a name="item_sequence" id="item_sequence">sequence
+<dt><strong><a name="sequence" class="item">sequence
 (optional)</a></strong></dt>
 <dd>
 <p>The actual reporter sequence (usually DNA; data type:
 String).</p>
 </dd>
-<dt><strong><a name="item_compositeelements" id=
-"item_compositeelements">compositeElements
-(optional)</a></strong></dt>
+<dt><strong><a name="compositeelements" class=
+"item">compositeElements (optional)</a></strong></dt>
 <dd>
 <p>A list of CompositeElements composed wholly or in part of this
 reporter (data type: Bio::MAGETAB::CompositeElement).</p>
 </dd>
-<dt><strong><a name="item_databaseentries" id=
-"item_databaseentries">databaseEntries (optional)</a></strong></dt>
+<dt><strong><a name="databaseentries" class="item">databaseEntries
+(optional)</a></strong></dt>
 <dd>
 <p>A list of database entries for the reporter sequence (data type:
 Bio::MAGETAB::DatabaseEntry).</p>
 </dd>
-<dt><strong><a name="item_controltype" id=
-"item_controltype">controlType (optional)</a></strong></dt>
+<dt><strong><a name="controltype" class="item">controlType
+(optional)</a></strong></dt>
 <dd>
 <p>Where the reporter describes a control probe, this attribute
 should be used to give its type (e.g., 'control_buffer'; data type:
 Bio::MAGETAB::ControlledTerm).</p>
 </dd>
-<dt><strong><a name="item_groups" id="item_groups">groups
+<dt><strong><a name="groups" class="item">groups
 (optional)</a></strong></dt>
 <dd>
 <p>A list of arbitrary groups to which the reporter belongs.
@@ -91,22 +90,22 @@ Bio::MAGETAB::ControlledTerm).</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <p>Each attribute has accessor (get_*) and mutator (set_*) methods,
 and also predicate (has_*) and clearer (clear_*) methods where the
 attribute is optional. Where an attribute represents a one-to-many
 relationship the mutator accepts an arrayref and the accessor
 returns an array.</p>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/DesignElement.html">the
 Bio::MAGETAB::DesignElement manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

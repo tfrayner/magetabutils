@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ class</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,115 +28,113 @@ class</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
 <hr />
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Investigation - MAGE-TAB investigation class</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::Investigation;
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This class is used to store top-level information on the
 investigation in MAGE-TAB. This class also acts as a container for
 the information in an IDF file. See the <a href=
 "/model/Bio/MAGETAB/BaseClass.html">BaseClass</a> class for
 superclass methods.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_title" id="item_title">title
+<dt><strong><a name="title" class="item">title
 (required)</a></strong></dt>
 <dd>
 <p>The title of the investigation (data type: String).</p>
 </dd>
-<dt><strong><a name="item_description" id=
-"item_description">description (optional)</a></strong></dt>
+<dt><strong><a name="description" class="item">description
+(optional)</a></strong></dt>
 <dd>
 <p>A free-text description of the investigation (data type:
 String).</p>
 </dd>
-<dt><strong><a name="item_date" id="item_date">date
+<dt><strong><a name="date" class="item">date
 (optional)</a></strong></dt>
 <dd>
 <p>The date on which the investigation was performed (data type:
 Date).</p>
 </dd>
-<dt><strong><a name="item_publicreleasedate" id=
-"item_publicreleasedate">publicReleaseDate
-(optional)</a></strong></dt>
+<dt><strong><a name="publicreleasedate" class=
+"item">publicReleaseDate (optional)</a></strong></dt>
 <dd>
 <p>The date on which the experimental data was, or will be,
 publicly released (data type: Date).</p>
 </dd>
-<dt><strong><a name="item_contacts" id="item_contacts">contacts
+<dt><strong><a name="contacts" class="item">contacts
 (optional)</a></strong></dt>
 <dd>
 <p>A list of contacts for the investigation (data type:
 Bio::MAGETAB::Contact).</p>
 </dd>
-<dt><strong><a name="item_factors" id="item_factors">factors
+<dt><strong><a name="factors" class="item">factors
 (optional)</a></strong></dt>
 <dd>
 <p>A list of experimental factors (variables) studied during the
 investigation (data type: Bio::MAGETAB::Factor).</p>
 </dd>
-<dt><strong><a name="item_sdrfs" id="item_sdrfs">sdrfs
+<dt><strong><a name="sdrfs" class="item">sdrfs
 (optional)</a></strong></dt>
 <dd>
 <p>A list of SDRFs associated with the investigation (data type:
 Bio::MAGETAB::SDRF).</p>
 </dd>
-<dt><strong><a name="item_protocols" id="item_protocols">protocols
+<dt><strong><a name="protocols" class="item">protocols
 (optional)</a></strong></dt>
 <dd>
 <p>A list of experimental protocols used in the investigation (data
 type: Bio::MAGETAB::Protocol)</p>
 </dd>
-<dt><strong><a name="item_publications" id=
-"item_publications">publications (optional)</a></strong></dt>
+<dt><strong><a name="publications" class="item">publications
+(optional)</a></strong></dt>
 <dd>
 <p>A list of publications related to the investigation (data type:
 Bio::MAGETAB::Publication).</p>
 </dd>
-<dt><strong><a name="item_termsources" id=
-"item_termsources">termSources (optional)</a></strong></dt>
+<dt><strong><a name="termsources" class="item">termSources
+(optional)</a></strong></dt>
 <dd>
 <p>A list of term sources (usually databases and/or ontologies)
 used to annotate the investigation (data type:
 Bio::MAGETAB::TermSource).</p>
 </dd>
-<dt><strong><a name="item_designtypes" id=
-"item_designtypes">designTypes (optional)</a></strong></dt>
+<dt><strong><a name="designtypes" class="item">designTypes
+(optional)</a></strong></dt>
 <dd>
 <p>A list of experiment design types, typically taken from a
 suitable ontology (data type: Bio::MAGETAB::ControlledTerm).</p>
 </dd>
-<dt><strong><a name="item_normalizationtypes" id=
-"item_normalizationtypes">normalizationTypes
-(optional)</a></strong></dt>
+<dt><strong><a name="normalizationtypes" class=
+"item">normalizationTypes (optional)</a></strong></dt>
 <dd>
 <p>A list of experiment data normalization types (data type:
 Bio::MAGETAB::ControlledTerm).</p>
 </dd>
-<dt><strong><a name="item_replicatetypes" id=
-"item_replicatetypes">replicateTypes (optional)</a></strong></dt>
+<dt><strong><a name="replicatetypes" class="item">replicateTypes
+(optional)</a></strong></dt>
 <dd>
 <p>A list of replicate types for the experiment (typically
 specifying technical and/or biological replicates; date type:
 Bio::MAGETAB::ControlledTerm).</p>
 </dd>
-<dt><strong><a name="item_qualitycontroltypes" id=
-"item_qualitycontroltypes">qualityControlTypes
-(optional)</a></strong></dt>
+<dt><strong><a name="qualitycontroltypes" class=
+"item">qualityControlTypes (optional)</a></strong></dt>
 <dd>
 <p>A list of quality control terms describing the experiment (data
 type: Bio::MAGETAB::ControlledTerm).</p>
 </dd>
-<dt><strong><a name="item_comments" id="item_comments">comments
+<dt><strong><a name="comments" class="item">comments
 (optional)</a></strong></dt>
 <dd>
 <p>A list of user-defined comments attached to the investigation
@@ -145,22 +142,22 @@ type: Bio::MAGETAB::ControlledTerm).</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <p>Each attribute has accessor (get_*) and mutator (set_*) methods,
 and also predicate (has_*) and clearer (clear_*) methods where the
 attribute is optional. Where an attribute represents a one-to-many
 relationship the mutator accepts an arrayref and the accessor
 returns an array.</p>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/BaseClass.html">the
 Bio::MAGETAB::BaseClass manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

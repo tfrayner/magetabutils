@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ persistence class for MAGE-TAB.</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,13 +28,14 @@ persistence class for MAGE-TAB.</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::Util::Persistence - A Tangram-based object
 persistence class for MAGE-TAB.</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::Util::Persistence;
  my $db = Bio::MAGETAB::Util::Persistence-&gt;new({
@@ -48,7 +48,7 @@ persistence class for MAGE-TAB.</p>
  $db-&gt;insert( $magetab_object );
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This class provides an object persistence mechanism for storing
 MAGE-TAB objects in a relational database. The class is, in effect,
 just a thin wrapper around a Tangram::Storage instance which
@@ -57,90 +57,79 @@ been used successfully with both MySQL and SQLite database
 backends, and should in theory be usable with any database engine
 supported by the Tangram modules.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_dbparams" id=
-"item_dbparams">dbparams</a></strong></dt>
+<dt><strong><a name="dbparams" class=
+"item">dbparams</a></strong></dt>
 <dd>
 <p>A reference to an array containing database connection
 parameters. This array is passed directly to <a href=
-"#item_connect"><code>DBI-&gt;connect()</code></a>.</p>
+"#connect"><code>DBI-&gt;connect()</code></a>.</p>
 </dd>
-<dt><strong><a name="item_config" id=
-"item_config">config</a></strong></dt>
+<dt><strong><a name="config" class="item">config</a></strong></dt>
 <dd>
 <p>The Tangram schema definition used to create the database. This
 attribute is read-only.</p>
 </dd>
-<dt><strong><a name="item_store" id=
-"item_store">store</a></strong></dt>
+<dt><strong><a name="store" class="item">store</a></strong></dt>
 <dd>
 <p>The underlying Tangram::Storage object used for most of the
 interaction with the database.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <dl>
-<dt><strong><a name="item_deploy" id=
-"item_deploy">deploy</a></strong></dt>
+<dt><strong><a name="deploy" class="item">deploy</a></strong></dt>
 <dd>
 <p>Connect to the database and deploy the schema. This only needs
 to be done once to set up the database.</p>
 </dd>
-<dt><strong><a name="item_connect" id=
-"item_connect">connect</a></strong></dt>
+<dt><strong><a name="connect" class=
+"item">connect</a></strong></dt>
 <dd>
 <p>Connect to the database. This must be done before using any of
 the following methods.</p>
 </dd>
-<dt><strong><a name="item_get_schema" id=
-"item_get_schema">get_schema</a></strong></dt>
+<dt><strong><a name="get_schema" class=
+"item">get_schema</a></strong></dt>
 <dd>
 <p>Returns the Tangram::Schema object created using the config
 attribute.</p>
 </dd>
-<dt><strong><a name="item_class_config" id=
-"item_class_config">class_config</a></strong></dt>
+<dt><strong><a name="class_config" class=
+"item">class_config</a></strong></dt>
 <dd>
 <p>A class method which returns the config hash reference used to
 create the Tangram::Schema object.</p>
 </dd>
-<dt><strong><a name="item_insert" id=
-"item_insert">insert</a></strong></dt>
-<dt><strong><a name="item_select" id=
-"item_select">select</a></strong></dt>
-<dt><strong><a name="item_update" id=
-"item_update">update</a></strong></dt>
-<dt><strong><a name="item_erase" id=
-"item_erase">erase</a></strong></dt>
-<dt><strong><a name="item_id" id="item_id">id</a></strong></dt>
-<dt><strong><a name="item_count" id=
-"item_count">count</a></strong></dt>
-<dt><strong><a name="item_sum" id="item_sum">sum</a></strong></dt>
-<dt><strong><a name="item_cursor" id=
-"item_cursor">cursor</a></strong></dt>
-<dt><strong><a name="item_remote" id=
-"item_remote">remote</a></strong></dt>
+<dt><strong><a name="insert" class="item">insert</a></strong></dt>
+<dt><strong><a name="select" class="item">select</a></strong></dt>
+<dt><strong><a name="update" class="item">update</a></strong></dt>
+<dt><strong><a name="erase" class="item">erase</a></strong></dt>
+<dt><strong><a name="id" class="item">id</a></strong></dt>
+<dt><strong><a name="count" class="item">count</a></strong></dt>
+<dt><strong><a name="sum" class="item">sum</a></strong></dt>
+<dt><strong><a name="cursor" class="item">cursor</a></strong></dt>
+<dt><strong><a name="remote" class="item">remote</a></strong></dt>
 <dd>
 <p>All these methods are delegated directly to the Tangram::Storage
-object created by the <a href=
-"#item_connect"><code>connect</code></a> method, and contained
-within the Persistence object. Please see the Tangram documentation
-for more information on these methods.</p>
+object created by the <a href="#connect"><code>connect</code></a>
+method, and contained within the Persistence object. Please see the
+Tangram documentation for more information on these methods.</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/DBLoader.html">the
 Bio::MAGETAB::DBLoader manpage</a> <a href=
 "http://tangram.utsl.gen.nz/">http://tangram.utsl.gen.nz/</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>

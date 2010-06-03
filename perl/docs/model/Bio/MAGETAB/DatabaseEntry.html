@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta name="generator" content=
@@ -14,8 +12,9 @@ class</title>
 "mailto:&#116;&#102;&#114;&#50;&#51;&#64;&#99;&#114;&#117;&#105;&#115;&#101;&#114;&#46;&#112;&#114;&#105;&#118;&#97;&#116;&#101;&#46;&#99;&#105;&#109;&#114;&#46;&#99;&#97;&#109;&#46;&#97;&#99;&#46;&#117;&#107;" />
 </head>
 <body>
-<p><a name="__index__"></a></p>
 <!-- INDEX BEGIN -->
+<div name="index">
+<p><a name="__index__"></a></p>
 <!--
 
 <ul>
@@ -29,18 +28,19 @@ class</title>
         <li><a href="#author">AUTHOR</a></li>
         <li><a href="#license">LICENSE</a></li>
 </ul>
--->
+
+--></div>
 <!-- INDEX END -->
 <hr />
-<h1><a name="name" id="name">NAME</a></h1>
+<h1><a name="name">NAME</a></h1>
 <p>Bio::MAGETAB::DatabaseEntry - MAGE-TAB database entry class</p>
 <hr />
-<h1><a name="synopsis" id="synopsis">SYNOPSIS</a></h1>
+<h1><a name="synopsis">SYNOPSIS</a></h1>
 <pre>
  use Bio::MAGETAB::DatabaseEntry;
 </pre>
 <hr />
-<h1><a name="description" id="description">DESCRIPTION</a></h1>
+<h1><a name="description">DESCRIPTION</a></h1>
 <p>This class is used to store MAGE-TAB database entry information.
 These entries can be from sequence databases (e.g. as attached to
 Reporters), ontologies (when using the ControlledTerm subclass), or
@@ -49,16 +49,16 @@ Protocols). See the <a href=
 "/model/Bio/MAGETAB/BaseClass.html">BaseClass</a> class for
 superclass methods.</p>
 <hr />
-<h1><a name="attributes" id="attributes">ATTRIBUTES</a></h1>
+<h1><a name="attributes">ATTRIBUTES</a></h1>
 <dl>
-<dt><strong><a name="item_accession" id="item_accession">accession
+<dt><strong><a name="accession" class="item">accession
 (optional)</a></strong></dt>
 <dd>
 <p>The accession number for the database entry (data type:
 String).</p>
 </dd>
-<dt><strong><a name="item_termsource" id=
-"item_termsource">termSource (optional)</a></strong></dt>
+<dt><strong><a name="termsource" class="item">termSource
+(optional)</a></strong></dt>
 <dd>
 <p>The TermSource (e.g., database or ontology) which defines the
 entry, and which recognises the given accession (data type:
@@ -66,22 +66,22 @@ Bio::MAGETAB::TermSource).</p>
 </dd>
 </dl>
 <hr />
-<h1><a name="methods" id="methods">METHODS</a></h1>
+<h1><a name="methods">METHODS</a></h1>
 <p>Each attribute has accessor (get_*) and mutator (set_*) methods,
 and also predicate (has_*) and clearer (clear_*) methods where the
 attribute is optional. Where an attribute represents a one-to-many
 relationship the mutator accepts an arrayref and the accessor
 returns an array.</p>
 <hr />
-<h1><a name="see_also" id="see_also">SEE ALSO</a></h1>
+<h1><a name="see_also">SEE ALSO</a></h1>
 <p><a href="/model/Bio/MAGETAB/BaseClass.html">the
 Bio::MAGETAB::BaseClass manpage</a></p>
 <hr />
-<h1><a name="author" id="author">AUTHOR</a></h1>
+<h1><a name="author">AUTHOR</a></h1>
 <p>Tim F. Rayner &lt;<a href=
 "mailto:&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#116;&#102;&#114;&#97;&#121;&#110;&#101;&#114;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>&gt;</p>
 <hr />
-<h1><a name="license" id="license">LICENSE</a></h1>
+<h1><a name="license">LICENSE</a></h1>
 <p>This library is released under version 2 of the GNU General
 Public License (GPL).</p>
 </body>
