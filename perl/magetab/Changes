@@ -1,6 +1,11 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.10    Bio::MAGETAB-1.10.tar.gz        Added export_version attribute to the Writer classes to
+                                          support export of either MAGE-TAB v1.0 or MAGE-TAB v1.1.
+                                        Corrected the behaviour of the ADF Writer class when
+                                          exporting [mapping] sections.
+
 1.00    Bio::MAGETAB-1.00.tar.gz        Bug fix for export of IDF containing no multi-value
                                           fields. Minor POD fixes.
 
