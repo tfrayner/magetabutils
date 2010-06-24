@@ -337,10 +337,11 @@ sub _format_contact_name {
 
     my $first = $contact->get_firstName();
     my $last  = $contact->get_lastName();
-    $first = q{} if ( ! defined $first );
-    $last  = q{} if ( ! defined $last );
+    my @name;
+    push @name, $first if ( defined $first );
+    push @name, $last  if ( defined $last  );
 
-    return( sprintf( "%s %s", $first, $last ) );
+    return join(" ", @name);
 }
 
 sub _process_obj_contacts {
