@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.11    Bio::MAGETAB-1.11.tar.gz        Minor fixes to IDF and SDRF export to comply with a stricter
+                                          interpretation of the MAGE-TAB specification.
+
 1.10    Bio::MAGETAB-1.10.tar.gz        Added export_version attribute to the Writer classes to
                                           support export of either MAGE-TAB v1.0 or MAGE-TAB v1.1.
                                         Corrected the behaviour of the ADF Writer class when
