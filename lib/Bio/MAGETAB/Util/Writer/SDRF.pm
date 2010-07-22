@@ -533,7 +533,7 @@ sub _process_materials {
     while ( $self->_remaining_elements( \@chars ) ) {
         my ( $slice, $category ) =
             $self->_next_slice( \@chars, sub { $_[0]->get_category() } );
-        $self->_process_controlled_terms( $slice, "Characteristic [$category]" );
+        $self->_process_controlled_terms( $slice, "Characteristics [$category]" );
     }
 
     # Measurements
@@ -547,7 +547,7 @@ sub _process_materials {
     while ( $self->_remaining_elements( \@measurements ) ) {
         my ( $slice, $type ) =
             $self->_next_slice( \@measurements, sub { $_[0]->get_measurementType() } );
-        $self->_process_measurements( $slice, "Characteristic [$type]" );
+        $self->_process_measurements( $slice, "Characteristics [$type]" );
     }
 }
 
