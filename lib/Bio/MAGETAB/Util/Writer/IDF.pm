@@ -179,7 +179,7 @@ sub write {
                              map { $self->_get_thing_type_accession($_) } @_ ] ) },
         ],
         'sdrfs' => [
-            sub { return ( [ 'SDRF Files', map { $_->get_uri()        } @_ ] ) },
+            sub { return ( [ 'SDRF File', map { $_->get_uri()        } @_ ] ) },
         ],
         'protocols' => [
             sub { return ( [ 'Protocol Name',        map { $_->get_name()     } @_ ] ) },
