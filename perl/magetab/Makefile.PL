@@ -27,7 +27,7 @@ use inc::Module::Install;
 all_from 'lib/Bio/MAGETAB.pm';
 
 requires 'Moose'                       => '0.43';
-requires 'Moose::Policy'               => '0.03';
+requires 'MooseX::FollowPBP'           => '0.04';
 requires 'MooseX::Types'               => '0.10';
 requires 'Params::Coerce'              => '0.14';
 requires 'URI'                         => '1.35';

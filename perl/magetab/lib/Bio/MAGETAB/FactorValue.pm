@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::FactorValue;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 

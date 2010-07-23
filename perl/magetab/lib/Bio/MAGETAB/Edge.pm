@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Edge;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use List::Util qw(first);
 

@@ -22,8 +22,8 @@ package Bio::MAGETAB;
 
 use 5.008001;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Bio::MAGETAB::BaseClass;
 

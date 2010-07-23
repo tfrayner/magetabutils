@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Investigation;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( Str ArrayRef );
 use Bio::MAGETAB::Types qw( Date );

@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Reader::DataMatrix;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 
@@ -57,7 +57,7 @@ sub parse {
     }
 
     my $ad = $self->_determine_array_design( $data_matrix );
-    $self->set__array_design( $ad ) if $ad;
+    $self->_set_array_design( $ad ) if $ad;
 
     # This has to be set for Text::CSV_XS.
     local $/ = $self->get_eol_char();
@@ -90,7 +90,7 @@ sub parse {
             # If namespace isn't explicitly given in the matrix
             # header, set it to the name of the enclosing array
             # design.
-            if ( my $ad = $self->get__array_design() ) {
+            if ( my $ad = $self->_get_array_design() ) {
                 $de_authority = $ad->get_authority();
                 unless ( defined $de_namespace ) {
                     $de_namespace = $ad->get_name();

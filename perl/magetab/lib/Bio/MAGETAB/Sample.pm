@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Sample;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 BEGIN { extends 'Bio::MAGETAB::Material' };
 

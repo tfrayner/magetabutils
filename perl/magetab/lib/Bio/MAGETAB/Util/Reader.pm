@@ -21,8 +21,8 @@ package Bio::MAGETAB::Util::Reader;
 
 use 5.008001;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( Str Bool );
 use Bio::MAGETAB::Types qw( Uri );

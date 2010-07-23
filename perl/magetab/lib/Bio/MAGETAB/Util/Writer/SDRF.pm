@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Writer::SDRF;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 use List::Util qw( sum max first );
@@ -78,8 +78,8 @@ sub _construct_lines {
                        map { [ scalar @{ $_ }, $_ ] } @{ $node_lists };
 
     # Initialise our internal structures.
-    $self->set__header( [] );
-    $self->set__table( [ map { [] } 1 .. scalar @sorted_lists ] );
+    $self->_set_header( [] );
+    $self->_set_table( [ map { [] } 1 .. scalar @sorted_lists ] );
 
     # I think we're just processing Node, Edge and FactorValue objects here now.
     my %dispatch = (
@@ -133,7 +133,7 @@ sub _construct_lines {
         }
     }
 
-    return ( $self->get__table(), $self->get__header() );
+    return ( $self->_get_table(), $self->_get_header() );
 }
 
 sub _next_slice {
@@ -294,11 +294,11 @@ sub _add_single_column {
 
     my ( $self, $objs, $colname, $coderef ) = @_;
 
-    my $header = $self->get__header();
+    my $header = $self->_get_header();
     push @{ $header }, $colname;
-    $self->set__header( $header );    # unnecessary?
+    $self->_set_header( $header );    # unnecessary?
 
-    my $table  = $self->get__table();
+    my $table  = $self->_get_table();
     OBJ:
     for ( my $i = 0; $i < scalar @{ $objs }; $i++ ) {
         my $obj = $objs->[ $i ];
@@ -308,7 +308,7 @@ sub _add_single_column {
         }
         push @{ $table->[ $i ] }, $coderef->($obj);
     }
-    $self->set__table( $table );    #unnecessary?
+    $self->_set_table( $table );    #unnecessary?
 }    
 
 sub _process_sources {

@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::LabeledExtract;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 BEGIN { extends 'Bio::MAGETAB::Material' };
 

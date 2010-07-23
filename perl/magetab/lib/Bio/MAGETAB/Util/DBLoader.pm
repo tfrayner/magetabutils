@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::DBLoader;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Bio::MAGETAB;
 use Carp;

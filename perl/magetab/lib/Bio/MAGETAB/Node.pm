@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Node;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Scalar::Util qw(weaken);
 use List::Util qw(first);
