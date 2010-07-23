@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Assay;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 BEGIN { extends 'Bio::MAGETAB::Event' };
 

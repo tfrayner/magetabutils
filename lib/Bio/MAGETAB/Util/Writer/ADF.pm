@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Writer::ADF;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 
@@ -34,7 +34,7 @@ has 'magetab_object'       => ( is         => 'ro',
 
 has '_cached_mapping_flag' => ( is         => 'rw',
                                 isa        => Bool,
-                                predicate  => 'has__cached_mapping_flag',
+                                predicate  => '_has_cached_mapping_flag',
                                 required   => 0 );
 
 sub _write_header {
@@ -371,7 +371,7 @@ sub _must_generate_mapping {
 
     my ( $self ) = @_;
 
-    unless ( $self->has__cached_mapping_flag() ) {
+    unless ( $self->_has_cached_mapping_flag() ) {
 
         # Check all reporters; if any map to more than one CE, we need
         # a mapping section. The result is cached so we only check
@@ -383,16 +383,16 @@ sub _must_generate_mapping {
         REPORTER:
         foreach my $rep ( @reporters ) {
             if ( scalar @{ [ $rep->get_compositeElements() ] } > 1 ) {
-                $self->set__cached_mapping_flag(1);
+                $self->_set_cached_mapping_flag(1);
                 last REPORTER;
             }
         }
 
-        $self->set__cached_mapping_flag(0)
-            unless $self->has__cached_mapping_flag();
+        $self->_set_cached_mapping_flag(0)
+            unless $self->_has_cached_mapping_flag();
     }
 
-    return $self->get__cached_mapping_flag();
+    return $self->_get_cached_mapping_flag();
 }
 
 sub _write_main {

@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::RewriteAE;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( ArrayRef );
 
@@ -83,7 +83,7 @@ sub rewrite_sdrf {
     copy( $outfile, $sdrf_parser->get_uri()->path() )
         or die("Error: unable to overwrite old SDRF: $!");
 
-    $self->set__termsources( [ keys %termsource ] );
+    $self->_set_termsources( [ keys %termsource ] );
 
     return;
 }
@@ -98,7 +98,7 @@ sub rewrite_idf {
 
     my ( $out_fh, $outfile ) = tempfile();
 
-    my %needed = map { $_ => 1 } @{ $self->get__termsources() };
+    my %needed = map { $_ => 1 } @{ $self->_get_termsources() };
 
     local $/ = $idf_parser->get_eol_char();
 

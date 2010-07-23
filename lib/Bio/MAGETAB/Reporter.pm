@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Reporter;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( Str ArrayRef );
 

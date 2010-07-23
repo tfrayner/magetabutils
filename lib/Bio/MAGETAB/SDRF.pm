@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::SDRF;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( ArrayRef );
 use Bio::MAGETAB::Types qw( Uri );

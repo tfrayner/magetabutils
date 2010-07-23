@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::BaseClass;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 use Scalar::Util qw(weaken);

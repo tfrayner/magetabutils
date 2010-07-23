@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Writer::Tabfile;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 use Text::CSV_XS;

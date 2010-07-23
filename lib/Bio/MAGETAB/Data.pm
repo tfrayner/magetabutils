@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Data;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Bio::MAGETAB::Types qw( Uri );
 

@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Writer::GraphViz;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use GraphViz;
 use Carp;

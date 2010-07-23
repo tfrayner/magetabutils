@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Reader::Tabfile;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( Str FileHandle );
 use Bio::MAGETAB::Types qw( Uri );

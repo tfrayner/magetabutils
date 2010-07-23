@@ -19,8 +19,8 @@
 
 package Bio::MAGETAB::Util::Persistence;
 
-use Moose::Policy 'Moose::Policy::FollowPBP';
 use Moose;
+use MooseX::FollowPBP;
 
 use Carp;
 use Tangram;
