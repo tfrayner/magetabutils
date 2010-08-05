@@ -2,14 +2,10 @@
 
 package Bio::MAGETAB::Util::DBIC::DB::Result::Base;
 
-
-
-
 use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
-
 
 =head1 NAME
 
@@ -53,16 +49,19 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 comment_bases
+=head2 comments
 
 Type: has_many
 
 Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Comment>
 
+N.B. This relationship describes those comments attached to an object
+inheriting from the Base superclass.
+
 =cut
 
 __PACKAGE__->has_many(
-  "comment_bases",
+  "comments",
   "Bio::MAGETAB::Util::DBIC::DB::Result::Comment",
   { "foreign.base_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -73,6 +72,9 @@ __PACKAGE__->has_many(
 Type: might_have
 
 Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Comment>
+
+N.B. This relationship is that of Comment inheriting from its Base
+superclass.
 
 =cut
 
@@ -352,11 +354,5 @@ __PACKAGE__->might_have(
   { "foreign.id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
-
-
-
-
-
-
 
 1;

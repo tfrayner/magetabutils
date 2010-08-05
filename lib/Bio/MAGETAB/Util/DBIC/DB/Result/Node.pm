@@ -2,14 +2,10 @@
 
 package Bio::MAGETAB::Util::DBIC::DB::Result::Node;
 
-
-
-
 use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
-
 
 =head1 NAME
 
@@ -52,7 +48,7 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 edge_input_nodes
+=head2 output_edges
 
 Type: has_many
 
@@ -61,13 +57,13 @@ Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Edge>
 =cut
 
 __PACKAGE__->has_many(
-  "edge_input_nodes",
+  "output_edges",
   "Bio::MAGETAB::Util::DBIC::DB::Result::Edge",
   { "foreign.input_node_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 edge_output_nodes
+=head2 input_edges
 
 Type: has_many
 
@@ -76,7 +72,7 @@ Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Edge>
 =cut
 
 __PACKAGE__->has_many(
-  "edge_output_nodes",
+  "input_edges",
   "Bio::MAGETAB::Util::DBIC::DB::Result::Edge",
   { "foreign.output_node_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
@@ -127,7 +123,46 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 id
+=head2 matrix_columns
+
+Type: many_to_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::MatrixColumn>
+
+=cut
+
+__PACKAGE__->many_to_many(
+    "matrix_columns" => "matrix_column_node_links", "matrix_column"
+);
+
+=head2 sdrf_row_node_links
+
+Type: has_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink>
+
+=cut
+
+__PACKAGE__->has_many(
+  "sdrf_row_node_links",
+  "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink",
+  { "foreign.node_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 sdrf_rows
+
+Type: many_to_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRow>
+
+=cut
+
+__PACKAGE__->many_to_many(
+    "sdrf_rows" => "sdrf_row_node_links", "sdrf_row"
+);
+
+=head2 base_id
 
 Type: belongs_to
 
@@ -136,31 +171,16 @@ Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Base>
 =cut
 
 __PACKAGE__->belongs_to(
-  "id",
+  "base_id",
   "Bio::MAGETAB::Util::DBIC::DB::Result::Base",
   { id => "id" },
-  { on_delete => "CASCADE", on_update => "CASCADE" },
+  { on_delete => "CASCADE",
+    on_update => "CASCADE",
+    proxy     => [qw(namespace authority comments)] },
 );
 
-=head2 sdrf_node_links
+sub parent_class { 'Base' }
 
-Type: has_many
-
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink>
-
-=cut
-
-__PACKAGE__->has_many(
-  "sdrf_node_links",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink",
-  { "foreign.node_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-
-
-
-
-
+__PACKAGE__->resultset_class('Bio::MAGETAB::Util::DBIC::DB::ResultSet');
 
 1;

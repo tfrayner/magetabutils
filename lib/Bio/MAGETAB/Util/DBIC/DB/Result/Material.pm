@@ -2,14 +2,10 @@
 
 package Bio::MAGETAB::Util::DBIC::DB::Result::Material;
 
-
-
-
 use strict;
 use warnings;
 
 use base 'DBIx::Class::Core';
-
 
 =head1 NAME
 
@@ -105,21 +101,6 @@ __PACKAGE__->belongs_to(
   { join_type => "LEFT", on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
-=head2 id
-
-Type: belongs_to
-
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Node>
-
-=cut
-
-__PACKAGE__->belongs_to(
-  "id",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::Node",
-  { id => "id" },
-  { on_delete => "CASCADE", on_update => "CASCADE" },
-);
-
 =head2 material_characteristic_links
 
 Type: has_many
@@ -135,6 +116,18 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 characteristics
+
+Type: many_to_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::ControlledTerm>
+
+=cut
+
+__PACKAGE__->many_to_many(
+    "characteristics" => "material_characteristic_links", "characteristic"
+);
+
 =head2 material_measurement_links
 
 Type: has_many
@@ -148,6 +141,18 @@ __PACKAGE__->has_many(
   "Bio::MAGETAB::Util::DBIC::DB::Result::MaterialMeasurementLink",
   { "foreign.material_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 measurements
+
+Type: many_to_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Measurement>
+
+=cut
+
+__PACKAGE__->many_to_many(
+    "measurements" => "material_measurement_links", "measurement"
 );
 
 =head2 sample
@@ -180,10 +185,26 @@ __PACKAGE__->might_have(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 node_id
 
+Type: belongs_to
 
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Node>
 
+=cut
 
+__PACKAGE__->belongs_to(
+  "node_id",
+  "Bio::MAGETAB::Util::DBIC::DB::Result::Node",
+  { id => "id" },
+  { on_delete => "CASCADE",
+    on_update => "CASCADE",
+    proxy     => [qw(input_edges output_edges sdrf_rows matrix_columns
+                     namespace authority comments)] },
+);
 
+sub parent_class { 'Node' }
+
+__PACKAGE__->resultset_class('Bio::MAGETAB::Util::DBIC::DB::ResultSet');
 
 1;

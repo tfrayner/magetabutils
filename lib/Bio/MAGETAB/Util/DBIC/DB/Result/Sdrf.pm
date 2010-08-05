@@ -94,13 +94,13 @@ __PACKAGE__->has_many(
 
 Type: has_many
 
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink>
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink>
 
 =cut
 
 __PACKAGE__->has_many(
   "sdrf_node_links",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink",
+  "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink",
   { "foreign.sdrf_id" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );

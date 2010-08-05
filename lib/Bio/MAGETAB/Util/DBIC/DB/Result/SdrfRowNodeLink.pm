@@ -1,6 +1,6 @@
 # $Id$
 
-package Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink;
+package Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink;
 
 
 
@@ -13,11 +13,11 @@ use base 'DBIx::Class::Core';
 
 =head1 NAME
 
-Bio::MAGETAB::Util::DBIC::DB::Result::SdrfNodeLink
+Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowNodeLink
 
 =cut
 
-__PACKAGE__->table("mt_sdrf_node_link");
+__PACKAGE__->table("mt_sdrf_row_node_link");
 
 =head1 ACCESSORS
 
@@ -27,7 +27,7 @@ __PACKAGE__->table("mt_sdrf_node_link");
   is_auto_increment: 1
   is_nullable: 0
 
-=head2 sdrf_id
+=head2 sdrf_row_id
 
   data_type: 'integer'
   is_foreign_key: 1
@@ -44,7 +44,7 @@ __PACKAGE__->table("mt_sdrf_node_link");
 __PACKAGE__->add_columns(
   "id",
   { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
-  "sdrf_id",
+  "sdrf_row_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "node_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
@@ -53,18 +53,18 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 sdrf
+=head2 sdrf_row
 
 Type: belongs_to
 
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Sdrf>
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRow>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "sdrf",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::Sdrf",
-  { id => "sdrf_id" },
+  "sdrf_row",
+  "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRow",
+  { id => "sdrf_row_id" },
   { on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
