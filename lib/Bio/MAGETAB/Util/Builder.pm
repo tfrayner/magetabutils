@@ -256,7 +256,7 @@ my %method_map = (
                            qw( name accession termSource ) ],
 
     # FIXME: Date not included for protocol_application to simplify the
-    # implementation of the DBLoader class. We could include date, but
+    # implementation of the Tangram::Loader class. We could include date, but
     # then we'd have to be careful how it serialises to the database
     # (c.f. uri). This is only useful in a rare use case (one edge,
     # with the same protocol applied multiple times on different
@@ -432,7 +432,7 @@ instantiation, such that the back-end storage engine populated by a
 given Reader object may be redefined as desired. This base Builder
 class simply tracks objects in a hash of hashes; this is sufficient
 for simple parsing of MAGE-TAB documents. See the
-L<DBLoader|Bio::MAGETAB::Util::DBLoader> class for an example of a Builder subclass
+L<Tangram::Loader|Bio::MAGETAB::Util::Tangram::Loader> class for an example of a Builder subclass
 that can be used to populate a Tangram-based relational database
 schema.
 
@@ -468,7 +468,7 @@ An optional namespace string to be used in object creation.
 The internal store to use for object lookups. In the base Builder
 class this is a simple hash reference, and it is unlikely that you
 will ever want to change the default. This attribute is used in
-persistence subclasses (such as DBLoader) to point at the underlying
+persistence subclasses (such as Tangram::Loader) to point at the underlying
 storage engine.
 
 =back
@@ -543,7 +543,7 @@ Example: a Bio::MAGETAB::DataFile object can be created using the
 C<create_data_file> method.
 
 In addition to the above, the following method is included to help
-manage objects stored relational database backends (see the DBLoader
+manage objects stored relational database backends (see the Tangram::Loader
 subclass):
 
 =over 2
@@ -553,7 +553,7 @@ subclass):
 Passed a list of Bio::MAGETAB objects, this method will attempt to
 update those objects in any persistent storage engine. This method
 doesn't have any effect in the base Builder class, but it is very
-important to the DBLoader subclass. See L<CAVEATS|Bio::MAGETAB::Util::DBLoader/CAVEATS> in the DBLoader class.
+important to the Tangram::Loader subclass. See L<CAVEATS|Bio::MAGETAB::Util::Tangram::Loader/CAVEATS> in the Tangram::Loader class.
 
 =back
 
@@ -629,7 +629,7 @@ around the Protocol being applied, and the Edge to which it is
 attached. Ideally, the protocol application date would also be
 included, but this can create problems for persistence-based Builder
 subclasses where the exact serialization behavior of DateTime objects
-needs to be defined (see the L<DBLoader|Bio::MAGETAB::Util::DBLoader> class). This is a
+needs to be defined (see the L<Tangram::Loader|Bio::MAGETAB::Util::Tangram::Loader> class). This is a
 tractable problem, but a fix has been omitted from this release since
 the use case (the same Protocol applied to a single Edge multiple
 times on different dates) seems a minor one. The workaround is to
@@ -639,7 +639,7 @@ split the protocol applications into as many Edges as are needed.
 
 L<Bio::MAGETAB>
 L<Bio::MAGETAB::Util::Reader>
-L<Bio::MAGETAB::Util::DBLoader>
+L<Bio::MAGETAB::Util::Tangram::Loader>
 
 =head1 AUTHOR
 

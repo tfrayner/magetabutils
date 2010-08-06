@@ -70,8 +70,8 @@ my @fully_covered =
           Bio::MAGETAB::Source
           Bio::MAGETAB::TermSource
           Bio::MAGETAB::Types
-          Bio::MAGETAB::Util::DBLoader
-          Bio::MAGETAB::Util::Persistence
+          Bio::MAGETAB::Util::Tangram::Loader
+          Bio::MAGETAB::Util::Tangram::DB
           Bio::MAGETAB::Util::Reader
           Bio::MAGETAB::Util::Reader::ADF
           Bio::MAGETAB::Util::Reader::DataMatrix

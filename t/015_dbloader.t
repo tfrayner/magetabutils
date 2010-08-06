@@ -19,7 +19,7 @@
 #
 # $Id$
 
-# Basic tests for the DBLoader module.
+# Basic tests for the Tangram::Loader module.
 
 use strict;
 use warnings;
@@ -38,20 +38,20 @@ my $dsn = "dbi:SQLite:$dbfile";
 SKIP: {
 
     eval {
-        require Bio::MAGETAB::Util::Persistence;
+        require Bio::MAGETAB::Util::Tangram::DB;
     };
 
-    skip 'Tests require Bio::MAGETAB::Util::Persistence to be loadable',
+    skip 'Tests require Bio::MAGETAB::Util::Tangram::DB to be loadable',
 	34 if $@;
 
-    my $db = Bio::MAGETAB::Util::Persistence->new({ dbparams => [ $dsn ] });
+    my $db = Bio::MAGETAB::Util::Tangram::DB->new({ dbparams => [ $dsn ] });
     $db->deploy();
     $db->connect();
 
-    require_ok('Bio::MAGETAB::Util::DBLoader');
+    require_ok('Bio::MAGETAB::Util::Tangram::Loader');
 
     my $loader;
-    lives_ok( sub { $loader = Bio::MAGETAB::Util::DBLoader->new({ database => $db }) },
+    lives_ok( sub { $loader = Bio::MAGETAB::Util::Tangram::Loader->new({ database => $db }) },
                'Loader instantiates okay' );
 
     # Start by trying some simple CRU(notD) with TermSource, which has
@@ -130,7 +130,7 @@ SKIP: {
                                                                array_design => $ad }) },
                   'new Feature (AD 1) find_or_created' );
 
-        # FIXME wouldn't it be nicer to have the DBLoader do this for us?
+        # FIXME wouldn't it be nicer to have the Tangram::Loader do this for us?
         $ad->set_designElements( [ $f, $r ] );
         lives_ok( sub { $loader->update( $ad ) }, 'array design AD 1 updated' );
         

@@ -109,20 +109,20 @@ if ( $dsn ) {
     # principle, any database backend supported by Tangram should
     # work. NOTE that during testing, SQLite performance didn't scale
     # terribly well; MySQL worked better.
-    require Bio::MAGETAB::Util::Persistence;
-    require Bio::MAGETAB::Util::DBLoader;
+    require Bio::MAGETAB::Util::Tangram::DB;
+    require Bio::MAGETAB::Util::Tangram::Loader;
 
     unless ( $dsn =~ /\A dbi:\w+:\w+ /ixms ) {
         $dsn = "dbi:SQLite:$dsn";
     }
-    my $db = Bio::MAGETAB::Util::Persistence->new({
+    my $db = Bio::MAGETAB::Util::Tangram::DB->new({
         dbparams => [ $dsn ],
     });
 
     # Connect to the database and dump the objects.
     $db->connect();
 
-    my $builder = Bio::MAGETAB::Util::DBLoader->new({
+    my $builder = Bio::MAGETAB::Util::Tangram::Loader->new({
         database  => $db,
         namespace => $namespace,
         authority => $authority,

@@ -22,7 +22,7 @@
 use strict;
 use warnings;
 
-use Bio::MAGETAB::Util::Persistence;
+use Bio::MAGETAB::Util::Tangram::DB;
 use Bio::MAGETAB;
 
 use Getopt::Long;
@@ -57,5 +57,5 @@ if ( $dbtype eq 'SQLite' && -e $dbname ) {
 }
 
 # Deploy the database schema.
-my $db = Bio::MAGETAB::Util::Persistence->new( dbparams => [ $dsn ] );
+my $db = Bio::MAGETAB::Util::Tangram::DB->new( dbparams => [ $dsn ] );
 $db->deploy();

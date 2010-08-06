@@ -20,7 +20,7 @@
 # $Id$
 
 # This is a very basic unloader script for data stored using the
-# DBLoader/Persistence back-end. No doubt more sophisticated unloading
+# Tangram::Loader/Tangram::DB back-end. No doubt more sophisticated unloading
 # procedures can be devised, but this works well enough for now.
 
 use strict;

@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::DBLoader;
+package Bio::MAGETAB::Util::Tangram::Loader;
 
 use Moose;
 use MooseX::FollowPBP;
@@ -31,7 +31,7 @@ use English qw( -no_match_vars );
 extends 'Bio::MAGETAB::Util::Builder';
 
 has 'database'            => ( is         => 'rw',
-                               isa        => 'Bio::MAGETAB::Util::Persistence',
+                               isa        => 'Bio::MAGETAB::Util::Tangram::DB',
                                required   => 1,
                                handles    => [ qw( insert
                                                    update
@@ -296,21 +296,21 @@ no Moose;
 
 =head1 NAME
 
-Bio::MAGETAB::Util::DBLoader - A persistent storage class used to
+Bio::MAGETAB::Util::Tangram::Loader - A persistent storage class used to
 track Bio::MAGETAB object creation and insertion into a relational
 database.
 
 =head1 SYNOPSIS
 
  require Bio::MAGETAB::Util::Reader;
- require Bio::MAGETAB::Util::Persistence;
- require Bio::MAGETAB::Util::DBLoader;
+ require Bio::MAGETAB::Util::Tangram::DB;
+ require Bio::MAGETAB::Util::Tangram::Loader;
  
  my $reader = Bio::MAGETAB::Util::Reader->new({
      idf => $idf
  });
  
- my $db = Bio::MAGETAB::Util::Persistence->new({
+ my $db = Bio::MAGETAB::Util::Tangram::DB->new({
      dbparams => ["dbi:SQLite:$db_file"],
  });
  
@@ -322,7 +322,7 @@ database.
  # Connect to the database.
  $db->connect();
  
- my $builder = Bio::MAGETAB::Util::DBLoader->new({
+ my $builder = Bio::MAGETAB::Util::Tangram::Loader->new({
      database => $db,
  });
  
@@ -333,10 +333,10 @@ database.
 
 =head1 DESCRIPTION
 
-DBLoader is a Builder subclass which uses a relational database
+This module is a Builder subclass which uses a relational database
 backend to track object creation, rather than the simple hash
 reference mechanism used by Builder. See the
-L<Persistence|Bio::MAGETAB::Util::Persistence> class and the Tangram module
+L<Tangram::DB|Bio::MAGETAB::Util::Tangram::DB> class and the Tangram module
 documentation for more information on supported database engines.
 
 =head1 ATTRIBUTES
@@ -349,7 +349,7 @@ attributes.
 =item database
 
 The internal store to use for object lookups. This must be a
-Bio::MAGETAB::Util::Persistence object.
+Bio::MAGETAB::Util::Tangram::DB object.
 
 =back
 
@@ -404,7 +404,7 @@ quick fix for this Tangram bug.
 
 L<Bio::MAGETAB::Util::Reader>
 L<Bio::MAGETAB::Util::Builder>
-L<Bio::MAGETAB::Util::Persistence>
+L<Bio::MAGETAB::Util::Tangram::DB>
 
 =head1 AUTHOR
 

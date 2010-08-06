@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::Persistence;
+package Bio::MAGETAB::Util::Tangram::DB;
 
 use Moose;
 use MooseX::FollowPBP;
@@ -506,13 +506,13 @@ no Moose;
 
 =head1 NAME
 
-Bio::MAGETAB::Util::Persistence - A Tangram-based object persistence
+Bio::MAGETAB::Util::Tangram::DB - A Tangram-based object persistence
 class for MAGE-TAB.
 
 =head1 SYNOPSIS
 
- use Bio::MAGETAB::Util::Persistence;
- my $db = Bio::MAGETAB::Util::Persistence->new({
+ use Bio::MAGETAB::Util::Tangram::DB;
+ my $db = Bio::MAGETAB::Util::Tangram::DB->new({
     dbparams       => [ "dbi:mysql:$dbname", $user, $pass ],
  });
 
@@ -594,14 +594,14 @@ the Tangram::Schema object.
 
 All these methods are delegated directly to the Tangram::Storage
 object created by the C<connect> method, and contained within the
-Persistence object. Please see the Tangram documentation for more
-information on these methods.
+Bio::MAGETAB::Util::Tangram::DB object. Please see the Tangram
+documentation for more information on these methods.
 
 =back
 
 =head1 SEE ALSO
 
-L<Bio::MAGETAB::DBLoader>
+L<Bio::MAGETAB::Util::Tangram::Loader>
 L<http://tangram.utsl.gen.nz/>
 
 =head1 AUTHOR

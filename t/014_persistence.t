@@ -19,7 +19,7 @@
 #
 # $Id$
 
-# Basic tests for the Persistence module. FIXME this needs to be
+# Basic tests for the Tangram::DB module. FIXME this needs to be
 # extended to test insertion, update, retrieval and deletion of all
 # instantiable Bio::MAGETAB classes.
 
@@ -50,11 +50,11 @@ SKIP: {
     skip 'Tests require Tangram, DBI and DBD::SQLite to be installed',
 	21 if $@;
 
-    require_ok( 'Bio::MAGETAB::Util::Persistence');
+    require_ok( 'Bio::MAGETAB::Util::Tangram::DB');
 
     my $db;
-    lives_ok( sub{ $db = Bio::MAGETAB::Util::Persistence->new( dbparams => [ $dsn ] )},
-              'Persistence object instantiates okay');
+    lives_ok( sub{ $db = Bio::MAGETAB::Util::Tangram::DB->new( dbparams => [ $dsn ] )},
+              'Tangram::DB object instantiates okay');
 
     lives_ok( sub{ $db->deploy() }, 'and deploys database schema');
 

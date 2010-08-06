@@ -89,11 +89,11 @@ SKIP: {
         require DBI;
     };
 
-    skip 'Persistence needs Tangram and DBI.',
+    skip 'Tangram::DB needs Tangram and DBI.',
         2 if $@;
 
-    require_ok('Bio::MAGETAB::Util::Persistence');
-    require_ok('Bio::MAGETAB::Util::DBLoader');
+    require_ok('Bio::MAGETAB::Util::Tangram::DB');
+    require_ok('Bio::MAGETAB::Util::Tangram::Loader');
 }
 
 SKIP: {
