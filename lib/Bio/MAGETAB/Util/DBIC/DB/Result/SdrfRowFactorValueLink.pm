@@ -17,7 +17,7 @@
 #
 # $Id$
 
-package Bio::MAGETAB::Util::DBIC::DB::Result::Sdrf;
+package Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowFactorValueLink;
 
 use strict;
 use warnings;
@@ -26,88 +26,75 @@ use base 'DBIx::Class::Core';
 
 =head1 NAME
 
-Bio::MAGETAB::Util::DBIC::DB::Result::Sdrf
+Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRowFactorValueLink
 
 =cut
 
-__PACKAGE__->table("mt_sdrf");
+__PACKAGE__->table("mt_sdrf_row_factor_value_link");
 
 =head1 ACCESSORS
 
 =head2 id
 
   data_type: 'integer'
+  is_auto_increment: 1
+  is_nullable: 0
+
+=head2 sdrf_row_id
+
+  data_type: 'integer'
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 uri
+=head2 factor_value_id
 
-  data_type: 'varchar'
+  data_type: 'integer'
+  is_foreign_key: 1
   is_nullable: 0
-  size: 255
 
 =cut
 
 __PACKAGE__->add_columns(
   "id",
+  { data_type => "integer", is_auto_increment => 1, is_nullable => 0 },
+  "sdrf_row_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
-  "uri",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "factor_value_id",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
 );
 __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 investigation_sdrf_links
+=head2 sdrf_row
 
-Type: has_many
-
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::InvestigationSdrfLink>
-
-=cut
-
-__PACKAGE__->has_many(
-  "investigation_sdrf_links",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::InvestigationSdrfLink",
-  { "foreign.sdrf_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 sdrf_rows
-
-Type: has_many
+Type: belongs_to
 
 Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRow>
 
 =cut
 
-__PACKAGE__->has_many(
-  "sdrf_rows",
+__PACKAGE__->belongs_to(
+  "sdrf_row",
   "Bio::MAGETAB::Util::DBIC::DB::Result::SdrfRow",
-  { "foreign.sdrf_id" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { id => "sdrf_row_id" },
+  { on_delete => "CASCADE", on_update => "CASCADE" },
 );
 
-=head2 base_id
+=head2 factor_value
 
 Type: belongs_to
 
-Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Base>
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::FactorValue>
 
 =cut
 
 __PACKAGE__->belongs_to(
-  "base_id",
-  "Bio::MAGETAB::Util::DBIC::DB::Result::Base",
-  { id => "id" },
-  { on_delete => "CASCADE",
-    on_update => "CASCADE",
-    proxy     => [qw( namespace authority comments )], },
+  "factor_value",
+  "Bio::MAGETAB::Util::DBIC::DB::Result::FactorValue",
+  { id => "factor_value_id" },
+  { on_delete => "CASCADE", on_update => "CASCADE" },
 );
-
-sub parent_class { 'Base' }
-
-__PACKAGE__->resultset_class('Bio::MAGETAB::Util::DBIC::DB::ResultSet');
 
 1;
 

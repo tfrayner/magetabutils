@@ -1,3 +1,20 @@
+# Copyright 2008-2010 Tim Rayner
+# 
+# This file is part of Bio::MAGETAB.
+# 
+# Bio::MAGETAB is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+# 
+# Bio::MAGETAB is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Bio::MAGETAB.  If not, see <http://www.gnu.org/licenses/>.
+#
 # $Id$
 
 package Bio::MAGETAB::Util::DBIC::DB::ResultSet;
@@ -8,10 +25,6 @@ use List::Util qw(first);
 use Storable qw(dclone);
 
 BEGIN { extends 'DBIx::Class::ResultSet'; }
-
-sub parent_class {
-    confess("Error: stub method called in ResultSet superclass.");
-}
 
 sub new_result {
 
@@ -136,4 +149,21 @@ sub _parent_class_to_relationship {
     return( lc $rel . '_id' );
 }
 
+__PACKAGE__->meta->make_immutable(inline_constructor => 0);
+
+no Moose;
+
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Tim F. Rayner <tfrayner@gmail.com>
+
+=head1 LICENSE
+
+This library is released under version 2 of the GNU General Public
+License (GPL).
+
+=cut

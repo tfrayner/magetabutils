@@ -606,28 +606,28 @@ CREATE TABLE mt_sdrf_row (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- linking table not in main model.
-DROP TABLE IF EXISTS mt_sdrf_node_link;
-CREATE TABLE mt_sdrf_node_link (
+DROP TABLE IF EXISTS mt_sdrf_row_node_link;
+CREATE TABLE mt_sdrf_row_node_link (
   id INT(11) NOT NULL AUTO_INCREMENT,
-  sdrf_id INT(11) NOT NULL,
+  sdrf_row_id INT(11) NOT NULL,
   node_id INT(11) NOT NULL,
   PRIMARY KEY (id),
-  KEY (sdrf_id),
+  KEY (sdrf_row_id),
   KEY (node_id),
-  CONSTRAINT FOREIGN KEY (sdrf_id) REFERENCES mt_sdrf (id) ON DELETE CASCADE,
+  CONSTRAINT FOREIGN KEY (sdrf_row_id) REFERENCES mt_sdrf_row (id) ON DELETE CASCADE,
   CONSTRAINT FOREIGN KEY (node_id) REFERENCES mt_node (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- linking table not in main model.
-DROP TABLE IF EXISTS mt_sdrf_factor_value_link;
-CREATE TABLE mt_sdrf_factor_value_link (
+DROP TABLE IF EXISTS mt_sdrf_row_factor_value_link;
+CREATE TABLE mt_sdrf_row_factor_value_link (
   id INT(11) NOT NULL AUTO_INCREMENT,
-  sdrf_id INT(11) NOT NULL,
+  sdrf_row_id INT(11) NOT NULL,
   factor_value_id INT(11) NOT NULL,
   PRIMARY KEY (id),
-  KEY (sdrf_id),
+  KEY (sdrf_row_id),
   KEY (factor_value_id),
-  CONSTRAINT FOREIGN KEY (sdrf_id) REFERENCES mt_sdrf (id) ON DELETE CASCADE,
+  CONSTRAINT FOREIGN KEY (sdrf_row_id) REFERENCES mt_sdrf_row (id) ON DELETE CASCADE,
   CONSTRAINT FOREIGN KEY (factor_value_id) REFERENCES mt_factor_value (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
