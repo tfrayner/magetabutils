@@ -30,7 +30,6 @@ use MooseX::Types::Moose qw( Int FileHandle Str );
 
 has 'filehandle'         => ( is         => 'rw',
                               isa        => FileHandle,
-                              coerce     => 1,
                               required   => 1 );
 
 has 'num_columns'        => ( is         => 'rw',
