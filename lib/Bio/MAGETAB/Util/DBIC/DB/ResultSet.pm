@@ -50,7 +50,7 @@ sub new_result {
 
     $new_values{ 'id' } = $parent->id();
 
-    $self->SUPER::new_result( \%new_values );
+    $self->next::method( \%new_values );
 }
 
 sub find {
@@ -73,7 +73,7 @@ sub find {
         @attrs{ keys %$new_attrs } = values %$new_attrs;
     }
 
-    $self->SUPER::find( @args, \%attrs );
+    $self->next::method( @args, \%attrs );
 }
 
 sub _create_join_condition {

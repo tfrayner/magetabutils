@@ -24,6 +24,8 @@ use warnings;
 
 use base 'DBIx::Class::Core';
 
+__PACKAGE__->load_components(qw/ +Bio::MAGETAB::Util::DBIC::DB::Row /);
+
 =head1 NAME
 
 Bio::MAGETAB::Util::DBIC::DB::Result::DatabaseEntry
