@@ -53,7 +53,7 @@ sub new_result {
     $self->next::method( \%new_values );
 }
 
-sub find {
+sub search_rs {
 
     my ( $self, @args ) = @_;
 
@@ -85,6 +85,10 @@ sub _create_join_condition {
     my ( %query, %attrs, %parent_query );
     my $source = $self->result_source();
     while ( my ( $key, $value ) = each %{ $original_query } ) {
+
+        # Catch the 'me.' prefix used by DBIx::Class::find
+        $key =~ s/\A me\.//xms;
+
         if ( first { $key eq $_ } $source->columns(), $source->relationships() ) {
             if ( $self_rel ) {
                 $query{ "$self_rel.$key" } = $value;
