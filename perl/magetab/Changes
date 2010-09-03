@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.13    Bio::MAGETAB-1.13.tar.gz        Fixed minor FileHandle type coercion bug which led to an
+                                          unsightly verbose warning in Moose::Meta::Attribute.
+
 1.12    Bio::MAGETAB-1.12.tar.gz        Migrated from the deprecated Moose::Policy module to using
                                           MooseX::FollowPBP.
 
