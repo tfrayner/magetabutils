@@ -76,7 +76,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 RELATIONS
 
-=head2 base
+=head2 object
 
 Type: belongs_to
 
@@ -88,7 +88,7 @@ which it is attached.
 =cut
 
 __PACKAGE__->belongs_to(
-  "base",
+  "object",
   "Bio::MAGETAB::Util::DBIC::DB::Result::Base",
   { id => "base_id" },
   { on_delete => "CASCADE", on_update => "CASCADE" },

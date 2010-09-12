@@ -122,6 +122,18 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 materials
+
+Type: many_to_many
+
+Related object: L<Bio::MAGETAB::Util::DBIC::DB::Result::Material>
+
+=cut
+
+__PACKAGE__->many_to_many(
+    "materials" => "material_measurement_links", "material"
+);
+
 =head2 unit
 
 Type: belongs_to

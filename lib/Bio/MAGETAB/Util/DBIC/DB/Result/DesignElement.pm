@@ -89,6 +89,19 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 array_designs
+
+Type: many_to_many
+
+Related object:
+L<Bio::MAGETAB::Util::DBIC::DB::Result::ArrayDesign>.
+
+=cut
+
+__PACKAGE__->many_to_many(
+  "array_designs", "array_design_design_element_links", "array_design_id",
+);
+
 =head2 composite_element
 
 Type: might_have
