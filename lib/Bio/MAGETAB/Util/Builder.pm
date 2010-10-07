@@ -362,6 +362,18 @@ sub _strip_aggregator_info {
     return wantarray ? ( \%new_data, \@discarded ) : \%new_data;
 }
 
+sub _retrieve_id_fields {
+
+    my ( $self, $method_name ) = @_;
+
+    if ( my $info = $method_map{ $method_name } ) {
+        return @{ $info };
+    }
+    else {
+        confess(qq{Error: No method map exists for method name "$method_name".});
+    }
+}
+
 {
     no strict qw(refs);
     while ( my( $item, $info ) = each %method_map ) {
