@@ -69,9 +69,8 @@ sub _magetab_to_relname {
 
     # Given a MAGETAB object, derive the name of the relationship in
     # which it might be found.
-    my ( $self, $obj ) = @_;
+    my ( $self, $objclass ) = @_;
 
-    my $objclass = ref $obj;
     $objclass =~ s/.*:://;
     my $method = $self->_camel_case_tab_delim( $objclass );
 
@@ -86,8 +85,8 @@ sub _magetab_to_attrs_and_idfields {
     my ( $self, $obj ) = @_;
 
     # FIXME can this be done more robustly?
-    my $method = $self->_magetab_to_relname( $obj );
-    my ( $class, @id_fields ) = @self->_retrieve_id_fields( $method );
+    my $method = $self->_magetab_to_relname( ref $obj );
+    my ( $class, @id_fields ) = $self->_retrieve_id_fields( $method );
 
     # Quick assertion to make sure we're on the right track.
     if ( $class ne ref $obj ) {
@@ -95,7 +94,7 @@ sub _magetab_to_attrs_and_idfields {
     }
 
     my %attrhash = map { my $getter = "get_$_";
-                         $_ => $value->$getter } @id_fields;
+                         $_ => $obj->$getter } @id_fields;
     
     return ( \%attrhash, \@id_fields );
 }
@@ -148,8 +147,7 @@ sub _query_database {
 
             # Note that we're not carrying over namespace, authority
             # because some objects (TermSource) might not have them.
-            my ( $rel_attrs, $rel_id_fields ) = $self->_magetab_to_attrs_and_idfields( $value );
-            my $relobj = $self->_query_database( ref $value, $rel_attrs, $rel_id_fields );
+            my $relobj = $self->_magetab_query_database( $value );
 
             # Special cases.
             if ( ( $class eq 'Bio::MAGETAB::Feature'     && $field eq 'array_design' )
@@ -158,7 +156,7 @@ sub _query_database {
                 # The database and Bio::MAGETAB model all allow n..n
                 # for Measurement..Object, but the Builder classes
                 # don't work that way. We need a join, as for Feature.
-                my $relname = $self->_magetab_to_relname( $value );
+                my $relname = $self->_magetab_to_relname( ref $value );
                 $cond->{ "${relname}s.id" } = $relobj->id();
                 $attr->{ 'join' } = { "${relname}s" };
             }
@@ -179,7 +177,9 @@ sub _query_database {
     }
 
     # Actually retrieve the object(s).
-    my @objects = $self->get_database->resultset( $class )->search( $cond, $attr );
+    my $dbclass = $class;
+    $dbclass =~ s/\A .*:://xms;
+    my @objects = $self->get_database->resultset( $dbclass )->search( $cond, $attr );
 
     # Brief sanity check; identity means identity, i.e. only one object returned.
     if ( scalar @objects > 1 ) {
@@ -245,12 +245,11 @@ sub _create_object {
             # Replace this hash value with the appropriate database
             # ID. Note that $field may need to be altered as well,
             # especially for Feature and Measurement.
-            my ( $rel_attrs, $rel_id_fields ) = $self->_magetab_to_attrs_and_idfields( $value );
-            my $relobj = $self->_query_database( ref $value, $rel_attrs, $rel_id_fields );
+            my $relobj = $self->_magetab_query_database( $value );
 
             if ( ( $class eq 'Bio::MAGETAB::Feature'     && $field eq 'array_design' )
               || ( $class eq 'Bio::MAGETAB::Measurement' && $field eq 'object' ) ) {
-                my $relname = $self->_magetab_to_relname( $value );
+                my $relname = $self->_magetab_to_relname( ref $value );
                 $query{ $relname } = $relobj;
             }
             else {
@@ -267,9 +266,7 @@ sub _create_object {
             # fields specified by the Builder class.
             my @relobjs;
             foreach my $val ( @$value ) {
-                my ( $rel_attrs, $rel_id_fields ) = $self->_magetab_to_attrs_and_idfields( $value );
-                my $relobj = $self->_query_database( ref $value, $rel_attrs, $rel_id_fields );
-
+                my $relobj = $self->_magetab_query_database( $value );
                 push @relobjs, $relobj;
             }
 
@@ -294,47 +291,75 @@ sub _create_object {
     return $self->_dbrow_to_magetab( $dbrow );
 }
 
-sub _dbrow_to_magetab { # TODO
+sub _dbrow_to_magetab {
 
     my ( $self, $dbrow ) = @_;
 
-    # FIXME Convert the DBIC row into a Bio::MAGETAB object. This
-    # wants to be a bit clever about how it handles Bio::MAGETAB
-    # attributes - rather than instantiating the entire DAG, we'd like
-    # a closure method which knows about the attribute data and, when
-    # called, replaces itself with an instantiated MAGETAB object.
-    my $obj;
-
-    my $class = $dbrow->result_source->source_name();
-    $class =~ s/ .*:: //xms;
-    $class = 'Bio::MAGETAB::$class';
+    # Convert the DBIC row into a Bio::MAGETAB object. This wants to
+    # be a bit clever about how it handles Bio::MAGETAB attributes -
+    # rather than instantiating the entire DAG, we'd like a closure
+    # method which knows about the attribute data and, when called,
+    # replaces itself with an instantiated MAGETAB object.
+    my $obj = {};
 
     my $source = $dbrow->result_source();
+    my $class  = $source->source_name();
+    $class =~ s/ \A .*:: /Bio::MAGETAB::/xms;
+
     foreach my $attr ( $class->meta->get_attribute_list() ) {
-        if ( $source->has_relationship( $attr ) ) {
+
+        my $dbattr = $self->_camel_case_tab_delim( $attr );
+
+        if ( $source->has_relationship( $dbattr ) ) {
 
             # Instead of instantiating the related Bio::MAGETAB
             # object(s), we create a closure which can replace itself
             # when called. This helps avoid dumping out the entire
             # database for a simple query.
-            $obj->{ $attr } =
-                sub {
+            my $reltype = $source->relationship_info( $dbattr )->{'accessor'};
+            my $setter  = "set_$attr";
+            my $getter  = "get_$attr";
 
-                    # FIXME this only works for the has_one case.
-                    $obj->{ $attr } = $self->_dbrow_to_magetab( $dbrow->$attr );
-                };
+            if ( $reltype eq 'single' ) {
+                $obj->{ $attr } =
+                    sub {
+                        $obj->$setter( $self->_dbrow_to_magetab( $dbrow->$dbattr ) );
+                        return $obj->$getter;
+                    };
+            }
+            elsif ( $reltype eq 'multi' ) {
+                $obj->{ $attr } =
+                    sub {
+                        $obj->$setter( [ map { $self->_dbrow_to_magetab( $_ ) } $dbrow->$dbattr ] );
+                        return $obj->$getter;
+                    };
+            }
+            elsif ( $reltype eq 'filter' ) {
+
+                # This is included for completeness, not actually used
+                # in the model at the moment though. FIXME I'm not
+                # sure this is exactly what's needed here.
+                $obj->{ $attr } = $dbrow->$dbattr;
+            }
+            else {
+                confess(qq{Error: unknown DBIx::Class relationship type "$reltype".});
+            }
         }
-        elsif ( $source->has_column( $attr ) && defined $dbrow->$attr ) {
+        elsif ( $source->has_column( $dbattr ) && defined $dbrow->$dbattr ) {
 
             # Simple attribute. N.B. we may need to handle
             # interconversion between MySQL and Bio::MAGETAB
             # conventions, e.g. for date.
-            $obj->{ $attr } = $dbrow->$attr;
+            $obj->{ $attr } = $dbrow->$dbattr;
         }
     }
 
     # This circumvents the usual type constraint checking, allowing us
     # to use closures instead of instantiated Bio::MAGETAB objects.
+
+    # FIXME this all assumes that the internal structure of the
+    # MAGETAB class is a hashref (true at the moment, this is not as
+    # certain if people create subclasses though).
     bless $obj, $class;
     
     return $obj;
@@ -347,32 +372,69 @@ sub update { # TODO
     # FIXME ideally we wouldn't use this as part of our standard
     # find/get/create database querying; this is a method provided for
     # Builder API completeness.
-    
-    # FIXME we really need to _query_database,
-    # _update_dbrow_attributes, _dbrow_to_magetab and return the
-    # result.
+    my $dbrow = $self->_magetab_query_database( $obj );
+
+    # FIXME This assumes the MAGETAB $obj is a hashref suitable for
+    # passing to _update_dbrow_attributes, which is not necessarily
+    # the case.
+    $self->_update_dbrow_attributes( $dbrow, $obj );
+
+    return( $self->_dbrow_to_magetab( $dbrow ) );
 }
 
-sub _update_dbrow_attributes { # TODO
+sub _magetab_query_database {
+
+    my ( $self, $obj ) = @_;
+
+    my ( $attr, $id_fields ) = $self->_magetab_to_attrs_and_idfields( $obj );
+
+    return( $self->_query_database( ref $obj, $attr, $id_fields ) );
+}
+
+sub _update_dbrow_attributes {
 
     my ( $self, $dbrow, $data ) = @_;
 
-    # FIXME just apply the $data hashref to the $dbrow DBIC object, and call $dbrow->update;
+    # Here we apply the $data hashref to the $dbrow DBIC object, and call $dbrow->update;
 
     # Note this won't be quite as simple if the $data contains Bio::MAGETAB objects as values.
     my $source = $dbrow->result_source();
     while ( my ( $attr, $value ) = each %$data ) {
-        if ( $source->has_column( $attr ) ) {
-            $dbrow->set_column( $attr, $value );
+
+        my $dbattr = $self->_camel_case_tab_delim( $attr );
+
+        if ( $source->has_column( $dbattr ) ) {
+            $dbrow->set_column( $dbattr, $value );
         }
-        elsif ( $source->has_relationship( $attr ) ) {
-            # FIXME
+        elsif ( $source->has_relationship( $dbattr ) ) {
+
+            my $reltype = $source->relationship_info( $dbattr )->{'accessor'};
+
+            if ( $reltype eq 'single' ) {
+                my $relobj = $self->_magetab_query_database( $value );
+                $dbrow->$dbattr( $relobj );  # FIXME is this the correct way to set relationships?
+            }
+            elsif ( $reltype eq 'multi' ) {
+                my @relobjs = map { $self->_magetab_query_database( ref $_ ) } @{ $value || [] };
+                $dbrow->$dbattr( \@relobjs );  # Again, check this FIXME.
+            }
+            elsif ( $reltype eq 'filter' ) {
+
+                # This is included for completeness, not actually used
+                # in the model at the moment though. FIXME I'm not
+                # sure this is even needed here; presumably this is
+                # caught by has_column anyway.
+                $dbrow->set_column( $dbattr, $value );
+            }
+            else {
+                confess(qq{Error: unknown DBIx::Class relationship type "$reltype".});
+            }
         }
         else {
 
             # FIXME is this actually a full-blown error?
-            carp(sprintf("Warning: %s class has no %s attribute",
-                         $source->source_name(), $attr));
+            confess(sprintf("Warning: %s class has no %s attribute",
+                            $source->source_name(), $dbattr));
         }
     }
 
