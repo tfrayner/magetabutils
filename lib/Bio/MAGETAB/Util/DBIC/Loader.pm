@@ -122,7 +122,7 @@ sub _query_database {
 
         my $value = $data->{ $field };
 
-        next FIELD if ! defined $value;
+        next FIELD if ( ! defined $value || $value eq q{} );
 
         # Another special case - URI can change in the model
         # between input and output (specifically, a file: prefix
@@ -138,12 +138,12 @@ sub _query_database {
                 $value->scheme('file');
             }
         }
-
+        use Data::Dumper; warn Dumper [ $class, $field ];
         # We need to serialise Bio::MAGETAB objects such that the
         # database knows what to do about them. Note also that this
         # could get quite recursive. (FIXME include a check for cycles
         # here).
-        if ( $value->isa('Bio::MAGETAB::BaseClass') ) {
+        if ( UNIVERSAL::isa($value, 'Bio::MAGETAB::BaseClass') ) {
 
             # Note that we're not carrying over namespace, authority
             # because some objects (TermSource) might not have them.
@@ -179,6 +179,7 @@ sub _query_database {
     # Actually retrieve the object(s).
     my $dbclass = $class;
     $dbclass =~ s/\A .*:://xms;
+
     my @objects = $self->get_database->resultset( $dbclass )->search( $cond, $attr );
 
     # Brief sanity check; identity means identity, i.e. only one object returned.
@@ -240,7 +241,7 @@ sub _create_object {
     foreach my $field ( keys %$data ) {
 
         my $value = $data->{ $field };
-        if ( $value->isa( 'Bio::MAGETAB::BaseClass' ) ) {
+        if ( UNIVERSAL::isa($value, 'Bio::MAGETAB::BaseClass' ) ) {
 
             # Replace this hash value with the appropriate database
             # ID. Note that $field may need to be altered as well,
@@ -283,8 +284,10 @@ sub _create_object {
 
     # Actually insert the row. FIXME a better error message would dump
     # the data hash as well.
-    my $dbrow = $self->database->resultset( $class )->create( \%query )
-        or confess("Error creating object of class $class");
+    my $dbclass = $class;
+    $dbclass =~ s/\A Bio::MAGETAB:: //xms;
+    my $dbrow = $self->get_database->resultset( $dbclass )->create( \%query )
+        or confess("Error creating object of class $dbclass");
 
     # We need to convert the DBIC row object $dbrow into a Bio::MAGETAB
     # object.
@@ -304,7 +307,7 @@ sub _dbrow_to_magetab {
 
     my $source = $dbrow->result_source();
     my $class  = $source->source_name();
-    $class =~ s/ \A .*:: /Bio::MAGETAB::/xms;
+    $class =~ s/ \A (?:.*::)? /Bio::MAGETAB::/xms;
 
     foreach my $attr ( $class->meta->get_attribute_list() ) {
 
@@ -432,9 +435,12 @@ sub _update_dbrow_attributes {
         }
         else {
 
-            # FIXME is this actually a full-blown error?
-            confess(sprintf("Warning: %s class has no %s attribute",
-                            $source->source_name(), $dbattr));
+            # FIXME is this actually a full-blown error? Currently
+            # deactivated as the DBIC schema doesn't correctly handle
+            # has_relationship yet.
+            
+#            confess(sprintf("Warning: %s class has no %s attribute",
+#                            $source->source_name(), $dbattr));
         }
     }
 
