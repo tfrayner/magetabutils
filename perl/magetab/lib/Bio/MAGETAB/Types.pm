@@ -27,6 +27,7 @@ use MooseX::Types
     -declare => [ qw( Uri Date Email ) ];
 
 use URI;
+use URI::file;
 use DateTime;
 use Email::Valid;
 use Params::Coerce;
@@ -46,12 +47,21 @@ coerce Uri,
 
     from Str,
     via {
-        my $uri = URI->new( $_ );
-
-        # We assume here that thet default URI scheme is "file".
-        unless ( $uri->scheme() ) {
-            $uri->scheme('file');
+        my $uri;
+        
+        # Attempt to catch MSWin32 "C:\..."-style URIs.
+        if ( $^O eq 'MSWin32' && $_ =~ m/\A [a-z] :/ixms ) {
+            $uri = URI::file->new( $_, 'win32' );
         }
+        else {
+            $uri = URI->new( $_ );
+
+            # We assume here that thet default URI scheme is "file".
+            unless ( $uri->scheme() ) {
+                $uri->scheme('file');
+            }
+        }
+
         return $uri;
     };
 
