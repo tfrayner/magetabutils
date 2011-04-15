@@ -24,10 +24,13 @@ use 5.008001;
 use Moose;
 use MooseX::FollowPBP;
 
-use MooseX::Types::Moose qw( Str Bool );
+use MooseX::Types::Moose qw( Str Bool Int );
 use Bio::MAGETAB::Types qw( Uri );
 
 use Carp;
+use URI;
+use URI::file;
+use File::Spec;
 
 use Bio::MAGETAB::Util::Reader::ADF;
 use Bio::MAGETAB::Util::Reader::IDF;
@@ -65,6 +68,11 @@ has 'builder'             => ( is         => 'rw',
                                default    => sub { Bio::MAGETAB::Util::Builder->new() },
                                required   => 1 );
 
+has 'common_directory'    => ( is         => 'rw',
+                               isa        => Int,
+                               default    => 1,
+                               required   => 1 );
+
 # Make this visible to users of the module.
 our $VERSION = 1.0;
 
@@ -87,15 +95,11 @@ sub parse {
 
     # FIXME parse the SDRFS etc. here. N.B. some extra stitching may be needed.
     foreach my $sdrf ( @{ $investigation->get_sdrfs() } ) {
-
-        # FIXME rewrite the SDRF URI according to our IDF URI?
-
 	my $sdrf_parser = Bio::MAGETAB::Util::Reader::SDRF->new({
-	    uri                        => $sdrf->get_uri(),
+	    uri                        => $self->_rewrite_uri($sdrf->get_uri()),
             builder                    => $builder,
             magetab_object             => $sdrf,
 	});
-
         my $sdrf = $sdrf_parser->parse();
     }
 
@@ -103,7 +107,7 @@ sub parse {
     foreach my $array ( $magetab_container->get_arrayDesigns() ) {
         if ( $array->get_uri() ) {
             my $parser = Bio::MAGETAB::Util::Reader::ADF->new({
-                uri            => $array->get_uri(),
+                uri            => $self->_rewrite_uri($array->get_uri()),
                 builder        => $builder,           
                 magetab_object => $array,
             });
@@ -115,7 +119,7 @@ sub parse {
     unless ( $self->get_ignore_datafiles() ) {
         foreach my $matrix ( $magetab_container->get_dataMatrices() ) {
             my $parser = Bio::MAGETAB::Util::Reader::DataMatrix->new({
-                uri            => $matrix->get_uri(),
+                uri            => $self->_rewrite_uri($matrix->get_uri()),
                 builder        => $builder,           
                 magetab_object => $matrix,
             });
@@ -127,6 +131,40 @@ sub parse {
     return wantarray
 	   ? ( $investigation, $magetab_container )
 	   : $magetab_container;
+}
+
+# Cribbed from the List::Util POD and modified to allow map-like usage.
+sub _all (&@) { my $f = shift; $f->($_) || return 0 for @_; 1 }
+
+sub _rewrite_uri {
+
+    my ( $self, $uri ) = @_;
+
+    my $idf_uri = $self->get_idf();
+
+    # Assume file as default URI scheme unless specified otherwise.
+    if ( _all { ! $_->scheme() || $_->scheme() eq 'file' } $uri, $idf_uri ) {
+
+        my $uri_path = $uri->file();
+        my $path;
+	if ( $self->get_common_directory() ) {
+            my $idf_path      = File::Spec->rel2abs( $idf_uri->file() );
+            my @idf_dir_parts = File::Spec->splitpath( $idf_path );
+            my $dir = File::Spec->catdir( @idf_dir_parts[ 0, 1 ] );
+
+	    $path = File::Spec->file_name_is_absolute( $uri_path )
+		  ? $uri_path
+		  : File::Spec->catfile( $dir, $uri_path );
+	}
+	else {
+	    $path = File::Spec->rel2abs( $uri_path );
+	}
+
+        $uri = to_Uri($path)
+            or croak(qq{Cannot coerce file path "$path" to URI object.});
+    }
+
+    return $uri;
 }
 
 # Make the classes immutable. In theory this speeds up object
@@ -192,6 +230,15 @@ MAGE-TAB documents together. In its simplest form this internal store
 is a simple hash; however in principle this could be extended by
 subclassing Builder to create e.g. persistent database storage
 mechanisms.
+
+=item common_directory
+
+A boolean value (default TRUE) indicating whether the IDF, SDRF, ADF
+and Data Matrices are located in the same directory. This influences
+whether URIs found in IDF and SDRF files are interpreted relative to
+the locations of those files, or relative to the current working
+directory. Note that this will not affect local file URIs giving
+absolute locations or URIs using other schemes (e.g. http).
 
 =back
 

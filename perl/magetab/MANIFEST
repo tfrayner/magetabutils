@@ -123,10 +123,13 @@ t/012_builder.t
 t/013_adf.t
 t/013_data_matrix.t
 t/013_idf.t
+t/013_reader.t
 t/013_sdrf.t
 t/014_persistence.t
 t/015_dbloader.t
 t/100_pod_coverage.t
 t/100_pod_correctness.t
 t/testlib/CommonTests.pm
-
+t/examples/affymetrix.idf
+t/examples/affy_sdrf.txt
+t/examples/affy_dm.txt
