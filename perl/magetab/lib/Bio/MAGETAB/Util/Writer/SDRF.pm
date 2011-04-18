@@ -769,11 +769,32 @@ sub _process_parametervalues {
 
     my ( $self, $objs, $param ) = @_;
 
-    # At the moment the model only supports Measurement here; in
-    # future this may need to be modified to support
-    # ControlledTerm also FIXME.
-    my @meas = map { $_ ? $_->get_measurement() : undef } @{ $objs };
-    $self->_process_measurements( \@meas, "Parameter Value [$param]" );
+    # Similar to FVs below, only PVs from only one parameter name are
+    # passed in at any given time.
+    my $colname = "Parameter Value [$param]";
+    my @defined = grep { defined $_ } @{ $objs };
+
+    # However, we've not established that all PVs are term- or
+    # measurement-based, and yet we make that assumption here FIXME.
+    if ( $defined[0]->has_term() ) {
+
+        # As of MAGE-TAB v1.1 (June 2009) ParameterValue can have
+        # controlled term.
+        my @terms = map { $_ ? $_->get_term() : undef } @{ $objs };
+        if ( scalar @terms > 0 && $self->get_export_version eq '1.0' ) {
+            croak("Error: Cannot export ParameterValues with ControlledTerms"
+                      . " under the MAGE-TAB v1.0 specification.");
+        }
+
+        $self->_process_controlled_terms( \@terms, $colname );
+    }
+    elsif ( $defined[0]->has_measurement() ) {
+        my @meas = map { $_ ? $_->get_measurement() : undef } @{ $objs };
+        $self->_process_measurements( \@meas, $colname );
+    }
+    else {
+        croak("Error: FactorValue has no term or measurement.");
+    }
 
     # ParameterValue Comments
     $self->_process_objects( $objs );

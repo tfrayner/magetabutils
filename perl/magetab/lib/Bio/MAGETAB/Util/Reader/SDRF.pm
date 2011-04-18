@@ -298,16 +298,34 @@ sub _link_to_previous {
                     my @val_objs;
                     foreach my $pv ( @{ $param_vals } ) {
 
-                        # Extract the measurement hashref, create the
-                        # parameter value and then the measurement,
-                        # and combine.
-                        my $meas_data = $pv->{measurement_data};
-                        delete $pv->{measurement_data};
+                        # Extract the measurement hashref or term
+                        # object, create the parameter value and then
+                        # the measurement if necessary, and combine.
+                        my ( $meas_data, $term_obj );
+                        if ( $meas_data = $pv->{measurement_data} ) {
+                            delete $pv->{measurement_data};
+                        }
+                        elsif ( $term_obj = $pv->{term_object} ) {
+                            delete $pv->{term_object};
+                        }
+                        else {
+                            confess("Error: Neither measurement_data nor term_object"
+                                        . " found for parameter value.");
+                        }
+                        
                         $pv->{protocol_application} = $app;
                         my $pv_obj = $self->get_builder()->find_or_create_parameter_value( $pv );
-                        $meas_data->{object} = $pv_obj;
-                        my $meas = $self->get_builder()->find_or_create_measurement( $meas_data );
-                        $pv_obj->set_measurement( $meas );
+
+                        if ( $meas_data ) {
+                            $meas_data->{object} = $pv_obj;
+                            my $meas = $self->get_builder()->find_or_create_measurement( $meas_data );
+                            $pv_obj->set_measurement( $meas );
+                        }
+                        elsif ( $term_obj ) {
+                            $pv_obj->set_term( $term_obj );
+                        }
+
+                        # Mainly for the benefit of the DBLoader back-end.
                         $self->get_builder()->update( $pv_obj );
 
                         push @val_objs, $pv_obj;
@@ -558,7 +576,7 @@ sub _create_date {
     return $date;
 }
 
-sub _create_parametervalue {
+sub _create_parametervalue_measurement {
 
     my ( $self, $paramname, $value, $protocolapp ) = @_;
 
@@ -581,14 +599,56 @@ sub _create_parametervalue {
         value            => $value,
     };
 
-    # Create a dummy placeholder measurement until we have sufficient
-    # context to instantiate things. Pre-delete the dummy object.
-
     # Just a hashref for now. See _link_to_previous for object
     # creation.
     my $parameterval = {
         parameter        => $parameter,
         measurement_data => $measurement_data,
+    };
+
+    $self->_add_parameterval_to_protocolapp(
+	$parameterval,
+	$protocolapp,
+    ) if $protocolapp;
+
+    return $parameterval;
+}
+
+sub _create_parametervalue_value {
+
+    my ( $self, $paramname, $value, $protocolapp, $termsource, $accession ) = @_;
+
+    return if ( ! $protocolapp || $value =~ $BLANK );
+
+    # Protocol app is still a hashref at this stage.
+    my $protocol = $protocolapp->{protocol};
+
+    my $parameter = $self->get_builder()->get_protocol_parameter({
+        name     => $paramname,
+        protocol => $protocol,
+    });
+
+    my $ts_obj;
+    if ( $termsource ) {
+        $ts_obj = $self->get_builder()->get_term_source({
+            'name' => $termsource,
+        });
+    }
+
+    # In contrast to measurements, controlled terms have their own
+    # intrinsic identity, so we can instantiate this without worry.
+    my $term = $self->get_builder()->find_or_create_controlled_term({
+        category   => 'ParameterValue',
+        value      => $value,
+        accession  => $accession,
+        termSource => $ts_obj,
+    });
+
+    # Just a hashref for now. See _link_to_previous for object
+    # creation.
+    my $parameterval = {
+        parameter        => $parameter,
+        term_object      => $term,
     };
 
     $self->_add_parameterval_to_protocolapp(
@@ -1738,17 +1798,21 @@ __DATA__
 
     parameter_heading:         /Parameter *Values?/i
 
-    parameter:                 parameter_heading
+    parameter:                 parameter_value_meas
+                             | parameter_value_value
+
+    parameter_value_meas:      parameter_heading
                                <skip:' *'> bracket_term
-                               <skip:' *\x{0} *'> parameter_attributes(s?)
+                               <skip:' *\x{0} *'> unit comment(s?)
 
                                    { $return = sub {
                                          my $protocolapp = shift;
                                          my $value       = shift;
-                                         my $obj = $::sdrf->_create_parametervalue($item[3], $value, $protocolapp);
-                                         foreach my $sub (@{$item[5]}){
 
-                                              # Unit, Comment
+                                         my $obj = $::sdrf->_create_parametervalue_measurement($item[3], $value, $protocolapp);
+                                         foreach my $sub ($item[5], @{$item[6]}){
+
+                                              # Comment
                                               unshift( @_, $obj );
                                               my $attr = &{ $sub };
                                          }
@@ -1756,8 +1820,46 @@ __DATA__
                                      };
                                    }
 
-    parameter_attributes:      unit
-                             | comment
+    parameter_value_value:     parameter_heading
+                               <skip:' *'> bracket_term
+                               <skip:' *\x{0} *'> termsource(?) comment(s?)
+
+                                   { $return = sub {
+                                         my $protocolapp = shift;
+                                         my $value       = shift;
+
+                                         my @args;
+                                         if ( UNIVERSAL::isa( $item[5][0], 'ARRAY' ) ) {
+                                             
+                                             # Term Source
+                                             push @args, shift;
+
+                                             # Accession
+                                             push @args, ($item[5][0][1] && $item[5][0][1] eq 'term_accession')
+                                                         ? shift
+                                                         : undef;
+                                         }
+                                         else {
+
+                                             # No term source given
+                                             push @args, undef, undef;
+                                         }
+                                         my $obj = $::sdrf->_create_parametervalue_value(
+                                             $item[3],
+                                             $value,
+                                             $protocolapp,
+                                             @args,
+                                         );
+
+                                         foreach my $sub (@{$item[6]}){
+
+                                              # Comment
+                                              unshift( @_, $obj );
+                                              my $attr = &{ $sub };
+                                         }
+                                         return $obj;
+                                     };
+                                   }
 
     unit_heading:              /Unit/i
 
