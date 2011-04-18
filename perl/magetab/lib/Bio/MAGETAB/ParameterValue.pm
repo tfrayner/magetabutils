@@ -26,12 +26,16 @@ use MooseX::Types::Moose qw( ArrayRef );
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
-# Not required because (a) a controlled term may be added later, and
-# (b) it makes this class just that little bit easier to use.
 has 'measurement'         => ( is         => 'rw',
                                isa        => 'Bio::MAGETAB::Measurement',
                                clearer    => 'clear_measurement',
                                predicate  => 'has_measurement',
+                               required   => 0 );
+
+has 'term'                => ( is         => 'rw',
+                               isa        => 'Bio::MAGETAB::ControlledTerm',
+                               clearer    => 'clear_term',
+                               predicate  => 'has_term',
                                required   => 0 );
 
 has 'comments'            => ( is         => 'rw',
@@ -62,10 +66,10 @@ Bio::MAGETAB::ParameterValue - MAGE-TAB parameter value class
 =head1 DESCRIPTION
 
 This class is used to describe the values of parameters within a
-MAGE-TAB SDRF document. Note that as of the v1.1 MAGE-TAB
-specification, parameter values can only be used with Measurements;
-subsequent releases may allow ControlledTerms to be used as an
-alternative. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass methods.
+MAGE-TAB SDRF document. Note that as of the July 2009 v1.1 MAGE-TAB
+specification, parameter values can be used with both Measurements and
+ControlledTerms. See the L<BaseClass|Bio::MAGETAB::BaseClass> class
+for superclass methods.
 
 =head1 ATTRIBUTES
 
@@ -73,10 +77,13 @@ alternative. See the L<BaseClass|Bio::MAGETAB::BaseClass> class for superclass m
 
 =item measurement (optional)
 
-A measurement giving the actual value of the parameter. This is not
-required because at some stage an optional controlled term attribute
-may be added as well; c.f. Material (data type:
+A measurement giving the value of the parameter (data type:
 Bio::MAGETAB::Measurement).
+
+=item term (optional)
+
+A controlled term giving the value of the parameter (data type:
+Bio::MAGETAB::ControlledTerm).
 
 =item parameter (required)
 

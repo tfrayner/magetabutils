@@ -320,7 +320,7 @@ sub class_config {
             fields => {
 
                 # N.B. measurement better as iref (which is not fully implemented yet).
-                ref    => [ qw( parameter measurement ) ],
+                ref    => [ qw( parameter measurement term ) ],
                 iarray => { comments => { class  => 'Bio::MAGETAB::Comment',
                                           aggreg => 1 }, },
             },
