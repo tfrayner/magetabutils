@@ -1,6 +1,14 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.20    Bio::MAGETAB-1.20.tar.gz        Added the option to link from ParameterValue to
+                                          ControlledTerm as per June 2009 v1.1 MAGE-TAB
+                                          specification.
+                                        Default search path for SDRF/ADF/DataMatrix switched
+                                          from current working directory to IDF directory.
+                                        Tests added for Bio::MAGETAB::Util::Reader class.
+                                        Possible fix for URI test errors when running on MSWin32.
+
 1.13    Bio::MAGETAB-1.13.tar.gz        Fixed minor FileHandle type coercion bug which led to an
                                           unsightly verbose warning in Moose::Meta::Attribute.
 
