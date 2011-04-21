@@ -231,6 +231,11 @@ is a simple hash; however in principle this could be extended by
 subclassing Builder to create e.g. persistent database storage
 mechanisms.
 
+=item ignore_datafiles
+
+A boolean value (default FALSE) indicating whether to skip parsing of
+Data Matrix files.
+
 =item common_directory
 
 A boolean value (default TRUE) indicating whether the IDF, SDRF, ADF
