@@ -26,6 +26,7 @@ use Carp;
 use List::Util qw(first);
 use English qw( -no_match_vars );
 use Parse::RecDescent;
+use File::Temp qw(tempfile);
 
 BEGIN { extends 'Bio::MAGETAB::Util::Reader::Tabfile' };
 
@@ -168,14 +169,12 @@ sub _parse_header {
     # N.B. MAGE-TAB 1.1 SDRFs can actually be empty, so an empty
     # $header_string is valid at this point.
 
-    # FIXME This next line is an egregious hack; it reopens an
-    # (*undocumented*) filehandle in the Parse::RecDescent module to a
-    # local variable so we can capture STDERR. I tried doing this the
-    # correct way (open(local *STDERR, '>', \$parse_error)) but
-    # couldn't get it to work properly. We'll want to revisit this at
-    # some point.
-    open( *Parse::RecDescent::ERROR, '>', \(my $parse_error) )
-	or croak("Error: unable to redirect STDERR for MAGE-TAB header parsing.");
+    # Redirect error reporting to a temp filehandle which we read in
+    # the event of failure. Confirmed to work with P::RD 1.965001;
+    # doesn't work with 1.966_000 dev release.
+    my $error_fh = tempfile();
+    Parse::RecDescent::redirect_reporting_to($error_fh, '+>')
+        or croak("Error: unable to redirect Parse::RecDescent errors to temp filehandle.");
 
     # Set the token separator character.
     $Parse::RecDescent::skip = ' *\x{0} *';
@@ -183,7 +182,7 @@ sub _parse_header {
     # FIXME most of these are removable once development is advanced.
     $::RD_ERRORS++;       # unless undefined, report fatal errors
     $::RD_WARN++;         # unless undefined, also report non-fatal problems
-    $::RD_HINT++;         # if defined, also suggestion remedies
+    $::RD_HINT++;         # if defined, also suggest remedies
 
     # Generate the grammar parser first.
     my $parser = Parse::RecDescent->new($GRAMMAR) or die("Bad grammar!: $@");
@@ -196,8 +195,9 @@ sub _parse_header {
     # we get here. N.B. $! doesn't really give a useful error here so
     # we don't use it.
     unless (defined $row_parser) {
+        seek($error_fh, 0, 0) or croak("Unable to rewind Parse::RecDescent error filehandle: $!");
 	die(
-	    qq{\nERROR parsing header line:\n} . $parse_error
+	    qq{\nERROR parsing header line:\n} . join(q{}, <$error_fh>)
 	);
     }
 

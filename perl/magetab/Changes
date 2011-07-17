@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.21    Bio::MAGETAB-1.21.tar.gz        Fixed redirection of Parse::RecDescent error reporting to
+                                          use the now-documented mechanisms for doing so.
+
 1.20    Bio::MAGETAB-1.20.tar.gz        Added the option to link from ParameterValue to
                                           ControlledTerm as per June 2009 v1.1 MAGE-TAB
                                           specification.
