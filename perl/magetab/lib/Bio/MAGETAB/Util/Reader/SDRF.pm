@@ -169,12 +169,8 @@ sub _parse_header {
     # N.B. MAGE-TAB 1.1 SDRFs can actually be empty, so an empty
     # $header_string is valid at this point.
 
-    # Redirect error reporting to a temp filehandle which we read in
-    # the event of failure. Confirmed to work with P::RD 1.965001;
-    # doesn't work with 1.966_000 dev release.
-    my $error_fh = tempfile();
-    Parse::RecDescent::redirect_reporting_to($error_fh, '+>')
-        or croak("Error: unable to redirect Parse::RecDescent errors to temp filehandle.");
+    # This will be used to store header line parsing errors.
+    $::ERROR_FH = tempfile();
 
     # Set the token separator character.
     $Parse::RecDescent::skip = ' *\x{0} *';
@@ -189,15 +185,20 @@ sub _parse_header {
 
     # The parser should return a function which can process each SDRF
     # row as an array (row-level parser).
-    my $row_parser = $parser->header($header_string);
+    my $row_parser;
+    {
+        # throw away the default error reports; we do our own.
+        local *STDERR = tempfile() or die $!;
+        $row_parser = $parser->header($header_string);
+    }
 
     # Typically the grammar will generate some error messages before
     # we get here. N.B. $! doesn't really give a useful error here so
     # we don't use it.
     unless (defined $row_parser) {
-        seek($error_fh, 0, 0) or croak("Unable to rewind Parse::RecDescent error filehandle: $!");
-	die(
-	    qq{\nERROR parsing header line:\n} . join(q{}, <$error_fh>)
+        seek($::ERROR_FH, 0, 0) or croak("Unable to rewind Parse::RecDescent error filehandle: $!");
+ 	die(
+	    qq{\nERROR parsing header line:\n} . join(q{}, <$::ERROR_FH>)
 	);
     }
 
@@ -1335,7 +1336,18 @@ License (GPL).
 
 __DATA__
 
-    header:                    material_section(?)
+    header:                    section_list
+                             | { # Display errors using our own report format.
+                                 # Adapted from P::RD demo/demo_errors.pl
+                                 for ( @{ $thisparser->{errors} } ) {
+                                     my $t = $_->[0];
+                                     $t =~ s/\x0/ | /g;
+                                     print $::ERROR_FH "$t\n";
+                                 }
+                                 return;
+                               }
+
+    section_list:              material_section(?)
                                edge(s?)
                                assay_or_hyb(?)
                                edge(s?)
@@ -1376,7 +1388,7 @@ __DATA__
                                      };
                                    }
 
-                             | <error: Invalid header; unparseable sequence starts here: $text>
+                             | <error:  Invalid header; unparseable sequence starts here:\n    $text>
 
     end_of_line:               <skip:'[ \x{0}\r]*'> /\Z/
 

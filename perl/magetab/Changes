@@ -1,6 +1,11 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.22    Bio::MAGETAB-1.22.tar.gz        Another attempt to solve the error reporting problem,
+                                          newly reintroduced by the loss of previously-documented
+                                          functions from Parse::RecDescent (see below). Improved
+                                          error message formatting.
+
 1.21    Bio::MAGETAB-1.21.tar.gz        Fixed redirection of Parse::RecDescent error reporting to
                                           use the now-documented mechanisms for doing so.
 
