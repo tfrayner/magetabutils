@@ -1132,17 +1132,20 @@ sub _create_factorvalue_measurement {
         $category = $self->_get_fv_category_from_factor( $exp_factor );
     }
 
-    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
-        factor => $exp_factor,
-    });
-
+    # Note that this isn't quite perfect; identical measurements will
+    # be mapped to the same object so altering values post-creation
+    # will alter all of the matching values. I think this is
+    # unintuitive (although similar to controlled term processing) so FIXME.
     my $measurement = $self->get_builder()->find_or_create_measurement({
         measurementType  => $category,
         value            => $value,
-        object           => $factorvalue,
     });
 
-    $factorvalue->set_measurement( $measurement );
+    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
+        factor      => $exp_factor,
+        measurement => $measurement,
+    });
+
     $self->get_builder()->update( $factorvalue );
 
     return $factorvalue;
@@ -2032,7 +2035,7 @@ __DATA__
 
     assay_name:                /Assay *Names?/i
 
-    assay:                     assay_name technology_type comment(?)
+    assay:                     assay_name comment(s?) technology_type comment(s?)
 
                                    { $return = sub {
                                          my $name = shift;
@@ -2043,7 +2046,7 @@ __DATA__
                                              $::channel,
                                          );
                                          @::protocolapp_list = () if $obj;
-                                         foreach my $sub ($item[2], $item[3][0]){
+                                         foreach my $sub (@{$item[2]}, $item[3], @{$item[4]}){
                                              unshift( @_, $obj ) and
                                                  &{ $sub } if UNIVERSAL::isa( $sub, 'CODE' );  
                                          }

@@ -124,14 +124,13 @@ sub parse {
 
     # Create the MatrixColumn objects.
     my @matrix_columns;
-    for ( my $col_number = 1; $col_number < scalar @{ $qts }; $col_number++ ) {
+    for ( my $col_number = 0; $col_number < scalar @{ $qts }; $col_number++ ) {
         push @matrix_columns, $self->get_builder()->find_or_create_matrix_column({
             columnNumber     => $col_number,
             quantitationType => $qts->[ $col_number ],
             referencedNodes  => $nodes->[ $col_number ],
             data_matrix      => $data_matrix,
         });
-        $col_number++;
     }
 
     $data_matrix->set_rowIdentifierType( $row_identifier_type );

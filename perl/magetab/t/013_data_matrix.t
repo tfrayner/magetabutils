@@ -79,6 +79,7 @@ add_dummy_objects( $builder );
 
 # Test that we can parse the DM.
 my $dm = test_parse( $dm_reader );
+is( scalar @{ $dm->get_matrixColumns() }, 4, 'Parser detects the correct number of columns');
 
 # Test parsing into a supplied magetab_object.
 use Bio::MAGETAB::DataMatrix;
