@@ -24,6 +24,8 @@ use MooseX::FollowPBP;
 
 use MooseX::Types::Moose qw( ArrayRef );
 use Bio::MAGETAB::Types qw( Uri );
+use Carp;
+use Storable qw( dclone );
 
 BEGIN { extends 'Bio::MAGETAB::BaseClass' };
 
@@ -114,7 +116,11 @@ sub _rows_from_node {
 
         # Recurse into each edge and gather all the sub-rows.
         foreach my $edge ( @edges ) {
-            my $subrow_list = $self->_rows_from_node( $edge->get_outputNode(), $seen );
+
+            # Avoid problems caused by splitting and then recombining in the graph.
+            my $local_seen  = dclone( $seen );
+
+            my $subrow_list = $self->_rows_from_node( $edge->get_outputNode(), $local_seen );
             foreach my $subrow ( @{ $subrow_list } ) {
                 unshift( @$subrow, $node );
             }

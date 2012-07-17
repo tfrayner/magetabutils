@@ -678,8 +678,8 @@ sub _process_datafiles {
     my @defined = grep { defined $_ } @{ $objs };
     my $type = $defined[0]->get_dataType()->get_value();
     my $colname = $type eq 'image' ? 'Image File'
-                         : 'raw'   ? 'Array Data File'
-                         : 'Derived Array Data File';
+                : $type eq 'raw'   ? 'Array Data File'
+                                   : 'Derived Array Data File';
 
     $self->_add_single_column( $objs,
                                $colname,
