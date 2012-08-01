@@ -73,6 +73,11 @@ has 'common_directory'    => ( is         => 'rw',
                                default    => 1,
                                required   => 1 );
 
+has 'document_version'    => ( is         => 'rw',
+                               isa        => 'Str',
+                               required   => 1,
+                               default    => '1.0' );
+
 # Make this visible to users of the module.
 our $VERSION = 1.0;
 
@@ -92,6 +97,7 @@ sub parse {
     });
 
     my ( $investigation, $magetab_container ) = $idf_parser->parse();
+    $self->set_document_version( $idf_parser->get_document_version() );
 
     # FIXME parse the SDRFS etc. here. N.B. some extra stitching may be needed.
     foreach my $sdrf ( @{ $investigation->get_sdrfs() } ) {

@@ -53,6 +53,8 @@ my ( $inv, $cont );
 lives_ok( sub{ $reader->set_relaxed_parser(1) }, 'setting parser to relaxed mode' );
 lives_ok( sub{ ( $inv, $cont ) = $reader->parse() }, 'relaxed mode parsing' );
 
+is( $reader->get_document_version(), '1.0', 'correct MAGE-TAB document version');
+
 is( ref $inv, 'Bio::MAGETAB::Investigation', 'returns Investigation object' );
 is( ref $cont, 'Bio::MAGETAB', 'and Bio::MAGETAB top-level container' );
 

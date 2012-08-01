@@ -68,6 +68,8 @@ lives_ok( sub{ $idf = Bio::MAGETAB::Util::Reader::IDF->new( uri            => $f
           'instantiation uri and magetab_object attributes' );
 test_parse( $idf );
 
+is( $idf->get_document_version(), '1.1', 'correct MAGE-TAB document version');
+
 # These really ought to look identical.
 is_deeply( $inv, $inv2, 'investigation objects agree' );
 

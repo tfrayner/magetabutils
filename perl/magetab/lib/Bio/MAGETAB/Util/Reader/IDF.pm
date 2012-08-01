@@ -31,6 +31,11 @@ has 'magetab_object'     => ( is         => 'rw',
                               isa        => 'Bio::MAGETAB::Investigation',
                               required   => 0 );
 
+has 'document_version'   => ( is         => 'rw',
+                              isa        => 'Str',
+                              required   => 1,
+                              default    => '1.0' );
+
 # Define some standard regexps:
 my $BLANK = qr/\A [ ]* \z/xms;
 
@@ -153,7 +158,8 @@ sub BUILD {
             => sub{ $self->_add_grouped_data('termsource', 'version',  @_) },
 
         qr/MAGE-?TAB *Version/i    # New in 1.1; Strictly speaking 1.0 should never appear.
-            => sub{ croak("Unsupported MAGE-TAB version.") unless( first { $_[0] eq $_ } qw(1.1 1.0) ) },
+            => sub{ $self->set_document_version($_[0]);
+                    croak("Unsupported MAGE-TAB version.") unless( first { $_[0] eq $_ } qw(1.1 1.0) ) },
     };
 
     $self->set_dispatch_table( $dispatch );
