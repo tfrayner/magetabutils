@@ -251,6 +251,11 @@ the locations of those files, or relative to the current working
 directory. Note that this will not affect local file URIs giving
 absolute locations or URIs using other schemes (e.g. http).
 
+=item document_version
+
+A string representing the MAGE-TAB version used in the parsed
+document. This is populated by the parse() method.
+
 =back
 
 =head1 METHODS

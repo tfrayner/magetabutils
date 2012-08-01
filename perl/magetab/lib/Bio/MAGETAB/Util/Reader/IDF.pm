@@ -521,6 +521,11 @@ A Bio::MAGETAB::Investigation object. This can either be set upon
 instantiation, or a new object will be created for you. It can be
 retrieved at any time using C<get_magetab_object>.
 
+=item document_version
+
+A string representing the MAGE-TAB version used in the parsed
+document. This is populated by the parse() method.
+
 =back
 
 =head1 METHODS
