@@ -368,7 +368,7 @@ sub _dbrow_to_magetab {
     return $obj;
 }
 
-sub update { # TODO
+sub update {
 
     my ( $self, $obj ) = @_;
 
@@ -379,7 +379,7 @@ sub update { # TODO
 
     # FIXME This assumes the MAGETAB $obj is a hashref suitable for
     # passing to _update_dbrow_attributes, which is not necessarily
-    # the case.
+    # the case (subclasses might use a different strategy).
     $self->_update_dbrow_attributes( $dbrow, $obj );
 
     return( $self->_dbrow_to_magetab( $dbrow ) );
