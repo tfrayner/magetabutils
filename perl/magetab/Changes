@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.24    Bio::MAGETAB-1.24.tar.gz        Making the parsed MAGE-TAB document version attribute
+                                          accessible from in the Reader classes.
+
 1.23    Bio::MAGETAB-1.23.tar.gz        Several important bug fixes provided by Anna Farne.
 
 1.22    Bio::MAGETAB-1.22.tar.gz        Another attempt to solve the error reporting problem,
