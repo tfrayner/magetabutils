@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.25    Bio::MAGETAB-1.25.tar.gz        Fixing SDRF parser to correctly recognise Array Design
+                                          columns associated with Assay Name.
+
 1.24    Bio::MAGETAB-1.24.tar.gz        Making the parsed MAGE-TAB document version attribute
                                           accessible from in the Reader classes.
 
