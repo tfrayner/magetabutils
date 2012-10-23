@@ -1,6 +1,10 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.26    Bio::MAGETAB-1.26.tar.gz        Re-release incorporating Module::Install 1.06 to fix a
+                                          known bug when installing using perl 5.16. No other
+                                          code changes.
+
 1.25    Bio::MAGETAB-1.25.tar.gz        Fixing SDRF parser to correctly recognise Array Design
                                           columns associated with Assay Name.
 
