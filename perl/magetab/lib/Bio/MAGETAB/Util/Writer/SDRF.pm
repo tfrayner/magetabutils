@@ -585,7 +585,7 @@ sub _process_assays {
     # Assay; this is not good FIXME.
     my @defined = grep { defined $_ } @{ $objs };
     my $type = $defined[0]->get_technologyType();
-    if ( $type->get_value() =~ /\b hybridi[sz]ation \b/xms ) {
+    if ( $type->get_value() =~ /\b (hybridi[sz]ation|array[ ]+assay) \b/xms ) {
         $self->_add_single_column( $objs,
                                    'Hybridization Name',
                                    sub { $_[0]->get_name() }, );
