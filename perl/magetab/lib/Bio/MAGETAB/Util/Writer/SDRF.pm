@@ -581,13 +581,20 @@ sub _process_assays {
 
     my ( $self, $objs ) = @_;
 
+    # The change from 1.0 to 1.1 had consequences for Assays.
+    my $is_original_spec = $self->get_export_version() eq '1.0';
+
     # Again, the first defined assay makes our choice between Hyb and
     # Assay; this is not good FIXME.
     my @defined = grep { defined $_ } @{ $objs };
     my $type = $defined[0]->get_technologyType();
     if ( $type->get_value() =~ /\b (hybridi[sz]ation|array[ ]+assay) \b/xms ) {
+
+        # Assay Name only available in 1.1 and above.
+        my $name = $is_original_spec ? 'Hybridization Name'
+                                     : 'Assay Name';
         $self->_add_single_column( $objs,
-                                   'Hybridization Name',
+                                   $name,
                                    sub { $_[0]->get_name() }, );
 
         # Comments
@@ -599,23 +606,27 @@ sub _process_assays {
             $self->_process_array_designs( \@arrays );
         }
     }
-    elsif ( $self->get_export_version() ne '1.0' ) {
+    elsif ( ! $is_original_spec ) {
         $self->_add_single_column( $objs,
                                    'Assay Name',
                                    sub { $_[0]->get_name() }, );
 
         # Comments
         $self->_process_objects( $objs );
+    }
+    else {
+        croak("Error: Attempting to export non-hybridization Assay type in MAGE-TAB v1.0 format.");
+    }
 
-        # Technology Type (N.B. Hybs could have this as well, although
-        # it's a bit redundant).
+    # We add Technology Type to both Assay and Hybridization for
+    # versions 1.1 and above; this is both legal and more consistent
+    # than previous behaviours. Technology Type is not available in
+    # version 1.0.
+    if ( ! $is_original_spec ) {
         my @types = map { $_ ? $_->get_technologyType() : undef } @{ $objs };
         if ( scalar grep { defined $_ } @types ) {
             $self->_process_controlled_terms( \@types, 'Technology Type' );
         }
-    }
-    else {
-        croak("Error: Attempting to export non-hybridization Assay type in MAGE-TAB v1.0 format.");
     }
 }
 
