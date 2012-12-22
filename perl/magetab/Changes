@@ -1,6 +1,13 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.27    Bio::MAGETAB-1.27.tar.gz        Change to the default v1.1 SDRF export such that all
+                                          assays are represented by "Assay Name" columns, and
+                                          all Assay and Hybridization Name columns will include
+                                          Technology Type. The v1.0 export remains unchanged.
+                                        Added the EFO term "array assay" to the Technology Type
+                                          terms recognised as being attached to hybridisations.
+
 1.26    Bio::MAGETAB-1.26.tar.gz        Re-release incorporating Module::Install 1.06 to fix a
                                           known bug when installing using perl 5.16. No other
                                           code changes.
