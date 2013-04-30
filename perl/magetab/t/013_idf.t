@@ -52,6 +52,7 @@ close( $fh ) or die("Error closing filehandle: $!");
 # Test parsing.
 lives_ok( sub{ $idf = Bio::MAGETAB::Util::Reader::IDF->new( uri => $filename ) },
           'instantiation with uri attribute' );
+is( $idf->get_document_version(), undef, 'document version is undef prior to parsing');
 my $inv = test_parse( $idf );
 
 # Check multi-comment parsing (not prohibited by spec, so we allow it).

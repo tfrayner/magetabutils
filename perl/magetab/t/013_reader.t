@@ -45,6 +45,8 @@ my $idf = File::Spec->catfile(qw(t examples affymetrix.idf));
 lives_ok( sub{ $reader = Bio::MAGETAB::Util::Reader->new( idf => $idf ) },
           'instantiation with idf attribute' );
 
+is( $reader->get_document_version(), undef, 'initial document_version is undef' );
+
 # First, in a strict mode this should fail.
 dies_ok( sub{ $reader->parse() }, 'strict mode parsing' );
 

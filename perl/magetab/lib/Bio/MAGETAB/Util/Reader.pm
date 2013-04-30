@@ -74,9 +74,7 @@ has 'common_directory'    => ( is         => 'rw',
                                required   => 1 );
 
 has 'document_version'    => ( is         => 'rw',
-                               isa        => 'Str',
-                               required   => 1,
-                               default    => '1.0' );
+                               isa        => 'Str' );
 
 # Make this visible to users of the module.
 our $VERSION = 1.0;
