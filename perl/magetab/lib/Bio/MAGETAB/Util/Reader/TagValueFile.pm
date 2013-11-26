@@ -107,7 +107,9 @@ sub _create_comments {
 
     my @comments;
     COMM:
-    while ( my ( $name, $values ) = each %{ $self->get_text_store()->{'comment'} } ) {
+    foreach my $entry ( @{ $self->get_text_store()->{'comment'} } ) {
+
+        my $values = $entry->{ 'store' };
 
         # Value is required for all Comment objects.
         foreach my $value ( @$values ) {
@@ -115,7 +117,7 @@ sub _create_comments {
                                    && $value !~ $BLANK );
             
             my $comment = $self->get_builder()->find_or_create_comment({
-                'name'    => $name,
+                'name'    => $entry->{ 'name' },
                 'value'   => $value,
             });
 
@@ -263,13 +265,34 @@ sub _add_singleton_datum {
     return;
 }
 
+sub _retrieve_comment_store {
+
+    my ( $self, $name ) = @_;
+
+    $self->get_text_store()->{ 'comment' } ||= [];
+
+    # For brevity.
+    my $ref = $self->get_text_store()->{ 'comment' };
+
+    foreach my $entry ( @{ $ref } ) {
+        if ( $entry->{ 'name' } eq $name ) {
+            return $entry->{ 'store' };
+        }
+    }
+
+    my $new = { 'name' => $name, 'store' => [] };
+    push @{ $ref }, $new;
+
+    return $new->{ 'store' };
+}
+
 sub _add_comment {
 
     # Comments are currently processed at the level of the top-level
     # enclosing object (Investigation or ArrayDesign) only.
     my ( $self, $name, @values ) = @_;
 
-    my $comments = $self->get_text_store()->{ 'comment' }{ $name } || [];
+    my $comments = $self->_retrieve_comment_store( $name );
 
     VALUE:
     foreach my $value ( @values ) {
@@ -277,8 +300,8 @@ sub _add_comment {
         push @{ $comments }, $value;
     }
 
-    my %uniq = map { $_ => 1 } @{ $comments };
-    $self->get_text_store()->{ 'comment' }{ $name } = [ keys %uniq ];
+#    my %uniq = map { $_ => 1 } @{ $comments };
+#    $self->get_text_store()->{ 'comment' }{ $name } = [ keys %uniq ];
 
     return;
 }
