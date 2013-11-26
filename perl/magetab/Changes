@@ -1,6 +1,9 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.28    Bio::MAGETAB-1.28.tar.gz        Minor bug fixes for assorted test case failures;
+                                          no substantive changes in code behaviour.
+
 1.27    Bio::MAGETAB-1.27.tar.gz        Change to the default v1.1 SDRF export such that all
                                           assays are represented by "Assay Name" columns, and
                                           all Assay and Hybridization Name columns will include
