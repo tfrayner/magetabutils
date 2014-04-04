@@ -444,21 +444,17 @@ sub _create_characteristic_value {
     return $term;
 }
 
-sub _create_characteristic_measurement {
+sub _create_characteristic_measurementhash {
 
     my ( $self, $type, $value, $material ) = @_;
 
     return if ( ! $material || ! defined $value || $value =~ $BLANK );
 
-    my $measurement = $self->get_builder()->find_or_create_measurement({
+    return {
         measurementType  => $type,
         value            => $value,
         object           => $material,
-    });
-    
-    $self->_add_characteristic_to_material( $measurement, $material ) if $material;
-
-    return $measurement;
+    };
 }
 
 sub _create_material_type {
@@ -1110,45 +1106,16 @@ sub _create_factorvalue_value {
     return $factorvalue;
 }
 
-sub _create_factorvalue_measurement {
+sub _create_factorvalue_measurementhash {
 
-    my ( $self, $factorname, $altcategory, $value ) = @_;
+    my ( $self, $category, $value ) = @_;
 
     return if ( ! defined $value || $value =~ $BLANK );
 
-    my $exp_factor = $self->get_builder()->get_factor({
-        name => $factorname,
-    });
-
-    my $category;
-    if ( $altcategory ) {
-
-	# If we're given a category in parentheses, use it.
-	$category = $altcategory;
-    }
-    else {
-
-        # Otherwise derive it from the factor type.
-        $category = $self->_get_fv_category_from_factor( $exp_factor );
-    }
-
-    # Note that this isn't quite perfect; identical measurements will
-    # be mapped to the same object so altering values post-creation
-    # will alter all of the matching values. I think this is
-    # unintuitive (although similar to controlled term processing) so FIXME.
-    my $measurement = $self->get_builder()->find_or_create_measurement({
+    return {
         measurementType  => $category,
         value            => $value,
-    });
-
-    my $factorvalue = $self->get_builder()->find_or_create_factor_value({
-        factor      => $exp_factor,
-        measurement => $measurement,
-    });
-
-    $self->get_builder()->update( $factorvalue );
-
-    return $factorvalue;
+    };
 }
 
 sub _add_comment_to_thing {
@@ -1527,14 +1494,21 @@ __DATA__
                                          my $material = shift;
 
                                          # Add a measurement with unit to the material.
-                                         my $char = $::sdrf->_create_characteristic_measurement(
+                                         my $charhash = $::sdrf->_create_characteristic_measurementhash(
                                              $item[3], shift, $material,
                                          );
 
-                                         unshift( @_, $char );
+                                         unshift(@_, $charhash);
                                          my $unit = &{ $item[5] };
 
-                                         return $char;
+                                         if ( defined $charhash ) {
+                                             my $char = $::sdrf->get_builder->find_or_create_measurement($charhash);
+                                             $::sdrf->_add_characteristic_to_material($char, $material);
+                                             return $char;
+                                         }
+                                         else {
+                                             return;
+                                         }
                                      };
                                    }
 
@@ -1586,18 +1560,41 @@ __DATA__
 
                                          # Value
                                          my $value = shift;
+                                         my $factorname  = $item[3];
+                                         my $altcategory = $item[4][0];
+                                         my $exp_factor  = $::sdrf->get_builder()->get_factor({
+                                             name => $factorname,
+                                         });
+
+                                         my $category;
+                                         if ( $altcategory ) {
+
+                                     	     # If we're given a category in parentheses, use it.
+ 	                                     $category = $altcategory;
+                                         }
+                                         else {
+
+                                             # Otherwise derive it from the factor type.
+                                             $category = $::sdrf->_get_fv_category_from_factor( $exp_factor );
+                                         }
+
+                                         my $meashash = $::sdrf->_create_factorvalue_measurementhash( $category, $value );
 
                                          # Attach the unit to the measurement.
-                                         my $fv = $::sdrf->_create_factorvalue_measurement(
-                                             $item[3],
-                                             $item[4][0],
-                                             $value,
-                                         );
-
-                                         unshift( @_, $fv );
+                                         unshift(@_, $meashash);
                                          my $unit = &{ $item[6] };
-
-                                         return $fv;
+                                         if ( defined $meashash ) {
+                                             my $fvmeas = $::sdrf->get_builder->find_or_create_measurement($meashash);
+                                             my $fv = $::sdrf->get_builder()->find_or_create_factor_value({
+                                                 factor      => $exp_factor,
+                                                 measurement => $fvmeas,
+                                             });
+                                             $::sdrf->get_builder()->update( $fv );
+                                             return $fv;
+                                         }
+                                         else {
+                                             return;
+                                         }
                                      };
                                    }
 
