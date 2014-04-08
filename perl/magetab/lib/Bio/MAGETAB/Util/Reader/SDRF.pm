@@ -1108,14 +1108,51 @@ sub _create_factorvalue_value {
 
 sub _create_factorvalue_measurementhash {
 
-    my ( $self, $category, $value ) = @_;
+    my ( $self, $factorname, $value, $altcategory ) = @_;
 
     return if ( ! defined $value || $value =~ $BLANK );
+
+    my $exp_factor  = $self->get_builder()->get_factor({
+        name => $factorname,
+    });
+
+    my $category;
+    if ( $altcategory ) {
+
+        # If we're given a category in parentheses, use it.
+        $category = $altcategory;
+    }
+    else {
+
+        # Otherwise derive it from the factor type.
+        $category = $self->_get_fv_category_from_factor( $exp_factor );
+    }
 
     return {
         measurementType  => $category,
         value            => $value,
     };
+}
+
+sub _create_factorvalue_measurement {
+
+    my ( $self, $meashash, $factorname ) = @_;
+
+    return if ( ! defined $meashash );
+
+    my $exp_factor  = $self->get_builder()->get_factor({
+        name => $factorname,
+    });
+
+    my $fvmeas = $self->get_builder->find_or_create_measurement($meashash);
+
+    my $fv = $self->get_builder()->find_or_create_factor_value({
+        factor      => $exp_factor,
+        measurement => $fvmeas,
+    });
+    $self->get_builder()->update( $fv );
+
+    return $fv;
 }
 
 sub _add_comment_to_thing {
@@ -1560,37 +1597,14 @@ __DATA__
 
                                          # Value
                                          my $value = shift;
-                                         my $factorname  = $item[3];
-                                         my $altcategory = $item[4][0];
-                                         my $exp_factor  = $::sdrf->get_builder()->get_factor({
-                                             name => $factorname,
-                                         });
 
-                                         my $category;
-                                         if ( $altcategory ) {
-
-                                     	     # If we're given a category in parentheses, use it.
- 	                                     $category = $altcategory;
-                                         }
-                                         else {
-
-                                             # Otherwise derive it from the factor type.
-                                             $category = $::sdrf->_get_fv_category_from_factor( $exp_factor );
-                                         }
-
-                                         my $meashash = $::sdrf->_create_factorvalue_measurementhash( $category, $value );
+                                         my $meashash = $::sdrf->_create_factorvalue_measurementhash( $item[3], $value, $item[4][0]  );
 
                                          # Attach the unit to the measurement.
                                          unshift(@_, $meashash);
                                          my $unit = &{ $item[6] };
                                          if ( defined $meashash ) {
-                                             my $fvmeas = $::sdrf->get_builder->find_or_create_measurement($meashash);
-                                             my $fv = $::sdrf->get_builder()->find_or_create_factor_value({
-                                                 factor      => $exp_factor,
-                                                 measurement => $fvmeas,
-                                             });
-                                             $::sdrf->get_builder()->update( $fv );
-                                             return $fv;
+                                             return $::sdrf->_create_factorvalue_measurement($meashash, $item[3]);
                                          }
                                          else {
                                              return;
