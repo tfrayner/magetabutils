@@ -84,8 +84,9 @@ coerce Date,
 
     from Str,
     via {
-        require DateTime::Format::DateManip;
-        DateTime::Format::DateManip->parse_datetime($_)
+        require DateTime::Format::Flexible;
+        my $parser = DateTime::Format::Flexible->new();
+        $parser->parse_datetime($_)
             or croak(qq{Cannot parse date format "$_"; try YYYY-MM-DD});
     };
 
