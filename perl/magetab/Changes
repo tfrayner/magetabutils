@@ -1,6 +1,10 @@
 Changelog for Bio::MAGETAB
 --------------------------
 
+1.31    Bio::MAGETAB-1.31.tar.gz        Replacing the old DateTime::Format::DateManip module
+                                          with DateTime::Format::Flexible, which appears to be
+                                          maintained more responsively.
+
 1.30    Bio::MAGETAB-1.30.tar.gz        Fix for FactorValue and Characteristics Measurement bug
                                           (https://rt.cpan.org/Public/Bug/Display.html?id=94398).
 
